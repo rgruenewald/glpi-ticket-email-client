@@ -23,16 +23,16 @@ $raw_to  = (string) ($_POST['recipients_to']  ?? $raw);
 $raw_cc  = (string) ($_POST['recipients_cc']  ?? '');
 $raw_bcc = (string) ($_POST['recipients_bcc'] ?? '');
 
-$parsed = PluginTicketemailclientRecipients::parseRaw($raw !== '' ? $raw : $raw_to);
+$parsed = PluginTicketmailerRecipients::parseRaw($raw !== '' ? $raw : $raw_to);
 $all = array_merge(
-    PluginTicketemailclientRecipients::parseRaw($raw_to)['valid'],
-    PluginTicketemailclientRecipients::parseRaw($raw_cc)['valid'],
-    PluginTicketemailclientRecipients::parseRaw($raw_bcc)['valid'],
+    PluginTicketmailerRecipients::parseRaw($raw_to)['valid'],
+    PluginTicketmailerRecipients::parseRaw($raw_cc)['valid'],
+    PluginTicketmailerRecipients::parseRaw($raw_bcc)['valid'],
 );
 if ($raw !== '' && $raw_to === $raw && $raw_cc === '' && $raw_bcc === '') {
     $all = $parsed['valid'];
 }
-$mailbox_matches = PluginTicketemailclientMailboxGuard::findMatches($all);
+$mailbox_matches = PluginTicketmailerMailboxGuard::findMatches($all);
 
 echo json_encode([
     'ok'              => $parsed['invalid'] === [],
@@ -42,6 +42,6 @@ echo json_encode([
     'mailbox_matches' => $mailbox_matches,
     'mailbox_note'    => __(
         'Match is best-effort against active collector logins that look like emails. Aliases, forwarding, and non-email logins are not detected.',
-        'ticketemailclient',
+        'ticketmailer',
     ),
 ]);

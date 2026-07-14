@@ -1,5 +1,5 @@
 {
-    "name": "ticketemailclient/ticketemailclient",
+    "name": "ticketmailer/ticketmailer",
     "type": "glpi-plugin",
     "description": "GLPI 11 ticket-context email reply client. SMTP via GLPI config, durable audit, ITILFollowup timeline, To/CC/BCC, mailbox guard. i18n: en, de.",
     "license": "GPL-3.0-or-later",

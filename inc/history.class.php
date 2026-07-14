@@ -3,7 +3,7 @@
  * Builds the public ticket context and resolves only the source documents a
  * sender explicitly chose for an outbound email.
  */
-class PluginTicketemailclientHistory
+class PluginTicketmailerHistory
 {
     /**
      * @return list<array{id:int, filename:string, mime:string, preview_url:string}>
@@ -50,7 +50,7 @@ class PluginTicketemailclientHistory
                 'id' => $documents_id,
                 'filename' => self::filename($document),
                 'mime' => (string) ($document->getField('mime') ?: 'application/octet-stream'),
-                'preview_url' => Plugin::getWebDir('ticketemailclient') . '/front/history_attachment.php'
+                'preview_url' => Plugin::getWebDir('ticketmailer') . '/front/history_attachment.php'
                     . '?tickets_id=' . (int) $ticket->getField('id')
                     . '&documents_id=' . $documents_id,
             ];
@@ -94,7 +94,7 @@ class PluginTicketemailclientHistory
     {
         $selected = self::selectedAttachments($ticket, $selected_ids);
 
-        $destination_root = GLPI_PLUGIN_DOC_DIR . '/ticketemailclient/' . (int) $ticket->getField('id');
+        $destination_root = GLPI_PLUGIN_DOC_DIR . '/ticketmailer/' . (int) $ticket->getField('id');
         if (!is_dir($destination_root) && !mkdir($destination_root, 0o755, true) && !is_dir($destination_root)) {
             throw new RuntimeException('Unable to prepare attachment storage.');
         }
@@ -158,7 +158,7 @@ class PluginTicketemailclientHistory
         }
 
         $html = '<p>' . htmlspecialchars(sprintf(
-            __('Ticket #%1$d: %2$s', 'ticketemailclient'),
+            __('Ticket #%1$d: %2$s', 'ticketmailer'),
             (int) $ticket->getField('id'),
             (string) $ticket->getField('name'),
         ), ENT_QUOTES, 'UTF-8') . '</p>';
@@ -166,7 +166,7 @@ class PluginTicketemailclientHistory
             $html .= sprintf(
                 '<p><small>%s</small></p><blockquote>%s</blockquote>',
                 htmlspecialchars(sprintf(
-                    __('On %1$s, %2$s wrote:', 'ticketemailclient'),
+                    __('On %1$s, %2$s wrote:', 'ticketmailer'),
                     $entry['date'],
                     $entry['author'],
                 ), ENT_QUOTES, 'UTF-8'),
@@ -224,15 +224,15 @@ class PluginTicketemailclientHistory
 
     private static function filename(Document $document): string
     {
-        return (string) ($document->getField('filename') ?: $document->getField('name') ?: __('Attachment', 'ticketemailclient'));
+        return (string) ($document->getField('filename') ?: $document->getField('name') ?: __('Attachment', 'ticketmailer'));
     }
 
     private static function userDisplayName(int $users_id): string
     {
         if ($users_id <= 0) {
-            return __('Unknown', 'ticketemailclient');
+            return __('Unknown', 'ticketmailer');
         }
         $user = new User();
-        return $user->getFromDB($users_id) ? (string) $user->getFriendlyName() : __('Unknown', 'ticketemailclient');
+        return $user->getFromDB($users_id) ? (string) $user->getFriendlyName() : __('Unknown', 'ticketmailer');
     }
 }

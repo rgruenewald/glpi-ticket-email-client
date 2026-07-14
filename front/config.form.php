@@ -13,7 +13,7 @@ if (!Session::haveAccessToEntity($entities_id)) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    PluginTicketemailclientConfig::saveEntity(
+    PluginTicketmailerConfig::saveEntity(
         $entities_id,
         (string) ($_POST['subject_prefix'] ?? ''),
         (string) ($_POST['signature_html'] ?? ''),
@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     Html::redirect($_SERVER['PHP_SELF'] . '?entities_id=' . $entities_id);
 }
 
-$settings = PluginTicketemailclientConfig::forEntity($entities_id);
+$settings = PluginTicketmailerConfig::forEntity($entities_id);
 $entity_dropdown = (string) Dropdown::show('Entity', [
     'name'    => 'entities_id',
     'value'   => $entities_id,
@@ -39,7 +39,7 @@ $signature_editor = Html::textarea([
     'display'         => false,
 ]);
 
-Html::header(__('Outbound email', 'ticketemailclient'), $_SERVER['PHP_SELF'], 'config', 'plugins');
+Html::header(__('Outbound email', 'ticketmailer'), $_SERVER['PHP_SELF'], 'config', 'plugins');
 echo '<form method="get" action="' . htmlspecialchars($_SERVER['PHP_SELF'], ENT_QUOTES, 'UTF-8') . '" class="mb-3">';
 echo '<label class="me-2" for="dropdown_entities_id">' . __('Entity') . '</label>';
 echo $entity_dropdown;
@@ -50,30 +50,30 @@ echo '<form method="post" action="' . htmlspecialchars($_SERVER['PHP_SELF'], ENT
 echo Html::hidden('_glpi_csrf_token', ['value' => Session::getNewCSRFToken()]);
 echo Html::hidden('entities_id', ['value' => $entities_id]);
 echo '<div class="card"><div class="card-body"><div class="row g-3">';
-echo '<div class="col-12"><label class="form-label" for="ticketemailclient-subject-prefix">'
-    . __('Ticket subject prefix', 'ticketemailclient') . '</label>';
-echo '<input class="form-control" id="ticketemailclient-subject-prefix" name="subject_prefix" maxlength="255" value="'
+echo '<div class="col-12"><label class="form-label" for="ticketmailer-subject-prefix">'
+    . __('Ticket subject prefix', 'ticketmailer') . '</label>';
+echo '<input class="form-control" id="ticketmailer-subject-prefix" name="subject_prefix" maxlength="255" value="'
     . htmlspecialchars($settings['subject_prefix'], ENT_QUOTES, 'UTF-8') . '">';
-echo '<div class="form-text">' . __('Use %d for the ticket ID.', 'ticketemailclient') . '</div></div>';
-echo '<div class="col-12"><label class="form-label">' . __('E-mail signature', 'ticketemailclient') . '</label>';
+echo '<div class="form-text">' . __('Use %d for the ticket ID.', 'ticketmailer') . '</div></div>';
+echo '<div class="col-12"><label class="form-label">' . __('E-mail signature', 'ticketmailer') . '</label>';
 echo $signature_editor;
-echo '<div class="form-text">' . __('The plain-text signature is generated automatically from this HTML.', 'ticketemailclient') . '</div></div>';
-echo '<div class="col-12 form-check"><input class="form-check-input" id="ticketemailclient-set-waiting" type="checkbox" name="set_waiting" value="1"'
+echo '<div class="form-text">' . __('The plain-text signature is generated automatically from this HTML.', 'ticketmailer') . '</div></div>';
+echo '<div class="col-12 form-check"><input class="form-check-input" id="ticketmailer-set-waiting" type="checkbox" name="set_waiting" value="1"'
     . ($settings['set_waiting'] ? ' checked' : '') . '>';
-echo '<label class="form-check-label" for="ticketemailclient-set-waiting">'
-    . __('Set ticket status to waiting after a successful e-mail send.', 'ticketemailclient') . '</label></div>';
-echo '<div class="col-12 form-check"><input class="form-check-input" id="ticketemailclient-timeline-newest-first" type="checkbox" name="timeline_newest_first" value="1"'
+echo '<label class="form-check-label" for="ticketmailer-set-waiting">'
+    . __('Set ticket status to waiting after a successful e-mail send.', 'ticketmailer') . '</label></div>';
+echo '<div class="col-12 form-check"><input class="form-check-input" id="ticketmailer-timeline-newest-first" type="checkbox" name="timeline_newest_first" value="1"'
     . ($settings['timeline_newest_first'] ? ' checked' : '') . '>';
-echo '<label class="form-check-label" for="ticketemailclient-timeline-newest-first">'
-    . __('Show newest timeline entries first.', 'ticketemailclient') . '</label></div>';
-echo '<div class="col-12 form-check"><input class="form-check-input" id="ticketemailclient-open-reply-on-ticket" type="checkbox" name="open_reply_on_ticket" value="1"'
+echo '<label class="form-check-label" for="ticketmailer-timeline-newest-first">'
+    . __('Show newest timeline entries first.', 'ticketmailer') . '</label></div>';
+echo '<div class="col-12 form-check"><input class="form-check-input" id="ticketmailer-open-reply-on-ticket" type="checkbox" name="open_reply_on_ticket" value="1"'
     . ($settings['open_reply_on_ticket'] ? ' checked' : '') . '>';
-echo '<label class="form-check-label" for="ticketemailclient-open-reply-on-ticket">'
-    . __('Open the E-Mail reply form when a ticket is opened.', 'ticketemailclient') . '</label></div>';
-echo '<div class="col-12 form-check"><input class="form-check-input" id="ticketemailclient-recipient-autocomplete-show-email" type="checkbox" name="recipient_autocomplete_show_email" value="1"'
+echo '<label class="form-check-label" for="ticketmailer-open-reply-on-ticket">'
+    . __('Open the E-Mail reply form when a ticket is opened.', 'ticketmailer') . '</label></div>';
+echo '<div class="col-12 form-check"><input class="form-check-input" id="ticketmailer-recipient-autocomplete-show-email" type="checkbox" name="recipient_autocomplete_show_email" value="1"'
     . ($settings['recipient_autocomplete_show_email'] ? ' checked' : '') . '>';
-echo '<label class="form-check-label" for="ticketemailclient-recipient-autocomplete-show-email">'
-    . __('Show email addresses in recipient autocomplete.', 'ticketemailclient') . '</label></div>';
+echo '<label class="form-check-label" for="ticketmailer-recipient-autocomplete-show-email">'
+    . __('Show email addresses in recipient autocomplete.', 'ticketmailer') . '</label></div>';
 echo '<div class="col-12"><button type="submit" class="btn btn-primary">' . __('Save') . '</button></div>';
 echo '</div></div></div></form>';
 Html::footer();

@@ -63,14 +63,14 @@
     }
 
     function initRecipientControl(control) {
-        if (control.dataset.ticketemailclientInitialized) {
+        if (control.dataset.ticketmailerInitialized) {
             return;
         }
-        control.dataset.ticketemailclientInitialized = 'true';
-        var chips = control.querySelector('.ticketemailclient-recipient-chips');
-        var input = control.querySelector('.ticketemailclient-recipient-input');
+        control.dataset.ticketmailerInitialized = 'true';
+        var chips = control.querySelector('.ticketmailer-recipient-chips');
+        var input = control.querySelector('.ticketmailer-recipient-input');
         var value = control.querySelector('input[type="hidden"]');
-        var clear = control.querySelector('.ticketemailclient-recipient-clear');
+        var clear = control.querySelector('.ticketmailer-recipient-clear');
         var form = control.closest('form');
         if (!chips || !input || !value || !form) {
             return;
@@ -82,7 +82,7 @@
         var requestId = 0;
         var requestTimer = null;
         var suggestionList = document.createElement('ul');
-        suggestionList.className = 'ticketemailclient-recipient-suggestions';
+        suggestionList.className = 'ticketmailer-recipient-suggestions';
         suggestionList.setAttribute('role', 'listbox');
         suggestionList.hidden = true;
         control.appendChild(suggestionList);
@@ -108,12 +108,12 @@
             chips.replaceChildren();
             recipients.forEach(function (recipient) {
                 var chip = document.createElement('span');
-                chip.className = 'ticketemailclient-recipient-chip';
+                chip.className = 'ticketmailer-recipient-chip';
                 chip.innerHTML = '<i class="ti ti-mail" aria-hidden="true"></i>';
                 chip.append(document.createTextNode(recipient.label));
                 var remove = document.createElement('button');
                 remove.type = 'button';
-                remove.className = 'ticketemailclient-recipient-remove';
+                remove.className = 'ticketmailer-recipient-remove';
                 remove.setAttribute('aria-label', removeRecipientLabel.replace('%s', recipient.label));
                 remove.innerHTML = '<i class="ti ti-x" aria-hidden="true"></i>';
                 remove.addEventListener('click', function () {
@@ -158,11 +158,11 @@
                 var label = document.createElement('span');
                 var email = document.createElement('span');
                 button.type = 'button';
-                button.className = 'ticketemailclient-recipient-suggestion';
+                button.className = 'ticketmailer-recipient-suggestion';
                 button.setAttribute('role', 'option');
                 button.setAttribute('aria-selected', 'false');
                 label.textContent = suggestion.label;
-                email.className = 'ticketemailclient-recipient-suggestion-email';
+                email.className = 'ticketmailer-recipient-suggestion-email';
                 email.textContent = suggestion.email;
                 button.appendChild(label);
                 if (form.dataset.userAutocompleteShowEmail === '1') {
@@ -294,10 +294,10 @@
     }
 
     function initAttachments(form) {
-        var input = form.querySelector('.ticketemailclient-file');
-        var list = form.querySelector('.ticketemailclient-attachments');
+        var input = form.querySelector('.ticketmailer-file');
+        var list = form.querySelector('.ticketmailer-attachments');
         var drop = form.querySelector('[data-attachment-drop]');
-        var choose = form.querySelector('.ticketemailclient-choose-files');
+        var choose = form.querySelector('.ticketmailer-choose-files');
         if (!input || !list) {
             return;
         }
@@ -313,7 +313,7 @@
 
         function showError(message) {
             var li = document.createElement('li');
-            li.className = 'ticketemailclient-upload-error';
+            li.className = 'ticketmailer-upload-error';
             li.textContent = message;
             list.appendChild(li);
         }
@@ -428,7 +428,7 @@
 
     function showSendingOverlay() {
         var overlay = document.createElement('div');
-        overlay.id = 'ticketemailclient-sending-overlay';
+        overlay.id = 'ticketmailer-sending-overlay';
         overlay.setAttribute('role', 'status');
         overlay.setAttribute('aria-live', 'polite');
         overlay.style.cssText =
@@ -447,14 +447,14 @@
 
     function initTinyMceSave(form) {
         form.addEventListener('submit', function (event) {
-            if (form.dataset.ticketemailclientSending) {
+            if (form.dataset.ticketmailerSending) {
                 event.preventDefault();
                 return;
             }
             if (window.tinymce && typeof tinymce.triggerSave === 'function') {
                 tinymce.triggerSave();
             }
-            form.dataset.ticketemailclientSending = 'true';
+            form.dataset.ticketmailerSending = 'true';
             showSendingOverlay();
             form.querySelectorAll('button[type="submit"]').forEach(function (button) {
                 button.disabled = true;
@@ -465,7 +465,7 @@
                 );
             });
             form.querySelectorAll(
-                '.ticketemailclient-actions button:not([type="submit"]), .ticketemailclient-actions a',
+                '.ticketmailer-actions button:not([type="submit"]), .ticketmailer-actions a',
             ).forEach(function (cancel) {
                 if (cancel.tagName === 'BUTTON') {
                     cancel.disabled = true;
@@ -509,10 +509,10 @@
                 var result = JSON.parse(xhr.responseText);
                 var editor = window.tinymce && tinymce.get(editorId);
                 var textarea = editor ? null : form.querySelector('#' + editorId);
-                var signature = form.ticketemailclientSignature;
+                var signature = form.ticketmailerSignature;
                 if (typeof signature === 'undefined') {
                     signature = editor ? editor.getContent() : textarea ? textarea.value : '';
-                    form.ticketemailclientSignature = signature;
+                    form.ticketmailerSignature = signature;
                 }
                 if (editor) {
                     editor.setContent((result.content || '') + signature);
@@ -527,22 +527,22 @@
     }
 
     function initForm(form) {
-        if (form.dataset.ticketemailclientInitialized) {
+        if (form.dataset.ticketmailerInitialized) {
             return;
         }
-        form.dataset.ticketemailclientInitialized = 'true';
+        form.dataset.ticketmailerInitialized = 'true';
         form.querySelectorAll('[data-recipient-control]').forEach(initRecipientControl);
         initAttachments(form);
         initTinyMceSave(form);
     }
 
     function initForms() {
-        document.querySelectorAll('.ticketemailclient-compose').forEach(initForm);
+        document.querySelectorAll('.ticketmailer-compose').forEach(initForm);
     }
 
     $(document).on(
         'change',
-        '.ticketemailclient-compose [name="itilfollowuptemplates_id"]',
+        '.ticketmailer-compose [name="itilfollowuptemplates_id"]',
         function () {
             applyFollowupTemplate(this.form, this.value);
         },

@@ -1,13 +1,13 @@
-# locales/ticketemailclient.de.po — German translations. Parity
+# locales/ticketmailer.de.po — German translations. Parity
 # with the English file: every msgid in the .pot file has
 # a corresponding German msgstr (A16).
 msgid ""
 msgstr ""
-"Project-Id-Version: ticketemailclient 1.1.0\n"
+"Project-Id-Version: ticketmailer 1.1.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-07-02 15:00:00+0000\n"
 "PO-Revision-Date: 2026-07-02 15:00:00+0000\n"
-"Last-Translator: ticketemailclient contributors\n"
+"Last-Translator: ticketmailer contributors\n"
 "Language-Team: German\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"

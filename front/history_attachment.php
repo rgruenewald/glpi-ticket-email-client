@@ -18,7 +18,7 @@ if (!$ticket->getFromDB($tickets_id) || !$ticket->canViewItem()) {
     Html::displayRightError();
 }
 
-$attachment = PluginTicketemailclientHistory::resolveAttachment($ticket, $documents_id);
+$attachment = PluginTicketmailerHistory::resolveAttachment($ticket, $documents_id);
 if ($attachment === null) {
     Html::displayNotFoundError();
 }

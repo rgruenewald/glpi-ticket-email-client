@@ -1,4 +1,4 @@
-# AGENTS.md — ticketemailclient
+# AGENTS.md — ticketmailer
 
 Project operating rules for agents. Product facts live in `CONTEXT.md` and the v2 contract — do not restate them here.
 
@@ -13,9 +13,9 @@ Project operating rules for agents. Product facts live in `CONTEXT.md` and the v
 ## Before changing behavior
 
 - Read the owning v2 acceptance criterion and the relevant skill under `.agents/skills/`.
-- Prefer existing `PluginTicketemailclient*` classes and GLPI APIs over new abstractions.
+- Prefer existing `PluginTicketmailer*` classes and GLPI APIs over new abstractions.
 - Do not add: SMTP config UI, notification-engine delivery on the compose path, draft storage, IMAP, editor libraries, or DOM/CSS hiding of native reply.
-- UI strings: update `locales/ticketemailclient.pot` + `en` + `de` together.
+- UI strings: update `locales/ticketmailer.pot` + `en` + `de` together.
 
 ## Layout / git
 
@@ -26,7 +26,7 @@ Project operating rules for agents. Product facts live in `CONTEXT.md` and the v
 
 ## After changes
 
-- Run the verify skill: `.agents/skills/ticketemailclient-verify/SKILL.md`
+- Run the verify skill: `.agents/skills/ticketmailer-verify/SKILL.md`
 - Structural gate: v2 `score.sh` must stay green for touched surfaces.
 - Do not commit secrets, `_files/`, vendor, or `.agent/forge_state.json`.
 
@@ -36,6 +36,6 @@ Global harness skills (TDD, review, guardrails, herdr, etc.) stay global. Projec
 
 ## Class / file conventions
 
-- PHP classes: `PluginTicketemailclient…` in `inc/*.class.php` (GLPI plugin naming).
+- PHP classes: `PluginTicketmailer…` in `inc/*.class.php` (GLPI plugin naming).
 - Front controllers under `front/`; AJAX under `ajax/`; Twig under `templates/`.
 - SQL migrations: one file per version bump; keep `install.sql` equivalent to latest greenfield schema.

@@ -4,7 +4,7 @@
  * GLPI's direct `GLPIMailer` transport. It uses GLPI's core SMTP
  * configuration but never invokes the notification delivery pipeline.
  */
-class PluginTicketemailclientMailer
+class PluginTicketmailerMailer
 {
     /**
      * @param array{
@@ -72,7 +72,7 @@ class PluginTicketemailclientMailer
                 return [
                     'status' => 'failed',
                     'msg_id' => null,
-                    'error' => $mailer->getError() ?? __('Unable to send email.', 'ticketemailclient'),
+                    'error' => $mailer->getError() ?? __('Unable to send email.', 'ticketmailer'),
                 ];
             }
 

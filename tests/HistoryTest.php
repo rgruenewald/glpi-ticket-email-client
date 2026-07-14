@@ -11,7 +11,7 @@ final class HistoryTest extends TestCase
     #[Test]
     public function appends_public_history_after_the_authored_message(): void
     {
-        $body = PluginTicketemailclientHistory::appendToMessage(
+        $body = PluginTicketmailerHistory::appendToMessage(
             '<p>My message</p>',
             '<blockquote><p>Public ticket history</p></blockquote>',
         );
@@ -27,7 +27,7 @@ final class HistoryTest extends TestCase
     {
         $this->assertSame(
             '<p>My message</p>',
-            PluginTicketemailclientHistory::appendToMessage('<p>My message</p>', ''),
+            PluginTicketmailerHistory::appendToMessage('<p>My message</p>', ''),
         );
     }
 }

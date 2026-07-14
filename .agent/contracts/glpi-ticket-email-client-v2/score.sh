@@ -37,7 +37,7 @@ for file in \
   ajax/validate_recipients.php ajax/upload.php ajax/upload_image.php \
   templates/compose.html.twig templates/timeline_action.html.twig templates/log_entry.html.twig \
   js/composer.js sql/install.sql sql/update-1.1.0.sql sql/uninstall.sql \
-  locales/ticketemailclient.pot locales/ticketemailclient.en.po locales/ticketemailclient.de.po; do
+  locales/ticketmailer.pot locales/ticketmailer.en.po locales/ticketmailer.de.po; do
   require_file "$file"
 done
 
@@ -96,8 +96,8 @@ require_re "applyFollowupTemplate" js/composer.js "template selection renders th
 require_re "ajaxComplete" js/composer.js "forms initialize after GLPI loads the ticket timeline"
 require_re "X-Glpi-Csrf-Token" js/composer.js "template selection sends GLPI's CSRF header"
 require_re "tinymce.get" js/composer.js "template selection updates the active TinyMCE editor"
-require_re "ticketemailclientSending|spinner-border" js/composer.js "send submit disables duplicate requests with a spinner"
-require_re "ticketemailclient-actions.*disabled|cancel\\.classList\\.add\\('disabled'\\)" js/composer.js "send submit disables cancellation"
+require_re "ticketmailerSending|spinner-border" js/composer.js "send submit disables duplicate requests with a spinner"
+require_re "ticketmailer-actions.*disabled|cancel\\.classList\\.add\\('disabled'\\)" js/composer.js "send submit disables cancellation"
 
 # 5. Timeline integration: standard followup but no notification delivery call.
 require_re "ITILFollowup" inc/timeline.class.php "timeline integration uses ITILFollowup"
@@ -128,7 +128,7 @@ forbid_re 'Session::checkCSRF\(\$_POST\)' front/send.php "send relies on GLPI bo
 require_re "Html::hidden\('_glpi_csrf_token'" front/config.form.php "config form includes GLPI CSRF token"
 forbid_re 'Session::checkCSRF\(\$_POST\)' front/config.form.php "config relies on GLPI bootstrap CSRF validation"
 require_re "csrf" templates/compose.html.twig "compose contains CSRF protection"
-for locale in locales/ticketemailclient.pot locales/ticketemailclient.en.po locales/ticketemailclient.de.po; do
+for locale in locales/ticketmailer.pot locales/ticketmailer.en.po locales/ticketmailer.de.po; do
   require_re "mailbox|BCC|reply" "$locale" "locale contains v2 recipient/policy text: $locale"
 done
 

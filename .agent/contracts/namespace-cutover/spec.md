@@ -6,20 +6,20 @@ Data-preserving GLPI plugin namespace cutover.
 
 ## Goal
 
-Replace the private runtime identity `ticketmailer` with the sole active identity `ticketemailclient`, without changing outbound-email behavior or losing data.
+Replace the private runtime identity `ticketmailer` with the sole active identity `ticketmailer`, without changing outbound-email behavior or losing data.
 
 | Surface | Required value |
 |---|---|
 | Visible GLPI product name | `GLPI Ticket Email Client` |
 | Repository/project name | `glpi-ticket-email-client` |
-| Plugin directory/shortname | `ticketemailclient` |
-| PHP lifecycle and hook functions | `plugin_ticketemailclient_*` |
-| PHP classes | `PluginTicketemailclient…` |
-| Translation domain | `ticketemailclient` |
-| Audit table | `glpi_plugin_ticketemailclient_logs` |
-| Reply-policy table | `glpi_plugin_ticketemailclient_reply_policies` |
-| Config table | `glpi_plugin_ticketemailclient_configs` |
-| Plugin document root | `GLPI_PLUGIN_DOC_DIR . '/ticketemailclient'` |
+| Plugin directory/shortname | `ticketmailer` |
+| PHP lifecycle and hook functions | `plugin_ticketmailer_*` |
+| PHP classes | `PluginTicketmailer…` |
+| Translation domain | `ticketmailer` |
+| Audit table | `glpi_plugin_ticketmailer_logs` |
+| Reply-policy table | `glpi_plugin_ticketmailer_reply_policies` |
+| Config table | `glpi_plugin_ticketmailer_configs` |
+| Plugin document root | `GLPI_PLUGIN_DOC_DIR . '/ticketmailer'` |
 
 Technical names contain no spaces. The visible product name must match exactly.
 
@@ -37,22 +37,22 @@ This cutover does not change the v2 product contract:
 
 ### Bootstrap and lifecycle
 
-1. Rename every `PLUGIN_TICKETMAILER_*` constant in `setup.php` to `PLUGIN_TICKETEMAILCLIENT_*`.
-2. Rename `plugin_version_ticketmailer`, `plugin_init_ticketmailer`, prerequisite/config callbacks, every lifecycle function in `hook.php`, post-init callback, item-purge callback, hook key, callback string, and asset registration to `ticketemailclient`.
-3. `plugin_version_ticketemailclient()['name']` equals exactly `GLPI Ticket Email Client`.
-4. Change every active global class reference from `PluginTicketmailer…` to `PluginTicketemailclient…`, including `Plugin::registerClass()` string references, static calls, and controllers.
+1. Rename every `PLUGIN_TICKETMAILER_*` constant in `setup.php` to `PLUGIN_TICKETMAILER_*`.
+2. Rename `plugin_version_ticketmailer`, `plugin_init_ticketmailer`, prerequisite/config callbacks, every lifecycle function in `hook.php`, post-init callback, item-purge callback, hook key, callback string, and asset registration to `ticketmailer`.
+3. `plugin_version_ticketmailer()['name']` equals exactly `GLPI Ticket Email Client`.
+4. Change every active global class reference from `PluginTicketmailer…` to `PluginTicketmailer…`, including `Plugin::registerClass()` string references, static calls, and controllers.
 5. Class source files remain suffix-named where GLPI naming supports it; do not rename a file solely because its class prefix changed. Remove no valid file merely for cosmetic symmetry.
 6. Rename active technical strings in controllers, Twig, JavaScript, CSS, Composer metadata/autoload metadata, Docker mount paths, test setup, active verifier, active skills, README, CONTEXT, and ADR/product documentation.
-7. Rename `css/ticketmailer.css` to `css/ticketemailclient.css` and its GLPI hook registration. Review CSS/JS selectors and IDs individually: change only namespaced plugin identifiers, not semantic UI vocabulary.
+7. Rename `css/ticketmailer.css` to `css/ticketmailer.css` and its GLPI hook registration. Review CSS/JS selectors and IDs individually: change only namespaced plugin identifiers, not semantic UI vocabulary.
 
 ## Greenfield schema
 
 `sql/install.sql` creates exactly these plugin tables and no `ticketmailer` table:
 
 ```text
-glpi_plugin_ticketemailclient_logs
-glpi_plugin_ticketemailclient_reply_policies
-glpi_plugin_ticketemailclient_configs
+glpi_plugin_ticketmailer_logs
+glpi_plugin_ticketmailer_reply_policies
+glpi_plugin_ticketmailer_configs
 ```
 
 It represents the complete current schema: audit fields, timeline/mailbox fields, reply-policy fields, and all entity configuration fields. `sql/uninstall.sql`, runtime queries, and active tests use only the new names. Historic numbered migrations must not be executed against a newly created new-namespace schema.
@@ -63,23 +63,23 @@ Old identifiers are allowed only inside a bounded migration helper, migration te
 
 ```text
 glpi_plugin_ticketmailer_logs
-→ glpi_plugin_ticketemailclient_logs
+→ glpi_plugin_ticketmailer_logs
 
 glpi_plugin_ticketmailer_reply_policies
-→ glpi_plugin_ticketemailclient_reply_policies
+→ glpi_plugin_ticketmailer_reply_policies
 
 glpi_plugin_ticketmailer_configs
-→ glpi_plugin_ticketemailclient_configs
+→ glpi_plugin_ticketmailer_configs
 
 GLPI_PLUGIN_DOC_DIR . '/ticketmailer'
-→ GLPI_PLUGIN_DOC_DIR . '/ticketemailclient'
+→ GLPI_PLUGIN_DOC_DIR . '/ticketmailer'
 ```
 
 No alias class, wrapper, re-export, dual hook registration, or long-lived parallel runtime name is permitted.
 
 ## Migration algorithm
 
-The new `plugin_ticketemailclient_install()` owns this route.
+The new `plugin_ticketmailer_install()` owns this route.
 
 ### Preflight
 
@@ -108,28 +108,28 @@ Before copying, moving, deleting, or dropping anything:
 
 ## GLPI registry transition
 
-GLPI 10.0.7 source establishes that plugin directory drives `plugin_version_<directory>` discovery and `plugin_<directory>_install()` invocation. Thus `ticketemailclient` is a new registry identity.
+GLPI 10.0.7 source establishes that plugin directory drives `plugin_version_<directory>` discovery and `plugin_<directory>_install()` invocation. Thus `ticketmailer` is a new registry identity.
 
 Deployment procedure:
 
 1. Back up GLPI database and legacy plugin document root.
-2. Deploy under `plugins/ticketemailclient`; do not leave `ticketmailer` running in parallel.
-3. Install and enable **GLPI Ticket Email Client** through GLPI, causing `plugin_ticketemailclient_install()` to run.
+2. Deploy under `plugins/ticketmailer`; do not leave `ticketmailer` running in parallel.
+3. Install and enable **GLPI Ticket Email Client** through GLPI, causing `plugin_ticketmailer_install()` to run.
 4. Validate migrated audit data, entity configs, profile policies, and attachment storage.
 5. Do **not** call legacy `plugin_ticketmailer_uninstall()`: it currently removes the legacy tables/files required as migration sources.
 6. Do not directly update GLPI registry tables. If an old registry entry remains after successful cutover, leave it inactive pending a GLPI-supported administrator/maintainer cleanup procedure; document this limitation precisely.
 
 ## Localization
 
-- All active `__()`, `_n()`, `_sn()`, `_x()`, and equivalent calls use domain `ticketemailclient`.
-- Rename/update POT and EN/DE PO catalogs to the `ticketemailclient` identity and regenerate tracked `en_GB.mo`/`de_DE.mo` through the repository’s proven toolchain.
+- All active `__()`, `_n()`, `_sn()`, `_x()`, and equivalent calls use domain `ticketmailer`.
+- Rename/update POT and EN/DE PO catalogs to the `ticketmailer` identity and regenerate tracked `en_GB.mo`/`de_DE.mo` through the repository’s proven toolchain.
 - GLPI loads MO files from `<plugin-directory>/locales/`; the generic MO names remain `en_GB.mo` and `de_DE.mo`.
 - Keep historical v1 contracts and historical planning records as historical evidence; they are not active runtime references.
 
 ## Required tests
 
 1. Exact new identity: visible name, bootstrap callbacks, hook keys, class prefix, and no active old runtime callback.
-2. Greenfield install yields only the three `ticketemailclient` tables and target file root.
+2. Greenfield install yields only the three `ticketmailer` tables and target file root.
 3. Detection requires all three legacy tables, including reply policies.
 4. Successful migration preserves an audit row, entity configuration, profile-bound reply policy, all IDs, and document storage.
 5. Repeated successful install makes no duplicate/copy mutation.

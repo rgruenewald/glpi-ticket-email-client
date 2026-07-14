@@ -7,7 +7,7 @@
 
 ## Context
 
-`ticketemailclient` began as an outbound compose + plugin audit tab (v1). v2 turns it into a ticket-timeline email reply client. Several product choices conflict with v1 non-goals or defaults and must stay stable across implementation churn.
+`ticketmailer` began as an outbound compose + plugin audit tab (v1). v2 turns it into a ticket-timeline email reply client. Several product choices conflict with v1 non-goals or defaults and must stay stable across implementation churn.
 
 ## Decisions
 

@@ -3,7 +3,7 @@
  * inc/audit.class.php — durable send intent + outcome (v2).
  * pending → sent/failed for SMTP; timeline_status pending/recorded/failed.
  */
-class PluginTicketemailclientAudit
+class PluginTicketmailerAudit
 {
     /**
      * Create durable intent before SMTP. status+timeline_status = pending.
@@ -31,7 +31,7 @@ class PluginTicketemailclientAudit
     ): int {
         global $DB;
         $DB->insert(
-            'glpi_plugin_ticketemailclient_logs',
+            'glpi_plugin_ticketmailer_logs',
             [
                 'tickets_id'       => $tickets_id,
                 'users_id'         => $users_id,
@@ -65,7 +65,7 @@ class PluginTicketemailclientAudit
     ): void {
         global $DB;
         $DB->update(
-            'glpi_plugin_ticketemailclient_logs',
+            'glpi_plugin_ticketmailer_logs',
             [
                 'status'        => $status,
                 'error_message' => $error_message,
@@ -84,7 +84,7 @@ class PluginTicketemailclientAudit
     ): void {
         global $DB;
         $DB->update(
-            'glpi_plugin_ticketemailclient_logs',
+            'glpi_plugin_ticketmailer_logs',
             [
                 'timeline_status' => $timeline_status,
                 'followups_id'    => $followups_id,
@@ -148,7 +148,7 @@ class PluginTicketemailclientAudit
     public static function find(int $id): ?array
     {
         global $DB;
-        foreach ($DB->request('glpi_plugin_ticketemailclient_logs', ['id' => $id]) as $r) {
+        foreach ($DB->request('glpi_plugin_ticketmailer_logs', ['id' => $id]) as $r) {
             return $r;
         }
         return null;
@@ -161,7 +161,7 @@ class PluginTicketemailclientAudit
         $rows = [];
         foreach (
             $DB->request(
-                'glpi_plugin_ticketemailclient_logs',
+                'glpi_plugin_ticketmailer_logs',
                 ['tickets_id' => $tickets_id, 'ORDER' => 'sent_at DESC'],
             ) as $r
         ) {

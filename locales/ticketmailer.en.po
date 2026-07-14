@@ -1,13 +1,13 @@
-# locales/ticketemailclient.en.po — English (default) translations.
+# locales/ticketmailer.en.po — English (default) translations.
 # Every msgid in the .pot file has a corresponding msgstr
 # here (A16: i18n completeness).
 msgid ""
 msgstr ""
-"Project-Id-Version: ticketemailclient 1.1.0\n"
+"Project-Id-Version: ticketmailer 1.1.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-07-02 15:00:00+0000\n"
 "PO-Revision-Date: 2026-07-02 15:00:00+0000\n"
-"Last-Translator: ticketemailclient contributors\n"
+"Last-Translator: ticketmailer contributors\n"
 "Language-Team: English\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"

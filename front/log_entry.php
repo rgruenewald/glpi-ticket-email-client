@@ -10,7 +10,7 @@ include_once __DIR__ . '/../../../inc/includes.php';
 Session::checkLoginUser();
 
 $id = (int) ($_GET['id'] ?? 0);
-$entry = $id > 0 ? PluginTicketemailclientAudit::find($id) : null;
+$entry = $id > 0 ? PluginTicketmailerAudit::find($id) : null;
 if ($entry === null) {
     Html::displayNotFoundError();
 }
@@ -20,23 +20,23 @@ if (!$ticket->getFromDB((int) $entry['tickets_id']) || !$ticket->canViewItem()) 
     Html::displayRightError();
 }
 
-$recipients_to  = PluginTicketemailclientAudit::decodeJson((string) $entry['recipients_to']);
-$recipients_cc  = PluginTicketemailclientAudit::decodeJson((string) $entry['recipients_cc']);
-$recipients_bcc = PluginTicketemailclientAudit::decodeJson((string) $entry['recipients_bcc']);
-$attachments    = PluginTicketemailclientAudit::decodeJson((string) $entry['attachments']);
-$inline_images  = PluginTicketemailclientAudit::decodeJson((string) $entry['inline_images']);
-$mailbox_matches = PluginTicketemailclientAudit::decodeJson((string) ($entry['mailbox_matches'] ?? ''));
+$recipients_to  = PluginTicketmailerAudit::decodeJson((string) $entry['recipients_to']);
+$recipients_cc  = PluginTicketmailerAudit::decodeJson((string) $entry['recipients_cc']);
+$recipients_bcc = PluginTicketmailerAudit::decodeJson((string) $entry['recipients_bcc']);
+$attachments    = PluginTicketmailerAudit::decodeJson((string) $entry['attachments']);
+$inline_images  = PluginTicketmailerAudit::decodeJson((string) $entry['inline_images']);
+$mailbox_matches = PluginTicketmailerAudit::decodeJson((string) ($entry['mailbox_matches'] ?? ''));
 
 Html::header(
-    __('Sent email', 'ticketemailclient'),
+    __('Sent email', 'ticketmailer'),
     '',
     'ticket',
-    'ticketemailclientlog',
+    'ticketmailerlog',
 );
 
-$web = Plugin::getWebDir('ticketemailclient');
+$web = Plugin::getWebDir('ticketmailer');
 $twig = TemplateRenderer::getInstance();
-echo $twig->render('@ticketemailclient/log_entry.html.twig', [
+echo $twig->render('@ticketmailer/log_entry.html.twig', [
     'entry'            => $entry,
     'recipients_to'    => $recipients_to,
     'recipients_cc'    => $recipients_cc,

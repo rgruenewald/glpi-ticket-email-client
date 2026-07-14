@@ -1,9 +1,9 @@
 <?php
 
-final class PluginTicketemailclientTimelineReply
+final class PluginTicketmailerTimelineReply
 {
     public function renderForm(Ticket $ticket, bool $inline = true): string
     {
-        return PluginTicketemailclientTimelineAction::renderReply($ticket, $inline);
+        return PluginTicketmailerTimelineAction::renderReply($ticket, $inline);
     }
 }

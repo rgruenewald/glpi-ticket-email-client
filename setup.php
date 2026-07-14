@@ -1,31 +1,31 @@
 <?php
 /**
  * setup.php — plugin registration and metadata for the
- * `ticketemailclient` plugin. Sourced by GLPI when the plugin
+ * `ticketmailer` plugin. Sourced by GLPI when the plugin
  * is loaded. Lifecycle callbacks live in `hook.php`.
  */
 
-define('PLUGIN_TICKETEMAILCLIENT_VERSION', '2.0.0');
-define('PLUGIN_TICKETEMAILCLIENT_MIN_GLPI', '11.0.0');
-define('PLUGIN_TICKETEMAILCLIENT_MAX_GLPI', '11.99.99');
+define('PLUGIN_TICKETMAILER_VERSION', '2.0.0');
+define('PLUGIN_TICKETMAILER_MIN_GLPI', '11.0.0');
+define('PLUGIN_TICKETMAILER_MAX_GLPI', '11.99.99');
 
 /**
  * Plugin version. Required by GLPI's plugin loader.
  *
  * @return array<string, mixed>
  */
-function plugin_version_ticketemailclient(): array
+function plugin_version_ticketmailer(): array
 {
     return [
-        'version'         => PLUGIN_TICKETEMAILCLIENT_VERSION,
-        'name'            => __('GLPI Ticket Email Client', 'ticketemailclient'),
+        'version'         => PLUGIN_TICKETMAILER_VERSION,
+        'name'            => __('GLPI Ticket Email Client', 'ticketmailer'),
         'author'          => 'Ronny Gruenewald',
         'license'         => 'GPL-3.0-or-later',
-        'minGlpiVersion'  => PLUGIN_TICKETEMAILCLIENT_MIN_GLPI,
+        'minGlpiVersion'  => PLUGIN_TICKETMAILER_MIN_GLPI,
         'requirements'    => [
             'glpi' => [
-                'min' => PLUGIN_TICKETEMAILCLIENT_MIN_GLPI,
-                'max' => PLUGIN_TICKETEMAILCLIENT_MAX_GLPI,
+                'min' => PLUGIN_TICKETMAILER_MIN_GLPI,
+                'max' => PLUGIN_TICKETMAILER_MAX_GLPI,
             ],
         ],
     ];
@@ -36,39 +36,39 @@ function plugin_version_ticketemailclient(): array
  * so hooks MUST be registered here (global $PLUGIN_HOOKS),
  * not at file top-level.
  */
-function plugin_init_ticketemailclient(): void
+function plugin_init_ticketmailer(): void
 {
     global $PLUGIN_HOOKS;
 
-    $PLUGIN_HOOKS['csrf_compliant']['ticketemailclient'] = true;
-    $PLUGIN_HOOKS['add_css']['ticketemailclient'] = 'css/ticketemailclient.css';
-    $PLUGIN_HOOKS['add_javascript']['ticketemailclient'] = [
+    $PLUGIN_HOOKS['csrf_compliant']['ticketmailer'] = true;
+    $PLUGIN_HOOKS['add_css']['ticketmailer'] = 'css/ticketmailer.css';
+    $PLUGIN_HOOKS['add_javascript']['ticketmailer'] = [
         'js/composer.js',
         'js/ticket-timeline.js',
     ];
 
-    PluginTicketemailclientConfig::applyTimelineOrderForCurrentTicket();
+    PluginTicketmailerConfig::applyTimelineOrderForCurrentTicket();
 
-    $PLUGIN_HOOKS['timeline_answer_actions']['ticketemailclient']
-        = 'PluginTicketemailclientTimelineAction::getAnswerActions';
-    $PLUGIN_HOOKS['timeline_actions']['ticketemailclient']
-        = 'PluginTicketemailclientTimelineAction::displayActions';
-    $PLUGIN_HOOKS['config_page']['ticketemailclient'] = 'front/config.form.php';
-    $PLUGIN_HOOKS['post_init']['ticketemailclient'] = 'plugin_ticketemailclient_post_init';
-    $PLUGIN_HOOKS['item_purge']['ticketemailclient'] = [
-        'Ticket' => 'plugin_ticketemailclient_item_purge',
+    $PLUGIN_HOOKS['timeline_answer_actions']['ticketmailer']
+        = 'PluginTicketmailerTimelineAction::getAnswerActions';
+    $PLUGIN_HOOKS['timeline_actions']['ticketmailer']
+        = 'PluginTicketmailerTimelineAction::displayActions';
+    $PLUGIN_HOOKS['config_page']['ticketmailer'] = 'front/config.form.php';
+    $PLUGIN_HOOKS['post_init']['ticketmailer'] = 'plugin_ticketmailer_post_init';
+    $PLUGIN_HOOKS['item_purge']['ticketmailer'] = [
+        'Ticket' => 'plugin_ticketmailer_item_purge',
     ];
 }
 
 /**
  * Plugin prerequisites. Required by GLPI's plugin loader.
  */
-function plugin_ticketemailclient_check_prerequisites(): bool
+function plugin_ticketmailer_check_prerequisites(): bool
 {
-    if (version_compare(GLPI_VERSION, PLUGIN_TICKETEMAILCLIENT_MIN_GLPI, 'lt')) {
+    if (version_compare(GLPI_VERSION, PLUGIN_TICKETMAILER_MIN_GLPI, 'lt')) {
         echo sprintf(
             'This plugin requires GLPI >= %1$s (you have %2$s).',
-            PLUGIN_TICKETEMAILCLIENT_MIN_GLPI,
+            PLUGIN_TICKETMAILER_MIN_GLPI,
             GLPI_VERSION,
         );
         return false;
@@ -82,7 +82,7 @@ function plugin_ticketemailclient_check_prerequisites(): bool
  * from GLPI's core config and ships no plugin-side form
  * (per spec § A8 / A9).
  */
-function plugin_ticketemailclient_check_config($verbose = false): bool
+function plugin_ticketmailer_check_config($verbose = false): bool
 {
     return true;
 }

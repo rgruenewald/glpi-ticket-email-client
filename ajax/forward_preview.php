@@ -21,7 +21,7 @@ if ($tickets_id <= 0 || !$ticket->getFromDB($tickets_id) || !$ticket->canUpdateI
     echo json_encode(['error' => 'forbidden']);
     exit;
 }
-$forward = PluginTicketemailclientForwarder::build($ticket);
+$forward = PluginTicketmailerForwarder::build($ticket);
 echo json_encode([
     'mode'    => 'full_history',
     'subject' => $forward['subject'],

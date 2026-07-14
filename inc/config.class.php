@@ -4,7 +4,7 @@
  * configuration needed outside GLPIMailer. Outbound transport itself
  * always uses GLPI's configured mailer and has no plugin-side settings.
  */
-class PluginTicketemailclientConfig
+class PluginTicketmailerConfig
 {
 
     public static function smtpUsername(): string
@@ -50,12 +50,12 @@ class PluginTicketemailclientConfig
             'open_reply_on_ticket'              => true,
             'recipient_autocomplete_show_email' => true,
         ];
-        if (!$DB->tableExists('glpi_plugin_ticketemailclient_configs')) {
+        if (!$DB->tableExists('glpi_plugin_ticketmailer_configs')) {
             return $settings;
         }
         foreach ([$entities_id, 0] as $id) {
             $row = $DB->request([
-                'FROM'  => 'glpi_plugin_ticketemailclient_configs',
+                'FROM'  => 'glpi_plugin_ticketmailer_configs',
                 'WHERE' => ['entities_id' => $id],
             ])->current();
             if ($row) {
@@ -86,10 +86,10 @@ class PluginTicketemailclientConfig
     ): void {
         global $DB;
         $DB->updateOrInsert(
-            'glpi_plugin_ticketemailclient_configs',
+            'glpi_plugin_ticketmailer_configs',
             [
                 'subject_prefix'                    => substr(trim($subject_prefix), 0, 255),
-                'signature_html'                    => PluginTicketemailclientTimeline::sanitizeHtml($signature_html),
+                'signature_html'                    => PluginTicketmailerTimeline::sanitizeHtml($signature_html),
                 'set_waiting'                       => $set_waiting ? 1 : 0,
                 'timeline_newest_first'             => $timeline_newest_first ? 1 : 0,
                 'open_reply_on_ticket'              => $open_reply_on_ticket ? 1 : 0,

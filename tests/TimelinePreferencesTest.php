@@ -39,7 +39,7 @@ final class TimelinePreferencesDatabase
 
     public function tableExists(string $table): bool
     {
-        return $table === 'glpi_plugin_ticketemailclient_configs';
+        return $table === 'glpi_plugin_ticketmailer_configs';
     }
 
     /** @param array{WHERE: array{entities_id: int}} $query */
@@ -82,9 +82,9 @@ final class TimelinePreferencesTest extends TestCase
             'timeline_newest_first' => true,
             'open_reply_on_ticket' => true,
             'recipient_autocomplete_show_email' => true,
-        ], PluginTicketemailclientConfig::forEntity(7));
+        ], PluginTicketmailerConfig::forEntity(7));
 
-        PluginTicketemailclientConfig::applyTimelineOrderForCurrentTicket();
+        PluginTicketmailerConfig::applyTimelineOrderForCurrentTicket();
         self::assertSame(CommonITILObject::TIMELINE_ORDER_REVERSE, $_SESSION['glpitimeline_order']);
     }
 
@@ -99,7 +99,7 @@ final class TimelinePreferencesTest extends TestCase
             'open_reply_on_ticket' => 1,
         ];
 
-        PluginTicketemailclientConfig::applyTimelineOrderForCurrentTicket();
+        PluginTicketmailerConfig::applyTimelineOrderForCurrentTicket();
 
         self::assertSame(CommonITILObject::TIMELINE_ORDER_NATURAL, $_SESSION['glpitimeline_order']);
     }
@@ -115,7 +115,7 @@ final class TimelinePreferencesTest extends TestCase
             'open_reply_on_ticket' => 1,
         ];
 
-        self::assertTrue(PluginTicketemailclientConfig::forEntity(7)['recipient_autocomplete_show_email']);
+        self::assertTrue(PluginTicketmailerConfig::forEntity(7)['recipient_autocomplete_show_email']);
     }
 
     #[Test]
@@ -130,6 +130,6 @@ final class TimelinePreferencesTest extends TestCase
             'recipient_autocomplete_show_email' => 0,
         ];
 
-        self::assertFalse(PluginTicketemailclientConfig::forEntity(7)['recipient_autocomplete_show_email']);
+        self::assertFalse(PluginTicketmailerConfig::forEntity(7)['recipient_autocomplete_show_email']);
     }
 }

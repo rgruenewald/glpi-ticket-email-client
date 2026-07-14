@@ -1,6 +1,6 @@
 <?php
 /**
- * Acceptance test suite for the ticketemailclient plugin.
+ * Acceptance test suite for the ticketmailer plugin.
  *
  * Each test method maps to a single acceptance criterion from
  * `.agent/contracts/ticket-mailer/spec.md` (A1, A2, …) and to
@@ -30,9 +30,9 @@ final class AcceptanceTest extends TestCase
         $this->assertFileExists(self::REPO_ROOT . '/setup.php');
         $contents = (string) file_get_contents(self::REPO_ROOT . '/setup.php');
         $this->assertMatchesRegularExpression(
-            "/define\\(\\s*['\"]PLUGIN_TICKETEMAILCLIENT_VERSION['\"]/",
+            "/define\\(\\s*['\"]PLUGIN_TICKETMAILER_VERSION['\"]/",
             $contents,
-            'setup.php must define PLUGIN_TICKETEMAILCLIENT_VERSION (A1)',
+            'setup.php must define PLUGIN_TICKETMAILER_VERSION (A1)',
         );
     }
 
@@ -41,9 +41,9 @@ final class AcceptanceTest extends TestCase
     {
         $contents = (string) file_get_contents(self::REPO_ROOT . '/setup.php');
         $this->assertMatchesRegularExpression(
-            "/define\\(\\s*['\"]PLUGIN_TICKETEMAILCLIENT_(MIN|MAX)_GLPI['\"]/",
+            "/define\\(\\s*['\"]PLUGIN_TICKETMAILER_(MIN|MAX)_GLPI['\"]/",
             $contents,
-            'setup.php must define PLUGIN_TICKETEMAILCLIENT_{MIN,MAX}_GLPI (A1)',
+            'setup.php must define PLUGIN_TICKETMAILER_{MIN,MAX}_GLPI (A1)',
         );
     }
 
@@ -93,9 +93,9 @@ final class AcceptanceTest extends TestCase
     public static function provideHookFunctions(): array
     {
         return [
-            ['plugin_ticketemailclient_install'],
-            ['plugin_ticketemailclient_uninstall'],
-            ['plugin_ticketemailclient_post_init'],
+            ['plugin_ticketmailer_install'],
+            ['plugin_ticketmailer_uninstall'],
+            ['plugin_ticketmailer_post_init'],
         ];
     }
 
@@ -222,9 +222,9 @@ final class AcceptanceTest extends TestCase
         $preview = self::REPO_ROOT . '/front/history_attachment.php';
 
         $this->assertStringContainsString('attachment.preview_url', $compose);
-        $this->assertStringContainsString('ticketemailclient-attachment-open', $compose);
+        $this->assertStringContainsString('ticketmailer-attachment-open', $compose);
         $this->assertStringContainsString('ti ti-external-link', $compose);
-        $this->assertStringNotContainsString("__('Open', 'ticketemailclient')", $compose);
+        $this->assertStringNotContainsString("__('Open', 'ticketmailer')", $compose);
         $this->assertFileExists($preview);
         $this->assertStringContainsString('canViewItem()', (string) file_get_contents($preview));
         $this->assertStringContainsString('resolveAttachment', (string) file_get_contents($preview));
@@ -265,9 +265,9 @@ final class AcceptanceTest extends TestCase
     public function a16_locale_files_present(): void
     {
         foreach ([
-            'ticketemailclient.pot',
-            'ticketemailclient.en.po',
-            'ticketemailclient.de.po',
+            'ticketmailer.pot',
+            'ticketmailer.en.po',
+            'ticketmailer.de.po',
             'en_GB.mo',
             'de_DE.mo',
         ] as $file) {
@@ -449,7 +449,7 @@ final class AcceptanceTest extends TestCase
     public function v2_compose_submit_disables_duplicate_sends(): void
     {
         $js = (string) file_get_contents(self::REPO_ROOT . '/js/composer.js');
-        $this->assertStringContainsString('ticketemailclientSending', $js);
+        $this->assertStringContainsString('ticketmailerSending', $js);
         $this->assertStringContainsString('spinner-border', $js);
         $this->assertStringContainsString('button.disabled = true', $js);
         $this->assertStringContainsString('cancel.disabled = true', $js);
@@ -514,7 +514,7 @@ final class AcceptanceTest extends TestCase
         $action = (string) file_get_contents(self::REPO_ROOT . '/inc/timelineaction.class.php');
         $send = (string) file_get_contents(self::REPO_ROOT . '/front/send.php');
         $js = (string) file_get_contents(self::REPO_ROOT . '/js/composer.js');
-        $this->assertStringContainsString('glpi_plugin_ticketemailclient_configs', $config);
+        $this->assertStringContainsString('glpi_plugin_ticketmailer_configs', $config);
         $this->assertStringContainsString('signature_html', $config);
         $this->assertStringContainsString('set_waiting', $config);
         $this->assertStringContainsString('data-recipient-control', $reply);

@@ -39,10 +39,10 @@ php bin/console config:set smtp_host "${GLPI_SMTP_HOST}:${GLPI_SMTP_PORT}" -c co
 # key under GLPI_CONFIG_DIR. Symlink points at /etc/glpi volume.
 php bin/console security:change_key --allow-superuser --no-interaction || true
 
-# Install + activate the ticketemailclient plugin.
-if [ -d plugins/ticketemailclient ]; then
-  php bin/console plugin:install ticketemailclient --username=glpi --allow-superuser --no-interaction || true
-  php bin/console plugin:activate ticketemailclient --allow-superuser --no-interaction || true
+# Install + activate the ticketmailer plugin.
+if [ -d plugins/ticketmailer ]; then
+  php bin/console plugin:install ticketmailer --username=glpi --allow-superuser --no-interaction || true
+  php bin/console plugin:activate ticketmailer --allow-superuser --no-interaction || true
 fi
 
 echo "[glpi] first-boot setup complete."

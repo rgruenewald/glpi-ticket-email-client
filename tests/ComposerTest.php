@@ -31,7 +31,7 @@ final class ComposerTest extends TestCase
     #[Test]
     public function normalizes_escaped_editor_html_before_building_mime_parts(): void
     {
-        $payload = PluginTicketemailclientComposer::build(
+        $payload = PluginTicketmailerComposer::build(
             1,
             1,
             ['recipient@example.test'],

@@ -1,5 +1,5 @@
 # docker/glpi/Dockerfile — GLPI 11 image with the
-# ticketemailclient plugin auto-installed. Pinned to a
+# ticketmailer plugin auto-installed. Pinned to a
 # specific minor version so updates don't drift.
 
 FROM php:8.2-apache

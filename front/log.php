@@ -9,23 +9,23 @@ include_once __DIR__ . '/../../../inc/includes.php';
 
 Session::checkLoginUser();
 Html::header(
-    __('Outbound email log', 'ticketemailclient'),
+    __('Outbound email log', 'ticketmailer'),
     '',
     'ticket',
-    'ticketemailclientlog',
+    'ticketmailerlog',
 );
 
 $tickets_id = (int) ($_GET['tickets_id'] ?? 0);
 $entries = $tickets_id > 0
-    ? PluginTicketemailclientAudit::listForTicket($tickets_id)
+    ? PluginTicketmailerAudit::listForTicket($tickets_id)
     : [];
 
-$web = Plugin::getWebDir('ticketemailclient');
+$web = Plugin::getWebDir('ticketmailer');
 echo '<table class="tab_cadre_fixe">';
-echo '<tr><th>' . htmlspecialchars(__('Sent at', 'ticketemailclient'), ENT_QUOTES, 'UTF-8') . '</th>';
-echo '<th>' . htmlspecialchars(__('Ticket', 'ticketemailclient'), ENT_QUOTES, 'UTF-8') . '</th>';
-echo '<th>' . htmlspecialchars(__('Subject', 'ticketemailclient'), ENT_QUOTES, 'UTF-8') . '</th>';
-echo '<th>' . htmlspecialchars(__('Status', 'ticketemailclient'), ENT_QUOTES, 'UTF-8') . '</th></tr>';
+echo '<tr><th>' . htmlspecialchars(__('Sent at', 'ticketmailer'), ENT_QUOTES, 'UTF-8') . '</th>';
+echo '<th>' . htmlspecialchars(__('Ticket', 'ticketmailer'), ENT_QUOTES, 'UTF-8') . '</th>';
+echo '<th>' . htmlspecialchars(__('Subject', 'ticketmailer'), ENT_QUOTES, 'UTF-8') . '</th>';
+echo '<th>' . htmlspecialchars(__('Status', 'ticketmailer'), ENT_QUOTES, 'UTF-8') . '</th></tr>';
 foreach ($entries as $e) {
     $id = (int) $e['id'];
     echo '<tr>';

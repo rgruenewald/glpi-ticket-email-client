@@ -15,7 +15,7 @@ $ticket = new Ticket();
 if ($tickets_id <= 0 || !$ticket->getFromDB($tickets_id) || !( $ticket->canUpdateItem() || (method_exists($ticket, 'canAddFollowups') && $ticket->canAddFollowups()) )) {
     Html::displayRightError();
 }
-$web = Plugin::getWebDir('ticketemailclient');
+$web = Plugin::getWebDir('ticketmailer');
 
 
 $subject = trim((string) ($_POST['subject'] ?? ''));
@@ -31,9 +31,9 @@ $recipients_to_raw  = (string) ($_POST['recipients_to']  ?? '');
 $recipients_cc_raw  = (string) ($_POST['recipients_cc']  ?? '');
 $recipients_bcc_raw = (string) ($_POST['recipients_bcc'] ?? '');
 
-$parsed_to  = PluginTicketemailclientRecipients::parseRaw($recipients_to_raw);
-$parsed_cc  = PluginTicketemailclientRecipients::parseRaw($recipients_cc_raw);
-$parsed_bcc = PluginTicketemailclientRecipients::parseRaw($recipients_bcc_raw);
+$parsed_to  = PluginTicketmailerRecipients::parseRaw($recipients_to_raw);
+$parsed_cc  = PluginTicketmailerRecipients::parseRaw($recipients_cc_raw);
+$parsed_bcc = PluginTicketmailerRecipients::parseRaw($recipients_bcc_raw);
 
 $recipients_to  = $parsed_to['valid'];
 $recipients_cc  = $parsed_cc['valid'];
@@ -47,17 +47,17 @@ if ($requesttypes_id !== 0) {
         || empty($requesttype->fields['is_active'])
         || empty($requesttype->fields['is_itilfollowup'])
     ) {
-        $errors[] = __('Selected follow-up source is unavailable.', 'ticketemailclient');
+        $errors[] = __('Selected follow-up source is unavailable.', 'ticketmailer');
     }
 }
 if ($subject === '') {
-    $errors[] = __('Subject is required.', 'ticketemailclient');
+    $errors[] = __('Subject is required.', 'ticketmailer');
 }
 if (trim(strip_tags($body_html)) === '') {
-    $errors[] = __('Body is required.', 'ticketemailclient');
+    $errors[] = __('Body is required.', 'ticketmailer');
 }
-if (!PluginTicketemailclientRecipients::hasAny($recipients_to, $recipients_cc, $recipients_bcc)) {
-    $errors[] = __('At least one recipient is required (To, CC, or BCC).', 'ticketemailclient');
+if (!PluginTicketmailerRecipients::hasAny($recipients_to, $recipients_cc, $recipients_bcc)) {
+    $errors[] = __('At least one recipient is required (To, CC, or BCC).', 'ticketmailer');
 }
 foreach ([
     'to'  => $parsed_to['invalid'],
@@ -66,7 +66,7 @@ foreach ([
 ] as $field => $invalid) {
     if ($invalid !== []) {
         $errors[] = sprintf(
-            __('Field "%1$s" contains an invalid address: %2$s', 'ticketemailclient'),
+            __('Field "%1$s" contains an invalid address: %2$s', 'ticketmailer'),
             strtoupper($field),
             implode(', ', $invalid),
         );
@@ -78,26 +78,26 @@ $all_recipients = array_values(array_unique(array_merge(
     $recipients_cc,
     $recipients_bcc,
 )));
-$mailbox_matches = PluginTicketemailclientMailboxGuard::findMatches($all_recipients);
+$mailbox_matches = PluginTicketmailerMailboxGuard::findMatches($all_recipients);
 $mailbox_override = !empty($_POST['mailbox_override']);
 if ($mailbox_matches !== [] && !$mailbox_override) {
     $errors[] = sprintf(
-        __('Recipient(s) match an active incoming mailbox login: %s. Confirm the override to send anyway. Aliases, forwarding, and non-email logins are not detected.', 'ticketemailclient'),
+        __('Recipient(s) match an active incoming mailbox login: %s. Confirm the override to send anyway. Aliases, forwarding, and non-email logins are not detected.', 'ticketmailer'),
         implode(', ', $mailbox_matches),
     );
 }
 
 if ($selected_history_attachments !== []) {
     try {
-        PluginTicketemailclientHistory::validateSelectedAttachments($ticket, $selected_history_attachments);
+        PluginTicketmailerHistory::validateSelectedAttachments($ticket, $selected_history_attachments);
     } catch (InvalidArgumentException) {
-        $errors[] = __('A selected history attachment is no longer available.', 'ticketemailclient');
+        $errors[] = __('A selected history attachment is no longer available.', 'ticketmailer');
     }
 }
 
 if ($errors !== []) {
     Html::header(
-        __('E-Mail antworten', 'ticketemailclient'),
+        __('E-Mail antworten', 'ticketmailer'),
         $_SERVER['PHP_SELF'],
         'helpdesk',
         'ticket',
@@ -118,7 +118,7 @@ if ($errors !== []) {
         ? (int) $_SESSION['glpiactiveprofile']['id']
         : null;
     $twig = TemplateRenderer::getInstance();
-    echo $twig->render('@ticketemailclient/compose.html.twig', [
+    echo $twig->render('@ticketmailer/compose.html.twig', [
         'tickets_id'         => $tickets_id,
         'ticket'             => $ticket,
         'recipients_to'      => $recipients_to,
@@ -130,9 +130,9 @@ if ($errors !== []) {
         'subject'            => $subject,
         'body_editor'        => $body_editor,
         'editor_id'          => $editor_id,
-        'followup_template_dropdown' => PluginTicketemailclientTimelineAction::followupTemplateDropdown(),
-        'followup_source_dropdown' => PluginTicketemailclientTimelineAction::followupSourceDropdown(),
-        'followup_template_url' => PluginTicketemailclientTimelineAction::followupTemplateUrl(),
+        'followup_template_dropdown' => PluginTicketmailerTimelineAction::followupTemplateDropdown(),
+        'followup_source_dropdown' => PluginTicketmailerTimelineAction::followupSourceDropdown(),
+        'followup_template_url' => PluginTicketmailerTimelineAction::followupTemplateUrl(),
         'errors'             => $errors,
         'csrf_token'         => Session::getNewCSRFToken(),
         'ajax_csrf'          => Session::getNewCSRFToken(true),
@@ -140,12 +140,12 @@ if ($errors !== []) {
         'upload_url'         => $web . '/ajax/upload.php',
         'image_url'          => $web . '/ajax/upload_image.php',
         'validate_url'       => $web . '/ajax/validate_recipients.php',
-        'attachment_max'     => PluginTicketemailclientConfig::uploadMaxSizeLabel(),
-        'effectivePolicy'    => PluginTicketemailclientReplyPolicy::effectivePolicy($entities_id, $profiles_id),
+        'attachment_max'     => PluginTicketmailerConfig::uploadMaxSizeLabel(),
+        'effectivePolicy'    => PluginTicketmailerReplyPolicy::effectivePolicy($entities_id, $profiles_id),
         'mailbox_override'   => $mailbox_override,
         'mailbox_matches'    => $mailbox_matches,
         'include_history'    => $include_history,
-        'history_attachments' => PluginTicketemailclientHistory::availableAttachments($ticket),
+        'history_attachments' => PluginTicketmailerHistory::availableAttachments($ticket),
         'selected_history_attachments' => $selected_history_attachments,
     ]);
     Html::footer();
@@ -154,7 +154,7 @@ if ($errors !== []) {
 
 $attachments = [];
 $inline_images = [];
-$files_root = GLPI_PLUGIN_DOC_DIR . '/ticketemailclient/' . $tickets_id;
+$files_root = GLPI_PLUGIN_DOC_DIR . '/ticketmailer/' . $tickets_id;
 if (!is_dir($files_root)) {
     mkdir($files_root, 0o755, true);
 }
@@ -163,7 +163,7 @@ foreach ((array) ($_POST['attachments'] ?? []) as $a) {
         continue;
     }
     $stored = (string) ($a['stored'] ?? $a['path'] ?? '');
-    $real = PluginTicketemailclientHook::safeResolveUnder($files_root, $stored);
+    $real = PluginTicketmailerHook::safeResolveUnder($files_root, $stored);
     if ($real === null || !is_file($real)) {
         continue;
     }
@@ -181,7 +181,7 @@ foreach ((array) ($_POST['inline_images'] ?? []) as $i) {
         continue;
     }
     $stored = (string) ($i['stored'] ?? $i['path'] ?? '');
-    $real = PluginTicketemailclientHook::safeResolveUnder($files_root, $stored);
+    $real = PluginTicketmailerHook::safeResolveUnder($files_root, $stored);
     if ($real === null || !is_file($real)) {
         continue;
     }
@@ -195,15 +195,15 @@ foreach ((array) ($_POST['inline_images'] ?? []) as $i) {
 }
 
 if ($include_history) {
-    $body_html = PluginTicketemailclientHistory::appendToMessage(
+    $body_html = PluginTicketmailerHistory::appendToMessage(
         $body_html,
-        PluginTicketemailclientHistory::render($ticket),
+        PluginTicketmailerHistory::render($ticket),
     );
 }
 if ($selected_history_attachments !== []) {
     $attachments = array_merge(
         $attachments,
-        PluginTicketemailclientHistory::copySelectedAttachments($ticket, $selected_history_attachments),
+        PluginTicketmailerHistory::copySelectedAttachments($ticket, $selected_history_attachments),
     );
 }
 
@@ -227,7 +227,7 @@ foreach ($inline_images as $i) {
     ];
 }
 
-$payload = PluginTicketemailclientComposer::build(
+$payload = PluginTicketmailerComposer::build(
     $tickets_id,
     (int) Session::getLoginUserID(),
     $recipients_to,
@@ -239,7 +239,7 @@ $payload = PluginTicketemailclientComposer::build(
     $inline_images,
 );
 
-$log_id = PluginTicketemailclientAudit::createIntent(
+$log_id = PluginTicketmailerAudit::createIntent(
     $tickets_id,
     (int) Session::getLoginUserID(),
     $subject,
@@ -254,8 +254,8 @@ $log_id = PluginTicketemailclientAudit::createIntent(
     $mailbox_matches,
 );
 
-$result = PluginTicketemailclientMailer::send($payload);
-PluginTicketemailclientAudit::markSmtpResult(
+$result = PluginTicketmailerMailer::send($payload);
+PluginTicketmailerAudit::markSmtpResult(
     $log_id,
     $result['status'],
     $result['error'],
@@ -264,7 +264,7 @@ PluginTicketemailclientAudit::markSmtpResult(
 
 $timeline_recorded = false;
 if ($result['status'] === 'sent') {
-    $timeline = PluginTicketemailclientTimeline::recordOutbound([
+    $timeline = PluginTicketmailerTimeline::recordOutbound([
         'tickets_id'     => $tickets_id,
         'users_id'       => (int) Session::getLoginUserID(),
         'subject'        => $subject,
@@ -280,14 +280,14 @@ if ($result['status'] === 'sent') {
         'requesttypes_id' => $requesttypes_id,
     ]);
     if ($timeline['ok']) {
-        PluginTicketemailclientAudit::markTimelineResult(
+        PluginTicketmailerAudit::markTimelineResult(
             $log_id,
             'recorded',
             $timeline['followups_id'],
             null,
         );
         $timeline_recorded = true;
-        if (PluginTicketemailclientConfig::setWaitingAfterSend($ticket)) {
+        if (PluginTicketmailerConfig::setWaitingAfterSend($ticket)) {
             $ticket->update([
                 'id'            => $tickets_id,
                 'status'        => Ticket::WAITING,
@@ -295,7 +295,7 @@ if ($result['status'] === 'sent') {
             ]);
         }
     } else {
-        PluginTicketemailclientAudit::markTimelineResult(
+        PluginTicketmailerAudit::markTimelineResult(
             $log_id,
             'failed',
             null,

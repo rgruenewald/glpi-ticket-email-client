@@ -2,7 +2,7 @@
 # development stack. GLPI is pre-configured to point at
 # `mailpit:1025` for outbound SMTP; the plugin under
 # development is mounted at
-# `/var/www/html/plugins/ticketemailclient`.
+# `/var/www/html/plugins/ticketmailer`.
 #
 # Usage:
 #   docker compose up -d
@@ -32,7 +32,7 @@ services:
   mailpit:
     build:
       context: ./docker/mailpit
-    image: ticketemailclient/mailpit:latest
+    image: ticketmailer/mailpit:latest
     restart: unless-stopped
     ports:
       - "8025:8025"   # web UI
@@ -45,7 +45,7 @@ services:
   glpi:
     build:
       context: ./docker/glpi
-    image: ticketemailclient/glpi:latest
+    image: ticketmailer/glpi:latest
     restart: unless-stopped
     depends_on:
       db:
@@ -67,7 +67,7 @@ services:
       # Mount the plugin source from the repo root so
       # changes to PHP / templates / locale files are
       # picked up on container restart.
-      - .:/var/www/html/plugins/ticketemailclient
+      - .:/var/www/html/plugins/ticketmailer
       - glpi_data:/var/www/html/files
       - glpi_config:/etc/glpi
 

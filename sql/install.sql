@@ -1,7 +1,7 @@
--- sql/install.sql — v2 schema for ticketemailclient.
+-- sql/install.sql — v2 schema for ticketmailer.
 -- Idempotent: CREATE TABLE IF NOT EXISTS.
 
-CREATE TABLE IF NOT EXISTS glpi_plugin_ticketemailclient_logs (
+CREATE TABLE IF NOT EXISTS glpi_plugin_ticketmailer_logs (
     id                BIGINT       NOT NULL AUTO_INCREMENT,
     tickets_id        INT          NOT NULL,
     users_id          INT          NOT NULL,
@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS glpi_plugin_ticketemailclient_logs (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Minimal reply policy: entity + optional profile → mode.
-CREATE TABLE IF NOT EXISTS glpi_plugin_ticketemailclient_reply_policies (
+CREATE TABLE IF NOT EXISTS glpi_plugin_ticketmailer_reply_policies (
     id           INT          NOT NULL AUTO_INCREMENT,
     entities_id  INT          NOT NULL DEFAULT 0,
     profiles_id  INT          NULL,
@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS glpi_plugin_ticketemailclient_reply_policies (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Per-entity compose preferences. Global defaults use entities_id = 0.
-CREATE TABLE IF NOT EXISTS glpi_plugin_ticketemailclient_configs (
+CREATE TABLE IF NOT EXISTS glpi_plugin_ticketmailer_configs (
     entities_id              INT          NOT NULL,
     subject_prefix           VARCHAR(255) NOT NULL DEFAULT '[#%d]',
     signature_html           MEDIUMTEXT   NULL,

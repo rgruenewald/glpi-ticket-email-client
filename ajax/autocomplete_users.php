@@ -10,7 +10,7 @@ header('Content-Type: application/json; charset=utf-8');
 
 $tickets_id = (int) ($_POST['tickets_id'] ?? 0);
 $ticket = new Ticket();
-if ($tickets_id <= 0 || !$ticket->getFromDB($tickets_id) || !PluginTicketemailclientTimelineAction::canUse($ticket)) {
+if ($tickets_id <= 0 || !$ticket->getFromDB($tickets_id) || !PluginTicketmailerTimelineAction::canUse($ticket)) {
     http_response_code(403);
     echo json_encode(['error' => 'forbidden']);
     exit;

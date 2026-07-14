@@ -6,7 +6,7 @@
  * here per the spec assumption "HTML→text extraction is
  * a server-side concern in composer.class.php".
  */
-class PluginTicketemailclientComposer
+class PluginTicketmailerComposer
 {
     /**
      * @param list<string> $recipients_to
@@ -37,7 +37,7 @@ class PluginTicketemailclientComposer
         // SMTP auth identity so providers accept MAIL FROM; then GLPI
         // notification From/Admin. Never example.org — undeliverable.
         if ($from_email === '' || !filter_var($from_email, FILTER_VALIDATE_EMAIL)) {
-            $smtp_user = PluginTicketemailclientConfig::smtpUsername();
+            $smtp_user = PluginTicketmailerConfig::smtpUsername();
             if ($smtp_user !== '' && filter_var($smtp_user, FILTER_VALIDATE_EMAIL)) {
                 $from_email = $smtp_user;
             } else {

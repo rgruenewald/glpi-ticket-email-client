@@ -14,7 +14,7 @@ if ($log_id <= 0 || $attachment_id === '') {
     Html::displayNotFoundError();
 }
 
-$entry = PluginTicketemailclientAudit::find($log_id);
+$entry = PluginTicketmailerAudit::find($log_id);
 if ($entry === null) {
     Html::displayNotFoundError();
 }
@@ -24,7 +24,7 @@ if (!$ticket->getFromDB((int) $entry['tickets_id']) || !$ticket->canViewItem()) 
     Html::displayRightError();
 }
 
-$attachments = PluginTicketemailclientAudit::decodeJson((string) ($entry['attachments'] ?? ''));
+$attachments = PluginTicketmailerAudit::decodeJson((string) ($entry['attachments'] ?? ''));
 $found = null;
 foreach ($attachments as $a) {
     if (!is_array($a)) {
@@ -39,9 +39,9 @@ if ($found === null) {
     Html::displayNotFoundError();
 }
 
-$files_root = GLPI_PLUGIN_DOC_DIR . '/ticketemailclient/' . (int) $entry['tickets_id'];
+$files_root = GLPI_PLUGIN_DOC_DIR . '/ticketmailer/' . (int) $entry['tickets_id'];
 $stored     = (string) ($found['stored'] ?? $found['path'] ?? '');
-$real       = PluginTicketemailclientHook::safeResolveUnder($files_root, $stored);
+$real       = PluginTicketmailerHook::safeResolveUnder($files_root, $stored);
 if ($real === null || !is_file($real)) {
     if ($stored !== '' && str_starts_with($stored, $files_root)) {
         $real = realpath($stored) ?: null;

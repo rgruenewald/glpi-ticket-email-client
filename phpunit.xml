@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  phpunit.xml — PHPUnit 10 config for the ticketemailclient plugin.
+  phpunit.xml — PHPUnit 10 config for the ticketmailer plugin.
   Mirrors the acceptance criteria from
   .agent/contracts/ticket-mailer/spec.md and the structural
   checks encoded in score.sh. The two test layers are
@@ -16,7 +16,7 @@
          failOnWarning="true"
          failOnNotice="true">
     <testsuites>
-        <testsuite name="ticketemailclient">
+        <testsuite name="ticketmailer">
             <directory>tests</directory>
         </testsuite>
     </testsuites>

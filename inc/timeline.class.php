@@ -4,7 +4,7 @@
  * Uses _disablenotif=1 so GLPI does not fan out a second notification.
  * Does NOT call NotificationEvent / NotificationMailing.
  */
-class PluginTicketemailclientTimeline
+class PluginTicketmailerTimeline
 {
     /**
      * @param array{
@@ -91,33 +91,33 @@ class PluginTicketemailclientTimeline
         $sent_at = (string) ($payload['sent_at'] ?? date('Y-m-d H:i:s'));
         $from    = (string) ($payload['from'] ?? '');
         $log_id  = (int) ($payload['log_id'] ?? 0);
-        $web     = Plugin::getWebDir('ticketemailclient');
+        $web     = Plugin::getWebDir('ticketmailer');
 
         $lines   = [];
-        $lines[] = '<div class="ticketemailclient-followup">';
-        $lines[] = '<p><strong>' . $esc(__('GLPI Ticket Email Client', 'ticketemailclient')) . '</strong></p>';
+        $lines[] = '<div class="ticketmailer-followup">';
+        $lines[] = '<p><strong>' . $esc(__('GLPI Ticket Email Client', 'ticketmailer')) . '</strong></p>';
         $lines[] = '<dl>';
-        $lines[] = '<dt>' . $esc(__('Sent at', 'ticketemailclient')) . '</dt><dd>' . $esc($sent_at) . '</dd>';
+        $lines[] = '<dt>' . $esc(__('Sent at', 'ticketmailer')) . '</dt><dd>' . $esc($sent_at) . '</dd>';
         if ($from !== '') {
-            $lines[] = '<dt>' . $esc(__('From', 'ticketemailclient')) . '</dt><dd>' . $esc($from) . '</dd>';
+            $lines[] = '<dt>' . $esc(__('From', 'ticketmailer')) . '</dt><dd>' . $esc($from) . '</dd>';
         }
-        $lines[] = '<dt>' . $esc(__('To', 'ticketemailclient')) . '</dt><dd>'
+        $lines[] = '<dt>' . $esc(__('To', 'ticketmailer')) . '</dt><dd>'
             . $join((array) ($payload['recipients_to'] ?? [])) . '</dd>';
-        $lines[] = '<dt>' . $esc(__('CC', 'ticketemailclient')) . '</dt><dd>'
+        $lines[] = '<dt>' . $esc(__('CC', 'ticketmailer')) . '</dt><dd>'
             . $join((array) ($payload['recipients_cc'] ?? [])) . '</dd>';
         // Full BCC list intentionally visible to every ticket reader (A10).
-        $lines[] = '<dt>' . $esc(__('BCC', 'ticketemailclient')) . '</dt><dd>'
+        $lines[] = '<dt>' . $esc(__('BCC', 'ticketmailer')) . '</dt><dd>'
             . $join((array) ($payload['recipients_bcc'] ?? [])) . '</dd>';
-        $lines[] = '<dt>' . $esc(__('Subject', 'ticketemailclient')) . '</dt><dd>'
+        $lines[] = '<dt>' . $esc(__('Subject', 'ticketmailer')) . '</dt><dd>'
             . $esc((string) ($payload['subject'] ?? '')) . '</dd>';
         $lines[] = '</dl>';
 
         $body = self::sanitizeHtml((string) ($payload['body_html'] ?? ''));
-        $lines[] = '<div class="ticketemailclient-followup-body">' . $body . '</div>';
+        $lines[] = '<div class="ticketmailer-followup-body">' . $body . '</div>';
 
         $attachments = (array) ($payload['attachments'] ?? []);
         if ($attachments !== []) {
-            $lines[] = '<p><strong>' . $esc(__('Attachments', 'ticketemailclient')) . '</strong></p><ul>';
+            $lines[] = '<p><strong>' . $esc(__('Attachments', 'ticketmailer')) . '</strong></p><ul>';
             foreach ($attachments as $a) {
                 $id   = (string) ($a['id'] ?? '');
                 $name = (string) ($a['filename'] ?? $id);
@@ -127,9 +127,9 @@ class PluginTicketemailclientTimeline
                 }
                 $href = $web . '/front/download.php?log_id=' . $log_id
                     . '&attachment_id=' . rawurlencode($id);
-                $open_attachment = $esc(__('Open attachment', 'ticketemailclient'));
+                $open_attachment = $esc(__('Open attachment', 'ticketmailer'));
                 $lines[] = '<li>' . $esc($name)
-                    . ' <a class="ticketemailclient-attachment-open" href="' . $esc($href)
+                    . ' <a class="ticketmailer-attachment-open" href="' . $esc($href)
                     . '" aria-label="' . $open_attachment . '" title="' . $open_attachment
                     . '"><i class="ti ti-external-link" aria-hidden="true"></i></a></li>';
             }

@@ -9,7 +9,7 @@
  * proof (T08 spike), effectivePolicy() never suppresses native reply
  * via DOM/CSS; hide_native is treated as promoted.
  */
-class PluginTicketemailclientReplyPolicy
+class PluginTicketmailerReplyPolicy
 {
     public const MODE_AVAILABLE   = 'available';
     public const MODE_PROMOTED    = 'promoted';
@@ -33,7 +33,7 @@ class PluginTicketemailclientReplyPolicy
         global $DB;
         if ($profiles_id !== null) {
             $it = $DB->request([
-                'FROM'  => 'glpi_plugin_ticketemailclient_reply_policies',
+                'FROM'  => 'glpi_plugin_ticketmailer_reply_policies',
                 'WHERE' => [
                     'entities_id' => $entities_id,
                     'profiles_id' => $profiles_id,
@@ -45,7 +45,7 @@ class PluginTicketemailclientReplyPolicy
             }
         }
         $it = $DB->request([
-            'FROM'  => 'glpi_plugin_ticketemailclient_reply_policies',
+            'FROM'  => 'glpi_plugin_ticketmailer_reply_policies',
             'WHERE' => [
                 'entities_id' => $entities_id,
                 'profiles_id' => null,

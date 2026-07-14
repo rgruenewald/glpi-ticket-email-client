@@ -65,7 +65,7 @@ global.document = {
         };
     },
     querySelectorAll(selector) {
-        return selector === '.ticketemailclient-compose' ? [form] : [];
+        return selector === '.ticketmailer-compose' ? [form] : [];
     },
 };
 let templateChangeHandler;

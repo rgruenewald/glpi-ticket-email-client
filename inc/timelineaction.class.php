@@ -9,7 +9,7 @@
 
 use Glpi\Application\View\TemplateRenderer;
 
-class PluginTicketemailclientTimelineAction
+class PluginTicketmailerTimelineAction
 {
     private const REPLY = 'reply';
 
@@ -34,7 +34,7 @@ class PluginTicketemailclientTimelineAction
         }
 
         return [
-            'ticketemailclient_email_reply' => self::action(),
+            'ticketmailer_email_reply' => self::action(),
         ];
     }
 
@@ -48,16 +48,16 @@ class PluginTicketemailclientTimelineAction
             return;
         }
 
-        $settings = PluginTicketemailclientConfig::forEntity(
+        $settings = PluginTicketmailerConfig::forEntity(
             (int) $ticket->getField('entities_id'),
         );
 
         $class = self::actionClass();
         $label = self::label();
         $auto_open = $settings['open_reply_on_ticket']
-            ? ' data-ticketemailclient-auto-open="1"'
+            ? ' data-ticketmailer-auto-open="1"'
             : '';
-        echo '<li><button type="button" class="btn btn-primary mb-2 ticketemailclient-timeline-action"'
+        echo '<li><button type="button" class="btn btn-primary mb-2 ticketmailer-timeline-action"'
             . ' aria-label="' . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '" title="'
             . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '" data-bs-toggle="collapse" data-bs-target="#new-'
             . htmlspecialchars($class, ENT_QUOTES, 'UTF-8')
@@ -65,7 +65,7 @@ class PluginTicketemailclientTimelineAction
             . htmlspecialchars($class, ENT_QUOTES, 'UTF-8')
             . '-block" aria-expanded="false"' . $auto_open . '><i class="ti ti-mail'
             . '"></i><span>'
-            . htmlspecialchars(__('Reply', 'ticketemailclient'), ENT_QUOTES, 'UTF-8')
+            . htmlspecialchars(__('Reply', 'ticketmailer'), ENT_QUOTES, 'UTF-8')
             . '</span></button></li>';
     }
 
@@ -81,7 +81,7 @@ class PluginTicketemailclientTimelineAction
         $profiles_id = isset($_SESSION['glpiactiveprofile']['id'])
             ? (int) $_SESSION['glpiactiveprofile']['id']
             : null;
-        return PluginTicketemailclientReplyPolicy::isEmailReplyAvailable(
+        return PluginTicketmailerReplyPolicy::isEmailReplyAvailable(
             (int) $ticket->getField('entities_id'),
             $profiles_id,
         );
@@ -106,8 +106,8 @@ class PluginTicketemailclientTimelineAction
             'class' => self::actionClass(),
             'icon' => 'ti ti-mail',
             'label' => self::label(),
-            'short_label' => __('Reply', 'ticketemailclient'),
-            'template' => '@ticketemailclient/timeline_action.html.twig',
+            'short_label' => __('Reply', 'ticketmailer'),
+            'template' => '@ticketmailer/timeline_action.html.twig',
             'item' => new self(),
             // The direct legacy action below keeps this control next to
             // Answer even when GLPI uses its merged action-button layout.
@@ -120,10 +120,10 @@ class PluginTicketemailclientTimelineAction
         $recipients_to = self::actorEmails($ticket, CommonITILActor::REQUESTER);
         $recipients_cc = self::actorEmails($ticket, CommonITILActor::OBSERVER);
         $tickets_id = (int) $ticket->getField('id');
-        $web = Plugin::getWebDir('ticketemailclient');
-        $editor_id = 'ticketemailclient-body-html-' . self::REPLY;
+        $web = Plugin::getWebDir('ticketmailer');
+        $editor_id = 'ticketmailer-body-html-' . self::REPLY;
 
-        return TemplateRenderer::getInstance()->render('@ticketemailclient/compose.html.twig', [
+        return TemplateRenderer::getInstance()->render('@ticketmailer/compose.html.twig', [
             'tickets_id' => $tickets_id,
             'ticket' => $ticket,
             'recipients_to' => $recipients_to,
@@ -132,7 +132,7 @@ class PluginTicketemailclientTimelineAction
             'recipients_to_raw' => implode(', ', $recipients_to),
             'recipients_cc_raw' => implode(', ', $recipients_cc),
             'recipients_bcc_raw' => '',
-            'subject' => PluginTicketemailclientConfig::subjectForTicket($ticket),
+            'subject' => PluginTicketmailerConfig::subjectForTicket($ticket),
             'body_editor' => $this->editor(self::entitySignature($ticket), self::REPLY, 14),
             'editor_id' => $editor_id,
             'followup_template_dropdown' => self::followupTemplateDropdown(),
@@ -145,18 +145,18 @@ class PluginTicketemailclientTimelineAction
             'image_url' => $web . '/ajax/upload_image.php',
             'validate_url' => $web . '/ajax/validate_recipients.php',
             'user_autocomplete_url' => $web . '/ajax/autocomplete_users.php',
-            'user_autocomplete_show_email' => PluginTicketemailclientConfig::forEntity(
+            'user_autocomplete_show_email' => PluginTicketmailerConfig::forEntity(
                 (int) $ticket->getField('entities_id'),
             )['recipient_autocomplete_show_email'],
-            'attachment_max' => PluginTicketemailclientConfig::uploadMaxSizeLabel(),
+            'attachment_max' => PluginTicketmailerConfig::uploadMaxSizeLabel(),
             'mailbox_override' => false,
             'mailbox_matches' => [],
             'errors' => [],
-            'history_attachments' => PluginTicketemailclientHistory::availableAttachments($ticket),
+            'history_attachments' => PluginTicketmailerHistory::availableAttachments($ticket),
             'include_history' => false,
             'selected_history_attachments' => [],
             'inline' => $inline,
-            'form_id' => 'ticketemailclient-email-reply',
+            'form_id' => 'ticketmailer-email-reply',
             'close_target' => $inline ? self::collapseTarget() : '',
         ]);
     }
@@ -167,7 +167,7 @@ class PluginTicketemailclientTimelineAction
         return Html::textarea([
             'name' => 'body_html',
             'value' => $value,
-            'editor_id' => 'ticketemailclient-body-html-' . $mode,
+            'editor_id' => 'ticketmailer-body-html-' . $mode,
             'enable_richtext' => true,
             'enable_images' => true,
             'enable_fileupload' => false,
@@ -228,7 +228,7 @@ class PluginTicketemailclientTimelineAction
      */
     private static function entitySignature(Ticket $ticket): string
     {
-        $sig = trim(PluginTicketemailclientConfig::signatureForTicket($ticket));
+        $sig = trim(PluginTicketmailerConfig::signatureForTicket($ticket));
         if ($sig === '') {
             $entity = new Entity();
             if (!$entity->getFromDB((int) $ticket->getField('entities_id'))) {
@@ -242,13 +242,13 @@ class PluginTicketemailclientTimelineAction
         // ponytail: nl2br for plain text; HTML passes through as-is
         $html = preg_match('/<[a-z][\s\S]*>/i', $sig) ? $sig : nl2br(htmlspecialchars($sig, ENT_QUOTES, 'UTF-8'));
 
-        return '<hr class="ticketemailclient-signature-sep"><div class="ticketemailclient-signature">'
+        return '<hr class="ticketmailer-signature-sep"><div class="ticketmailer-signature">'
             . $html . '</div>';
     }
 
     private static function actionClass(): string
     {
-        return 'PluginTicketemailclientTimelineReply';
+        return 'PluginTicketmailerTimelineReply';
     }
 
     private static function collapseTarget(): string
@@ -258,6 +258,6 @@ class PluginTicketemailclientTimelineAction
 
     private static function label(): string
     {
-        return __('E-Mail antworten', 'ticketemailclient');
+        return __('E-Mail antworten', 'ticketmailer');
     }
 }

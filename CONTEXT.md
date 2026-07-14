@@ -1,12 +1,12 @@
-# ticketemailclient — project context
+# ticketmailer — project context
 
 ## Identity
 
-- **Name:** `ticketemailclient` (GLPI plugin directory / gettext domain)
+- **Name:** `ticketmailer` (GLPI plugin directory / gettext domain)
 - **Type:** GLPI 11 plugin (`composer.json` type `glpi-plugin`)
 - **Runtime:** PHP ≥ 8.2, GLPI ^11.0 (verified against 11.0.8)
 - **License:** GPL-3.0-or-later
-- **Version constant:** `PLUGIN_TICKETEMAILCLIENT_VERSION` in `setup.php` (currently 2.0.0)
+- **Version constant:** `PLUGIN_TICKETMAILER_VERSION` in `setup.php` (currently 2.0.0)
 
 ## One-liner
 
@@ -16,7 +16,7 @@ Ticket-context outbound email client: compose / reply / forward from a ticket, s
 
 | Term | Meaning |
 |---|---|
-| Audit log | Row in `glpi_plugin_ticketemailclient_logs` (intent + outcome) |
+| Audit log | Row in `glpi_plugin_ticketmailer_logs` (intent + outcome) |
 | Timeline followup | Standard GLPI `ITILFollowup` on the ticket (`_disablenotif=1`) |
 | Reply policy | Per entity/(optional) profile mode: `available` \| `promoted` \| `hide_native` |
 | Mailbox guard | Best-effort match of recipients vs active `glpi_mailcollectors.login` emails |
@@ -41,12 +41,12 @@ Ticket-context outbound email client: compose / reply / forward from a ticket, s
 
 ```
 setup.php / hook.php     plugin meta, hooks, install/uninstall
-inc/*.class.php          PluginTicketemailclient* domain logic
+inc/*.class.php          PluginTicketmailer* domain logic
 front/*.php              compose, send, forward, log, download
 ajax/*.php               validate, upload, forward_preview
 templates/*.html.twig    compose / forward / log_entry UI
 sql/                     install + versioned updates
-locales/                 ticketemailclient.{pot,en.po,de.po}
+locales/                 ticketmailer.{pot,en.po,de.po}
 docker/ + compose        GLPI 11 + MariaDB + Mailpit
 tests/                   PHPUnit acceptance
 ```
@@ -58,8 +58,8 @@ tests/                   PHPUnit acceptance
 
 ## Schema
 
-- `glpi_plugin_ticketemailclient_logs` — audit + SMTP + followup link + mailbox override evidence
-- `glpi_plugin_ticketemailclient_reply_policies` — `entities_id`, nullable `profiles_id`, `mode`
+- `glpi_plugin_ticketmailer_logs` — audit + SMTP + followup link + mailbox override evidence
+- `glpi_plugin_ticketmailer_reply_policies` — `entities_id`, nullable `profiles_id`, `mode`
 - Fresh install: `sql/install.sql` · Upgrade path: `sql/update-1.1.0.sql` · Drop: `sql/uninstall.sql`
 
 ## Non-goals
@@ -71,8 +71,8 @@ IMAP/inbound parse · drafts · queue/retry daemon · SMTP server/UI · core GLP
 | Skill | When |
 |---|---|
 | `.agents/skills/glpi-plugin-runtime/SKILL.md` | hooks, install, class map, docker mount |
-| `.agents/skills/ticketemailclient-compose-send/SKILL.md` | compose/send/timeline/mailbox/ACL |
-| `.agents/skills/ticketemailclient-verify/SKILL.md` | score.sh, PHPUnit, smoke |
+| `.agents/skills/ticketmailer-compose-send/SKILL.md` | compose/send/timeline/mailbox/ACL |
+| `.agents/skills/ticketmailer-verify/SKILL.md` | score.sh, PHPUnit, smoke |
 
 ## Verify (quick)
 

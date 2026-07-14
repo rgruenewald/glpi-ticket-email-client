@@ -4,7 +4,7 @@
     let classObserver;
     let lastComposeActive = false;
 
-    const COMPOSE_SELECTOR = '.ticketemailclient-compose';
+    const COMPOSE_SELECTOR = '.ticketmailer-compose';
 
     const isFormVisible = (el) => {
         if (!el) {
@@ -35,7 +35,7 @@
             return;
         }
         lastComposeActive = next;
-        document.body?.classList.toggle('ticketemailclient-compose-active', next);
+        document.body?.classList.toggle('ticketmailer-compose-active', next);
     };
 
     const scheduleSyncBurst = () => {
@@ -53,7 +53,7 @@
             return;
         }
 
-        const reply = document.querySelector('.ticketemailclient-timeline-action[data-ticketemailclient-auto-open="1"]');
+        const reply = document.querySelector('.ticketmailer-timeline-action[data-ticketmailer-auto-open="1"]');
         if (!reply) {
             return;
         }
@@ -78,11 +78,11 @@
         syncComposeActions();
     }
     document.addEventListener('click', (event) => {
-        if (event.target?.closest?.('.ticketemailclient-timeline-action')) {
+        if (event.target?.closest?.('.ticketmailer-timeline-action')) {
             optimisticUntil = Date.now() + 800;
             if (!lastComposeActive) {
                 lastComposeActive = true;
-                document.body?.classList.add('ticketemailclient-compose-active');
+                document.body?.classList.add('ticketmailer-compose-active');
             }
             scheduleSyncBurst();
         }

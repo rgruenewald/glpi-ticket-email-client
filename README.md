@@ -40,18 +40,18 @@ Read this section before installing the plugin.
 ## Installation
 
 1. Download a release archive or clone this repository.
-2. Place the source in the GLPI plugins directory as `ticketemailclient`:
+2. Place the source in the GLPI plugins directory as `ticketmailer`:
 
    ```text
-   <glpi-root>/plugins/ticketemailclient
+   <glpi-root>/plugins/ticketmailer
    ```
 
 3. Ensure the web-server user can read the plugin files and write GLPI's configured document directory.
 4. From the GLPI root, install and enable the plugin:
 
    ```bash
-   php bin/console plugin:install ticketemailclient
-   php bin/console plugin:enable ticketemailclient
+   php bin/console plugin:install ticketmailer
+   php bin/console plugin:enable ticketmailer
    ```
 
 5. Configure SMTP under GLPI's core mail settings. GLPI Ticket Email Client has no SMTP host, credentials, or transport settings of its own.
@@ -60,7 +60,7 @@ Read this section before installing the plugin.
 ### Upgrade
 
 1. Back up the GLPI database and document directory using your normal GLPI maintenance procedure.
-2. Replace the plugin directory with the new release while preserving the directory name `ticketemailclient`.
+2. Replace the plugin directory with the new release while preserving the directory name `ticketmailer`.
 3. Run GLPI's plugin update flow from the administration UI or CLI.
 4. Confirm that the plugin reports version `2.0.0` and execute the smoke checks below.
 
@@ -99,7 +99,7 @@ A successful send has both `status = sent` and `timeline_status = recorded` in t
 
 ## Data stored by the plugin
 
-`glpi_plugin_ticketemailclient_logs` stores the ticket and sender IDs, timestamp, subject, HTML and plain-text body, complete recipient lists, attachment descriptors, mailbox-override evidence, SMTP result, message ID, and linked followup/timeline status.
+`glpi_plugin_ticketmailer_logs` stores the ticket and sender IDs, timestamp, subject, HTML and plain-text body, complete recipient lists, attachment descriptors, mailbox-override evidence, SMTP result, message ID, and linked followup/timeline status.
 
 Outbound files are stored under GLPI's plugin document directory. They are addressed by generated identifiers and resolved server-side only after ticket-read authorization.
 

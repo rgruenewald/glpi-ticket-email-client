@@ -176,7 +176,7 @@ namespace {
         #[Test]
         public function sends_complete_message_through_glpi_mailer(): void
         {
-            $result = PluginTicketemailclientMailer::send([
+            $result = PluginTicketmailerMailer::send([
                 'from' => 'sender@example.test',
                 'from_name' => 'Sender',
                 'to' => ['to@example.test'],
@@ -192,7 +192,7 @@ namespace {
                 ]],
                 'inline_images' => [[
                     'path' => '/tmp/image.png',
-                    'cid' => 'image-1@ticketemailclient',
+                    'cid' => 'image-1@ticketmailer',
                     'name' => 'image.png',
                     'mime' => 'image/png',
                 ]],
@@ -207,7 +207,7 @@ namespace {
             self::assertSame('<p>HTML</p>', $email->html);
             self::assertSame('Text', $email->text);
             self::assertCount(2, $email->parts);
-            self::assertSame('image-1@ticketemailclient', $email->parts[1]->contentId);
+            self::assertSame('image-1@ticketmailer', $email->parts[1]->contentId);
         }
     }
 }

@@ -49,7 +49,7 @@ if [ ! -f /etc/glpi/glpicrypt.key ]; then
 fi
 
 # First-boot install (writes glpi DB schema, creates the
-# default admin user, activates plugins/ticketemailclient).
+# default admin user, activates plugins/ticketmailer).
 # Marker lives on the glpi_config volume so recreate is stable.
 if [ "${GLPI_INSTALL:-0}" = "1" ] && [ ! -f /etc/glpi/.glpi_installed ]; then
   setup-glpi.sh

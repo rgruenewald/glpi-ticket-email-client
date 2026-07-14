@@ -6,7 +6,7 @@
  * glpi_mailcollectors.login values that themselves look like emails.
  * Aliases, forwarding, and non-email logins are NOT detected.
  */
-class PluginTicketemailclientMailboxGuard
+class PluginTicketmailerMailboxGuard
 {
     /**
      * @param list<string> $recipients normalized addresses

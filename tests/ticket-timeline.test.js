@@ -79,13 +79,13 @@ global.document = {
         }
     },
     querySelector(selector) {
-        if (selector === '.ticketemailclient-timeline-action[data-ticketemailclient-auto-open="1"]') {
+        if (selector === '.ticketmailer-timeline-action[data-ticketmailer-auto-open="1"]') {
             return replyButton;
         }
         assert.fail('unexpected querySelector: ' + selector);
     },
     querySelectorAll(selector) {
-        if (selector === '.ticketemailclient-compose') {
+        if (selector === '.ticketmailer-compose') {
             return composeForms;
         }
         assert.fail('unexpected querySelectorAll: ' + selector);
@@ -155,7 +155,7 @@ mutation();
 flushTimers();
 assert.equal(clicks, 1, 'reply opens when GLPI inserts its action button later');
 assert.equal(
-    document.body.classList.contains('ticketemailclient-compose-active'),
+    document.body.classList.contains('ticketmailer-compose-active'),
     true,
     'timeline actions are hidden while the email reply form is open',
 );
@@ -165,7 +165,7 @@ replyPanelOpen = false;
 composeForms = [makeForm(false)];
 jqueryHidden();
 assert.equal(
-    document.body.classList.contains('ticketemailclient-compose-active'),
+    document.body.classList.contains('ticketmailer-compose-active'),
     false,
     'timeline actions return when the email reply form is closed',
 );
@@ -175,7 +175,7 @@ forwardPanelOpen = true;
 composeForms = [makeForm(true)];
 jqueryShown();
 assert.equal(
-    document.body.classList.contains('ticketemailclient-compose-active'),
+    document.body.classList.contains('ticketmailer-compose-active'),
     true,
     'timeline actions are hidden while the email forward form is open',
 );
@@ -185,7 +185,7 @@ forwardPanelOpen = false;
 composeForms = [makeForm(false)];
 jqueryHidden();
 assert.equal(
-    document.body.classList.contains('ticketemailclient-compose-active'),
+    document.body.classList.contains('ticketmailer-compose-active'),
     false,
     'body class cleared before optimistic click test',
 );
@@ -194,21 +194,21 @@ assert.equal(
 // Simulate user clicking a Reply timeline action button
 replyPanelOpen = true;
 composeForms = [makeForm(false)]; // form not visible yet (BS still transitioning)
-clickCapture({target: {closest: (sel) => sel === '.ticketemailclient-timeline-action' ? {} : null}});
+clickCapture({target: {closest: (sel) => sel === '.ticketmailer-timeline-action' ? {} : null}});
 assert.equal(
-    document.body.classList.contains('ticketemailclient-compose-active'),
+    document.body.classList.contains('ticketmailer-compose-active'),
     true,
     'optimistic hide fires immediately on plugin action click before BS transition completes',
 );
 flushTimers();
 assert.equal(
-    document.body.classList.contains('ticketemailclient-compose-active'),
+    document.body.classList.contains('ticketmailer-compose-active'),
     true,
     'optimistic window keeps body class alive until form becomes visible',
 );
 flushTimers();
 assert.equal(
-    document.body.classList.contains('ticketemailclient-compose-active'),
+    document.body.classList.contains('ticketmailer-compose-active'),
     true,
     'body class stays active after collapse transition completes',
 );
@@ -226,7 +226,7 @@ mutation();
 flushTimers();
 assert.equal(clicks, 1, 'later page updates do not reopen a manually closed reply');
 assert.equal(
-    document.body.classList.contains('ticketemailclient-compose-active'),
+    document.body.classList.contains('ticketmailer-compose-active'),
     false,
     'timeline actions remain available after the compose form is closed',
 );

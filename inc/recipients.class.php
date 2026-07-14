@@ -6,7 +6,7 @@
  * non-empty token, normalizes valid addresses. Invalid tokens are
  * never silently discarded.
  */
-class PluginTicketemailclientRecipients
+class PluginTicketmailerRecipients
 {
     /**
      * Parse raw recipient input. Returns valid addresses and

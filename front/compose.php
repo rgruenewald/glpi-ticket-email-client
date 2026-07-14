@@ -1,13 +1,13 @@
 <?php
 /**
  * Direct compose URL fallback. The ticket timeline uses
- * PluginTicketemailclientTimelineAction for the normal inline UI.
+ * PluginTicketmailerTimelineAction for the normal inline UI.
  */
 
 include_once __DIR__ . '/../../../inc/includes.php';
 
 $plugin = new Plugin();
-if (!$plugin->isInstalled('ticketemailclient') || !$plugin->isActivated('ticketemailclient')) {
+if (!$plugin->isInstalled('ticketmailer') || !$plugin->isActivated('ticketmailer')) {
     Html::displayNotFoundError();
 }
 Session::checkLoginUser();
@@ -17,17 +17,17 @@ $ticket = new Ticket();
 if ($tickets_id <= 0 || !$ticket->getFromDB($tickets_id)) {
     Html::displayNotFoundError();
 }
-if (!PluginTicketemailclientTimelineAction::canUse($ticket)) {
+if (!PluginTicketmailerTimelineAction::canUse($ticket)) {
     Html::displayRightError();
 }
 
 Html::header(
-    __('E-Mail antworten', 'ticketemailclient'),
+    __('E-Mail antworten', 'ticketmailer'),
     $_SERVER['PHP_SELF'],
     'helpdesk',
     'ticket',
 );
-echo PluginTicketemailclientTimelineAction::renderReply($ticket, false);
+echo PluginTicketmailerTimelineAction::renderReply($ticket, false);
 
 
 Html::footer();
