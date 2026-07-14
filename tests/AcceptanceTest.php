@@ -539,6 +539,19 @@ final class AcceptanceTest extends TestCase
         $this->assertFileExists($reply);
         $this->assertStringContainsString('renderReply', (string) file_get_contents($reply));
     }
+
+    #[Test]
+    public function v2_config_form_posts_and_redirects_to_plugin_controller_url(): void
+    {
+        $config = (string) file_get_contents(self::REPO_ROOT . '/front/config.form.php');
+
+        $this->assertStringContainsString(
+            "Plugin::getWebDir('ticketmailer')",
+            $config,
+        );
+        $this->assertStringContainsString('$config_url', $config);
+        $this->assertStringNotContainsString('PHP_SELF', $config);
+    }
     // ---- helpers --------------------------------------------------------
 
 

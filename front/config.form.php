@@ -11,6 +11,7 @@ $entities_id = (int) ($_GET['entities_id'] ?? $_POST['entities_id'] ?? ($_SESSIO
 if (!Session::haveAccessToEntity($entities_id)) {
     Html::displayRightError();
 }
+$config_url = Plugin::getWebDir('ticketmailer') . '/front/config.form.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     PluginTicketmailerConfig::saveEntity(
@@ -22,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         !empty($_POST['open_reply_on_ticket']),
         !empty($_POST['recipient_autocomplete_show_email']),
     );
-    Html::redirect($_SERVER['PHP_SELF'] . '?entities_id=' . $entities_id);
+    Html::redirect($config_url . '?entities_id=' . $entities_id);
 }
 
 $settings = PluginTicketmailerConfig::forEntity($entities_id);
@@ -39,14 +40,14 @@ $signature_editor = Html::textarea([
     'display'         => false,
 ]);
 
-Html::header(__('Outbound email', 'ticketmailer'), $_SERVER['PHP_SELF'], 'config', 'plugins');
-echo '<form method="get" action="' . htmlspecialchars($_SERVER['PHP_SELF'], ENT_QUOTES, 'UTF-8') . '" class="mb-3">';
+Html::header(__('Outbound email', 'ticketmailer'), $config_url, 'config', 'plugins');
+echo '<form method="get" action="' . htmlspecialchars($config_url, ENT_QUOTES, 'UTF-8') . '" class="mb-3">';
 echo '<label class="me-2" for="dropdown_entities_id">' . __('Entity') . '</label>';
 echo $entity_dropdown;
 echo '<button type="submit" class="btn btn-secondary ms-2">' . __('Show') . '</button>';
 echo '</form>';
 
-echo '<form method="post" action="' . htmlspecialchars($_SERVER['PHP_SELF'], ENT_QUOTES, 'UTF-8') . '">';
+echo '<form method="post" action="' . htmlspecialchars($config_url, ENT_QUOTES, 'UTF-8') . '">';
 echo Html::hidden('_glpi_csrf_token', ['value' => Session::getNewCSRFToken()]);
 echo Html::hidden('entities_id', ['value' => $entities_id]);
 echo '<div class="card"><div class="card-body"><div class="row g-3">';
