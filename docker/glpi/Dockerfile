@@ -32,12 +32,23 @@ RUN set -eux; \
     rm -f /tmp/glpi.tgz; \
     chown -R www-data:www-data /var/www/html
 
-# GLPI 11 requires the public directory as Apache's document root.
+# GLPI 11 requires the public directory as Apache's document root. Plugin
+# resources remain outside that directory, so expose the plugin tree
+# explicitly; otherwise GLPI's add_css/add_javascript hooks produce 404s.
 RUN set -eux; \
-    a2enmod rewrite; \
+    a2enmod alias rewrite; \
     sed -i 's/AllowOverride None/AllowOverride All/g' /etc/apache2/apache2.conf; \
     sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf; \
-    sed -i '/<\/VirtualHost>/i\    FallbackResource /index.php' /etc/apache2/sites-available/000-default.conf
+    sed -i '/<\/VirtualHost>/i\    FallbackResource /index.php' /etc/apache2/sites-available/000-default.conf; \
+    printf '%s\n' \
+        'Alias /plugins/ /var/www/html/plugins/' \
+        '<Directory /var/www/html/plugins/>' \
+        '    Options FollowSymLinks' \
+        '    AllowOverride None' \
+        '    Require all granted' \
+        '</Directory>' \
+        > /etc/apache2/conf-available/glpi-plugins.conf; \
+    a2enconf glpi-plugins
 
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 COPY setup-glpi.sh         /usr/local/bin/setup-glpi.sh
