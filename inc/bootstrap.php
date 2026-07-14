@@ -11,5 +11,6 @@ if (!class_exists('Session') || !isset($GLOBALS['DB'])) {
     $kernel = new \Glpi\Kernel\Kernel();
     $kernel->boot();
 }
+// Direct plugin aliases bypass GLPI's normal request listener.
 Session::setPath();
 Session::start();
