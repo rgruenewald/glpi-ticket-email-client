@@ -36,8 +36,12 @@
     min-height: 2.5rem;
 }
 
-/* Editor / attach rows: no label, content fills the row */
-.ticketmailer-mail-row--editor,
+/* Editor / attach rows: no label, content fills row */
+.ticketmailer-mail-row--editor {
+    align-items: stretch;
+    padding: 0.25rem 0.75rem;
+}
+
 .ticketmailer-mail-row--attach {
     padding: 0.25rem 0.75rem;
 }
@@ -115,6 +119,8 @@
 .ticketmailer-editor .tox-tinymce,
 .ticketmailer-editor textarea {
     width: 100% !important;
+    min-height: 20rem !important;
+    box-sizing: border-box;
 }
 
 /* ── Attachment drop zone — full width, no centering ───── */
