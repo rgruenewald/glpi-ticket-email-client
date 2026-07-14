@@ -11,3 +11,5 @@ if (!class_exists('Session') || !isset($GLOBALS['DB'])) {
     $kernel = new \Glpi\Kernel\Kernel();
     $kernel->boot();
 }
+Session::setPath();
+Session::start();
