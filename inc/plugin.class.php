@@ -18,4 +18,10 @@ class PluginTicketemailclient extends CommonDBTM
     {
         return 'ticketemailclient';
     }
+
+    public static function getWebDir(): string
+    {
+        global $CFG_GLPI;
+        return rtrim((string) $CFG_GLPI['root_doc'], '/') . '/plugins/ticketemailclient';
+    }
 }

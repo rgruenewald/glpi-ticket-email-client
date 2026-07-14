@@ -1,43 +1,11 @@
 <?php
 /**
- * inc/config.class.php — thin reader over GLPI's core
- * SMTP configuration. The plugin does NOT ship its own
- * SMTP config form: it always reads from GLPI's core
- * config (spec § A8 / A9).
- *
- * Both code paths are intentionally exposed because
- * `$CFG_GLPI['smtp_*']` is GLPI's primary mailer config
- * array; the `Config::getConfigurationValue()` wrapper
- * is the modern accessor used elsewhere in GLPI 10.
+ * inc/config.class.php — reader for the small subset of GLPI core
+ * configuration needed outside GLPIMailer. Outbound transport itself
+ * always uses GLPI's configured mailer and has no plugin-side settings.
  */
 class PluginTicketemailclientConfig
 {
-    /**
-     * SMTP host. Empty string when GLPI is not yet
-     * configured.
-     */
-    public static function smtpHost(): string
-    {
-        $value = Config::getConfigurationValue('core', 'smtp_host');
-        if ($value === null || $value === false) {
-            // Fall back to the global config array for
-            // installations that have not yet migrated
-            // their mailer config to the typed column.
-            global $CFG_GLPI;
-            return (string) ($CFG_GLPI['smtp_host'] ?? '');
-        }
-        return (string) $value;
-    }
-
-    public static function smtpPort(): int
-    {
-        global $CFG_GLPI;
-        $value = Config::getConfigurationValue('core', 'smtp_port');
-        if ($value === null || $value === false) {
-            return (int) ($CFG_GLPI['smtp_port'] ?? 25);
-        }
-        return (int) $value;
-    }
 
     public static function smtpUsername(): string
     {
@@ -49,57 +17,6 @@ class PluginTicketemailclientConfig
         return (string) $value;
     }
 
-    public static function smtpPassword(): string
-    {
-        global $CFG_GLPI;
-        $value = Config::getConfigurationValue('core', 'smtp_passwd');
-        if ($value === null || $value === false || $value === '') {
-            $value = $CFG_GLPI['smtp_passwd'] ?? '';
-        }
-        $value = (string) $value;
-        if ($value === '') {
-            return '';
-        }
-        // GLPI stores smtp_passwd encrypted; GLPIMailer decrypts on send.
-        $plain = (new GLPIKey())->decrypt($value);
-        return is_string($plain) ? $plain : '';
-    }
-
-    /**
-     * SMTP secure transport for PHPMailer.
-     * Maps GLPI MAIL_* ints: 2=ssl, 3/4=tls, else none.
-     */
-    public static function smtpMode(): string
-    {
-        global $CFG_GLPI;
-        $value = Config::getConfigurationValue('core', 'smtp_mode');
-        if ($value === null || $value === false) {
-            $value = $CFG_GLPI['smtp_mode'] ?? 0;
-        }
-        // Accept already-mapped strings from tests/mocks.
-        if ($value === 'ssl' || $value === 'tls') {
-            return $value;
-        }
-        $mode = (int) $value;
-        if ($mode === 2 /* MAIL_SMTPSSL */) {
-            return 'ssl';
-        }
-        if ($mode === 3 /* MAIL_SMTPTLS */ || $mode === 4 /* MAIL_SMTPOAUTH */) {
-            return 'tls';
-        }
-        return '';
-    }
-
-    /** Whether GLPI wants peer cert verification for SMTP TLS/SSL. */
-    public static function smtpCheckCertificate(): bool
-    {
-        global $CFG_GLPI;
-        $value = Config::getConfigurationValue('core', 'smtp_check_certificate');
-        if ($value === null || $value === false) {
-            $value = $CFG_GLPI['smtp_check_certificate'] ?? 1;
-        }
-        return (bool) $value;
-    }
 
     /**
      * Maximum upload size for attachments (in bytes).

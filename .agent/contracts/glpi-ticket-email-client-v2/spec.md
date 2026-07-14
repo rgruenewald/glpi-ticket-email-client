@@ -35,9 +35,9 @@ This contract supersedes conflicting parts of `.agent/contracts/ticket-mailer/sp
 
 ## Target compatibility
 
-- GLPI 10.0.x, verified against GLPI 10.0.7.
-- PHP 8.1+.
-- Existing GLPI SMTP configuration and PHPMailer path.
+- GLPI 11.0.x, verified against GLPI 11.0.8.
+- PHP 8.2+.
+- Existing GLPI SMTP configuration and direct `GLPIMailer` transport path.
 
 ## Affected surfaces
 
@@ -143,7 +143,7 @@ All new user-facing labels, error text, policy labels, and incomplete-send state
 8. Ticket reader can see BCC/download; non-reader cannot. SMTP visible headers contain no BCC.
 9. Locale parity and migration field presence.
 
-## Required manual verification — GLPI 10.0.7 + Mailpit
+## Required manual verification — GLPI 11.0.8 + Mailpit
 
 - Verify the selected ticket action integration uses a supported GLPI extension point.
 - Send a rich email with To/CC/BCC, normal attachment, and inline image. Mailpit has exactly one message with expected envelope/body/attachments and no BCC visible header.
@@ -154,6 +154,6 @@ All new user-facing labels, error text, policy labels, and incomplete-send state
 
 ## Delivery constraints
 
-- No production implementation starts from this contract until the GLPI 10 action/policy integration is source- or runtime-proven.
+- No production implementation starts from this contract until the GLPI 11 action/policy integration is source- or runtime-proven.
 - No compatibility shim retains ASSIGN→CC defaults.
 - No custom mail transport, editor library, or unrequested background job is added.

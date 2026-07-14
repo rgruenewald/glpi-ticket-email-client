@@ -45,7 +45,7 @@ ln -sf /etc/glpi/glpicrypt.key /var/www/html/config/glpicrypt.key
 
 # Heal missing crypt key (older volumes / partial installs).
 if [ ! -f /etc/glpi/glpicrypt.key ]; then
-  php /var/www/html/bin/console security:change_key --no-interaction || true
+  php /var/www/html/bin/console security:change_key --allow-superuser --no-interaction || true
 fi
 
 # First-boot install (writes glpi DB schema, creates the

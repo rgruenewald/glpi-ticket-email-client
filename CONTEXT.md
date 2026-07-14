@@ -3,14 +3,14 @@
 ## Identity
 
 - **Name:** `ticketemailclient` (GLPI plugin directory / gettext domain)
-- **Type:** GLPI 10 plugin (`composer.json` type `glpi-plugin`)
-- **Runtime:** PHP ≥ 8.1, GLPI ^10.0 (verified against 10.0.7)
+- **Type:** GLPI 11 plugin (`composer.json` type `glpi-plugin`)
+- **Runtime:** PHP ≥ 8.2, GLPI ^11.0 (verified against 11.0.8)
 - **License:** GPL-3.0-or-later
-- **Version constant:** `PLUGIN_TICKETEMAILCLIENT_VERSION` in `setup.php` (currently 1.1.0)
+- **Version constant:** `PLUGIN_TICKETEMAILCLIENT_VERSION` in `setup.php` (currently 2.0.0)
 
 ## One-liner
 
-Ticket-context outbound email client: compose / reply / forward from a ticket, send once via GLPI’s configured SMTP (PHPMailer), durable plugin audit, and a normal `ITILFollowup` timeline record. Does **not** deliver through GLPI’s notification engine.
+Ticket-context outbound email client: compose / reply / forward from a ticket, send once via GLPI’s configured direct mail transport, durable plugin audit, and a normal `ITILFollowup` timeline record. Does **not** deliver through GLPI’s notification engine.
 
 ## Vocabulary
 
@@ -47,7 +47,7 @@ ajax/*.php               validate, upload, forward_preview
 templates/*.html.twig    compose / forward / log_entry UI
 sql/                     install + versioned updates
 locales/                 ticketemailclient.{pot,en.po,de.po}
-docker/ + compose        GLPI 10 + MariaDB + mailpit
+docker/ + compose        GLPI 11 + MariaDB + Mailpit
 tests/                   PHPUnit acceptance
 ```
 

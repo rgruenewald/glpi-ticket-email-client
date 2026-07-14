@@ -1,7 +1,7 @@
 {
     "name": "ticketemailclient/ticketemailclient",
     "type": "glpi-plugin",
-    "description": "GLPI 10 ticket-context email reply client. SMTP via GLPI config, durable audit, ITILFollowup timeline, To/CC/BCC, mailbox guard. i18n: en, de.",
+    "description": "GLPI 11 ticket-context email reply client. SMTP via GLPI config, durable audit, ITILFollowup timeline, To/CC/BCC, mailbox guard. i18n: en, de.",
     "license": "GPL-3.0-or-later",
     "keywords": [
         "glpi",
@@ -10,8 +10,8 @@
         "ticket"
     ],
     "require": {
-        "php": ">=8.1",
-        "glpi/glpi": "^10.0"
+        "php": ">=8.2",
+        "glpi/glpi": "^11.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^10.5"

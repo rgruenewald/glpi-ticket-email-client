@@ -1,10 +1,10 @@
-# docker/glpi/Dockerfile — GLPI 10 image with the
+# docker/glpi/Dockerfile — GLPI 11 image with the
 # ticketemailclient plugin auto-installed. Pinned to a
 # specific minor version so updates don't drift.
 
 FROM php:8.2-apache
 
-ENV GLPI_VERSION=10.0.7 \
+ENV GLPI_VERSION=11.0.8 \
     DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update \
@@ -18,8 +18,10 @@ RUN apt-get update \
         libpng-dev \
         libjpeg62-turbo-dev \
         libfreetype6-dev \
+        libcurl4-openssl-dev \
+        libonig-dev \
  && docker-php-ext-configure gd --with-freetype --with-jpeg \
- && docker-php-ext-install -j$(nproc) mysqli ldap xml intl gd opcache \
+ && docker-php-ext-install -j$(nproc) bcmath curl mbstring mysqli ldap xml intl gd opcache \
  && rm -rf /var/lib/apt/lists/*
 
 # Install GLPI upstream release.
@@ -30,10 +32,12 @@ RUN set -eux; \
     rm -f /tmp/glpi.tgz; \
     chown -R www-data:www-data /var/www/html
 
-# Apache rewrite + .htaccess.
+# GLPI 11 requires the public directory as Apache's document root.
 RUN set -eux; \
     a2enmod rewrite; \
-    sed -i 's/AllowOverride None/AllowOverride All/g' /etc/apache2/apache2.conf
+    sed -i 's/AllowOverride None/AllowOverride All/g' /etc/apache2/apache2.conf; \
+    sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf; \
+    sed -i '/<\/VirtualHost>/i\    FallbackResource /index.php' /etc/apache2/sites-available/000-default.conf
 
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 COPY setup-glpi.sh         /usr/local/bin/setup-glpi.sh

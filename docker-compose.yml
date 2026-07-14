@@ -1,4 +1,4 @@
-# docker-compose.yml — local GLPI 10 + MariaDB + mailpit
+# docker-compose.yml — local GLPI 11 + MariaDB + Mailpit
 # development stack. GLPI is pre-configured to point at
 # `mailpit:1025` for outbound SMTP; the plugin under
 # development is mounted at

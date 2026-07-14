@@ -5,9 +5,9 @@
  * is loaded. Lifecycle callbacks live in `hook.php`.
  */
 
-define('PLUGIN_TICKETEMAILCLIENT_VERSION', '1.4.0');
-define('PLUGIN_TICKETEMAILCLIENT_MIN_GLPI', '10.0.0');
-define('PLUGIN_TICKETEMAILCLIENT_MAX_GLPI', '10.99.99');
+define('PLUGIN_TICKETEMAILCLIENT_VERSION', '2.0.0');
+define('PLUGIN_TICKETEMAILCLIENT_MIN_GLPI', '11.0.0');
+define('PLUGIN_TICKETEMAILCLIENT_MAX_GLPI', '11.99.99');
 
 /**
  * Plugin version. Required by GLPI's plugin loader.

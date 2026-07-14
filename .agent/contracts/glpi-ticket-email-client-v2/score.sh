@@ -121,6 +121,7 @@ require_re "attachment" inc/timeline.class.php "timeline creates secure attachme
 
 # 7. SMTP reuse, CSRF, and translations remain mandatory.
 require_re "smtp_host|Config::getConfigurationValue" inc/config.class.php "plugin reuses GLPI SMTP configuration"
+require_re "GLPIMailer" inc/mailer.class.php "plugin sends through GLPI 11 direct mailer"
 require_re "Session::checkLoginUser" front/send.php "send requires login"
 require_re "canUpdateItem|canAddFollowups" front/send.php "send requires ticket write/followup permission"
 forbid_re 'Session::checkCSRF\(\$_POST\)' front/send.php "send relies on GLPI bootstrap CSRF validation"
@@ -135,7 +136,7 @@ done
 if have php; then
   parse_failed=0
   for file in inc/replypolicy.class.php inc/recipients.class.php inc/mailboxguard.class.php \
-              inc/audit.class.php inc/timeline.class.php inc/timelineaction.class.php inc/timelinereply.class.php inc/timelineforward.class.php \
+              inc/audit.class.php inc/mailer.class.php inc/timeline.class.php inc/timelineaction.class.php inc/timelinereply.class.php inc/timelineforward.class.php \
               front/compose.php front/config.form.php front/send.php \
               front/download.php ajax/validate_recipients.php; do
     if [ -f "$file" ] && ! php -l "$file" >/dev/null 2>&1; then

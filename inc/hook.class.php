@@ -21,9 +21,10 @@ class PluginTicketemailclientHook
                 continue;
             }
             try {
-                $DB->queryOrDie($stmt, $DB->error());
+                $DB->doQuery($stmt);
             } catch (\Throwable $e) {
-                Toolbox::logError(
+                Toolbox::logInFile(
+                    'php-errors',
                     sprintf('ticketemailclient SQL error: %s', $e->getMessage()),
                 );
                 $ok = false;

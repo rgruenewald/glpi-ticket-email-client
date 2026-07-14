@@ -1,10 +1,10 @@
 # GLPI Ticket Email Client
 
-A GPL-3.0-or-later plugin for **GLPI 10** that lets authorized ticket agents compose and send a ticket-context email without using GLPI's notification delivery pipeline.
+A GPL-3.0-or-later plugin for **GLPI 11** that lets authorized ticket agents compose and send a ticket-context email without using GLPI's notification delivery pipeline.
 
 Ticketmailer sends one SMTP message through GLPI's existing mail configuration, keeps a durable audit record, and creates one notification-suppressed `ITILFollowup` in the ticket timeline.
 
-> **Compatibility:** PHP 8.1 or later; GLPI 10.0.x. The implementation is verified against GLPI 10.0.7. Marketplace publication is not implied by this repository.
+> **Compatibility:** PHP 8.2 or later; GLPI 11.0.x. The implementation is verified against GLPI 11.0.8. Marketplace publication is not implied by this repository.
 
 ## Features
 
@@ -31,8 +31,8 @@ Read this section before installing the plugin.
 
 ## Requirements
 
-- GLPI 10.0.x.
-- PHP 8.1 or later.
+- GLPI 11.0.x.
+- PHP 8.2 or later.
 - A working GLPI core SMTP configuration.
 - A GLPI user with permission to update the ticket or add followups. Ticket readers may view the audit log and download recorded outbound attachments.
 - Database permissions sufficient for GLPI plugin installation and upgrade.
@@ -62,7 +62,7 @@ Read this section before installing the plugin.
 1. Back up the GLPI database and document directory using your normal GLPI maintenance procedure.
 2. Replace the plugin directory with the new release while preserving the directory name `ticketemailclient`.
 3. Run GLPI's plugin update flow from the administration UI or CLI.
-4. Confirm that the plugin reports version `1.4.0` and execute the smoke checks below.
+4. Confirm that the plugin reports version `2.0.0` and execute the smoke checks below.
 
 The installer applies the versioned database migrations included in `sql/`. Do not edit plugin tables manually during an upgrade.
 
@@ -70,7 +70,7 @@ The installer applies the versioned database migrations included in `sql/`. Do n
 
 ### SMTP
 
-Configure SMTP only in GLPI core settings. GLPI Ticket Email Client reads GLPI's configured SMTP host, port, authentication, TLS mode, and certificate-verification setting. It does not add an SMTP configuration page and does not bypass GLPI's transport configuration.
+Configure SMTP only in GLPI core settings. GLPI Ticket Email Client uses GLPI's configured direct mail transport. It does not add an SMTP configuration page and does not bypass GLPI's transport configuration.
 
 ### Per-entity preferences
 
