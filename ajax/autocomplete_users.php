@@ -2,7 +2,7 @@
 /**
  * ajax/autocomplete_users.php — ticket-scoped GLPI user recipient suggestions.
  */
-include_once __DIR__ . '/../../../inc/includes.php';
+require_once __DIR__ . '/../inc/bootstrap.php';
 
 
 Session::checkLoginUser();

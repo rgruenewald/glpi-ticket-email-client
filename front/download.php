@@ -3,7 +3,7 @@
  * front/download.php — stream an outbound attachment after ticket-read auth.
  * URL carries only log_id + attachment_id; path is resolved server-side.
  */
-include_once __DIR__ . '/../../../inc/includes.php';
+require_once __DIR__ . '/../inc/bootstrap.php';
 
 Session::checkLoginUser();
 

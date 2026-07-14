@@ -4,7 +4,7 @@
  * PluginTicketmailerTimelineAction for the normal inline UI.
  */
 
-include_once __DIR__ . '/../../../inc/includes.php';
+require_once __DIR__ . '/../inc/bootstrap.php';
 
 $plugin = new Plugin();
 if (!$plugin->isInstalled('ticketmailer') || !$plugin->isActivated('ticketmailer')) {

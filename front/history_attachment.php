@@ -3,7 +3,7 @@
  * Streams a public ticket attachment for inspection after ticket-read authorization.
  * The document path is never accepted from the request.
  */
-include_once __DIR__ . '/../../../inc/includes.php';
+require_once __DIR__ . '/../inc/bootstrap.php';
 
 Session::checkLoginUser();
 

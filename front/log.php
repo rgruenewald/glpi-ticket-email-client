@@ -5,7 +5,7 @@
  * here from the ticket's "Ticket Email Client" tab, in
  * which case `tickets_id` is in the query string.
  */
-include_once __DIR__ . '/../../../inc/includes.php';
+require_once __DIR__ . '/../inc/bootstrap.php';
 
 Session::checkLoginUser();
 Html::header(

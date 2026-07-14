@@ -2,7 +2,7 @@
 /**
  * ajax/validate_recipients.php — live validation + mailbox warning.
  */
-include_once __DIR__ . '/../../../inc/includes.php';
+require_once __DIR__ . '/../inc/bootstrap.php';
 
 Session::checkLoginUser();
 header('Content-Type: application/json; charset=utf-8');

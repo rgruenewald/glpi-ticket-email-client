@@ -2,7 +2,7 @@
 /**
  * ajax/upload.php — store attachment under generated id (v2 A6).
  */
-include_once __DIR__ . '/../../../inc/includes.php';
+require_once __DIR__ . '/../inc/bootstrap.php';
 
 Session::checkLoginUser();
 header('Content-Type: application/json; charset=utf-8');

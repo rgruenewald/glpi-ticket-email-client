@@ -9,7 +9,7 @@
  * every followup). There is no `last_message` mode
  * (spec § A11, OQ1).
  */
-include_once __DIR__ . '/../../../inc/includes.php';
+require_once __DIR__ . '/../inc/bootstrap.php';
 
 Session::checkLoginUser();
 header('Content-Type: application/json; charset=utf-8');

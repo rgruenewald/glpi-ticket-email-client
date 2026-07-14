@@ -2,7 +2,7 @@
 /**
  * Per-entity compose preferences. SMTP remains GLPI core configuration.
  */
-include_once __DIR__ . '/../../../inc/includes.php';
+require_once __DIR__ . '/../inc/bootstrap.php';
 
 Session::checkLoginUser();
 Session::checkRight('config', UPDATE);

@@ -6,7 +6,7 @@
 
 use Glpi\Application\View\TemplateRenderer;
 
-include_once __DIR__ . '/../../../inc/includes.php';
+require_once __DIR__ . '/../inc/bootstrap.php';
 
 Session::checkLoginUser();
 
