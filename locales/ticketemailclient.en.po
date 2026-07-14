@@ -1,0 +1,316 @@
+# locales/ticketemailclient.en.po — English (default) translations.
+# Every msgid in the .pot file has a corresponding msgstr
+# here (A16: i18n completeness).
+msgid ""
+msgstr ""
+"Project-Id-Version: ticketemailclient 1.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-02 15:00:00+0000\n"
+"PO-Revision-Date: 2026-07-02 15:00:00+0000\n"
+"Last-Translator: ticketemailclient contributors\n"
+"Language-Team: English\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: inc/log_tab.class.php
+msgid "Sent email"
+msgid_plural "Sent emails"
+msgstr[0] "Sent email"
+msgstr[1] "Sent emails"
+
+#: setup.php inc/plugin.class.php front/config.form.php inc/timeline.class.php
+msgid "Ticket Email Client"
+msgid_plural "Ticket Email Clients"
+msgstr[0] "Ticket Email Client"
+msgstr[1] "Ticket Email Clients"
+
+#: front/compose.php templates/compose.html.twig
+msgid "Compose email"
+msgstr "Compose email"
+
+#: templates/compose.html.twig templates/forward.html.twig
+msgid "Test version"
+msgstr "Test version"
+
+#: front/forward.php templates/forward.html.twig
+msgid "Forward ticket"
+msgstr "Forward ticket"
+
+#: front/log.php templates/log_entry.html.twig
+msgid "Ticket Email Client log"
+msgstr "Ticket Email Client log"
+
+#: templates/log_entry.html.twig
+msgid "Sent at"
+msgstr "Sent at"
+
+#: templates/log_entry.html.twig
+msgid "Subject"
+msgstr "Subject"
+
+#: templates/log_entry.html.twig
+msgid "Recipients"
+msgstr "Recipients"
+
+#: templates/log_entry.html.twig
+msgid "Status"
+msgstr "Status"
+
+#: templates/log_entry.html.twig
+msgid "Sent"
+msgstr "Sent"
+
+#: templates/log_entry.html.twig
+msgid "Failed"
+msgstr "Failed"
+
+#: templates/compose.html.twig templates/forward.html.twig
+msgid "To"
+msgstr "To"
+
+#: templates/compose.html.twig templates/forward.html.twig
+msgid "CC"
+msgstr "CC"
+
+#: templates/compose.html.twig templates/forward.html.twig
+msgid "BCC"
+msgstr "BCC"
+
+#: templates/compose.html.twig templates/forward.html.twig
+msgid "Message"
+msgstr "Message"
+
+#: templates/compose.html.twig
+msgid "Send"
+msgstr "Send"
+
+#: templates/compose.html.twig
+msgid "Cancel"
+msgstr "Cancel"
+
+#: templates/compose.html.twig
+msgid "Attachments"
+msgstr "Attachments"
+
+#: inc/timeline.class.php templates/compose.html.twig templates/log_entry.html.twig
+msgid "Open attachment"
+msgstr "Open attachment"
+
+#: templates/log_entry.html.twig
+msgid "Inline images"
+msgstr "Inline images"
+
+#: templates/log_entry.html.twig
+msgid "Error"
+msgstr "Error"
+
+#: templates/log_entry.html.twig
+msgid "Plain-text alternative"
+msgstr "Plain-text alternative"
+
+#: front/send.php
+msgid "Subject is required."
+msgstr "Subject is required."
+
+#: front/send.php
+msgid "Body is required."
+msgstr "Body is required."
+
+#: front/send.php
+msgid "At least one recipient is required (To, CC, or BCC)."
+msgstr "At least one recipient is required (To, CC, or BCC)."
+
+#: front/send.php
+msgid "Field \"%s\" contains an invalid address."
+msgstr "Field \"%s\" contains an invalid address."
+
+#: templates/compose.html.twig
+msgid "Separate addresses with comma, semicolon, or Enter."
+msgstr "Separate addresses with comma, semicolon, or Enter."
+
+#: templates/forward.html.twig
+msgid "Forwarding the full ticket history. Add recipients and send."
+msgstr "Forwarding the full ticket history. Add recipients and send."
+
+#: templates/log_entry.html.twig
+msgid "%count hidden recipient(s)"
+msgstr "%count hidden recipient(s)"
+
+msgid "E-Mail antworten"
+msgstr "E-Mail antworten"
+
+msgid "Email reply"
+msgstr "Email reply"
+
+
+msgid "One or more recipients match an active incoming mailbox login. Aliases, forwarding, and non-email logins are not detected."
+msgstr "One or more recipients match an active incoming mailbox login. Aliases, forwarding, and non-email logins are not detected."
+
+msgid "I understand and want to send anyway"
+msgstr "I understand and want to send anyway"
+
+msgid "Incomplete send (timeline failed)"
+msgstr "Incomplete send (timeline failed)"
+
+msgid "Pending"
+msgstr "Pending"
+
+msgid "Mailbox override"
+msgstr "Mailbox override"
+
+msgid "Sender confirmed send despite matching active mailbox login(s)."
+msgstr "Sender confirmed send despite matching active mailbox login(s)."
+
+msgid "Timeline error"
+msgstr "Timeline error"
+
+msgid "From"
+msgstr "From"
+
+msgid "Field \"%1$s\" contains an invalid address: %2$s"
+msgstr "Field \"%1$s\" contains an invalid address: %2$s"
+
+msgid "Recipient(s) match an active incoming mailbox login: %s. Confirm the override to send anyway. Aliases, forwarding, and non-email logins are not detected."
+msgstr "Recipient(s) match an active incoming mailbox login: %s. Confirm the override to send anyway. Aliases, forwarding, and non-email logins are not detected."
+
+msgid "Match is best-effort against active collector logins that look like emails. Aliases, forwarding, and non-email logins are not detected."
+msgstr "Match is best-effort against active collector logins that look like emails. Aliases, forwarding, and non-email logins are not detected."
+
+msgid "Drop or paste images into the message to embed them inline."
+msgstr "Drop or paste images into the message to embed them inline."
+
+#: templates/compose.html.twig templates/forward.html.twig
+msgid "Drag & drop your file here, or choose files."
+msgstr "Drag & drop your file here, or choose files."
+
+#: front/config.form.php
+msgid "Ticket subject prefix"
+msgstr "Ticket subject prefix"
+
+#: front/config.form.php
+msgid "Use %d for the ticket ID."
+msgstr "Use %d for the ticket ID."
+
+#: front/config.form.php
+msgid "E-mail signature"
+msgstr "E-mail signature"
+
+#: front/config.form.php
+msgid "The plain-text signature is generated automatically from this HTML."
+msgstr "The plain-text signature is generated automatically from this HTML."
+
+#: front/config.form.php
+msgid "Set ticket status to waiting after a successful e-mail send."
+msgstr "Set ticket status to waiting after a successful e-mail send."
+
+#: front/send.php
+msgid "Selected follow-up source is unavailable."
+msgstr "Selected follow-up source is unavailable."
+
+#: inc/timelineaction.class.php
+msgid "Reply"
+msgstr "Reply"
+
+#: inc/timelineaction.class.php
+msgid "Forward"
+msgstr "Forward"
+
+#: templates/compose.html.twig templates/forward.html.twig
+msgid "Clear"
+msgstr "Clear"
+
+
+#: templates/compose.html.twig templates/forward.html.twig
+msgid "Template"
+msgstr "Template"
+
+#: templates/compose.html.twig templates/forward.html.twig
+msgid "Source"
+msgstr "Source"
+
+#: front/config.form.php
+msgid "Show newest timeline entries first."
+msgstr "Show newest timeline entries first."
+
+#: front/config.form.php
+msgid "Open the E-Mail reply form when a ticket is opened."
+msgstr "Open the E-Mail reply form when a ticket is opened."
+
+#: templates/compose.html.twig
+msgid "Attach public ticket history"
+msgstr "Attach public ticket history"
+
+#: templates/compose.html.twig
+msgid "No public ticket attachments are available."
+msgstr "No public ticket attachments are available."
+
+#: templates/compose.html.twig
+msgid "Select the public ticket attachments to include."
+msgstr "Select the public ticket attachments to include."
+
+#: front/send.php
+msgid "A selected history attachment is no longer available."
+msgstr "A selected history attachment is no longer available."
+
+#: inc/history.class.php
+msgid "Ticket #%1$d: %2$s"
+msgstr "Ticket #%1$d: %2$s"
+
+#: inc/history.class.php
+msgid "On %1$s, %2$s wrote:"
+msgstr "On %1$s, %2$s wrote:"
+
+#: inc/history.class.php
+msgid "Attachment"
+msgstr "Attachment"
+
+#: inc/history.class.php
+msgid "Unknown"
+msgstr "Unknown"
+
+#: front/config.form.php
+msgid "Show email addresses in recipient autocomplete."
+msgstr "Show email addresses in recipient autocomplete."
+
+#: templates/compose.html.twig js/composer.js
+msgid "Remove %s"
+msgstr "Remove %s"
+
+#: templates/compose.html.twig js/composer.js
+msgid "bytes"
+msgstr "bytes"
+
+#: templates/compose.html.twig js/composer.js
+msgid "Upload failed."
+msgstr "Upload failed."
+
+#: templates/compose.html.twig
+msgid "Choose files"
+msgstr "Choose files"
+
+#: ajax/upload.php ajax/upload_image.php
+msgid "A ticket is required."
+msgstr "A ticket is required."
+
+#: ajax/upload.php ajax/upload_image.php
+msgid "You are not allowed to add attachments to this ticket."
+msgstr "You are not allowed to add attachments to this ticket."
+
+#: ajax/upload.php ajax/upload_image.php
+msgid "File upload failed."
+msgstr "File upload failed."
+
+#: ajax/upload.php ajax/upload_image.php
+msgid "File is too large."
+msgstr "File is too large."
+
+#: ajax/upload.php ajax/upload_image.php
+msgid "Could not store uploaded file."
+msgstr "Could not store uploaded file."
+
+#: ajax/upload_image.php
+msgid "Only image files can be embedded inline."
+msgstr "Only image files can be embedded inline."

@@ -1,0 +1,377 @@
+/* css/ticketemailclient.css — classic mail-client layout. */
+
+/* ── Panel frame ───────────────────────────────────────── */
+.ticketemailclient-compose {
+    max-width: 960px;
+    margin: 0.5rem 0 1.5rem;
+}
+
+.ticketemailclient-mail-panel {
+    border: 1px solid #d8d8d8;
+    border-radius: 4px;
+    background: #fff;
+    overflow: hidden;
+}
+
+/* ── Header ─────────────────────────────────────────────── */
+.ticketemailclient-mail-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.75rem;
+    background: #fff8db;
+    border-bottom: 1px solid #e8d58b;
+    color: #66520a;
+    font-weight: 600;
+}
+
+/* ── Row label + field ─────────────────────────────────── */
+.ticketemailclient-mail-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.4rem 0.75rem;
+    border-bottom: 1px solid #ececec;
+    min-height: 2.5rem;
+}
+
+/* Editor / attach rows: no label, content fills the row */
+.ticketemailclient-mail-row--editor,
+.ticketemailclient-mail-row--attach {
+    padding: 0.25rem 0.75rem;
+}
+
+.ticketemailclient-mail-row--editor .ticketemailclient-mail-field,
+.ticketemailclient-mail-row--attach .ticketemailclient-mail-field {
+    flex: 1 1 auto;
+    width: 100%;
+}
+
+.ticketemailclient-mail-label {
+    flex: 0 0 4.5rem;
+    text-align: right;
+    font-weight: 600;
+}
+
+.ticketemailclient-mail-row--followup-meta {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    column-gap: 0.75rem;
+}
+
+.ticketemailclient-mail-row--followup-meta .ticketemailclient-mail-field {
+    min-width: 0;
+}
+
+.ticketemailclient-mail-row--followup-meta .ticketemailclient-mail-field .btn-group {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    width: 100%;
+    min-width: 0;
+}
+
+.ticketemailclient-mail-row--followup-meta .btn-group .select2-container {
+    flex: 1 1 auto;
+    min-width: 0;
+    width: auto !important;
+}
+
+.ticketemailclient-mail-row--followup-meta .btn-group > a.btn,
+.ticketemailclient-mail-row--followup-meta .btn-group > .btn {
+    flex: 0 0 auto;
+}
+
+.ticketemailclient-mail-field {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+/* ── Text inputs ───────────────────────────────────────── */
+.ticketemailclient-compose input[type="text"] {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.45rem 0.6rem;
+    font-size: 14px;
+    border: 1px solid #c8c8c8;
+    border-radius: 3px;
+    background: #fff;
+}
+
+.ticketemailclient-compose input[type="text"]:focus {
+    outline: none;
+    border-color: #6c8ebf;
+    box-shadow: 0 0 0 2px rgba(108, 142, 191, 0.2);
+}
+
+/* Followup template / source dropdowns fill the field */
+.ticketemailclient-mail-field select {
+    width: 100%;
+}
+
+/* TinyMCE / GLPI editor sit under Message label */
+.ticketemailclient-editor .tox-tinymce,
+.ticketemailclient-editor textarea {
+    width: 100% !important;
+}
+
+/* ── Attachment drop zone — full width, no centering ───── */
+.ticketemailclient-attach {
+    border: 1px dashed #c8c8c8;
+    border-radius: 3px;
+    padding: 0.6rem 0.75rem;
+    background: #fafafa;
+    text-align: center;
+}
+
+.ticketemailclient-attach.is-dragover {
+    border-color: #6c8ebf;
+    background: #edf4ff;
+}
+
+.ticketemailclient-attach ul {
+    margin: 0.4rem auto 0;
+    padding-left: 1.2em;
+    text-align: left;
+}
+
+.ticketemailclient-help {
+    color: #666;
+    font-size: 12px;
+    margin: 0.4em 0 0;
+}
+
+/* ── Error banner ───────────────────────────────────────── */
+.ticketemailclient-errors {
+    background: #fde7e9;
+    border: 0;
+    border-bottom: 1px solid #e0a4a8;
+    color: #800;
+    padding: 0.5em 1em;
+    margin: 0;
+    border-radius: 0;
+}
+
+.ticketemailclient-errors ul {
+    margin: 0;
+    padding-left: 1.2em;
+}
+
+/* ── Mailbox warning ───────────────────────────────────── */
+.ticketemailclient-mailbox {
+    margin-top: 0.75rem;
+    padding: 0.5em 1em;
+    background: #fffbe6;
+    border: 1px solid #e0d08a;
+    border-radius: 3px;
+}
+
+.ticketemailclient-mailbox code {
+    font-size: 13px;
+    background: #f5f0d8;
+    padding: 0.15em 0.35em;
+    border-radius: 2px;
+}
+
+/* ── Actions — right-aligned like classic mail client ──── */
+.ticketemailclient-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5em;
+    margin-top: 0.75rem;
+    padding-left: 0;
+}
+
+/* ── Recipient control ──────────────────────────────────── */
+.ticketemailclient-recipient-control {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    min-height: 2.4rem;
+    padding: 0.3rem 0.45rem;
+    border: 1px solid #c8c8c8;
+    border-radius: 3px;
+    background: #fff;
+    cursor: text;
+}
+
+.ticketemailclient-recipient-control:focus-within {
+    border-color: #6c8ebf;
+    box-shadow: 0 0 0 2px rgba(108, 142, 191, 0.2);
+}
+
+.ticketemailclient-recipient-chips {
+    display: contents;
+}
+
+.ticketemailclient-recipient-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    max-width: 100%;
+    padding: 0.2rem 0.35rem 0.2rem 0.5rem;
+    border: 1px solid #bfc8d8;
+    border-radius: 3px;
+    background: #f4f7fb;
+    color: #334155;
+}
+
+.ticketemailclient-recipient-remove {
+    border: 0;
+    padding: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+}
+
+.ticketemailclient-recipient-clear {
+    align-self: center;
+    border: 0;
+    padding: 0.15rem;
+    background: transparent;
+    color: #64748b;
+    cursor: pointer;
+}
+
+.ticketemailclient-compose input.ticketemailclient-recipient-input {
+    flex: 1 1 12rem;
+    width: auto;
+    min-width: 12rem;
+    padding: 0.15rem;
+    border: 0;
+    box-shadow: none;
+}
+
+.ticketemailclient-recipient-control {
+    position: relative;
+}
+
+.ticketemailclient-recipient-suggestions {
+    position: absolute;
+    z-index: 1050;
+    top: calc(100% + 0.2rem);
+    right: 0;
+    left: 0;
+    max-height: 15rem;
+    overflow-y: auto;
+    margin: 0;
+    padding: 0.25rem;
+    border: 1px solid #bfc8d8;
+    border-radius: 3px;
+    background: #fff;
+    box-shadow: 0 0.35rem 0.8rem rgba(15, 23, 42, 0.16);
+    list-style: none;
+}
+
+.ticketemailclient-recipient-suggestion {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 0.35rem 0.5rem;
+    border: 0;
+    border-radius: 2px;
+    background: transparent;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.ticketemailclient-recipient-suggestion:hover,
+.ticketemailclient-recipient-suggestion.is-active {
+    background: #edf4ff;
+}
+
+.ticketemailclient-recipient-suggestion-email {
+    color: #64748b;
+    font-size: 0.85em;
+}
+
+/* ── Email action buttons ───────────────────────────────── */
+
+/* Keep GLPI's native Answer/dropdown split as one seamless button group.
+   Without this, GLPI's palette can insert a gap between the "Answer"
+   button and its dropdown toggle. Target the split group directly (no
+   :has()) so it works regardless of browser :has() support. */
+.timeline-buttons .main-actions {
+    gap: 0 !important;
+}
+
+.timeline-buttons .main-actions > .answer-action,
+.timeline-buttons .main-actions > .btn:first-child {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.timeline-buttons .main-actions > .dropdown-toggle-split,
+.timeline-buttons .main-actions > .btn:not(:first-child) {
+    margin-left: -1px !important;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+ul.legacy-timeline-actions li:has(> .ticketemailclient-timeline-action) {
+    padding: 0;
+    border-radius: 0;
+}
+
+ul.legacy-timeline-actions li .ticketemailclient-timeline-action i {
+    padding-right: 0;
+}
+
+/* Hide competing timeline actions while an email compose panel is open. */
+body.ticketemailclient-compose-active .main-actions,
+body:has(.collapse.show .ticketemailclient-compose) .main-actions,
+body:has(.collapse.in .ticketemailclient-compose) .main-actions,
+body.ticketemailclient-compose-active .legacy-timeline-actions,
+body:has(.collapse.show .ticketemailclient-compose) .legacy-timeline-actions,
+body:has(.collapse.in .ticketemailclient-compose) .legacy-timeline-actions {
+    display: none !important;
+}
+
+/* ── Log entries ─────────────────────────────────────────── */
+.ticketemailclient-log-entry .status-sent {
+    color: #15803d;
+    font-weight: 600;
+}
+
+.ticketemailclient-log-entry .status-failed {
+    color: #b91c1c;
+    font-weight: 600;
+}
+
+.ticketemailclient-attachments ul,
+.ticketemailclient-inline-images ul {
+    margin: 0;
+    padding-left: 1.2em;
+}
+
+.ticketemailclient-attachment-open {
+    margin-left: 0.25rem;
+}
+
+.ticketemailclient-error pre {
+    background: #fde7e9;
+    color: #800;
+    padding: 0.5em;
+    border-radius: 3px;
+    white-space: pre-wrap;
+}
+
+.ticketemailclient-upload-error {
+    color: #b91c1c;
+}
+
+/* ── Responsive ─────────────────────────────────────────── */
+@media (max-width: 640px) {
+    .ticketemailclient-mail-row:not(.ticketemailclient-mail-row--followup-meta) {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.25rem;
+    }
+
+    .ticketemailclient-mail-row:not(.ticketemailclient-mail-row--followup-meta) .ticketemailclient-mail-label {
+        flex: none;
+        text-align: left;
+    }
+}

@@ -1,0 +1,96 @@
+{# templates/log_entry.html.twig — full audit detail (v2 A10/A11). #}
+<article class="ticketemailclient-log-entry">
+    <header>
+        <h2>{{ entry.subject }}</h2>
+        <p class="ticketemailclient-meta">
+            <span>{{ __('Sent at', 'ticketemailclient') }}: {{ entry.sent_at }}</span>
+            <span class="status-{{ entry.status }}">
+                {% if entry.status == 'sent' and entry.timeline_status == 'recorded' %}
+                    {{ __('Sent', 'ticketemailclient') }}
+                {% elseif entry.status == 'sent' and entry.timeline_status == 'failed' %}
+                    {{ __('Incomplete send (timeline failed)', 'ticketemailclient') }}
+                {% elseif entry.status == 'pending' %}
+                    {{ __('Pending', 'ticketemailclient') }}
+                {% else %}
+                    {{ __('Failed', 'ticketemailclient') }}
+                {% endif %}
+            </span>
+        </p>
+    </header>
+
+    <section class="ticketemailclient-recipients">
+        <h3>{{ __('Recipients', 'ticketemailclient') }}</h3>
+        <dl>
+            <dt>{{ __('To', 'ticketemailclient') }}</dt>
+            <dd>{{ recipients_to|join(', ') }}</dd>
+            <dt>{{ __('CC', 'ticketemailclient') }}</dt>
+            <dd>{{ recipients_cc|join(', ') }}</dd>
+            <dt>{{ __('BCC', 'ticketemailclient') }}</dt>
+            <dd>{{ recipients_bcc|join(', ') }}</dd>
+        </dl>
+    </section>
+
+    <section class="ticketemailclient-body">
+        <h3>{{ __('Message', 'ticketemailclient') }}</h3>
+        {{ entry.body_html|raw }}
+
+        <details>
+            <summary>{{ __('Plain-text alternative', 'ticketemailclient') }}</summary>
+            <pre>{{ entry.body_text }}</pre>
+        </details>
+    </section>
+
+    {% if attachments %}
+        <section class="ticketemailclient-attachments">
+            <h3>{{ __('Attachments', 'ticketemailclient') }}</h3>
+            <ul>
+                {% for a in attachments %}
+                    <li>
+                        {{ a.filename }}
+                        <a class="ticketemailclient-attachment-open"
+                           href="{{ path_for_download }}?log_id={{ entry.id }}&amp;attachment_id={{ a.id|e('url') }}"
+                           aria-label="{{ __('Open attachment', 'ticketemailclient') }}"
+                           title="{{ __('Open attachment', 'ticketemailclient') }}">
+                            <i class="ti ti-external-link" aria-hidden="true"></i>
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </section>
+    {% endif %}
+
+    {% if inline_images %}
+        <section class="ticketemailclient-inline-images">
+            <h3>{{ __('Inline images', 'ticketemailclient') }}</h3>
+            <ul>
+                {% for i in inline_images %}
+                    <li>cid:{{ i.cid }} — {{ i.mime }}</li>
+                {% endfor %}
+            </ul>
+        </section>
+    {% endif %}
+
+    {% if entry.mailbox_override %}
+        <section class="ticketemailclient-mailbox-audit">
+            <h3>{{ __('Mailbox override', 'ticketemailclient') }}</h3>
+            <p>{{ __('Sender confirmed send despite matching active mailbox login(s).', 'ticketemailclient') }}</p>
+            {% if mailbox_matches %}
+                <p><code>{{ mailbox_matches|join(', ') }}</code></p>
+            {% endif %}
+        </section>
+    {% endif %}
+
+    {% if entry.status == 'failed' %}
+        <section class="ticketemailclient-error" role="alert">
+            <h3>{{ __('Error', 'ticketemailclient') }}</h3>
+            <pre>{{ entry.error_message }}</pre>
+        </section>
+    {% endif %}
+
+    {% if entry.timeline_status == 'failed' and entry.timeline_error %}
+        <section class="ticketemailclient-error" role="alert">
+            <h3>{{ __('Timeline error', 'ticketemailclient') }}</h3>
+            <pre>{{ entry.timeline_error }}</pre>
+        </section>
+    {% endif %}
+</article>

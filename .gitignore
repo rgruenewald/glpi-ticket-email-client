@@ -1,0 +1,30 @@
+# --- composer (PHP deps) ---
+vendor/
+composer.lock
+
+# --- npm (frontend, if any) ---
+node_modules/
+package-lock.json
+
+# --- secrets ---
+.env
+.env.*
+
+# --- GLPI runtime artifacts (mirrored under plugins/ticketmailer/) ---
+_files/
+_cache/
+_log/
+_sessions/
+
+# --- phpunit ---
+.phpunit.cache/
+.phpunit.result.cache
+.phpunit-watcher.yml
+test-results/
+
+# --- editor / OS ---
+.idea/
+.vscode/
+*.swp
+.DS_Store
+.agent/forge_state.json

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  phpunit.xml — PHPUnit 10 config for the ticketemailclient plugin.
+  Mirrors the acceptance criteria from
+  .agent/contracts/ticket-mailer/spec.md and the structural
+  checks encoded in score.sh. The two test layers are
+  intentionally redundant: score.sh is the canonical single
+  binary verifier; PHPUnit is the regression suite for when
+  PHP is available.
+-->
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="tests/bootstrap.php"
+         colors="true"
+         cacheDirectory=".phpunit.cache"
+         failOnWarning="true"
+         failOnNotice="true">
+    <testsuites>
+        <testsuite name="ticketemailclient">
+            <directory>tests</directory>
+        </testsuite>
+    </testsuites>
+    <source>
+        <include>
+            <directory>inc</directory>
+            <directory>front</directory>
+            <directory>ajax</directory>
+        </include>
+    </source>
+</phpunit>

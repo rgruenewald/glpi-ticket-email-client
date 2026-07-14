@@ -1,0 +1,77 @@
+# docker-compose.yml — local GLPI 10 + MariaDB + mailpit
+# development stack. GLPI is pre-configured to point at
+# `mailpit:1025` for outbound SMTP; the plugin under
+# development is mounted at
+# `/var/www/html/plugins/ticketemailclient`.
+#
+# Usage:
+#   docker compose up -d
+#   open http://localhost:8080   (default GLPI login:
+#     glpi / glpi — change on first login)
+#   open http://localhost:8025   (mailpit UI)
+#
+# Implements spec § A14.
+
+services:
+  db:
+    image: mariadb:10.11
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: glpi
+      MARIADB_USER: glpi
+      MARIADB_PASSWORD: glpi
+      MARIADB_RANDOM_ROOT_PASSWORD: "1"
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  mailpit:
+    build:
+      context: ./docker/mailpit
+    image: ticketemailclient/mailpit:latest
+    restart: unless-stopped
+    ports:
+      - "8025:8025"   # web UI
+      - "1025:1025"   # SMTP
+    environment:
+      MP_MAX_MESSAGES: 5000
+      MP_SMTP_AUTH_ACCEPT_ANY: 0
+      MP_SMTP_AUTH_ALLOW_INSECURE: 0
+
+  glpi:
+    build:
+      context: ./docker/glpi
+    image: ticketemailclient/glpi:latest
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      mailpit:
+        condition: service_started
+    ports:
+      - "8080:80"
+    environment:
+      GLPI_DB_HOST: db
+      GLPI_DB_NAME: glpi
+      GLPI_DB_USER: glpi
+      GLPI_DB_PASSWORD: glpi
+      GLPI_SMTP_HOST: mailpit
+      GLPI_SMTP_PORT: 1025
+      GLPI_SMTP_NO_TLS: 1
+      GLPI_INSTALL: "1"
+    volumes:
+      # Mount the plugin source from the repo root so
+      # changes to PHP / templates / locale files are
+      # picked up on container restart.
+      - .:/var/www/html/plugins/ticketemailclient
+      - glpi_data:/var/www/html/files
+      - glpi_config:/etc/glpi
+
+volumes:
+  db_data:
+  glpi_data:
+  glpi_config:

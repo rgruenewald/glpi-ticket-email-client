@@ -1,0 +1,201 @@
+{# templates/compose.html.twig — v2 compose form, mail-client layout. #}
+{% set tickets_id = tickets_id|default(0) %}
+{% set subject = subject|default('') %}
+{% set errors = errors|default([]) %}
+{% set recipients_to_raw = recipients_to_raw|default(recipients_to|default([])|join(', ')) %}
+{% set recipients_cc_raw = recipients_cc_raw|default(recipients_cc|default([])|join(', ')) %}
+{% set recipients_bcc_raw = recipients_bcc_raw|default(recipients_bcc|default([])|join(', ')) %}
+{% set mailbox_matches = mailbox_matches|default([]) %}
+{% set mailbox_override = mailbox_override|default(false) %}
+{% set form_id = form_id|default('ticketemailclient-compose') %}
+{% set close_target = close_target|default('') %}
+{% set followup_template_dropdown = followup_template_dropdown|default('') %}
+{% set followup_source_dropdown = followup_source_dropdown|default('') %}
+{% set include_history = include_history|default(false) %}
+{% set history_attachments = history_attachments|default([]) %}
+{% set selected_history_attachments = selected_history_attachments|default([]) %}
+<form method="post"
+      action="{{ send_url }}"
+      enctype="multipart/form-data"
+      class="ticketemailclient-compose"
+      id="{{ form_id }}"
+  data-upload-url="{{ upload_url }}"
+  data-image-url="{{ image_url }}"
+  data-validate-url="{{ validate_url|default('') }}"
+  data-user-autocomplete-url="{{ user_autocomplete_url|default('') }}"
+  data-user-autocomplete-show-email="{{ user_autocomplete_show_email ? '1' : '0' }}"
+  data-ajax-csrf="{{ ajax_csrf }}"
+  data-followup-template-url="{{ followup_template_url|default('') }}"
+  data-editor-id="{{ editor_id|default('body_html') }}"
+  data-i18n-remove-recipient="{{ __('Remove %s', 'ticketemailclient') }}"
+  data-i18n-bytes="{{ __('bytes', 'ticketemailclient') }}"
+  data-i18n-upload-failed="{{ __('Upload failed.', 'ticketemailclient') }}">
+    <input type="hidden" name="_glpi_csrf_token" value="{{ csrf_token }}">
+    <input type="hidden" name="tickets_id" value="{{ tickets_id }}">
+
+    <div class="ticketemailclient-mail-panel">
+        <div class="ticketemailclient-mail-header">
+            <i class="ti ti-flask" aria-hidden="true"></i>
+            {{ __('Test version', 'ticketemailclient') }}
+        </div>
+        {% if errors %}
+            <div class="ticketemailclient-errors" role="alert">
+                <ul>
+                    {% for e in errors %}
+                        <li>{{ e }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        <div class="ticketemailclient-mail-row">
+            <label class="ticketemailclient-mail-label" for="{{ form_id }}-recipients_to-input">{{ __('To', 'ticketemailclient') }}</label>
+            <div class="ticketemailclient-mail-field ticketemailclient-recipient-control" data-recipient-control>
+                <div class="ticketemailclient-recipient-chips"></div>
+                <input type="text" id="{{ form_id }}-recipients_to-input" class="ticketemailclient-recipient-input"
+                       placeholder="{{ __('user@example.org, …', 'ticketemailclient') }}" autocomplete="off">
+                <button type="button" class="ticketemailclient-recipient-clear" aria-label="{{ __('Clear', 'ticketemailclient') }}">
+                    <i class="ti ti-x" aria-hidden="true"></i>
+                </button>
+                <input type="hidden" id="{{ form_id }}-recipients_to" name="recipients_to"
+                       value="{{ recipients_to_raw }}">
+            </div>
+        </div>
+
+        <div class="ticketemailclient-mail-row">
+            <label class="ticketemailclient-mail-label" for="{{ form_id }}-recipients_cc-input">{{ __('CC', 'ticketemailclient') }}</label>
+            <div class="ticketemailclient-mail-field ticketemailclient-recipient-control" data-recipient-control>
+                <div class="ticketemailclient-recipient-chips"></div>
+                <input type="text" id="{{ form_id }}-recipients_cc-input" class="ticketemailclient-recipient-input" autocomplete="off">
+                <button type="button" class="ticketemailclient-recipient-clear" aria-label="{{ __('Clear', 'ticketemailclient') }}">
+                    <i class="ti ti-x" aria-hidden="true"></i>
+                </button>
+                <input type="hidden" id="{{ form_id }}-recipients_cc" name="recipients_cc"
+                       value="{{ recipients_cc_raw }}">
+            </div>
+        </div>
+
+        <div class="ticketemailclient-mail-row">
+            <label class="ticketemailclient-mail-label" for="{{ form_id }}-recipients_bcc-input">{{ __('BCC', 'ticketemailclient') }}</label>
+            <div class="ticketemailclient-mail-field ticketemailclient-recipient-control" data-recipient-control>
+                <div class="ticketemailclient-recipient-chips"></div>
+                <input type="text" id="{{ form_id }}-recipients_bcc-input" class="ticketemailclient-recipient-input" autocomplete="off">
+                <button type="button" class="ticketemailclient-recipient-clear" aria-label="{{ __('Clear', 'ticketemailclient') }}">
+                    <i class="ti ti-x" aria-hidden="true"></i>
+                </button>
+                <input type="hidden" id="{{ form_id }}-recipients_bcc" name="recipients_bcc"
+                       value="{{ recipients_bcc_raw }}">
+            </div>
+        </div>
+
+        <div class="ticketemailclient-mail-row">
+            <label class="ticketemailclient-mail-label" for="{{ form_id }}-subject">{{ __('Subject', 'ticketemailclient') }}</label>
+            <input type="text" class="ticketemailclient-mail-field" id="{{ form_id }}-subject" name="subject" value="{{ subject }}" required>
+        </div>
+
+        {% if followup_template_dropdown or followup_source_dropdown %}
+            <div class="ticketemailclient-mail-row ticketemailclient-mail-row--followup-meta">
+                {% if followup_template_dropdown %}
+                    <label class="ticketemailclient-mail-label">{{ __('Template', 'ticketemailclient') }}</label>
+                    <div class="ticketemailclient-mail-field">
+                        {{ followup_template_dropdown|raw }}
+                    </div>
+                {% endif %}
+                {% if followup_source_dropdown %}
+                    <label class="ticketemailclient-mail-label">{{ __('Source', 'ticketemailclient') }}</label>
+                    <div class="ticketemailclient-mail-field">
+                        {{ followup_source_dropdown|raw }}
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        <div class="ticketemailclient-mail-row ticketemailclient-mail-row--editor">
+            <div class="ticketemailclient-mail-field ticketemailclient-editor">
+                {{ body_editor|raw }}
+            </div>
+        </div>
+
+
+        <div class="ticketemailclient-mail-row">
+            <div class="ticketemailclient-mail-field">
+                <label>
+                    <input type="checkbox" name="include_history" value="1"
+                           {% if include_history %}checked{% endif %}>
+                    {{ __('Attach public ticket history', 'ticketemailclient') }}
+                </label>
+            </div>
+        </div>
+
+        <div class="ticketemailclient-mail-row ticketemailclient-mail-row--attach">
+            <div class="ticketemailclient-mail-field ticketemailclient-attach" data-attachment-drop>
+                <input type="file" id="{{ form_id }}-file" class="ticketemailclient-file" multiple hidden>
+                <button type="button" class="btn btn-secondary ticketemailclient-choose-files">
+                    {{ __('Choose files', 'ticketemailclient') }}
+                </button>
+                <div data-history-attachments>
+                    {% if history_attachments is empty %}
+                        <p class="ticketemailclient-help">
+                            {{ __('No public ticket attachments are available.', 'ticketemailclient') }}
+                        </p>
+                    {% else %}
+                        <ul class="ticketemailclient-attachments">
+                            {% for attachment in history_attachments %}
+                                <li>
+                                    <label>
+                                        <input type="checkbox" name="history_attachments[]"
+                                               value="{{ attachment.id }}"
+                                               {% if attachment.id in selected_history_attachments %}checked{% endif %}>
+                                        {{ attachment.filename }}
+                                    </label>
+                                    <a class="ticketemailclient-attachment-open"
+                                       href="{{ attachment.preview_url }}" target="_blank" rel="noopener"
+                                       aria-label="{{ __('Open attachment', 'ticketemailclient') }}"
+                                       title="{{ __('Open attachment', 'ticketemailclient') }}">
+                                        <i class="ti ti-external-link" aria-hidden="true"></i>
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+                <ul id="{{ form_id }}-attachments" class="ticketemailclient-attachments"></ul>
+                <p class="ticketemailclient-help">
+                    {{ __('Drag & drop your file here, or choose files.', 'ticketemailclient') }}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="ticketemailclient-mailbox" id="{{ form_id }}-mailbox-warning"
+         {% if mailbox_matches is empty %}hidden{% endif %}>
+        <p>
+            {{ __('One or more recipients match an active incoming mailbox login. Aliases, forwarding, and non-email logins are not detected.', 'ticketemailclient') }}
+        </p>
+        {% if mailbox_matches is not empty %}
+            <p><code>{{ mailbox_matches|join(', ') }}</code></p>
+        {% endif %}
+        <label>
+            <input type="checkbox" name="mailbox_override" value="1"
+                   {% if mailbox_override %}checked{% endif %}>
+            {{ __('I understand and want to send anyway', 'ticketemailclient') }}
+        </label>
+    </div>
+
+    <div class="ticketemailclient-actions">
+        <button type="submit" class="btn btn-primary">
+            {{ __('Send', 'ticketemailclient') }}
+        </button>
+        {% if inline|default(false) %}
+            <button type="button" class="btn btn-secondary"
+                    data-bs-toggle="collapse" data-bs-target="{{ close_target }}">
+                {{ __('Cancel', 'ticketemailclient') }}
+            </button>
+        {% else %}
+            <a href="{{ path('front/ticket.form.php?id=' ~ tickets_id) }}"
+               class="btn btn-secondary">
+                {{ __('Cancel', 'ticketemailclient') }}
+            </a>
+        {% endif %}
+    </div>
+</form>

@@ -1,0 +1,128 @@
+{# templates/forward.html.twig — forward form, mail-client layout. #}
+{% set tickets_id = tickets_id|default(0) %}
+{% set mode       = mode|default('full_history') %}
+{% set form_id    = form_id|default('ticketemailclient-forward') %}
+{% set close_target = close_target|default('') %}
+{% set followup_template_dropdown = followup_template_dropdown|default('') %}
+{% set followup_source_dropdown = followup_source_dropdown|default('') %}
+<form method="post"
+      action="{{ send_url }}"
+      class="ticketemailclient-compose ticketemailclient-forward"
+      enctype="multipart/form-data"
+      id="{{ form_id }}"
+      data-upload-url="{{ upload_url|default('') }}"
+      data-image-url="{{ image_url|default('') }}"
+      data-followup-template-url="{{ followup_template_url|default('') }}"
+      data-editor-id="{{ editor_id|default('body_html') }}"
+      data-ajax-csrf="{{ ajax_csrf|default('') }}">
+    <input type="hidden" name="_glpi_csrf_token" value="{{ csrf_token }}">
+    <input type="hidden" name="tickets_id" value="{{ tickets_id }}">
+    <input type="hidden" name="mode" value="{{ mode }}">
+
+    <p class="ticketemailclient-help">
+        {{ __('Forwarding the full ticket history. Add recipients and send.', 'ticketemailclient') }}
+    </p>
+
+    <div class="ticketemailclient-mail-panel">
+        <div class="ticketemailclient-mail-header">
+            <i class="ti ti-flask" aria-hidden="true"></i>
+            {{ __('Test version', 'ticketemailclient') }}
+        </div>
+        <div class="ticketemailclient-mail-row">
+            <label class="ticketemailclient-mail-label" for="{{ form_id }}-recipients_to-input">{{ __('To', 'ticketemailclient') }}</label>
+            <div class="ticketemailclient-mail-field ticketemailclient-recipient-control" data-recipient-control>
+                <div class="ticketemailclient-recipient-chips"></div>
+                <input type="text" id="{{ form_id }}-recipients_to-input" class="ticketemailclient-recipient-input" autocomplete="off">
+                <button type="button" class="ticketemailclient-recipient-clear" aria-label="{{ __('Clear', 'ticketemailclient') }}">
+                    <i class="ti ti-x" aria-hidden="true"></i>
+                </button>
+                <input type="hidden" id="{{ form_id }}-recipients_to" name="recipients_to"
+                       value="{{ recipients_to|join(', ') }}">
+            </div>
+        </div>
+
+        <div class="ticketemailclient-mail-row">
+            <label class="ticketemailclient-mail-label" for="{{ form_id }}-recipients_cc-input">{{ __('CC', 'ticketemailclient') }}</label>
+            <div class="ticketemailclient-mail-field ticketemailclient-recipient-control" data-recipient-control>
+                <div class="ticketemailclient-recipient-chips"></div>
+                <input type="text" id="{{ form_id }}-recipients_cc-input" class="ticketemailclient-recipient-input" autocomplete="off">
+                <button type="button" class="ticketemailclient-recipient-clear" aria-label="{{ __('Clear', 'ticketemailclient') }}">
+                    <i class="ti ti-x" aria-hidden="true"></i>
+                </button>
+                <input type="hidden" id="{{ form_id }}-recipients_cc" name="recipients_cc"
+                       value="{{ recipients_cc|join(', ') }}">
+            </div>
+        </div>
+
+        <div class="ticketemailclient-mail-row">
+            <label class="ticketemailclient-mail-label" for="{{ form_id }}-recipients_bcc-input">{{ __('BCC', 'ticketemailclient') }}</label>
+            <div class="ticketemailclient-mail-field ticketemailclient-recipient-control" data-recipient-control>
+                <div class="ticketemailclient-recipient-chips"></div>
+                <input type="text" id="{{ form_id }}-recipients_bcc-input" class="ticketemailclient-recipient-input" autocomplete="off">
+                <button type="button" class="ticketemailclient-recipient-clear" aria-label="{{ __('Clear', 'ticketemailclient') }}">
+                    <i class="ti ti-x" aria-hidden="true"></i>
+                </button>
+                <input type="hidden" id="{{ form_id }}-recipients_bcc" name="recipients_bcc"
+                       value="{{ recipients_bcc|join(', ') }}">
+            </div>
+        </div>
+
+        <div class="ticketemailclient-mail-row">
+            <label class="ticketemailclient-mail-label" for="{{ form_id }}-subject">{{ __('Subject', 'ticketemailclient') }}</label>
+            <input type="text" class="ticketemailclient-mail-field" id="{{ form_id }}-subject" name="subject" value="{{ subject }}" required>
+        </div>
+
+        {% if followup_template_dropdown or followup_source_dropdown %}
+            <div class="ticketemailclient-mail-row ticketemailclient-mail-row--followup-meta">
+                {% if followup_template_dropdown %}
+                    <label class="ticketemailclient-mail-label">{{ __('Template', 'ticketemailclient') }}</label>
+                    <div class="ticketemailclient-mail-field">
+                        {{ followup_template_dropdown|raw }}
+                    </div>
+                {% endif %}
+                {% if followup_source_dropdown %}
+                    <label class="ticketemailclient-mail-label">{{ __('Source', 'ticketemailclient') }}</label>
+                    <div class="ticketemailclient-mail-field">
+                        {{ followup_source_dropdown|raw }}
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        <div class="ticketemailclient-mail-row ticketemailclient-mail-row--editor">
+            <div class="ticketemailclient-mail-field ticketemailclient-editor">
+                {{ body_editor|raw }}
+            </div>
+        </div>
+
+        <div class="ticketemailclient-mail-row ticketemailclient-mail-row--attach">
+            <div class="ticketemailclient-mail-field ticketemailclient-attach" data-attachment-drop>
+                <input type="file" id="{{ form_id }}-file" class="ticketemailclient-file" multiple hidden>
+                <button type="button" class="btn btn-secondary ticketemailclient-choose-files">
+                    {{ __('Choose files') }}
+                </button>
+                <ul id="{{ form_id }}-attachments" class="ticketemailclient-attachments"></ul>
+                <p class="ticketemailclient-help">
+                    {{ __('Drag & drop your file here, or choose files.', 'ticketemailclient') }}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="ticketemailclient-actions">
+        <button type="submit" class="btn btn-primary">
+            {{ __('Send', 'ticketemailclient') }}
+        </button>
+        {% if inline|default(false) %}
+            <button type="button" class="btn btn-secondary"
+                    data-bs-toggle="collapse" data-bs-target="{{ close_target }}">
+                {{ __('Cancel', 'ticketemailclient') }}
+            </button>
+        {% else %}
+            <a href="{{ path('front/ticket.form.php?id=' ~ tickets_id) }}"
+               class="btn btn-secondary">
+                {{ __('Cancel', 'ticketemailclient') }}
+            </a>
+        {% endif %}
+    </div>
+</form>

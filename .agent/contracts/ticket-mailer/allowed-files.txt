@@ -1,0 +1,34 @@
+# Files the implementer may create or modify.
+# One project-relative path/pattern per line.
+# Do NOT include contract/verifier artifacts.
+
+setup.php
+hook.php
+composer.json
+composer.lock
+package.json
+package-lock.json
+README.md
+.gitignore
+docker-compose.yml
+docker-compose.override.yml
+docker/glpi/Dockerfile
+docker/glpi/docker-entrypoint.sh
+docker/glpi/setup-glpi.sh
+docker/mailpit/Dockerfile
+inc/*.php
+inc/*.class.php
+front/*.php
+ajax/*.php
+sql/*.sql
+css/*.css
+js/*.js
+locales/*.pot
+locales/*.po
+locales/*.mo
+templates/*.twig
+templates/*.html.twig
+tests/*.php
+tests/**/*.php
+.phpcs.xml
+phpunit.xml
