@@ -11,7 +11,8 @@ $entities_id = (int) ($_GET['entities_id'] ?? $_POST['entities_id'] ?? ($_SESSIO
 if (!Session::haveAccessToEntity($entities_id)) {
     Html::displayRightError();
 }
-$config_url = Plugin::getWebDir('ticketmailer') . '/front/config.form.php';
+global $CFG_GLPI;
+$config_url = rtrim((string) ($CFG_GLPI['root_doc'] ?? ''), '/') . '/plugins/ticketmailer/front/config.form.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     PluginTicketmailerConfig::saveEntity(

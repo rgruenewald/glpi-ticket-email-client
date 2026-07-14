@@ -545,10 +545,12 @@ final class AcceptanceTest extends TestCase
     {
         $config = (string) file_get_contents(self::REPO_ROOT . '/front/config.form.php');
 
+        $this->assertStringContainsString("'root_doc'", $config);
         $this->assertStringContainsString(
-            "Plugin::getWebDir('ticketmailer')",
+            '/plugins/ticketmailer/front/config.form.php',
             $config,
         );
+        $this->assertStringNotContainsString('Plugin::getWebDir', $config);
         $this->assertStringContainsString('$config_url', $config);
         $this->assertStringNotContainsString('PHP_SELF', $config);
     }
