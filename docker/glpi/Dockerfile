@@ -32,16 +32,18 @@ RUN set -eux; \
     rm -f /tmp/glpi.tgz; \
     chown -R www-data:www-data /var/www/html
 
-# GLPI 11 requires the public directory as Apache's document root. Plugin
-# resources remain outside that directory, so expose the plugin tree
-# explicitly; otherwise GLPI's add_css/add_javascript hooks produce 404s.
+# GLPI 11 requires the public directory as Apache's document root. Legacy
+# plugin PHP controllers must reach GLPI's Symfony front controller so
+# Html::redirect() is converted into an HTTP response. Static plugin assets
+# remain directly exposed because they are outside GLPI's `/public` tree.
 RUN set -eux; \
     a2enmod alias rewrite; \
     sed -i 's/AllowOverride None/AllowOverride All/g' /etc/apache2/apache2.conf; \
     sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf; \
     sed -i '/<\/VirtualHost>/i\    FallbackResource /index.php' /etc/apache2/sites-available/000-default.conf; \
     printf '%s\n' \
-        'Alias /plugins/ /var/www/html/plugins/' \
+        'AliasMatch ^/plugins/([^/]+)/(?!front/|ajax/|report/)(.+\.(?!php$)[^./]+)$ /var/www/html/plugins/$1/$2' \
+        'AliasMatch ^/plugins/([^/]+)/(front|ajax|report)/(.+\.(?!php$)[^./]+)$ /var/www/html/plugins/$1/$2/$3' \
         '<Directory /var/www/html/plugins/>' \
         '    Options FollowSymLinks' \
         '    AllowOverride None' \
