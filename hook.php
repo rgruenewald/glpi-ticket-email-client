@@ -16,7 +16,7 @@ function plugin_ticketmailer_install(): bool
         return false;
     }
 
-    return true;
+    return PluginTicketmailerHook::migrateSchema(__DIR__ . '/sql');
 }
 
 function plugin_ticketmailer_uninstall(): bool

@@ -33,6 +33,32 @@ class PluginTicketmailerHook
         return $ok;
     }
 
+    /**
+     * Bring a pre-v2 ticketmailer schema forward without replaying a
+     * migration whose columns already exist. GLPI calls the install hook for
+     * both fresh installations and upgrades.
+     */
+    public static function migrateSchema(string $sqlDirectory): bool
+    {
+        global $DB;
+
+        $migrations = [
+            ['glpi_plugin_ticketmailer_logs', 'followups_id', 'update-1.1.0.sql'],
+            ['glpi_plugin_ticketmailer_configs', 'timeline_newest_first', 'update-1.3.0.sql'],
+            ['glpi_plugin_ticketmailer_configs', 'recipient_autocomplete_show_email', 'update-1.4.0.sql'],
+        ];
+        foreach ($migrations as [$table, $field, $filename]) {
+            if ($DB->fieldExists($table, $field)) {
+                continue;
+            }
+            $path = $sqlDirectory . '/' . $filename;
+            if (!is_file($path) || !self::runSqlScript((string) file_get_contents($path))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 
     /**
      * Recursive removal of a directory and everything
