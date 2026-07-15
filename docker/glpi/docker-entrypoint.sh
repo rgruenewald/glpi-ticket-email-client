@@ -21,11 +21,12 @@ for i in {1..30}; do
   sleep 2
 done
 
-# Configure GLPI's db connection from env on first boot.
-# Persist under /etc/glpi (volume) so restarts keep settings.
-if [ ! -f /etc/glpi/config_db.php ]; then
-  mkdir -p /etc/glpi
-  cat > /etc/glpi/config_db.php <<PHP
+# GLPI 11 resolves configuration and its security key from /var/www/html/config.
+# Keep the DB config on the named volume so encrypted values survive restarts.
+mkdir -p /var/www/html/config
+if [ ! -e /var/www/html/config/config_db.php ]; then
+  rm -f /var/www/html/config/config_db.php
+  cat > /var/www/html/config/config_db.php <<PHP
 <?php
 class DB extends DBmysql {
    public \$dbhost     = '${GLPI_DB_HOST}';
@@ -36,25 +37,23 @@ class DB extends DBmysql {
 PHP
 fi
 
-# GLPI looks under /var/www/html/config; keep symlinks to the
-# volume-backed config so restarts keep DB settings + crypt key.
-mkdir -p /etc/glpi /var/www/html/config
-ln -sf /etc/glpi/config_db.php /var/www/html/config/config_db.php
-# Dangling OK: security:change_key writes through the symlink.
-ln -sf /etc/glpi/glpicrypt.key /var/www/html/config/glpicrypt.key
-
-# Heal missing crypt key (older volumes / partial installs).
-if [ ! -f /etc/glpi/glpicrypt.key ]; then
+# Heal a missing security key before any command reads encrypted config.
+if [ ! -s /var/www/html/config/glpicrypt.key ]; then
   php /var/www/html/bin/console security:change_key --allow-superuser --no-interaction || true
+  if [ ! -s /var/www/html/config/glpicrypt.key ]; then
+    echo "[glpi] unable to create GLPI security key" >&2
+    exit 1
+  fi
 fi
 
 # First-boot install (writes glpi DB schema, creates the
 # default admin user, activates plugins/ticketmailer).
 # Marker lives on the glpi_config volume so recreate is stable.
-if [ "${GLPI_INSTALL:-0}" = "1" ] && [ ! -f /etc/glpi/.glpi_installed ]; then
+if [ "${GLPI_INSTALL:-0}" = "1" ] && [ ! -f /var/www/html/config/.glpi_installed ]; then
   setup-glpi.sh
-  touch /etc/glpi/.glpi_installed
+  touch /var/www/html/config/.glpi_installed
 fi
+
 
 # setup-glpi.sh + CLI run as root → log/cache files end up
 # root-owned; apache workers are www-data. Fix every boot.

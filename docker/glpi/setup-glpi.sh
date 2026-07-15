@@ -29,15 +29,21 @@ php bin/console db:install \
   --db-user="${GLPI_DB_USER}" \
   --db-password="${GLPI_DB_PASSWORD}"
 
-# Apply GLPI's core mailer config to point at mailpit.
-# Usage: config:set <key> <value> -c <context>
-# smtp_mode 1 = SMTP; host may include :port.
-php bin/console config:set smtp_mode 1 -c core --allow-superuser --no-interaction || true
-php bin/console config:set smtp_host "${GLPI_SMTP_HOST}:${GLPI_SMTP_PORT}" -c core --allow-superuser --no-interaction || true
+# Encrypted fields need GLPI's sodium key under GLPI_CONFIG_DIR.
+# Create it before SMTP credentials are written so persisted credentials
+# always match the active key.
+if [ ! -s /etc/glpi/glpicrypt.key ]; then
+  php bin/console security:change_key --allow-superuser --no-interaction || true
+fi
 
-# Password fields (smtp_passwd, mailcollector, …) need a sodium
-# key under GLPI_CONFIG_DIR. Symlink points at /etc/glpi volume.
-php bin/console security:change_key --allow-superuser --no-interaction || true
+# Apply GLPI's core mailer config to point at mailpit.
+# smtp_mode 1 = SMTP; host and port are configured separately.
+php bin/console config:set smtp_mode 1 -c core --allow-superuser --no-interaction || true
+php bin/console config:set smtp_host "${GLPI_SMTP_HOST}" -c core --allow-superuser --no-interaction || true
+php bin/console config:set smtp_port "${GLPI_SMTP_PORT}" -c core --allow-superuser --no-interaction || true
+php bin/console config:set smtp_username "" -c core --allow-superuser --no-interaction || true
+php bin/console config:set smtp_passwd "" -c core --allow-superuser --no-interaction || true
+
 
 # Install + activate the ticketmailer plugin.
 if [ -d plugins/ticketmailer ]; then

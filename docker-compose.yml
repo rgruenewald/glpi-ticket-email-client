@@ -64,13 +64,10 @@ services:
       GLPI_SMTP_NO_TLS: 1
       GLPI_INSTALL: "1"
     volumes:
-      # Mount the plugin source from the repo root so
-      # changes to PHP / templates / locale files are
-      # picked up on container restart.
-      - .:/var/www/html/plugins/ticketmailer
+      # GLPI 11 resolves config_db.php and glpicrypt.key from /var/www/html/config.
+      # Persist this directory; encrypted values then survive container restarts.
+      - glpi_config:/var/www/html/config
       - glpi_data:/var/www/html/files
-      - glpi_config:/etc/glpi
-
 volumes:
   db_data:
   glpi_data:
