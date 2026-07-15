@@ -525,6 +525,9 @@ final class AcceptanceTest extends TestCase
         $this->assertStringContainsString('Ticket::WAITING', $send);
         $this->assertStringContainsString('initRecipientControl', $js);
         $this->assertStringContainsString('dataTransfer.files', $js);
+        $this->assertStringNotContainsString('ticketmailer-signature-sep', $action);
+        $entrypoint = (string) file_get_contents(self::REPO_ROOT . '/docker/glpi/docker-entrypoint.sh');
+        $this->assertStringContainsString("precedence ::ffff:0:0/96  100", $entrypoint);
     }
 
     #[Test]

@@ -325,13 +325,10 @@ ul.legacy-timeline-actions li .ticketmailer-timeline-action i {
     padding-right: 0;
 }
 
-/* Hide competing timeline actions while an email compose panel is open. */
-body.ticketmailer-compose-active .main-actions,
-body:has(.collapse.show .ticketmailer-compose) .main-actions,
-body:has(.collapse.in .ticketmailer-compose) .main-actions,
-body.ticketmailer-compose-active .legacy-timeline-actions,
-body:has(.collapse.show .ticketmailer-compose) .legacy-timeline-actions,
-body:has(.collapse.in .ticketmailer-compose) .legacy-timeline-actions {
+/* Hide only the email reply action while its compose panel is open. */
+body.ticketmailer-compose-active .ticketmailer-timeline-action,
+body:has(.collapse.show .ticketmailer-compose) .ticketmailer-timeline-action,
+body:has(.collapse.in .ticketmailer-compose) .ticketmailer-timeline-action {
     display: none !important;
 }
 

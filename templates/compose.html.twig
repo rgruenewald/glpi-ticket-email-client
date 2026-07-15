@@ -186,6 +186,26 @@
         <button type="submit" class="btn btn-primary">
             {{ __('Send', 'ticketmailer') }}
         </button>
+        <label class="form-check form-switch d-inline-flex align-items-center mb-0 px-2"
+               title="{{ __('Set ticket status to waiting after sending.', 'ticketmailer') }}">
+            <i class="ti ti-player-pause me-2" aria-hidden="true"></i>
+            <input type="checkbox" class="form-check-input m-0"
+                   name="set_waiting" value="1"
+                   {% if set_waiting is not defined or set_waiting %}checked{% endif %}>
+            <span class="visually-hidden">
+                {{ __('Set ticket status to waiting after sending.', 'ticketmailer') }}
+            </span>
+        </label>
+        <label class="form-check form-switch d-inline-flex align-items-center mb-0 px-2"
+               title="{{ __('Set ticket status to solved after sending.', 'ticketmailer') }}">
+            <i class="ti ti-circle-check me-2" aria-hidden="true"></i>
+            <input type="checkbox" class="form-check-input m-0"
+                   name="set_solved" value="1"
+                   {% if set_solved|default(false) %}checked{% endif %}>
+            <span class="visually-hidden">
+                {{ __('Set ticket status to solved after sending.', 'ticketmailer') }}
+            </span>
+        </label>
         {% if inline|default(false) %}
             <button type="button" class="btn btn-secondary"
                     data-bs-toggle="collapse" data-bs-target="{{ close_target }}">

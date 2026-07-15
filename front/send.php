@@ -22,6 +22,8 @@ $subject = trim((string) ($_POST['subject'] ?? ''));
 $body_html = (string) ($_POST['body_html'] ?? '');
 $body_text = (string) ($_POST['body_text'] ?? '');
 $include_history = !empty($_POST['include_history']);
+$set_waiting = !empty($_POST['set_waiting']);
+$set_solved = !empty($_POST['set_solved']);
 $selected_history_attachments = array_values(array_filter(
     (array) ($_POST['history_attachments'] ?? []),
     static fn (mixed $attachment): bool => is_scalar($attachment),
@@ -145,6 +147,8 @@ if ($errors !== []) {
         'mailbox_override'   => $mailbox_override,
         'mailbox_matches'    => $mailbox_matches,
         'include_history'    => $include_history,
+        'set_waiting'        => $set_waiting,
+        'set_solved'         => $set_solved,
         'history_attachments' => PluginTicketmailerHistory::availableAttachments($ticket),
         'selected_history_attachments' => $selected_history_attachments,
     ]);
@@ -287,10 +291,10 @@ if ($result['status'] === 'sent') {
             null,
         );
         $timeline_recorded = true;
-        if (PluginTicketmailerConfig::setWaitingAfterSend($ticket)) {
+        if ($set_waiting || $set_solved) {
             $ticket->update([
                 'id'            => $tickets_id,
-                'status'        => Ticket::WAITING,
+                'status'        => $set_solved ? Ticket::SOLVED : Ticket::WAITING,
                 '_disablenotif' => 1,
             ]);
         }

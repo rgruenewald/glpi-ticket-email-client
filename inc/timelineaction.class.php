@@ -148,6 +148,7 @@ class PluginTicketmailerTimelineAction
             'user_autocomplete_show_email' => PluginTicketmailerConfig::forEntity(
                 (int) $ticket->getField('entities_id'),
             )['recipient_autocomplete_show_email'],
+            'set_waiting' => PluginTicketmailerConfig::setWaitingAfterSend($ticket),
             'attachment_max' => PluginTicketmailerConfig::uploadMaxSizeLabel(),
             'mailbox_override' => false,
             'mailbox_matches' => [],
@@ -223,7 +224,7 @@ class PluginTicketmailerTimelineAction
 
     /**
      * Return the ticket entity's email signature as HTML,
-     * wrapped in a separated block. Shown by default in
+     * wrapped in a signature block. Shown by default in
      * the compose body so the sender sees the unit signature.
      */
     private static function entitySignature(Ticket $ticket): string
@@ -242,8 +243,7 @@ class PluginTicketmailerTimelineAction
         // ponytail: nl2br for plain text; HTML passes through as-is
         $html = preg_match('/<[a-z][\s\S]*>/i', $sig) ? $sig : nl2br(htmlspecialchars($sig, ENT_QUOTES, 'UTF-8'));
 
-        return '<hr class="ticketmailer-signature-sep"><div class="ticketmailer-signature">'
-            . $html . '</div>';
+        return '<div class="ticketmailer-signature">' . $html . '</div>';
     }
 
     private static function actionClass(): string

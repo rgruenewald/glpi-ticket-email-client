@@ -76,8 +76,8 @@ Configure SMTP only in GLPI core settings. GLPI Ticket Email Client uses GLPI's 
 
 A GLPI administrator can open the plugin configuration page and choose an entity. The following settings are available:
 
-- **Ticket subject prefix** — use `%d` for the ticket ID; default `[#%d]`.
-- **Email signature** — rich HTML; GLPI Ticket Email Client generates the plain-text alternative.
+- **Ticket subject prefix** — supports the ticket variables listed in the configuration; default `[##ticket.id##]`.
+- **Email signature** — rich HTML with ticket-variable support; GLPI Ticket Email Client generates the plain-text alternative.
 - **Set ticket status to waiting after a successful email send** — enabled by default.
 - **Show newest timeline entries first** — enabled by default.
 - **Open the Email reply form when a ticket is opened** — enabled by default.

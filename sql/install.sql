@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS glpi_plugin_ticketmailer_reply_policies (
 -- Per-entity compose preferences. Global defaults use entities_id = 0.
 CREATE TABLE IF NOT EXISTS glpi_plugin_ticketmailer_configs (
     entities_id              INT          NOT NULL,
-    subject_prefix           VARCHAR(255) NOT NULL DEFAULT '[#%d]',
+    subject_prefix           VARCHAR(255) NOT NULL DEFAULT '[##ticket.id##]',
     signature_html           MEDIUMTEXT   NULL,
     set_waiting              TINYINT      NOT NULL DEFAULT 1,
     timeline_newest_first    TINYINT      NOT NULL DEFAULT 1,

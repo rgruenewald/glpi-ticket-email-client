@@ -31,11 +31,21 @@
         if (!composeActive && now < optimisticUntil) {
             next = true;
         }
-        if (next === lastComposeActive) {
-            return;
-        }
         lastComposeActive = next;
         document.body?.classList.toggle('ticketmailer-compose-active', next);
+
+        // GLPI hides both action groups whenever any timeline form opens.
+        // For ticketmailer, restore them and suppress only the reply controls.
+        if (typeof $ === 'function') {
+            const mainActions = $('#itil-footer .main-actions, #right-actions');
+            const answerActions = $('#itil-footer .answer-action, #itil-footer .dropdown-toggle-split');
+            if (typeof answerActions.toggle === 'function') {
+                answerActions.toggle(!next);
+            }
+            if (next && typeof mainActions.show === 'function') {
+                mainActions.show();
+            }
+        }
     };
 
     const scheduleSyncBurst = () => {

@@ -1,6 +1,6 @@
 <?php
 /**
- * Per-entity compose preferences. SMTP remains GLPI core configuration.
+ * Global preferences and per-entity signature. SMTP remains GLPI core configuration.
  */
 require_once __DIR__ . '/../inc/bootstrap.php';
 
@@ -31,7 +31,9 @@ $settings = PluginTicketmailerConfig::forEntity($entities_id);
 $entity_dropdown = (string) Dropdown::show('Entity', [
     'name'    => 'entities_id',
     'value'   => $entities_id,
-    'display' => false,
+    'display'   => false,
+    'on_change' => 'window.location.href = '
+        . json_encode($config_url . '?entities_id=', JSON_HEX_APOS | JSON_HEX_QUOT) . ' + this.value;',
 ]);
 $signature_editor = Html::textarea([
     'name'            => 'signature_html',
@@ -42,28 +44,23 @@ $signature_editor = Html::textarea([
 ]);
 
 Html::header(__('Outbound email', 'ticketmailer'), $config_url, 'config', 'plugins');
-echo '<form method="get" action="' . htmlspecialchars($config_url, ENT_QUOTES, 'UTF-8') . '" class="mb-3">';
-echo '<label class="me-2" for="dropdown_entities_id">' . __('Entity') . '</label>';
-echo $entity_dropdown;
-echo '<button type="submit" class="btn btn-secondary ms-2">' . __('Show') . '</button>';
-echo '</form>';
 
 echo '<form method="post" action="' . htmlspecialchars($config_url, ENT_QUOTES, 'UTF-8') . '">';
 echo Html::hidden('_glpi_csrf_token', ['value' => Session::getNewCSRFToken()]);
 echo Html::hidden('entities_id', ['value' => $entities_id]);
-echo '<div class="card"><div class="card-body"><div class="row g-3">';
+echo '<div class="card mb-3"><div class="card-header"><h3 class="card-title">'
+    . __('Global settings', 'ticketmailer') . '</h3></div><div class="card-body"><div class="row g-3">';
 echo '<div class="col-12"><label class="form-label" for="ticketmailer-subject-prefix">'
     . __('Ticket subject prefix', 'ticketmailer') . '</label>';
 echo '<input class="form-control" id="ticketmailer-subject-prefix" name="subject_prefix" maxlength="255" value="'
     . htmlspecialchars($settings['subject_prefix'], ENT_QUOTES, 'UTF-8') . '">';
-echo '<div class="form-text">' . __('Use %d for the ticket ID.', 'ticketmailer') . '</div></div>';
-echo '<div class="col-12"><label class="form-label">' . __('E-mail signature', 'ticketmailer') . '</label>';
-echo $signature_editor;
-echo '<div class="form-text">' . __('The plain-text signature is generated automatically from this HTML.', 'ticketmailer') . '</div></div>';
+echo '<div class="form-text">' . __('You can use ticket, agent, and entity variables in the subject.', 'ticketmailer') . '</div>';
+echo PluginTicketmailerConfig::variableHelpHtml();
+echo '</div>';
 echo '<div class="col-12 form-check"><input class="form-check-input" id="ticketmailer-set-waiting" type="checkbox" name="set_waiting" value="1"'
     . ($settings['set_waiting'] ? ' checked' : '') . '>';
 echo '<label class="form-check-label" for="ticketmailer-set-waiting">'
-    . __('Set ticket status to waiting after a successful e-mail send.', 'ticketmailer') . '</label></div>';
+    . __('Default: set ticket status to waiting after a successful e-mail send.', 'ticketmailer') . '</label></div>';
 echo '<div class="col-12 form-check"><input class="form-check-input" id="ticketmailer-timeline-newest-first" type="checkbox" name="timeline_newest_first" value="1"'
     . ($settings['timeline_newest_first'] ? ' checked' : '') . '>';
 echo '<label class="form-check-label" for="ticketmailer-timeline-newest-first">'
@@ -76,6 +73,17 @@ echo '<div class="col-12 form-check"><input class="form-check-input" id="ticketm
     . ($settings['recipient_autocomplete_show_email'] ? ' checked' : '') . '>';
 echo '<label class="form-check-label" for="ticketmailer-recipient-autocomplete-show-email">'
     . __('Show email addresses in recipient autocomplete.', 'ticketmailer') . '</label></div>';
+echo '</div></div></div>';
+echo '<div class="card"><div class="card-header"><h3 class="card-title">'
+    . __('Signature per entity', 'ticketmailer') . '</h3></div><div class="card-body"><div class="row g-3">';
+echo '<div class="col-12"><label class="form-label me-2" for="dropdown_entities_id">' . __('Entity') . '</label>';
+echo $entity_dropdown;
+echo '</div>';
+echo '<div class="col-12"><label class="form-label">' . __('E-mail signature', 'ticketmailer') . '</label>';
+echo $signature_editor;
+echo '<div class="form-text">' . __('The plain-text signature is generated automatically from this HTML. Ticket, agent, and entity variables are supported.', 'ticketmailer') . '</div>';
+echo PluginTicketmailerConfig::variableHelpHtml();
+echo '</div>';
 echo '<div class="col-12"><button type="submit" class="btn btn-primary">' . __('Save') . '</button></div>';
 echo '</div></div></div></form>';
 Html::footer();
