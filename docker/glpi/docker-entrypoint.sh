@@ -11,6 +11,12 @@ set -euo pipefail
 : "${GLPI_DB_USER:=glpi}"
 : "${GLPI_DB_PASSWORD:=glpi}"
 
+# Some Docker hosts advertise IPv6 DNS without routing it. Prefer IPv4-mapped
+# addresses so GLPI SMTP does not time out before trying the reachable A record.
+if ! grep -Eq '^[[:space:]]*precedence[[:space:]]+::ffff:0:0/96[[:space:]]+100' /etc/gai.conf; then
+  echo 'precedence ::ffff:0:0/96  100' >> /etc/gai.conf
+fi
+
 echo "[glpi] waiting for database ${GLPI_DB_HOST} …"
 for i in {1..30}; do
   # MariaDB client in Debian trixie defaults to SSL; our
