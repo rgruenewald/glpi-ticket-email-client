@@ -94,9 +94,12 @@ global.tinymce = {
     },
 };
 global.window.tinymce = global.tinymce;
+let templateRequestHeaders = {};
 global.XMLHttpRequest = class {
     open() {}
-    setRequestHeader() {}
+    setRequestHeader(name, value) {
+        templateRequestHeaders[name] = value;
+    }
     send() {
         this.status = 200;
         this.responseText = JSON.stringify({ content: '<p>Template</p>' });
@@ -156,6 +159,7 @@ const templateForm = {
 };
 const templateSelect = { form: templateForm, value: '7' };
 templateChangeHandler.call(templateSelect);
+assert.equal(templateRequestHeaders['X-Requested-With'], 'XMLHttpRequest');
 assert.equal(templateEditor.content, '<p>Template</p><p>Signature</p>');
 templateChangeHandler.call(templateSelect);
 assert.equal(templateEditor.content, '<p>Template</p><p>Signature</p>');

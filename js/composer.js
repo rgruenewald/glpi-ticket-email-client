@@ -497,6 +497,7 @@
         data.append('items_id', ticket.value);
         data.append('itemtype', 'Ticket');
         xhr.open('POST', url);
+        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
         var token = getAjaxCsrf(form);
         if (token) {
             xhr.setRequestHeader('X-Glpi-Csrf-Token', token);
