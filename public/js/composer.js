@@ -1,5 +1,5 @@
 /*
- * js/composer.js — attachment picker for compose form (v2).
+ * public/js/composer.js — attachment picker for compose form (v2).
  * TinyMCE comes from GLPI's Html::initEditorSystem.
  *
  * AJAX uploads use a standalone CSRF token (data-ajax-csrf).

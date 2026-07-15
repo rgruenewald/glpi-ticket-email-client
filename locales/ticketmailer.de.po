@@ -275,15 +275,15 @@ msgstr "Unbekannt"
 msgid "Show email addresses in recipient autocomplete."
 msgstr "E-Mail-Adressen in der Empfänger-Autovervollständigung anzeigen."
 
-#: templates/compose.html.twig js/composer.js
+#: templates/compose.html.twig public/js/composer.js
 msgid "Remove %s"
 msgstr "%s entfernen"
 
-#: templates/compose.html.twig js/composer.js
+#: templates/compose.html.twig public/js/composer.js
 msgid "bytes"
 msgstr "Bytes"
 
-#: templates/compose.html.twig js/composer.js
+#: templates/compose.html.twig public/js/composer.js
 msgid "Upload failed."
 msgstr "Hochladen fehlgeschlagen."
 

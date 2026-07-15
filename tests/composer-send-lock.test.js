@@ -107,10 +107,10 @@ global.XMLHttpRequest = class {
     }
 };
 
-require('../js/composer.js');
+require('../public/js/composer.js');
 listeners.DOMContentLoaded();
 
-const {recipientForSuggestion, validUserSuggestions} = require('../js/composer.js');
+const {recipientForSuggestion, validUserSuggestions} = require('../public/js/composer.js');
 assert.deepEqual(validUserSuggestions([
     {label: 'Ada Lovelace', email: 'ada@example.test'},
     {label: '', email: 'empty-label@example.test'},

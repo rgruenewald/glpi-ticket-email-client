@@ -69,6 +69,16 @@ final class AcceptanceTest extends TestCase
         ];
     }
 
+    #[Test]
+    public function a1_static_assets_are_glpi_11_public_resources(): void
+    {
+        $this->assertFileExists(self::REPO_ROOT . '/public/css/ticketmailer.css');
+        $this->assertFileExists(self::REPO_ROOT . '/public/js/composer.js');
+        $this->assertFileExists(self::REPO_ROOT . '/public/js/ticket-timeline.js');
+        $this->assertFileDoesNotExist(self::REPO_ROOT . '/css/ticketmailer.css');
+        $this->assertFileDoesNotExist(self::REPO_ROOT . '/js/composer.js');
+    }
+
     // ---- A2: hook.php defines the install/uninstall/post_init functions ----
 
     /** @dataProvider provideHookFunctions */
@@ -436,7 +446,7 @@ final class AcceptanceTest extends TestCase
     {
         $reply = (string) file_get_contents(self::REPO_ROOT . '/templates/compose.html.twig');
         $action = (string) file_get_contents(self::REPO_ROOT . '/inc/timelineaction.class.php');
-        $js = (string) file_get_contents(self::REPO_ROOT . '/js/composer.js');
+        $js = (string) file_get_contents(self::REPO_ROOT . '/public/js/composer.js');
         $this->assertStringContainsString('followup_template_dropdown', $reply);
         $this->assertStringContainsString('itilfollowuptemplates_id', $action);
         $this->assertStringContainsString('$(document).on(', $js);
@@ -448,7 +458,7 @@ final class AcceptanceTest extends TestCase
     #[Test]
     public function v2_compose_submit_disables_duplicate_sends(): void
     {
-        $js = (string) file_get_contents(self::REPO_ROOT . '/js/composer.js');
+        $js = (string) file_get_contents(self::REPO_ROOT . '/public/js/composer.js');
         $this->assertStringContainsString('ticketmailerSending', $js);
         $this->assertStringContainsString('spinner-border', $js);
         $this->assertStringContainsString('button.disabled = true', $js);
@@ -513,7 +523,7 @@ final class AcceptanceTest extends TestCase
         $reply = (string) file_get_contents(self::REPO_ROOT . '/templates/compose.html.twig');
         $action = (string) file_get_contents(self::REPO_ROOT . '/inc/timelineaction.class.php');
         $send = (string) file_get_contents(self::REPO_ROOT . '/front/send.php');
-        $js = (string) file_get_contents(self::REPO_ROOT . '/js/composer.js');
+        $js = (string) file_get_contents(self::REPO_ROOT . '/public/js/composer.js');
         $this->assertStringContainsString('glpi_plugin_ticketmailer_configs', $config);
         $this->assertStringContainsString('signature_html', $config);
         $this->assertStringContainsString('set_waiting', $config);

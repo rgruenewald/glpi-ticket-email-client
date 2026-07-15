@@ -131,7 +131,7 @@ global.$ = function () {
     return chainable;
 };
 
-require('../js/ticket-timeline.js');
+require('../public/js/ticket-timeline.js');
 
 // Capture the MutationObserver handlers (first=openReply, second=classObserver)
 {
