@@ -77,10 +77,13 @@
             return String(email).toLowerCase();
         }) : [];
         var warning = form.querySelector('.ticketmailer-mailbox');
+        var matchesElement = warning ? warning.querySelector('.ticketmailer-mailbox-matches') : null;
         var override = warning ? warning.querySelector('input[name="mailbox_override"]') : null;
         if (warning) {
             warning.hidden = normalized.length === 0;
-            warning.querySelector('.ticketmailer-mailbox-matches').textContent = matches.join(', ');
+        }
+        if (matchesElement) {
+            matchesElement.textContent = matches.join(', ');
         }
         if (override && resetConfirmation) {
             override.checked = false;
@@ -178,6 +181,7 @@
                 }
                 xhr.onload = function () {
                     if (currentRequest !== validation.requestId) {
+                        resolve();
                         return;
                     }
                     try {
