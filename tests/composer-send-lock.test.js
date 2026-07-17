@@ -1,4 +1,4 @@
-'use strict';
+
 
 const assert = require('node:assert/strict');
 
@@ -69,16 +69,14 @@ global.document = {
     },
 };
 let templateChangeHandler;
-global.$ = function () {
-    return {
+global.$ = () => ({
         ajaxComplete() {},
         on(type, selector, handler) {
             if (type === 'change') {
                 templateChangeHandler = handler;
             }
         },
-    };
-};
+    });
 const templateEditor = {
     content: '<p>Signature</p>',
     getContent() {
@@ -94,7 +92,7 @@ global.tinymce = {
     },
 };
 global.window.tinymce = global.tinymce;
-let templateRequestHeaders = {};
+const templateRequestHeaders = {};
 global.XMLHttpRequest = class {
     open() {}
     setRequestHeader(name, value) {
@@ -122,7 +120,24 @@ const validationSource = require('node:fs').readFileSync(require.resolve('../aja
 assert.equal((autocompleteSource.match(/Session::getNewCSRFToken\(true\)/g) || []).length, 2);
 assert.match(validationSource, /'csrf'\s*=>\s*Session::getNewCSRFToken\(true\)/);
 
-const {recipientForSuggestion, validUserSuggestions} = require('../public/js/composer.js');
+const {queueAjax, recipientForSuggestion, validUserSuggestions} = require('../public/js/composer.js');
+const queuedForm = {dataset: {ajaxCsrf: 'first'}};
+const dispatchedTokens = [];
+let finishFirst;
+queueAjax(queuedForm, (done) => {
+    dispatchedTokens.push(queuedForm.dataset.ajaxCsrf);
+    finishFirst = () => {
+        queuedForm.dataset.ajaxCsrf = 'rotated';
+        done();
+    };
+});
+queueAjax(queuedForm, (done) => {
+    dispatchedTokens.push(queuedForm.dataset.ajaxCsrf);
+    done();
+});
+assert.deepEqual(dispatchedTokens, ['first']);
+finishFirst();
+assert.deepEqual(dispatchedTokens, ['first', 'rotated']);
 assert.deepEqual(validUserSuggestions([
     {label: 'Ada Lovelace', email: 'ada@example.test'},
     {label: '', email: 'empty-label@example.test'},

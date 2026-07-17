@@ -4,8 +4,8 @@
  *
  * AJAX uploads use a standalone CSRF token (data-ajax-csrf).
  */
-(function () {
-    'use strict';
+((() => {
+
 
     function getAjaxCsrf(form) {
         return form.dataset.ajaxCsrf || '';
@@ -17,10 +17,28 @@
         }
     }
 
+    function queueAjax(form, request) {
+        form.ticketmailerAjaxQueue = form.ticketmailerAjaxQueue || [];
+        form.ticketmailerAjaxQueue.push(request);
+        if (form.ticketmailerAjaxBusy) {
+            return;
+        }
+        function next() {
+            var queued = form.ticketmailerAjaxQueue.shift();
+            if (!queued) {
+                form.ticketmailerAjaxBusy = false;
+                return;
+            }
+            form.ticketmailerAjaxBusy = true;
+            queued(next);
+        }
+        next();
+    }
+
     function splitRecipientTokens(raw) {
         var valid = [];
         var invalid = [];
-        raw.split(/[,;\r\n]+/).forEach(function (token) {
+        raw.split(/[,;\r\n]+/).forEach((token) => {
             token = token.trim();
             if (!token) {
                 return;
@@ -38,14 +56,12 @@
         if (!Array.isArray(results)) {
             return [];
         }
-        return results.filter(function (result) {
-            return result
+        return results.filter((result) => result
                 && typeof result.label === 'string'
                 && result.label.trim() !== ''
                 && typeof result.email === 'string'
                 && splitRecipientTokens(result.email).valid.length === 1
-                && splitRecipientTokens(result.email).invalid.length === 0;
-        });
+                && splitRecipientTokens(result.email).invalid.length === 0);
     }
 
     function recipientForSuggestion(suggestion, showEmail) {
@@ -60,6 +76,7 @@
             splitRecipientTokens: splitRecipientTokens,
             validUserSuggestions: validUserSuggestions,
             recipientForSuggestion: recipientForSuggestion,
+            queueAjax: queueAjax,
         };
     }
 
@@ -100,9 +117,7 @@
 
         function add(email, label) {
             var key = email.toLowerCase();
-            if (recipients.some(function (recipient) {
-                return recipient.email.toLowerCase() === key;
-            })) {
+            if (recipients.some((recipient) => recipient.email.toLowerCase() === key)) {
                 return;
             }
             recipients.push({
@@ -118,11 +133,12 @@
             }
             window.clearTimeout(validation.timer);
             var currentRequest = ++validation.requestId;
-            validation.timer = window.setTimeout(function () {
+            validation.timer = window.setTimeout(() => {
+                queueAjax(form, (done) => {
                 var data = new FormData();
                 var token = getAjaxCsrf(form);
                 data.append('tickets_id', form.querySelector('input[name="tickets_id"]').value);
-                ['recipients_to', 'recipients_cc', 'recipients_bcc'].forEach(function (name) {
+                ['recipients_to', 'recipients_cc', 'recipients_bcc'].forEach((name) => {
                     var field = form.querySelector('input[name="' + name + '"]');
                     data.append(name, field ? field.value : '');
                 });
@@ -132,14 +148,12 @@
                 if (token) {
                     xhr.setRequestHeader('X-Glpi-Csrf-Token', token);
                 }
-                xhr.onload = function () {
-                    if (currentRequest !== validation.requestId) {
-                        return;
-                    }
+                xhr.onload = () => {
                     try {
                         var response = JSON.parse(xhr.responseText);
                         setAjaxCsrf(form, response.csrf || '');
-                        if (xhr.status < 200 || xhr.status >= 300) {
+                        if (currentRequest !== validation.requestId
+                            || xhr.status < 200 || xhr.status >= 300) {
                             return;
                         }
                         var warning = form.querySelector('.ticketmailer-mailbox');
@@ -152,17 +166,22 @@
                             }
                         }
                         validation.lastMailboxMatches = matches;
-                    } catch (err) {}
+                    } catch (err) {
+                    } finally {
+                        done();
+                    }
                 };
+                xhr.onerror = done;
                 xhr.send(data);
+                });
             }, 200);
         }
 
         function render() {
-            value.value = recipients.map(function (recipient) { return recipient.email; }).join(', ');
+            value.value = recipients.map((recipient) => recipient.email).join(', ');
             validateRecipients();
             chips.replaceChildren();
-            recipients.forEach(function (recipient) {
+            recipients.forEach((recipient) => {
                 var chip = document.createElement('span');
                 chip.className = 'ticketmailer-recipient-chip';
                 chip.innerHTML = '<i class="ti ti-mail" aria-hidden="true"></i>';
@@ -172,10 +191,8 @@
                 remove.className = 'ticketmailer-recipient-remove';
                 remove.setAttribute('aria-label', removeRecipientLabel.replace('%s', recipient.label));
                 remove.innerHTML = '<i class="ti ti-x" aria-hidden="true"></i>';
-                remove.addEventListener('click', function () {
-                    recipients = recipients.filter(function (item) {
-                        return item.email !== recipient.email;
-                    });
+                remove.addEventListener('click', () => {
+                    recipients = recipients.filter((item) => item.email !== recipient.email);
                     render();
                     input.focus();
                 });
@@ -208,7 +225,7 @@
             suggestions = nextSuggestions;
             activeSuggestion = -1;
             suggestionList.replaceChildren();
-            suggestions.forEach(function (suggestion, index) {
+            suggestions.forEach((suggestion, index) => {
                 var item = document.createElement('li');
                 var button = document.createElement('button');
                 var label = document.createElement('span');
@@ -224,10 +241,10 @@
                 if (form.dataset.userAutocompleteShowEmail === '1') {
                     button.appendChild(email);
                 }
-                button.addEventListener('mousedown', function (event) {
+                button.addEventListener('mousedown', (event) => {
                     event.preventDefault();
                 });
-                button.addEventListener('click', function () {
+                button.addEventListener('click', () => {
                     selectSuggestion(suggestions[index]);
                 });
                 item.appendChild(button);
@@ -239,7 +256,7 @@
 
         function setActiveSuggestion(index) {
             activeSuggestion = index;
-            Array.prototype.forEach.call(suggestionList.querySelectorAll('button'), function (button, buttonIndex) {
+            Array.prototype.forEach.call(suggestionList.querySelectorAll('button'), (button, buttonIndex) => {
                 var active = buttonIndex === activeSuggestion;
                 button.classList.toggle('is-active', active);
                 button.setAttribute('aria-selected', active ? 'true' : 'false');
@@ -255,6 +272,7 @@
                 return;
             }
             var currentRequest = ++requestId;
+            queueAjax(form, (done) => {
             var data = new FormData();
             var token = getAjaxCsrf(form);
             var ticket = form.querySelector('input[name="tickets_id"]');
@@ -266,14 +284,14 @@
             if (token) {
                 xhr.setRequestHeader('X-Glpi-Csrf-Token', token);
             }
-            xhr.onload = function () {
-                if (currentRequest !== requestId) {
-                    return;
-                }
+            xhr.onload = () => {
                 try {
                     var response = JSON.parse(xhr.responseText);
                     if (response.csrf) {
                         setAjaxCsrf(form, response.csrf);
+                    }
+                    if (currentRequest !== requestId) {
+                        return;
                     }
                     if (xhr.status >= 200 && xhr.status < 300 && Array.isArray(response.results)) {
                         showSuggestions(validUserSuggestions(response.results));
@@ -282,9 +300,13 @@
                     }
                 } catch (err) {
                     hideSuggestions();
+                } finally {
+                    done();
                 }
             };
+            xhr.onerror = done;
             xhr.send(data);
+            });
         }
 
         function commit() {
@@ -300,7 +322,7 @@
         input.value = initialInvalid.join(', ');
         render();
         if (clear) {
-            clear.addEventListener('click', function (event) {
+            clear.addEventListener('click', (event) => {
                 event.stopPropagation();
                 recipients = [];
                 input.value = '';
@@ -310,17 +332,17 @@
                 input.focus();
             });
         }
-        control.addEventListener('click', function () {
+        control.addEventListener('click', () => {
             input.focus();
         });
-        input.addEventListener('input', function () {
+        input.addEventListener('input', () => {
             ++requestId;
             if (requestTimer) {
                 window.clearTimeout(requestTimer);
             }
             requestTimer = window.setTimeout(requestSuggestions, 150);
         });
-        input.addEventListener('keydown', function (event) {
+        input.addEventListener('keydown', (event) => {
             if (event.key === 'ArrowDown' && suggestions.length) {
                 event.preventDefault();
                 setActiveSuggestion((activeSuggestion + 1) % suggestions.length);
@@ -337,17 +359,15 @@
                 commit();
             }
         });
-        input.addEventListener('blur', function () {
+        input.addEventListener('blur', () => {
             window.setTimeout(commit, 150);
         });
-        input.addEventListener('paste', function () {
+        input.addEventListener('paste', () => {
             window.setTimeout(commit, 0);
         });
-        form.addEventListener('submit', function () {
+        form.addEventListener('submit', () => {
             commit();
-            value.value = recipients.map(function (recipient) {
-                return recipient.email;
-            }).concat(input.value.trim() ? [input.value.trim()] : []).join(', ');
+            value.value = recipients.map((recipient) => recipient.email).concat(input.value.trim() ? [input.value.trim()] : []).join(', ');
         });
     }
 
@@ -400,7 +420,7 @@
             if (token) {
                 xhr.setRequestHeader('X-Glpi-Csrf-Token', token);
             }
-            xhr.onload = function () {
+            xhr.onload = () => {
                 try {
                     var data = JSON.parse(xhr.responseText);
                     if (data.csrf) {
@@ -432,7 +452,7 @@
                 busy = false;
                 pump();
             };
-            xhr.onerror = function () {
+            xhr.onerror = () => {
                 showError(uploadFailedLabel);
                 busy = false;
                 pump();
@@ -440,44 +460,44 @@
             xhr.send(fd);
         }
 
-        input.addEventListener('change', function () {
+        input.addEventListener('change', () => {
             enqueue(input.files);
             input.value = '';
         });
         if (choose) {
-            choose.addEventListener('click', function () {
+            choose.addEventListener('click', () => {
                 input.click();
             });
         }
         if (drop) {
-            ['dragenter', 'dragover'].forEach(function (type) {
-                drop.addEventListener(type, function (event) {
+            ['dragenter', 'dragover'].forEach((type) => {
+                drop.addEventListener(type, (event) => {
                     event.preventDefault();
                     drop.classList.add('is-dragover');
                 });
             });
-            ['dragleave', 'drop'].forEach(function (type) {
-                drop.addEventListener(type, function (event) {
+            ['dragleave', 'drop'].forEach((type) => {
+                drop.addEventListener(type, (event) => {
                     event.preventDefault();
                     drop.classList.remove('is-dragover');
                 });
             });
-            drop.addEventListener('drop', function (event) {
+            drop.addEventListener('drop', (event) => {
                 enqueue(event.dataTransfer.files);
             });
         }
     }
 
     function lockPageWhileSending(overlay) {
-        Array.prototype.forEach.call(document.body.children, function (child) {
+        Array.prototype.forEach.call(document.body.children, (child) => {
             if (child !== overlay) {
                 child.inert = true;
                 child.setAttribute('aria-hidden', 'true');
             }
         });
         document.body.setAttribute('aria-busy', 'true');
-        ['pointerdown', 'click', 'keydown', 'submit'].forEach(function (type) {
-            document.addEventListener(type, function (event) {
+        ['pointerdown', 'click', 'keydown', 'submit'].forEach((type) => {
+            document.addEventListener(type, (event) => {
                 event.preventDefault();
                 event.stopImmediatePropagation();
             }, true);
@@ -504,7 +524,7 @@
 
 
     function initTinyMceSave(form) {
-        form.addEventListener('submit', function (event) {
+        form.addEventListener('submit', (event) => {
             if (form.dataset.ticketmailerSending) {
                 event.preventDefault();
                 return;
@@ -514,7 +534,7 @@
             }
             form.dataset.ticketmailerSending = 'true';
             showSendingOverlay();
-            form.querySelectorAll('button[type="submit"]').forEach(function (button) {
+            form.querySelectorAll('button[type="submit"]').forEach((button) => {
                 button.disabled = true;
                 button.setAttribute('aria-busy', 'true');
                 button.insertAdjacentHTML(
@@ -524,13 +544,13 @@
             });
             form.querySelectorAll(
                 '.ticketmailer-actions button:not([type="submit"]), .ticketmailer-actions a',
-            ).forEach(function (cancel) {
+            ).forEach((cancel) => {
                 if (cancel.tagName === 'BUTTON') {
                     cancel.disabled = true;
                 } else {
                     cancel.classList.add('disabled');
                     cancel.setAttribute('aria-disabled', 'true');
-                    cancel.addEventListener('click', function (cancelEvent) {
+                    cancel.addEventListener('click', (cancelEvent) => {
                         cancelEvent.preventDefault();
                     });
                 }
@@ -560,7 +580,7 @@
         if (token) {
             xhr.setRequestHeader('X-Glpi-Csrf-Token', token);
         }
-        xhr.onload = function () {
+        xhr.onload = () => {
             if (xhr.status < 200 || xhr.status >= 300) {
                 return;
             }
@@ -608,4 +628,4 @@
     );
     document.addEventListener('DOMContentLoaded', initForms);
     $(document).ajaxComplete(initForms);
-}());
+})());
