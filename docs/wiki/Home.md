@@ -2,7 +2,7 @@
 
 # Ticket Email Client Wiki
 
-> User documentation for the `ticketmailer` GLPI plugin. Screenshots are placeholders and will be added later.
+> User documentation for the `ticketmailer` GLPI plugin, illustrated with the local GLPI 11 test instance.
 
 ## Languages / Sprachen
 

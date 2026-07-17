@@ -29,12 +29,15 @@ class PluginTicketmailerLogTab extends CommonGLPI
         return $ticket->getFromDB($items_id) && $ticket->canViewItem();
     }
 
-    public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0): string
+    public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0): string|array
     {
         if (!self::isVisible($item::class, (int) $item->getField('id'))) {
             return '';
         }
-        return self::getTypeName(2);
+        return self::createTabEntry(
+            self::getTypeName(2),
+            icon: 'ti ti-mail-check',
+        );
     }
 
     public static function displayTabContentForItem(
@@ -47,7 +50,16 @@ class PluginTicketmailerLogTab extends CommonGLPI
         }
         $tickets_id = (int) $item->getField('id');
         $entries = PluginTicketmailerAudit::listForTicket($tickets_id);
-        $web = Plugin::getWebDir('ticketmailer');
+        $log_id = (int) ($_REQUEST['log_id'] ?? 0);
+        if ($log_id > 0) {
+            $entry = PluginTicketmailerAudit::find($log_id);
+            if ($entry !== null && (int) $entry['tickets_id'] === $tickets_id) {
+                $ticketmailer_embedded = true;
+                require __DIR__ . '/../front/log_entry.php';
+                return true;
+            }
+        }
+        $ticket_url = Ticket::getFormURLWithID($tickets_id);
         echo '<table class="tab_cadre_fixe">';
         echo '<tr><th>' . htmlspecialchars(__('Sent at', 'ticketmailer'), ENT_QUOTES, 'UTF-8') . '</th>';
         echo '<th>' . htmlspecialchars(__('Subject', 'ticketmailer'), ENT_QUOTES, 'UTF-8') . '</th>';
@@ -71,7 +83,11 @@ class PluginTicketmailerLogTab extends CommonGLPI
             echo '<tr>';
             echo '<td>' . htmlspecialchars((string) $e['sent_at'], ENT_QUOTES, 'UTF-8') . '</td>';
             echo '<td><a href="'
-                . htmlspecialchars($web . '/front/log_entry.php?id=' . $id, ENT_QUOTES, 'UTF-8')
+                . htmlspecialchars(
+                    $ticket_url . '&forcetab=PluginTicketmailerLogTab$1&tab_params[log_id]=' . $id,
+                    ENT_QUOTES,
+                    'UTF-8',
+                )
                 . '">'
                 . htmlspecialchars((string) $e['subject'], ENT_QUOTES, 'UTF-8')
                 . '</a></td>';

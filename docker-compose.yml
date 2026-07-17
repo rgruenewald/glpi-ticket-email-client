@@ -47,6 +47,9 @@ services:
       context: ./docker/glpi
     image: ticketmailer/glpi:latest
     restart: unless-stopped
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
     depends_on:
       db:
         condition: service_healthy
@@ -64,8 +67,9 @@ services:
       GLPI_SMTP_NO_TLS: 1
       GLPI_INSTALL: "1"
     volumes:
-      # GLPI 11 resolves config_db.php and glpicrypt.key from /var/www/html/config.
-      # Persist this directory; encrypted values then survive container restarts.
+      # Mount the plugin source from the repo root.
+      - .:/var/www/html/plugins/ticketmailer
+      # Persist GLPI config and data.
       - glpi_config:/var/www/html/config
       - glpi_data:/var/www/html/files
 volumes:

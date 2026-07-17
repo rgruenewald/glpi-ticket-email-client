@@ -20,6 +20,8 @@
    - availability, promotion, native reply behavior, precedence
 6. **Compose defaults / Standardwerte im Formular**
    - subject prefix, signatures, variables, auto-open
+
+   ![Global settings for subject prefix, defaults, and entity signature](images/global-settings.png)
 7. **Ticket behavior / Ticketverhalten**
    - waiting/solved status, timeline order, autocomplete visibility
 8. **Security and privacy / Sicherheit und Datenschutz**
@@ -33,4 +35,4 @@
 12. **Verification checklist / Prüfliste**
     - role tests, delivery test, BCC, attachments, mailbox warning, failure paths
 13. **Screenshots / Bildschirmabbildungen**
-    - placeholders replaced with final GLPI screenshots
+    - final GLPI screenshots for global settings and the compose form are included

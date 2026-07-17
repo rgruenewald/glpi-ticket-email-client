@@ -9,7 +9,7 @@ require_once __DIR__ . '/../inc/bootstrap.php';
 
 Session::checkLoginUser();
 
-$id = (int) ($_GET['id'] ?? 0);
+$id = (int) ($_REQUEST['log_id'] ?? $_GET['id'] ?? 0);
 $entry = $id > 0 ? PluginTicketmailerAudit::find($id) : null;
 if ($entry === null) {
     Html::displayNotFoundError();
@@ -27,12 +27,14 @@ $attachments    = PluginTicketmailerAudit::decodeJson((string) $entry['attachmen
 $inline_images  = PluginTicketmailerAudit::decodeJson((string) $entry['inline_images']);
 $mailbox_matches = PluginTicketmailerAudit::decodeJson((string) ($entry['mailbox_matches'] ?? ''));
 
-Html::header(
-    __('Sent email', 'ticketmailer'),
-    '',
-    'ticket',
-    'ticketmailerlog',
-);
+if (!($ticketmailer_embedded ?? false)) {
+    Html::header(
+        __('Sent email', 'ticketmailer'),
+        '',
+        'ticket',
+        'ticketmailerlog',
+    );
+}
 
 $web = Plugin::getWebDir('ticketmailer');
 $twig = TemplateRenderer::getInstance();
@@ -47,4 +49,6 @@ echo $twig->render('@ticketmailer/log_entry.html.twig', [
     'path_for_download'=> $web . '/front/download.php',
 ]);
 
-Html::footer();
+if (!($ticketmailer_embedded ?? false)) {
+    Html::footer();
+}

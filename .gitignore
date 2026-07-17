@@ -28,3 +28,4 @@ test-results/
 *.swp
 .DS_Store
 .agent/
+.pi-subagents/
