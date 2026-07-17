@@ -30,7 +30,7 @@
   data-i18n-remove-recipient="{{ __('Remove %s', 'ticketmailer') }}"
   data-i18n-bytes="{{ __('bytes', 'ticketmailer') }}"
   data-i18n-upload-failed="{{ __('Upload failed.', 'ticketmailer') }}"
-  data-i18n-mailbox-recipient="{{ __('This address may cause messages to be sent repeatedly.', 'ticketmailer') }}"
+  data-i18n-mailbox-recipient="{{ __('This address may not receive the message because GLPI may assign it to the ticket.', 'ticketmailer') }}"
   data-mailbox-matches="{{ mailbox_matches|json_encode|e('html_attr') }}">
     <input type="hidden" name="_glpi_csrf_token" value="{{ csrf_token }}">
     <input type="hidden" name="tickets_id" value="{{ tickets_id }}">
@@ -172,7 +172,7 @@
     <div class="ticketmailer-mailbox" id="{{ form_id }}-mailbox-warning"
          {% if mailbox_matches is empty %}hidden{% endif %}>
         <p><i class="ti ti-alert-triangle" aria-hidden="true"></i>
-            {{ __('These recipients use an incoming mailbox. This may cause messages to be sent repeatedly.', 'ticketmailer') }}
+            {{ __('GLPI may assign the message to this ticket in another entity. The intended recipient may then not receive it.', 'ticketmailer') }}
         </p>
         <p><strong>{{ __('Affected addresses:', 'ticketmailer') }}</strong>
             <code class="ticketmailer-mailbox-matches">{{ mailbox_matches|join(', ') }}</code>
