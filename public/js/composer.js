@@ -92,7 +92,10 @@
             chip.setAttribute('aria-invalid', matched ? 'true' : 'false');
             var icon = chip.querySelector('.ticketmailer-recipient-warning');
             if (matched && !icon) {
-                chip.insertAdjacentHTML('afterbegin', '<i class="ti ti-alert-triangle ticketmailer-recipient-warning" aria-hidden="true"></i>');
+                icon = document.createElement('i');
+                icon.className = 'ti ti-alert-triangle ticketmailer-recipient-warning';
+                icon.setAttribute('aria-hidden', 'true');
+                chip.insertBefore(icon, chip.firstChild);
             } else if (!matched && icon) {
                 icon.remove();
             }
