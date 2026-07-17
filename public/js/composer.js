@@ -17,6 +17,15 @@
         }
     }
 
+    function queueAjax(form, send) {
+        var pending = form.ticketmailerAjaxPending || Promise.resolve();
+        var next = pending.catch(function () {}).then(function () {
+            return new Promise(send);
+        });
+        form.ticketmailerAjaxPending = next;
+        return next;
+    }
+
     function splitRecipientTokens(raw) {
         var valid = [];
         var invalid = [];
@@ -119,6 +128,7 @@
             window.clearTimeout(validation.timer);
             var currentRequest = ++validation.requestId;
             validation.timer = window.setTimeout(function () {
+                queueAjax(form, function (resolve) {
                 var data = new FormData();
                 var token = getAjaxCsrf(form);
                 data.append('tickets_id', form.querySelector('input[name="tickets_id"]').value);
@@ -153,8 +163,11 @@
                         }
                         validation.lastMailboxMatches = matches;
                     } catch (err) {}
+                    resolve();
                 };
+                xhr.onerror = resolve;
                 xhr.send(data);
+                });
             }, 200);
         }
 
@@ -255,6 +268,7 @@
                 return;
             }
             var currentRequest = ++requestId;
+            queueAjax(form, function (resolve) {
             var data = new FormData();
             var token = getAjaxCsrf(form);
             var ticket = form.querySelector('input[name="tickets_id"]');
@@ -267,13 +281,14 @@
                 xhr.setRequestHeader('X-Glpi-Csrf-Token', token);
             }
             xhr.onload = function () {
-                if (currentRequest !== requestId) {
-                    return;
-                }
                 try {
                     var response = JSON.parse(xhr.responseText);
                     if (response.csrf) {
                         setAjaxCsrf(form, response.csrf);
+                    }
+                    if (currentRequest !== requestId) {
+                        resolve();
+                        return;
                     }
                     if (xhr.status >= 200 && xhr.status < 300 && Array.isArray(response.results)) {
                         showSuggestions(validUserSuggestions(response.results));
@@ -283,8 +298,11 @@
                 } catch (err) {
                     hideSuggestions();
                 }
+                resolve();
             };
+            xhr.onerror = resolve;
             xhr.send(data);
+            });
         }
 
         function commit() {
