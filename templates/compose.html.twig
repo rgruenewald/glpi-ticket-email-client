@@ -172,9 +172,7 @@
         <p>
             {{ __('One or more recipients match an active incoming mailbox login. Aliases, forwarding, and non-email logins are not detected.', 'ticketmailer') }}
         </p>
-        {% if mailbox_matches is not empty %}
-            <p><code>{{ mailbox_matches|join(', ') }}</code></p>
-        {% endif %}
+        <p><code class="ticketmailer-mailbox-matches">{{ mailbox_matches|join(', ') }}</code></p>
         <label>
             <input type="checkbox" name="mailbox_override" value="1"
                    {% if mailbox_override %}checked{% endif %}>

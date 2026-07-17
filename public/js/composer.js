@@ -43,7 +43,8 @@
                 && typeof result.label === 'string'
                 && result.label.trim() !== ''
                 && typeof result.email === 'string'
-                && splitRecipientTokens(result.email).valid.length === 1;
+                && splitRecipientTokens(result.email).valid.length === 1
+                && splitRecipientTokens(result.email).invalid.length === 0;
         });
     }
 
@@ -81,6 +82,12 @@
         var activeSuggestion = -1;
         var requestId = 0;
         var requestTimer = null;
+        form.ticketmailerRecipientValidation = form.ticketmailerRecipientValidation || {
+            timer: null,
+            requestId: 0,
+            lastMailboxMatches: '',
+        };
+        var validation = form.ticketmailerRecipientValidation;
         var suggestionList = document.createElement('ul');
         suggestionList.className = 'ticketmailer-recipient-suggestions';
         suggestionList.setAttribute('role', 'listbox');
@@ -104,7 +111,56 @@
             });
         }
 
+        function validateRecipients() {
+            var url = form.dataset.validateUrl || '';
+            if (!url) {
+                return;
+            }
+            window.clearTimeout(validation.timer);
+            var currentRequest = ++validation.requestId;
+            validation.timer = window.setTimeout(function () {
+                var data = new FormData();
+                var token = getAjaxCsrf(form);
+                data.append('tickets_id', form.querySelector('input[name="tickets_id"]').value);
+                ['recipients_to', 'recipients_cc', 'recipients_bcc'].forEach(function (name) {
+                    var field = form.querySelector('input[name="' + name + '"]');
+                    data.append(name, field ? field.value : '');
+                });
+                data.append('_glpi_csrf_token', token);
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', url);
+                if (token) {
+                    xhr.setRequestHeader('X-Glpi-Csrf-Token', token);
+                }
+                xhr.onload = function () {
+                    if (currentRequest !== validation.requestId) {
+                        return;
+                    }
+                    try {
+                        var response = JSON.parse(xhr.responseText);
+                        setAjaxCsrf(form, response.csrf || '');
+                        if (xhr.status < 200 || xhr.status >= 300) {
+                            return;
+                        }
+                        var warning = form.querySelector('.ticketmailer-mailbox');
+                        var matches = Array.isArray(response.mailbox_matches) ? response.mailbox_matches.join(', ') : '';
+                        if (warning) {
+                            warning.hidden = !matches;
+                            warning.querySelector('.ticketmailer-mailbox-matches').textContent = matches;
+                            if (matches !== validation.lastMailboxMatches) {
+                                warning.querySelector('input[name="mailbox_override"]').checked = false;
+                            }
+                        }
+                        validation.lastMailboxMatches = matches;
+                    } catch (err) {}
+                };
+                xhr.send(data);
+            }, 200);
+        }
+
         function render() {
+            value.value = recipients.map(function (recipient) { return recipient.email; }).join(', ');
+            validateRecipients();
             chips.replaceChildren();
             recipients.forEach(function (recipient) {
                 var chip = document.createElement('span');
@@ -194,6 +250,7 @@
             var url = form.dataset.userAutocompleteUrl || '';
             var query = input.value.trim();
             if (!url || query.length < 2) {
+                ++requestId;
                 hideSuggestions();
                 return;
             }
@@ -257,6 +314,7 @@
             input.focus();
         });
         input.addEventListener('input', function () {
+            ++requestId;
             if (requestTimer) {
                 window.clearTimeout(requestTimer);
             }

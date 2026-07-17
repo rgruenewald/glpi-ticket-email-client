@@ -110,11 +110,20 @@ global.XMLHttpRequest = class {
 require('../public/js/composer.js');
 listeners.DOMContentLoaded();
 
+const composerSource = require('node:fs').readFileSync(require.resolve('../public/js/composer.js'), 'utf8');
+assert.match(composerSource, /form\.dataset\.validateUrl/);
+assert.match(composerSource, /\['recipients_to', 'recipients_cc', 'recipients_bcc'\]/);
+assert.match(composerSource, /ticketmailer-mailbox-matches/);
+assert.match(composerSource, /form\.ticketmailerRecipientValidation/);
+assert.match(composerSource, /currentRequest !== validation\.requestId/);
+assert.match(composerSource, /input\.addEventListener\('input',[\s\S]*\+\+requestId/);
+
 const {recipientForSuggestion, validUserSuggestions} = require('../public/js/composer.js');
 assert.deepEqual(validUserSuggestions([
     {label: 'Ada Lovelace', email: 'ada@example.test'},
     {label: '', email: 'empty-label@example.test'},
     {label: 'Bad Email', email: 'not-an-email'},
+    {label: 'Mixed Email', email: 'ada@example.test, invalid'},
     {label: 'Malformed Response', email: 42},
     null,
 ]), [{label: 'Ada Lovelace', email: 'ada@example.test'}]);
