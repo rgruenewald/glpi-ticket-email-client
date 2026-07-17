@@ -147,7 +147,7 @@ msgstr "E-Mail-Antwort"
 
 
 msgid "One or more recipients match an active incoming mailbox login. Aliases, forwarding, and non-email logins are not detected."
-msgstr "Ein oder mehrere Empfänger entsprechen einem aktiven Posteingangs-Login. Aliase, Weiterleitungen und Nicht-E-Mail-Logins werden nicht erkannt."
+msgstr "Ein oder mehrere Empfänger entsprechen einem aktiven Posteingangs-Login. Der gewünschte Empfänger erhält die Nachricht möglicherweise nicht, weil GLPI sie aufgrund der Ticketnummer diesem Ticket zuordnet und kein neues Ticket anlegt. Aliase, Weiterleitungen und Nicht-E-Mail-Logins werden nicht erkannt."
 
 msgid "I understand and want to send anyway"
 msgstr "Ich verstehe und möchte trotzdem senden"

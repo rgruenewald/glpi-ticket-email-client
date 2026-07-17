@@ -147,7 +147,7 @@ msgstr "Email reply"
 
 
 msgid "One or more recipients match an active incoming mailbox login. Aliases, forwarding, and non-email logins are not detected."
-msgstr "One or more recipients match an active incoming mailbox login. Aliases, forwarding, and non-email logins are not detected."
+msgstr "One or more recipients match an active incoming mailbox login. The intended recipient may not receive the message because GLPI uses the ticket number to assign it to this ticket instead of creating a new ticket. Aliases, forwarding, and non-email logins are not detected."
 
 msgid "I understand and want to send anyway"
 msgstr "I understand and want to send anyway"
