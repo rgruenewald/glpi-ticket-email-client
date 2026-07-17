@@ -117,6 +117,10 @@ assert.match(composerSource, /ticketmailer-mailbox-matches/);
 assert.match(composerSource, /form\.ticketmailerRecipientValidation/);
 assert.match(composerSource, /currentRequest !== validation\.requestId/);
 assert.match(composerSource, /input\.addEventListener\('input',[\s\S]*\+\+requestId/);
+const autocompleteSource = require('node:fs').readFileSync(require.resolve('../ajax/autocomplete_users.php'), 'utf8');
+const validationSource = require('node:fs').readFileSync(require.resolve('../ajax/validate_recipients.php'), 'utf8');
+assert.equal((autocompleteSource.match(/Session::getNewCSRFToken\(true\)/g) || []).length, 2);
+assert.match(validationSource, /'csrf'\s*=>\s*Session::getNewCSRFToken\(true\)/);
 
 const {recipientForSuggestion, validUserSuggestions} = require('../public/js/composer.js');
 assert.deepEqual(validUserSuggestions([

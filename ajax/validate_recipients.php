@@ -40,6 +40,7 @@ echo json_encode([
     'invalid'         => $parsed['invalid'],
     'mailbox'         => $mailbox_matches !== [],
     'mailbox_matches' => $mailbox_matches,
+    'csrf'            => Session::getNewCSRFToken(true),
     'mailbox_note'    => __(
         'Match is best-effort against active collector logins that look like emails. Aliases, forwarding, and non-email logins are not detected.',
         'ticketmailer',

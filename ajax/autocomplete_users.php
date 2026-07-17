@@ -18,7 +18,7 @@ if ($tickets_id <= 0 || !$ticket->getFromDB($tickets_id) || !PluginTicketmailerT
 
 $query = trim((string) ($_POST['query'] ?? ''));
 if (mb_strlen($query) < 2) {
-    echo json_encode(['results' => []]);
+    echo json_encode(['results' => [], 'csrf' => Session::getNewCSRFToken(true)]);
     exit;
 }
 
@@ -61,4 +61,4 @@ foreach ($userSearch as $row) {
     $results[] = ['label' => $label !== '' ? $label : (string) $row['name'], 'email' => $email];
 }
 
-echo json_encode(['results' => $results]);
+echo json_encode(['results' => $results, 'csrf' => Session::getNewCSRFToken(true)]);
