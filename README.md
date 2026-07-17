@@ -6,6 +6,21 @@ Ticketmailer sends one SMTP message through GLPI's existing mail configuration, 
 
 > **Compatibility:** PHP 8.2 or later; GLPI 11.0.x. The implementation is verified against GLPI 11.0.8. Marketplace publication is not implied by this repository.
 
+## See it in GLPI
+
+Compose a rich ticket-context email, then keep the delivered message visible in the ticket timeline.
+
+<p align="center">
+  <img src="docs/wiki/images/email-compose-form.png" width="52%" alt="Ticketmailer compose form in GLPI with To, CC, BCC, subject, rich-text body, ticket-history option, attachments, and Send action">
+  <img src="docs/wiki/images/ticket-email-timeline.png" width="42%" alt="A delivered Ticketmailer message recorded as a standard followup in the GLPI ticket timeline">
+</p>
+
+The plugin also keeps a durable, ticket-authorized audit view of sent and failed attempts.
+
+<p align="center">
+  <img src="docs/wiki/images/sent-email-log.png" width="100%" alt="Ticketmailer's sent-email audit list in GLPI showing send time, subject, recipient counts, and delivery status">
+</p>
+
 ## Features
 
 - Inline **Email reply** action beside GLPI's native **Answer** control.
