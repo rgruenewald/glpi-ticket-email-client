@@ -315,8 +315,8 @@ msgstr "Hochgeladene Datei konnte nicht gespeichert werden."
 msgid "Only image files can be embedded inline."
 msgstr "Nur Bilddateien können inline eingebettet werden."
 
-msgid "GLPI may assign the message to this ticket in another entity. The intended recipient may then not receive it."
-msgstr "GLPI kann die Nachricht diesem Ticket in einer anderen Einheit zuordnen. Der gewünschte Empfänger erhält sie dann möglicherweise nicht."
+msgid "The intended recipient may not receive the message because GLPI uses the ticket number to assign it to this ticket instead of creating a new ticket."
+msgstr "Der gewünschte Empfänger erhält die Nachricht möglicherweise nicht, weil GLPI sie aufgrund der Ticketnummer diesem Ticket zuordnet und kein neues Ticket anlegt."
 
 msgid "Affected addresses:"
 msgstr "Betroffene Adressen:"
@@ -324,5 +324,5 @@ msgstr "Betroffene Adressen:"
 msgid "Aliases, forwarding, and non-email logins are not detected."
 msgstr "Aliase, Weiterleitungen und Nicht-E-Mail-Logins werden nicht erkannt."
 
-msgid "This address may not receive the message because GLPI may assign it to the ticket."
-msgstr "Diese Adresse erhält die Nachricht möglicherweise nicht, weil GLPI sie dem Ticket zuordnet."
+msgid "This address may not receive the message because GLPI uses the ticket number to assign it to this ticket instead of creating a new ticket."
+msgstr "Diese Adresse erhält die Nachricht möglicherweise nicht, weil GLPI sie aufgrund der Ticketnummer diesem Ticket zuordnet und kein neues Ticket anlegt."

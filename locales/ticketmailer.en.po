@@ -315,8 +315,8 @@ msgstr "Could not store uploaded file."
 msgid "Only image files can be embedded inline."
 msgstr "Only image files can be embedded inline."
 
-msgid "GLPI may assign the message to this ticket in another entity. The intended recipient may then not receive it."
-msgstr "GLPI may assign the message to this ticket in another entity. The intended recipient may then not receive it."
+msgid "The intended recipient may not receive the message because GLPI uses the ticket number to assign it to this ticket instead of creating a new ticket."
+msgstr "The intended recipient may not receive the message because GLPI uses the ticket number to assign it to this ticket instead of creating a new ticket."
 
 msgid "Affected addresses:"
 msgstr "Affected addresses:"
@@ -324,5 +324,5 @@ msgstr "Affected addresses:"
 msgid "Aliases, forwarding, and non-email logins are not detected."
 msgstr "Aliases, forwarding, and non-email logins are not detected."
 
-msgid "This address may not receive the message because GLPI may assign it to the ticket."
-msgstr "This address may not receive the message because GLPI may assign it to the ticket."
+msgid "This address may not receive the message because GLPI uses the ticket number to assign it to this ticket instead of creating a new ticket."
+msgstr "This address may not receive the message because GLPI uses the ticket number to assign it to this ticket instead of creating a new ticket."
