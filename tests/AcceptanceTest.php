@@ -439,6 +439,8 @@ final class AcceptanceTest extends TestCase
             $twig,
         );
         $this->assertStringContainsString('mailbox_override', $twig);
+        $this->assertStringContainsString('data-mailbox-matches', $twig);
+        $this->assertStringContainsString('Affected addresses:', $twig);
     }
 
     #[Test]

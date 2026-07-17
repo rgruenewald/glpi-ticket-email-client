@@ -314,3 +314,15 @@ msgstr "Could not store uploaded file."
 #: ajax/upload_image.php
 msgid "Only image files can be embedded inline."
 msgstr "Only image files can be embedded inline."
+
+msgid "These recipients use an incoming mailbox. This may cause messages to be sent repeatedly."
+msgstr "These recipients use an incoming mailbox. This may cause messages to be sent repeatedly."
+
+msgid "Affected addresses:"
+msgstr "Affected addresses:"
+
+msgid "Aliases, forwarding, and non-email logins are not detected."
+msgstr "Aliases, forwarding, and non-email logins are not detected."
+
+msgid "This address may cause messages to be sent repeatedly."
+msgstr "This address may cause messages to be sent repeatedly."

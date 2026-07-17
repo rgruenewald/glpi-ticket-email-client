@@ -224,6 +224,16 @@
     color: #334155;
 }
 
+.ticketmailer-recipient-chip--mailbox {
+    background: #fff3cd;
+    border-color: #e0a800;
+    color: #664d03;
+}
+
+.ticketmailer-recipient-warning {
+    color: #b26a00;
+}
+
 .ticketmailer-recipient-remove {
     border: 0;
     padding: 0;

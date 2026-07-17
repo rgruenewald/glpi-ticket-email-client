@@ -114,6 +114,9 @@ const composerSource = require('node:fs').readFileSync(require.resolve('../publi
 assert.match(composerSource, /form\.dataset\.validateUrl/);
 assert.match(composerSource, /\['recipients_to', 'recipients_cc', 'recipients_bcc'\]/);
 assert.match(composerSource, /ticketmailer-mailbox-matches/);
+assert.match(composerSource, /button\.disabled = normalized\.length > 0/);
+assert.match(composerSource, /ticketmailer-recipient-chip--mailbox/);
+assert.match(composerSource, /ti-alert-triangle/);
 assert.match(composerSource, /form\.ticketmailerRecipientValidation/);
 assert.match(composerSource, /currentRequest !== validation\.requestId/);
 assert.match(composerSource, /input\.addEventListener\('input',[\s\S]*\+\+requestId/);

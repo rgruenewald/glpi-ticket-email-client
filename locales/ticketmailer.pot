@@ -312,3 +312,15 @@ msgstr ""
 #: ajax/upload_image.php
 msgid "Only image files can be embedded inline."
 msgstr ""
+
+msgid "These recipients use an incoming mailbox. This may cause messages to be sent repeatedly."
+msgstr ""
+
+msgid "Affected addresses:"
+msgstr ""
+
+msgid "Aliases, forwarding, and non-email logins are not detected."
+msgstr ""
+
+msgid "This address may cause messages to be sent repeatedly."
+msgstr ""

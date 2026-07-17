@@ -72,6 +72,37 @@
         };
     }
 
+    function updateMailboxState(form, matches, resetConfirmation) {
+        var normalized = Array.isArray(matches) ? matches.map(function (email) {
+            return String(email).toLowerCase();
+        }) : [];
+        var warning = form.querySelector('.ticketmailer-mailbox');
+        var override = warning ? warning.querySelector('input[name="mailbox_override"]') : null;
+        if (warning) {
+            warning.hidden = normalized.length === 0;
+            warning.querySelector('.ticketmailer-mailbox-matches').textContent = matches.join(', ');
+        }
+        if (override && resetConfirmation) {
+            override.checked = false;
+        }
+        form.querySelectorAll('.ticketmailer-recipient-chip').forEach(function (chip) {
+            var matched = normalized.indexOf(chip.dataset.email.toLowerCase()) !== -1;
+            chip.classList.toggle('ticketmailer-recipient-chip--mailbox', matched);
+            chip.title = matched ? form.dataset.i18nMailboxRecipient : '';
+            chip.setAttribute('aria-invalid', matched ? 'true' : 'false');
+            var icon = chip.querySelector('.ticketmailer-recipient-warning');
+            if (matched && !icon) {
+                chip.insertAdjacentHTML('afterbegin', '<i class="ti ti-alert-triangle ticketmailer-recipient-warning" aria-hidden="true"></i>');
+            } else if (!matched && icon) {
+                icon.remove();
+            }
+        });
+        form.querySelectorAll('button[type="submit"]').forEach(function (button) {
+            button.disabled = normalized.length > 0 && (!override || !override.checked);
+        });
+        form.ticketmailerMailboxMatches = matches;
+    }
+
     function initRecipientControl(control) {
         if (control.dataset.ticketmailerInitialized) {
             return;
@@ -152,16 +183,10 @@
                         if (xhr.status < 200 || xhr.status >= 300) {
                             return;
                         }
-                        var warning = form.querySelector('.ticketmailer-mailbox');
-                        var matches = Array.isArray(response.mailbox_matches) ? response.mailbox_matches.join(', ') : '';
-                        if (warning) {
-                            warning.hidden = !matches;
-                            warning.querySelector('.ticketmailer-mailbox-matches').textContent = matches;
-                            if (matches !== validation.lastMailboxMatches) {
-                                warning.querySelector('input[name="mailbox_override"]').checked = false;
-                            }
-                        }
-                        validation.lastMailboxMatches = matches;
+                        var matches = Array.isArray(response.mailbox_matches) ? response.mailbox_matches : [];
+                        var matchKey = matches.join(', ');
+                        updateMailboxState(form, matches, matchKey !== validation.lastMailboxMatches);
+                        validation.lastMailboxMatches = matchKey;
                     } catch (err) {}
                     resolve();
                 };
@@ -178,6 +203,7 @@
             recipients.forEach(function (recipient) {
                 var chip = document.createElement('span');
                 chip.className = 'ticketmailer-recipient-chip';
+                chip.dataset.email = recipient.email;
                 chip.innerHTML = '<i class="ti ti-mail" aria-hidden="true"></i>';
                 chip.append(document.createTextNode(recipient.label));
                 var remove = document.createElement('button');
@@ -195,6 +221,7 @@
                 chip.appendChild(remove);
                 chips.appendChild(chip);
             });
+            updateMailboxState(form, form.ticketmailerMailboxMatches || [], false);
         }
 
         function hideSuggestions() {
@@ -608,7 +635,19 @@
             return;
         }
         form.dataset.ticketmailerInitialized = 'true';
+        try {
+            form.ticketmailerMailboxMatches = JSON.parse(form.dataset.mailboxMatches || '[]');
+        } catch (error) {
+            form.ticketmailerMailboxMatches = [];
+        }
+        var override = form.querySelector('input[name="mailbox_override"]');
+        if (override) {
+            override.addEventListener('change', function () {
+                updateMailboxState(form, form.ticketmailerMailboxMatches, false);
+            });
+        }
         form.querySelectorAll('[data-recipient-control]').forEach(initRecipientControl);
+        updateMailboxState(form, form.ticketmailerMailboxMatches, false);
         initAttachments(form);
         initTinyMceSave(form);
     }
