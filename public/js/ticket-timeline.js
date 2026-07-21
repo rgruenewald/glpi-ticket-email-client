@@ -5,6 +5,7 @@
     let lastComposeActive = false;
 
     const COMPOSE_SELECTOR = '.ticketmailer-compose';
+    const NATIVE_FORM_SELECTOR = '#new-itilobject-form > .collapse';
 
     const isFormVisible = (el) => {
         if (!el) {
@@ -27,13 +28,22 @@
         const now = Date.now();
         const forms = document.querySelectorAll(COMPOSE_SELECTOR);
         const composeActive = Array.prototype.some.call(forms, isFormVisible);
+        const nativeActive = Array.prototype.some.call(
+            document.querySelectorAll(NATIVE_FORM_SELECTOR),
+            (collapse) => !collapse.querySelector?.(COMPOSE_SELECTOR)
+                && (collapse.classList.contains('show')
+                    || collapse.classList.contains('in')
+                    || collapse.classList.contains('collapsing')),
+        );
         let next = composeActive;
         if (!composeActive && now < optimisticUntil) {
             next = true;
         }
         lastComposeActive = next;
         document.body?.classList.toggle('ticketmailer-compose-active', next);
-
+        document.querySelectorAll('.ticketmailer-timeline-action').forEach((action) => {
+            action.hidden = nativeActive;
+        });
         // GLPI hides both action groups whenever any timeline form opens.
         // For ticketmailer, restore them and suppress only the reply controls.
         if (typeof $ === 'function') {
@@ -101,11 +111,15 @@
         optimisticUntil = 0;
         syncComposeActions();
     };
+    document.addEventListener('show.bs.collapse', syncComposeActions);
     document.addEventListener('shown.bs.collapse', syncComposeActions);
+    document.addEventListener('hide.bs.collapse', syncComposeActions);
     document.addEventListener('hidden.bs.collapse', onCollapseHidden);
     if (typeof $ === 'function') {
         $(document)
+            .on('show.bs.collapse', syncComposeActions)
             .on('shown.bs.collapse', syncComposeActions)
+            .on('hide.bs.collapse', syncComposeActions)
             .on('hidden.bs.collapse', onCollapseHidden)
             .ajaxComplete(() => {
                 openReply();
