@@ -483,6 +483,25 @@ final class AcceptanceTest extends TestCase
             $send,
         );
     }
+    #[Test]
+    public function dual_status_flags_are_rejected_and_cleared_before_audit_intent(): void
+    {
+        $send = (string) file_get_contents(self::REPO_ROOT . '/front/send.php');
+        $validation = strpos($send, '$set_waiting && $set_solved');
+        $audit = strpos($send, 'PluginTicketmailerAudit::createIntent');
+
+        $this->assertNotFalse($validation);
+        $this->assertNotFalse($audit);
+        $this->assertLessThan($audit, $validation);
+        $this->assertMatchesRegularExpression(
+            '/\$set_waiting\s*=\s*false;[\s\S]*\$set_solved\s*=\s*false;/',
+            $send,
+        );
+        $this->assertStringContainsString(
+            "__('Choose either waiting or solved, not both.', 'ticketmailer')",
+            $send,
+        );
+    }
 
     #[Test]
     public function v2_audit_detail_shows_full_bcc_not_count_only(): void

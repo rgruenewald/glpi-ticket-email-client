@@ -29,24 +29,16 @@ class PluginTicketmailerComposer
             html_entity_decode($body_html, ENT_QUOTES | ENT_HTML5, 'UTF-8'),
             ['\\r\\n' => "\n", '\\n' => "\n", '\\r' => "\n", "\u{00C2}\u{00A0}" => "\u{00A0}"],
         );
-        $user = new User();
-        $user->getFromDB($users_id);
-        $from_email = (string) ($user->getDefaultEmail() ?? '');
-        $from_name  = (string) ($user->getFriendlyName() ?? '');
-        // User has no mail (common for default `glpi` account). Prefer
-        // SMTP auth identity so providers accept MAIL FROM; then GLPI
-        // notification From/Admin. Never example.org — undeliverable.
-        if ($from_email === '' || !filter_var($from_email, FILTER_VALIDATE_EMAIL)) {
-            $smtp_user = PluginTicketmailerConfig::smtpUsername();
-            if ($smtp_user !== '' && filter_var($smtp_user, FILTER_VALIDATE_EMAIL)) {
-                $from_email = $smtp_user;
-            } else {
-                $sender = Config::getEmailSender();
-                $from_email = (string) ($sender['email'] ?? '');
-                if ($from_name === '' && !empty($sender['name'])) {
-                    $from_name = (string) $sender['name'];
-                }
-            }
+        $ticket = new Ticket();
+        if (!$ticket->getFromDB($tickets_id)) {
+            throw new InvalidArgumentException(__('Ticket could not be loaded.', 'ticketmailer'));
+        }
+        $entities_id = (int) $ticket->getField('entities_id');
+        $sender = Config::getEmailSender($entities_id);
+        $from_email = (string) ($sender['email'] ?? '');
+        $from_name = (string) ($sender['name'] ?? '');
+        if (!filter_var($from_email, FILTER_VALIDATE_EMAIL)) {
+            throw new InvalidArgumentException(__('No valid sender is configured for the ticket entity.', 'ticketmailer'));
         }
 
         return [

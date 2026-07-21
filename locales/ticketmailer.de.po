@@ -120,6 +120,18 @@ msgid "Body is required."
 msgstr "Nachricht ist erforderlich."
 
 #: front/send.php
+msgid "Choose either waiting or solved, not both."
+msgstr "Wählen Sie entweder wartend oder gelöst, nicht beides."
+
+#: inc/composer.class.php
+msgid "Ticket could not be loaded."
+msgstr "Das Ticket konnte nicht geladen werden."
+
+#: inc/composer.class.php
+msgid "No valid sender is configured for the ticket entity."
+msgstr "Für die Ticket-Einheit ist kein gültiger Absender konfiguriert."
+
+#: front/send.php
 msgid "At least one recipient is required (To, CC, or BCC)."
 msgstr "Mindestens ein Empfänger ist erforderlich (An, CC oder BCC)."
 

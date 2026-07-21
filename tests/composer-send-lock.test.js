@@ -29,24 +29,46 @@ const sendButton = {
     insertAdjacentHTML() {},
 };
 
-const form = {
-    dataset: {},
-    submitHandler: null,
-    addEventListener(type, handler) {
-        if (type === 'submit') {
-            this.submitHandler = handler;
-        }
-    },
-    querySelector() {
-        return null;
-    },
-    querySelectorAll(selector) {
-        if (selector === 'button[type="submit"]') {
-            return [sendButton];
-        }
-        return [];
-    },
-};
+function statusToggle(name, checked) {
+    return {
+        name,
+        checked,
+        changeHandler: null,
+        addEventListener(type, handler) {
+            if (type === 'change') {
+                this.changeHandler = handler;
+            }
+        },
+    };
+}
+function makeForm(waitingChecked = false, solvedChecked = false) {
+    const waiting = statusToggle('set_waiting', waitingChecked);
+    const solved = statusToggle('set_solved', solvedChecked);
+    return {
+        dataset: {},
+        submitHandler: null,
+        status: {waiting, solved},
+        addEventListener(type, handler) {
+            if (type === 'submit') {
+                this.submitHandler = handler;
+            }
+        },
+        querySelector(selector) {
+            if (selector === 'input[name="set_waiting"]') {
+                return waiting;
+            }
+            if (selector === 'input[name="set_solved"]') {
+                return solved;
+            }
+            return null;
+        },
+        querySelectorAll(selector) {
+            return selector === 'button[type="submit"]' ? [sendButton] : [];
+        },
+    };
+}
+const form = makeForm();
+let composeForms = [form];
 
 global.window = {};
 global.document = {
@@ -65,13 +87,14 @@ global.document = {
         };
     },
     querySelectorAll(selector) {
-        return selector === '.ticketmailer-compose' ? [form] : [];
+        return selector === '.ticketmailer-compose' ? composeForms : [];
     },
 };
 let templateChangeHandler;
+let ajaxComplete;
 global.$ = function () {
     return {
-        ajaxComplete() {},
+        ajaxComplete(handler) { ajaxComplete = handler; },
         on(type, selector, handler) {
             if (type === 'change') {
                 templateChangeHandler = handler;
@@ -110,6 +133,22 @@ global.XMLHttpRequest = class {
 require('../public/js/composer.js');
 listeners.DOMContentLoaded();
 
+form.status.waiting.checked = true;
+form.status.waiting.changeHandler();
+form.status.solved.checked = true;
+form.status.solved.changeHandler();
+assert.equal(form.status.waiting.checked, false, 'solved unchecks waiting on keyboard change');
+form.status.waiting.checked = true;
+form.status.waiting.changeHandler();
+assert.equal(form.status.solved.checked, false, 'waiting unchecks solved');
+
+const secondForm = makeForm(false, true);
+composeForms.push(secondForm);
+ajaxComplete();
+secondForm.status.waiting.checked = true;
+secondForm.status.waiting.changeHandler();
+assert.equal(secondForm.status.solved.checked, false, 'AJAX-loaded form initializes exclusive status toggles');
+assert.equal(form.status.waiting.checked, true, 'status coordination stays form-local');
 const composerSource = require('node:fs').readFileSync(require.resolve('../public/js/composer.js'), 'utf8');
 assert.match(composerSource, /form\.dataset\.validateUrl/);
 assert.match(composerSource, /\['recipients_to', 'recipients_cc', 'recipients_bcc'\]/);

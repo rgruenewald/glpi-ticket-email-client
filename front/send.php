@@ -42,6 +42,11 @@ $recipients_cc  = $parsed_cc['valid'];
 $recipients_bcc = $parsed_bcc['valid'];
 
 $errors = [];
+if ($set_waiting && $set_solved) {
+    $errors[] = __('Choose either waiting or solved, not both.', 'ticketmailer');
+    $set_waiting = false;
+    $set_solved = false;
+}
 $requesttypes_id = (int) ($_POST['requesttypes_id'] ?? 0);
 if ($requesttypes_id !== 0) {
     $requesttype = new RequestType();
@@ -231,17 +236,23 @@ foreach ($inline_images as $i) {
     ];
 }
 
-$payload = PluginTicketmailerComposer::build(
-    $tickets_id,
-    (int) Session::getLoginUserID(),
-    $recipients_to,
-    $recipients_cc,
-    $recipients_bcc,
-    $subject,
-    $body_html,
-    $attachments,
-    $inline_images,
-);
+try {
+    $payload = PluginTicketmailerComposer::build(
+        $tickets_id,
+        (int) Session::getLoginUserID(),
+        $recipients_to,
+        $recipients_cc,
+        $recipients_bcc,
+        $subject,
+        $body_html,
+        $attachments,
+        $inline_images,
+    );
+} catch (InvalidArgumentException $error) {
+    Html::addErrorMessage($error->getMessage());
+    Html::back();
+    exit;
+}
 
 $log_id = PluginTicketmailerAudit::createIntent(
     $tickets_id,

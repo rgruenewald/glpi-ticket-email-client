@@ -647,6 +647,21 @@
         } catch (error) {
             form.ticketmailerMailboxMatches = [];
         }
+        ['set_waiting', 'set_solved'].forEach(function (name) {
+            var status = form.querySelector('input[name="' + name + '"]');
+            if (status) {
+                status.addEventListener('change', function () {
+                    if (status.checked) {
+                        var other = form.querySelector(
+                            'input[name="' + (name === 'set_waiting' ? 'set_solved' : 'set_waiting') + '"]',
+                        );
+                        if (other) {
+                            other.checked = false;
+                        }
+                    }
+                });
+            }
+        });
         var override = form.querySelector('input[name="mailbox_override"]');
         if (override) {
             override.addEventListener('change', function () {
