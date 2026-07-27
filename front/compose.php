@@ -12,7 +12,7 @@ if (!$plugin->isInstalled('ticketmailer') || !$plugin->isActivated('ticketmailer
 }
 Session::checkLoginUser();
 
-$tickets_id = (int) ($_GET['tickets_id'] ?? 0);
+$tickets_id = (int) ($_POST['tickets_id'] ?? $_GET['tickets_id'] ?? 0);
 $ticket = new Ticket();
 if ($tickets_id <= 0 || !$ticket->getFromDB($tickets_id)) {
     Html::displayNotFoundError();
@@ -21,13 +21,15 @@ if (!PluginTicketmailerTimelineAction::canUse($ticket)) {
     Html::displayRightError();
 }
 
-Html::header(
-    __('E-Mail antworten', 'ticketmailer'),
-    $_SERVER['PHP_SELF'],
-    'helpdesk',
-    'ticket',
-);
+if (!isset($_SERVER['HTTP_X_REQUESTED_WITH'])) {
+    Html::header(
+        __('E-Mail antworten', 'ticketmailer'),
+        $_SERVER['PHP_SELF'],
+        'helpdesk',
+        'ticket',
+    );
+}
 echo PluginTicketmailerTimelineAction::renderReply($ticket, false);
-
-
-Html::footer();
+if (!isset($_SERVER['HTTP_X_REQUESTED_WITH'])) {
+    Html::footer();
+}

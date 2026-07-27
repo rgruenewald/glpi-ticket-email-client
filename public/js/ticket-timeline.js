@@ -2,7 +2,6 @@
     let autoOpened = false;
     let openObserver;
     let classObserver;
-    let lastComposeActive = false;
 
     const COMPOSE_SELECTOR = '.ticketmailer-compose';
     const NATIVE_FORM_SELECTOR = '#new-itilobject-form > .collapse';
@@ -22,10 +21,8 @@
             && getComputedStyle(el).visibility !== 'hidden';
     };
 
-    let optimisticUntil = 0;
 
     const syncComposeActions = () => {
-        const now = Date.now();
         const forms = document.querySelectorAll(COMPOSE_SELECTOR);
         const composeActive = Array.prototype.some.call(forms, isFormVisible);
         const nativeActive = Array.prototype.some.call(
@@ -35,12 +32,7 @@
                     || collapse.classList.contains('in')
                     || collapse.classList.contains('collapsing')),
         );
-        let next = composeActive;
-        if (!composeActive && now < optimisticUntil) {
-            next = true;
-        }
-        lastComposeActive = next;
-        document.body?.classList.toggle('ticketmailer-compose-active', next);
+        document.body?.classList.toggle('ticketmailer-compose-active', composeActive);
         document.querySelectorAll('.ticketmailer-timeline-action').forEach((action) => {
             action.hidden = nativeActive;
         });
@@ -50,9 +42,9 @@
             const mainActions = $('#itil-footer .main-actions, #right-actions');
             const answerActions = $('#itil-footer .answer-action, #itil-footer .dropdown-toggle-split');
             if (typeof answerActions.toggle === 'function') {
-                answerActions.toggle(!next);
+                answerActions.toggle(!composeActive);
             }
-            if (next && typeof mainActions.show === 'function') {
+            if (composeActive && typeof mainActions.show === 'function') {
                 mainActions.show();
             }
         }
@@ -74,14 +66,14 @@
         }
 
         const reply = document.querySelector('.ticketmailer-timeline-action[data-ticketmailer-auto-open="1"]');
-        if (!reply) {
+        if (!reply || !reply.getAttribute('onclick')
+            || Function('return ' + reply.dataset.ticketmailerModalReady)() !== 1) {
             return;
         }
 
         reply.click();
         autoOpened = true;
         openObserver?.disconnect();
-        scheduleSyncBurst();
     };
 
     if (typeof MutationObserver !== 'undefined' && document.documentElement) {
@@ -97,18 +89,7 @@
         openReply();
         syncComposeActions();
     }
-    document.addEventListener('click', (event) => {
-        if (event.target?.closest?.('.ticketmailer-timeline-action')) {
-            optimisticUntil = Date.now() + 800;
-            if (!lastComposeActive) {
-                lastComposeActive = true;
-                document.body?.classList.add('ticketmailer-compose-active');
-            }
-            scheduleSyncBurst();
-        }
-    }, true);
     const onCollapseHidden = () => {
-        optimisticUntil = 0;
         syncComposeActions();
     };
     document.addEventListener('show.bs.collapse', syncComposeActions);

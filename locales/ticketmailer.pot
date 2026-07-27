@@ -29,7 +29,7 @@ msgstr[1] ""
 msgid "Compose email"
 msgstr ""
 
-#: templates/compose.html.twig templates/forward.html.twig
+#: templates/forward.html.twig
 msgid "Test version"
 msgstr ""
 
@@ -232,9 +232,16 @@ msgstr ""
 msgid "Clear"
 msgstr ""
 
-
-#: templates/compose.html.twig templates/forward.html.twig
+#: templates/forward.html.twig
 msgid "Template"
+msgstr ""
+
+#: inc/timelineaction.class.php
+msgid "Answer templates"
+msgstr ""
+
+#: inc/timelineaction.class.php
+msgid "Solution templates"
 msgstr ""
 
 #: templates/compose.html.twig templates/forward.html.twig

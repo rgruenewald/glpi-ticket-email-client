@@ -555,6 +555,22 @@
     }
 
 
+    function ensureTinyMce(form) {
+        var editorId = form.dataset.editorId || '';
+        if (!editorId || !window.tinymce || typeof tinymce.get !== 'function') {
+            return;
+        }
+        var editor = tinymce.get(editorId);
+        var element = editor && typeof editor.getElement === 'function' ? editor.getElement() : null;
+        if (!editor || !element || element.isConnected !== false) {
+            return;
+        }
+        editor.remove();
+        var configs = window.tinymce_editor_configs || {};
+        if (configs[editorId] && typeof tinymce.init === 'function') {
+            tinymce.init(configs[editorId]);
+        }
+    }
     function initTinyMceSave(form) {
         form.addEventListener('submit', function (event) {
             if (form.dataset.ticketmailerSending) {
@@ -590,20 +606,22 @@
         });
     }
 
-    function applyFollowupTemplate(form, templateId) {
+    function applyTemplate(form, templateId, type) {
         if (!form) {
             return;
         }
-        var url = form.dataset.followupTemplateUrl || '';
+        var solution = type === 'solution';
+        var url = solution ? form.dataset.solutionTemplateUrl : form.dataset.followupTemplateUrl;
         var editorId = form.dataset.editorId || '';
         var ticket = form.querySelector('input[name="tickets_id"]');
         if (!url || !editorId || !ticket) {
             return;
         }
-
+        var requestId = (form.ticketmailerTemplateRequestId || 0) + 1;
+        form.ticketmailerTemplateRequestId = requestId;
         var xhr = new XMLHttpRequest();
         var data = new FormData();
-        data.append('itilfollowuptemplates_id', templateId);
+        data.append(solution ? 'solutiontemplates_id' : 'itilfollowuptemplates_id', templateId);
         data.append('items_id', ticket.value);
         data.append('itemtype', 'Ticket');
         xhr.open('POST', url);
@@ -613,6 +631,9 @@
             xhr.setRequestHeader('X-Glpi-Csrf-Token', token);
         }
         xhr.onload = function () {
+            if (requestId !== form.ticketmailerTemplateRequestId) {
+                return;
+            }
             if (xhr.status < 200 || xhr.status >= 300) {
                 return;
             }
@@ -629,6 +650,20 @@
                     editor.setContent((result.content || '') + signature);
                 } else if (textarea) {
                     textarea.value = (result.content || '') + signature;
+                }
+                if (solution && templateId) {
+                    var solved = form.querySelector('input[name="set_solved"]');
+                    if (solved) {
+                        solved.checked = true;
+                        var changeEvent;
+                        if (typeof Event === 'function') {
+                            changeEvent = new Event('change', {bubbles: true});
+                        } else {
+                            changeEvent = document.createEvent('Event');
+                            changeEvent.initEvent('change', true, false);
+                        }
+                        solved.dispatchEvent(changeEvent);
+                    }
                 }
             } catch (e) {
                 // The current form remains unchanged on an invalid response.
@@ -671,6 +706,7 @@
         form.querySelectorAll('[data-recipient-control]').forEach(initRecipientControl);
         updateMailboxState(form, form.ticketmailerMailboxMatches, false);
         initAttachments(form);
+        ensureTinyMce(form);
         initTinyMceSave(form);
     }
 
@@ -680,9 +716,10 @@
 
     $(document).on(
         'change',
-        '.ticketmailer-compose [name="itilfollowuptemplates_id"]',
+        '.ticketmailer-compose [name="itilfollowuptemplates_id"], '
+            + '.ticketmailer-compose [name="solutiontemplates_id"]',
         function () {
-            applyFollowupTemplate(this.form, this.value);
+            applyTemplate(this.form, this.value, this.name === 'solutiontemplates_id' ? 'solution' : 'answer');
         },
     );
     document.addEventListener('DOMContentLoaded', initForms);

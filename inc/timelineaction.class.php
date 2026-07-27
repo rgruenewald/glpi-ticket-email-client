@@ -22,6 +22,21 @@ class PluginTicketmailerTimelineAction
         return (new self())->renderForm($ticket, $inline);
     }
 
+    public static function modal(Ticket $ticket): string
+    {
+        $name = self::modalName($ticket);
+        return (string) Ajax::createModalWindow(
+            $name,
+            Plugin::getWebDir('ticketmailer') . '/front/compose.php',
+            [
+                'display' => false,
+                'title' => self::label(),
+                'modal_class' => 'modal-xl',
+                'extraparams' => ['tickets_id' => (int) $ticket->getField('id')],
+            ],
+        );
+    }
+
     /**
      * @param array{item?: mixed} $params
      * @return array<string, array<string, mixed>>
@@ -52,19 +67,18 @@ class PluginTicketmailerTimelineAction
             (int) $ticket->getField('entities_id'),
         );
 
-        $class = self::actionClass();
         $label = self::label();
+        $modal = self::modalName($ticket);
         $auto_open = $settings['open_reply_on_ticket']
             ? ' data-ticketmailer-auto-open="1"'
             : '';
+        $open = $modal . '.show();';
+        $ready = 'window.' . $modal . ' ? 1 : 0';
         echo '<li><button type="button" class="btn btn-primary mb-2 ticketmailer-timeline-action"'
             . ' aria-label="' . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '" title="'
-            . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '" data-bs-toggle="collapse" data-bs-target="#new-'
-            . htmlspecialchars($class, ENT_QUOTES, 'UTF-8')
-            . '-block" aria-controls="new-'
-            . htmlspecialchars($class, ENT_QUOTES, 'UTF-8')
-            . '-block" aria-expanded="false"' . $auto_open . '><i class="ti ti-mail'
-            . '"></i><span>'
+            . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '" onclick="' . $open . '"'
+            . ' data-ticketmailer-modal-ready="' . $ready . '"'
+            . $auto_open . '><i class="ti ti-mail"></i><span>'
             . htmlspecialchars(__('Reply', 'ticketmailer'), ENT_QUOTES, 'UTF-8')
             . '</span></button></li>';
     }
@@ -136,8 +150,10 @@ class PluginTicketmailerTimelineAction
             'body_editor' => $this->editor(self::entitySignature($ticket), self::REPLY, 14),
             'editor_id' => $editor_id,
             'followup_template_dropdown' => self::followupTemplateDropdown(),
+            'solution_template_dropdown' => self::solutionTemplateDropdown(),
             'followup_source_dropdown' => self::followupSourceDropdown(),
             'followup_template_url' => self::followupTemplateUrl(),
+            'solution_template_url' => self::solutionTemplateUrl(),
             'csrf_token' => Session::getNewCSRFToken(),
             'ajax_csrf' => Session::getNewCSRFToken(true),
             'send_url' => $web . '/front/send.php',
@@ -183,6 +199,17 @@ class PluginTicketmailerTimelineAction
             'name' => 'itilfollowuptemplates_id',
             'display' => false,
             'addicon' => true,
+            'emptylabel' => __('Answer templates', 'ticketmailer'),
+        ]);
+    }
+
+    public static function solutionTemplateDropdown(): string
+    {
+        return (string) Dropdown::show('SolutionTemplate', [
+            'name' => 'solutiontemplates_id',
+            'display' => false,
+            'addicon' => true,
+            'emptylabel' => __('Solution templates', 'ticketmailer'),
         ]);
     }
 
@@ -201,6 +228,12 @@ class PluginTicketmailerTimelineAction
     {
         global $CFG_GLPI;
         return (string) $CFG_GLPI['root_doc'] . '/ajax/itilfollowup.php';
+    }
+
+    public static function solutionTemplateUrl(): string
+    {
+        global $CFG_GLPI;
+        return (string) $CFG_GLPI['root_doc'] . '/ajax/solution.php';
     }
 
     /** @return list<string> */
@@ -244,6 +277,11 @@ class PluginTicketmailerTimelineAction
         $html = preg_match('/<[a-z][\s\S]*>/i', $sig) ? $sig : nl2br(htmlspecialchars($sig, ENT_QUOTES, 'UTF-8'));
 
         return '<div class="ticketmailer-signature">' . $html . '</div>';
+    }
+
+    private static function modalName(Ticket $ticket): string
+    {
+        return 'ticketmailerEmailReply' . (int) $ticket->getField('id');
     }
 
     private static function actionClass(): string

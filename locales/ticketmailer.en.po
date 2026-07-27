@@ -31,7 +31,7 @@ msgstr[1] "Ticket Email Clients"
 msgid "Compose email"
 msgstr "Compose email"
 
-#: templates/compose.html.twig templates/forward.html.twig
+#: templates/forward.html.twig
 msgid "Test version"
 msgstr "Test version"
 
@@ -234,10 +234,17 @@ msgstr "Forward"
 msgid "Clear"
 msgstr "Clear"
 
-
-#: templates/compose.html.twig templates/forward.html.twig
+#: templates/forward.html.twig
 msgid "Template"
 msgstr "Template"
+
+#: inc/timelineaction.class.php
+msgid "Answer templates"
+msgstr "Answer templates"
+
+#: inc/timelineaction.class.php
+msgid "Solution templates"
+msgstr "Solution templates"
 
 #: templates/compose.html.twig templates/forward.html.twig
 msgid "Source"

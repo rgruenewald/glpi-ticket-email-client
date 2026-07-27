@@ -449,12 +449,26 @@ final class AcceptanceTest extends TestCase
         $reply = (string) file_get_contents(self::REPO_ROOT . '/templates/compose.html.twig');
         $action = (string) file_get_contents(self::REPO_ROOT . '/inc/timelineaction.class.php');
         $js = (string) file_get_contents(self::REPO_ROOT . '/public/js/composer.js');
+        $css = (string) file_get_contents(self::REPO_ROOT . '/public/css/ticketmailer.css');
+        $timeline = (string) file_get_contents(self::REPO_ROOT . '/templates/timeline_action.html.twig');
         $this->assertStringContainsString('followup_template_dropdown', $reply);
+        $this->assertStringContainsString('solution_template_dropdown', $reply);
+        $this->assertStringNotContainsString("__('Template', 'ticketmailer')", $reply);
+        $this->assertStringNotContainsString("__('Test version', 'ticketmailer')", $reply);
         $this->assertStringContainsString('itilfollowuptemplates_id', $action);
+        $this->assertStringContainsString('solutiontemplates_id', $action);
+        $this->assertStringContainsString("'emptylabel' => __('Answer templates', 'ticketmailer')", $action);
+        $this->assertStringContainsString("'emptylabel' => __('Solution templates', 'ticketmailer')", $action);
+        $this->assertStringContainsString("'modal_class' => 'modal-xl'", $action);
+        $this->assertStringContainsString("\$modal . '.show();'", $action);
+        $this->assertStringContainsString('PluginTicketmailerTimelineAction::modal', $timeline);
+        $this->assertSame(1, substr_count($timeline . $action, 'echo self::modal($ticket)')
+            + substr_count($timeline, 'PluginTicketmailerTimelineAction::modal'));
         $this->assertStringContainsString('$(document).on(', $js);
-        $this->assertStringContainsString('applyFollowupTemplate', $js);
+        $this->assertStringContainsString('applyTemplate', $js);
         $this->assertStringContainsString('X-Glpi-Csrf-Token', $js);
         $this->assertStringContainsString('tinymce.get', $js);
+        $this->assertStringContainsString('margin-left: auto', $css);
     }
 
     #[Test]

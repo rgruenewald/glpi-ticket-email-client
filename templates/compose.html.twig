@@ -10,6 +10,7 @@
 {% set form_id = form_id|default('ticketmailer-compose') %}
 {% set close_target = close_target|default('') %}
 {% set followup_template_dropdown = followup_template_dropdown|default('') %}
+{% set solution_template_dropdown = solution_template_dropdown|default('') %}
 {% set followup_source_dropdown = followup_source_dropdown|default('') %}
 {% set include_history = include_history|default(false) %}
 {% set history_attachments = history_attachments|default([]) %}
@@ -26,6 +27,7 @@
   data-user-autocomplete-show-email="{{ user_autocomplete_show_email ? '1' : '0' }}"
   data-ajax-csrf="{{ ajax_csrf }}"
   data-followup-template-url="{{ followup_template_url|default('') }}"
+  data-solution-template-url="{{ solution_template_url|default('') }}"
   data-editor-id="{{ editor_id|default('body_html') }}"
   data-i18n-remove-recipient="{{ __('Remove %s', 'ticketmailer') }}"
   data-i18n-bytes="{{ __('bytes', 'ticketmailer') }}"
@@ -36,10 +38,6 @@
     <input type="hidden" name="tickets_id" value="{{ tickets_id }}">
 
     <div class="ticketmailer-mail-panel">
-        <div class="ticketmailer-mail-header">
-            <i class="ti ti-flask" aria-hidden="true"></i>
-            {{ __('Test version', 'ticketmailer') }}
-        </div>
         {% if errors %}
             <div class="ticketmailer-errors" role="alert">
                 <ul>
@@ -95,12 +93,16 @@
             <input type="text" class="ticketmailer-mail-field" id="{{ form_id }}-subject" name="subject" value="{{ subject }}" required>
         </div>
 
-        {% if followup_template_dropdown or followup_source_dropdown %}
+        {% if followup_template_dropdown or solution_template_dropdown or followup_source_dropdown %}
             <div class="ticketmailer-mail-row ticketmailer-mail-row--followup-meta">
                 {% if followup_template_dropdown %}
-                    <label class="ticketmailer-mail-label">{{ __('Template', 'ticketmailer') }}</label>
                     <div class="ticketmailer-mail-field">
                         {{ followup_template_dropdown|raw }}
+                    </div>
+                {% endif %}
+                {% if solution_template_dropdown %}
+                    <div class="ticketmailer-mail-field">
+                        {{ solution_template_dropdown|raw }}
                     </div>
                 {% endif %}
                 {% if followup_source_dropdown %}
@@ -188,10 +190,17 @@
     </div>
 
     <div class="ticketmailer-actions">
-        <button type="submit" class="btn btn-primary"
-                {% if mailbox_matches and not mailbox_override %}disabled{% endif %}>
-            {{ __('Send', 'ticketmailer') }}
-        </button>
+        {% if inline|default(false) %}
+            <button type="button" class="btn btn-secondary"
+                    data-bs-toggle="collapse" data-bs-target="{{ close_target }}">
+                {{ __('Cancel', 'ticketmailer') }}
+            </button>
+        {% else %}
+            <a href="{{ path('front/ticket.form.php?id=' ~ tickets_id) }}"
+               class="btn btn-secondary" data-bs-dismiss="modal">
+                {{ __('Cancel', 'ticketmailer') }}
+            </a>
+        {% endif %}
         <label class="form-check form-switch d-inline-flex align-items-center mb-0 px-2"
                title="{{ __('Set ticket status to waiting after sending.', 'ticketmailer') }}">
             <i class="ti ti-player-pause me-2" aria-hidden="true"></i>
@@ -212,16 +221,9 @@
                 {{ __('Set ticket status to solved after sending.', 'ticketmailer') }}
             </span>
         </label>
-        {% if inline|default(false) %}
-            <button type="button" class="btn btn-secondary"
-                    data-bs-toggle="collapse" data-bs-target="{{ close_target }}">
-                {{ __('Cancel', 'ticketmailer') }}
-            </button>
-        {% else %}
-            <a href="{{ path('front/ticket.form.php?id=' ~ tickets_id) }}"
-               class="btn btn-secondary">
-                {{ __('Cancel', 'ticketmailer') }}
-            </a>
-        {% endif %}
+        <button type="submit" class="btn btn-primary"
+                {% if mailbox_matches and not mailbox_override %}disabled{% endif %}>
+            {{ __('Send', 'ticketmailer') }}
+        </button>
     </div>
 </form>
