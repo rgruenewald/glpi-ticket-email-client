@@ -1,2 +1,2 @@
-{# Rendered by GLPI's TIMELINE_ANSWER_ACTIONS collapse container. #}
-{{ subitem.renderForm(item)|raw }}
+{# Keep the hook-rendered form modal-based instead of occupying the timeline collapse. #}
+{{ call('PluginTicketmailerTimelineAction::modal', [item])|raw }}

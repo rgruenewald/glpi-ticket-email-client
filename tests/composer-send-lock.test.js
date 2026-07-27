@@ -39,6 +39,11 @@ function statusToggle(name, checked) {
                 this.changeHandler = handler;
             }
         },
+        dispatchEvent() {
+            if (this.changeHandler) {
+                this.changeHandler();
+            }
+        },
     };
 }
 function makeForm(waitingChecked = false, solvedChecked = false) {
@@ -76,6 +81,9 @@ global.document = {
     addEventListener(type, handler) {
         listeners[type] = handler;
     },
+    createEvent() {
+        return { initEvent() {} };
+    },
     createElement() {
         return {
             attributes: {},
@@ -110,11 +118,15 @@ const templateEditor = {
     setContent(content) {
         this.content = content;
     },
+    getElement() {
+        return {isConnected: true};
+    },
 };
 global.tinymce = {
     get() {
         return templateEditor;
     },
+    init() {},
 };
 global.window.tinymce = global.tinymce;
 let templateRequestHeaders = {};
@@ -149,6 +161,30 @@ secondForm.status.waiting.checked = true;
 secondForm.status.waiting.changeHandler();
 assert.equal(secondForm.status.solved.checked, false, 'AJAX-loaded form initializes exclusive status toggles');
 assert.equal(form.status.waiting.checked, true, 'status coordination stays form-local');
+let removedStaleEditor = false;
+let reinitializedEditor = false;
+global.window.tinymce_editor_configs = {body_html: {selector: '#body_html'}};
+global.window.tinymce = global.tinymce = {
+    get() {
+        return {
+            getElement() { return {isConnected: false}; },
+            remove() { removedStaleEditor = true; },
+        };
+    },
+    init(config) {
+        reinitializedEditor = config === global.window.tinymce_editor_configs.body_html;
+    },
+};
+const staleEditorForm = makeForm();
+staleEditorForm.dataset.editorId = 'body_html';
+composeForms.push(staleEditorForm);
+ajaxComplete();
+assert.equal(removedStaleEditor, true, 'stale modal editor is removed on reopen');
+assert.equal(reinitializedEditor, true, 'modal editor is reinitialized on reopen');
+global.window.tinymce = global.tinymce = {
+    get() { return templateEditor; },
+    init() {},
+};
 const composerSource = require('node:fs').readFileSync(require.resolve('../public/js/composer.js'), 'utf8');
 assert.match(composerSource, /form\.dataset\.validateUrl/);
 assert.match(composerSource, /\['recipients_to', 'recipients_cc', 'recipients_bcc'\]/);
@@ -213,7 +249,7 @@ const templateForm = {
         return selector === 'input[name="tickets_id"]' ? { value: '42' } : null;
     },
 };
-const templateSelect = { form: templateForm, value: '7' };
+const templateSelect = { form: templateForm, value: '7', name: 'itilfollowuptemplates_id' };
 templateChangeHandler.call(templateSelect);
 assert.equal(templateRequestHeaders['X-Requested-With'], 'XMLHttpRequest');
 assert.equal(templateEditor.content, '<p>Template</p><p>Signature</p>');
@@ -234,5 +270,35 @@ const fallbackForm = {
         return selector === '#body_html' ? fallbackTextarea : null;
     },
 };
-templateChangeHandler.call({ form: fallbackForm, value: '7' });
+templateChangeHandler.call({ form: fallbackForm, value: '7', name: 'itilfollowuptemplates_id' });
 assert.equal(fallbackTextarea.value, '<p>Template</p><p>Fallback signature</p>');
+
+global.window.tinymce = global.tinymce;
+const solutionForm = makeForm(true, false);
+solutionForm.dataset.solutionTemplateUrl = '/ajax/solution.php';
+solutionForm.dataset.editorId = 'body_html';
+solutionForm.querySelector = function (selector) {
+    if (selector === 'input[name="tickets_id"]') {
+        return { value: '42' };
+    }
+    if (selector === 'input[name="set_waiting"]') {
+        return this.status.waiting;
+    }
+    if (selector === 'input[name="set_solved"]') {
+        return this.status.solved;
+    }
+    return null;
+};
+solutionForm.status.waiting.addEventListener('change', function () {
+    if (this.checked) {
+        solutionForm.status.solved.checked = false;
+    }
+});
+solutionForm.status.solved.addEventListener('change', function () {
+    if (this.checked) {
+        solutionForm.status.waiting.checked = false;
+    }
+});
+templateChangeHandler.call({ form: solutionForm, value: '9', name: 'solutiontemplates_id' });
+assert.equal(solutionForm.status.solved.checked, true, 'solution template checks solved');
+assert.equal(solutionForm.status.waiting.checked, false, 'solution template unchecks waiting through existing status logic');

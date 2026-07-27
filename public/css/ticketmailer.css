@@ -2,8 +2,9 @@
 
 /* ── Panel frame ───────────────────────────────────────── */
 .ticketmailer-compose {
-    max-width: 960px;
-    margin: 0.5rem 0 1.5rem;
+    width: 100%;
+    max-width: none;
+    margin: 0;
 }
 
 .ticketmailer-mail-panel {
@@ -60,8 +61,7 @@
 
 .ticketmailer-mail-row--followup-meta {
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto minmax(0, 1fr);
-    align-items: center;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto minmax(0, 1fr);
     column-gap: 0.75rem;
 }
 
@@ -184,12 +184,15 @@
 /* ── Actions — right-aligned like classic mail client ──── */
 .ticketmailer-actions {
     display: flex;
-    justify-content: flex-end;
+    align-items: center;
     gap: 0.5em;
     margin-top: 0.75rem;
     padding-left: 0;
 }
 
+.ticketmailer-actions > label:first-of-type {
+    margin-left: auto;
+}
 /* ── Recipient control ──────────────────────────────────── */
 .ticketmailer-recipient-control {
     display: flex;
@@ -335,10 +338,8 @@ ul.legacy-timeline-actions li .ticketmailer-timeline-action i {
     padding-right: 0;
 }
 
-/* Hide only the email reply action while its compose panel is open. */
-body.ticketmailer-compose-active .ticketmailer-timeline-action,
-body:has(.collapse.show .ticketmailer-compose) .ticketmailer-timeline-action,
-body:has(.collapse.in .ticketmailer-compose) .ticketmailer-timeline-action {
+/* Hide only the legacy email reply action while its compose panel is open. */
+body.ticketmailer-compose-active .ticketmailer-timeline-action {
     display: none !important;
 }
 

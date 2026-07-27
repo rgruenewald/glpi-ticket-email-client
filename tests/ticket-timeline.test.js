@@ -183,6 +183,10 @@ flushTimers();
 assert.equal(timelineActions[0].hidden, false, 'class mutations resynchronize native form visibility');
 // GLPI inserts the auto-open reply button
 replyButton = {
+    dataset: {ticketmailerModalReady: '1'},
+    getAttribute(name) {
+        return name === 'onclick' ? 'ticketmailerEmailReply1.show();' : null;
+    },
     click() {
         clicks += 1;
         replyPanelOpen = true;
@@ -190,6 +194,7 @@ replyButton = {
     },
 };
 mutation();
+ajaxComplete();
 flushTimers();
 assert.equal(clicks, 1, 'reply opens when GLPI inserts its action button later');
 assert.equal(
@@ -229,30 +234,7 @@ assert.equal(
 );
 
 
-// Simulate user clicking a Reply timeline action button
-replyPanelOpen = true;
-composeForms = [makeForm(false)]; // form not visible yet (BS still transitioning)
-clickCapture({target: {closest: (sel) => sel === '.ticketmailer-timeline-action' ? {} : null}});
-assert.equal(
-    document.body.classList.contains('ticketmailer-compose-active'),
-    true,
-    'optimistic hide fires immediately on plugin action click before BS transition completes',
-);
-flushTimers();
-assert.equal(
-    document.body.classList.contains('ticketmailer-compose-active'),
-    true,
-    'optimistic window keeps body class alive until form becomes visible',
-);
-flushTimers();
-assert.equal(
-    document.body.classList.contains('ticketmailer-compose-active'),
-    true,
-    'body class stays active after collapse transition completes',
-);
 
-// Advance past the optimistic window so close syncs properly
-nowMs += 1000;
 
 // Close all forms via hidden event (exercises onCollapseHidden path)
 replyPanelOpen = false;
