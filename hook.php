@@ -32,6 +32,28 @@ function plugin_ticketmailer_uninstall(): bool
     return true;
 }
 
+/**
+ * Prevent native Ticket templates from exposing costs to users without
+ * GLPI's dedicated ticket-cost permission.
+ */
+function plugin_ticketmailer_filter_notification_template_data(NotificationTargetTicket $target): void
+{
+    if (Session::haveRight('ticketcost', READ)) {
+        return;
+    }
+
+    foreach ([
+        '##ticket.costfixed##',
+        '##ticket.costmaterial##',
+        '##ticket.costtime##',
+        '##ticket.totalcost##',
+        '##ticket.numberofcosts##',
+    ] as $tag) {
+        unset($target->data[$tag]);
+    }
+    unset($target->data['costs']);
+}
+
 function plugin_ticketmailer_post_init(): void
 {
     Plugin::registerClass(

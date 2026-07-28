@@ -53,6 +53,9 @@ function plugin_init_ticketmailer(): void
         = 'PluginTicketmailerTimelineAction::getAnswerActions';
     $PLUGIN_HOOKS['timeline_actions']['ticketmailer']
         = 'PluginTicketmailerTimelineAction::displayActions';
+    $PLUGIN_HOOKS['item_get_datas']['ticketmailer'] = [
+        NotificationTargetTicket::class => 'plugin_ticketmailer_filter_notification_template_data',
+    ];
     $PLUGIN_HOOKS['config_page']['ticketmailer'] = 'front/config.form.php';
     $PLUGIN_HOOKS['post_init']['ticketmailer'] = 'plugin_ticketmailer_post_init';
     $PLUGIN_HOOKS['item_purge']['ticketmailer'] = [
