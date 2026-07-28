@@ -5,7 +5,7 @@
  * is loaded. Lifecycle callbacks live in `hook.php`.
  */
 
-define('PLUGIN_TICKETMAILER_VERSION', '2.0.2');
+define('PLUGIN_TICKETMAILER_VERSION', '2.1.0');
 define('PLUGIN_TICKETMAILER_MIN_GLPI', '11.0.0');
 define('PLUGIN_TICKETMAILER_MAX_GLPI', '11.99.99');
 
@@ -53,6 +53,9 @@ function plugin_init_ticketmailer(): void
         = 'PluginTicketmailerTimelineAction::getAnswerActions';
     $PLUGIN_HOOKS['timeline_actions']['ticketmailer']
         = 'PluginTicketmailerTimelineAction::displayActions';
+    $PLUGIN_HOOKS['item_get_datas']['ticketmailer'] = [
+        NotificationTargetTicket::class => 'plugin_ticketmailer_filter_notification_template_data',
+    ];
     $PLUGIN_HOOKS['config_page']['ticketmailer'] = 'front/config.form.php';
     $PLUGIN_HOOKS['post_init']['ticketmailer'] = 'plugin_ticketmailer_post_init';
     $PLUGIN_HOOKS['item_purge']['ticketmailer'] = [

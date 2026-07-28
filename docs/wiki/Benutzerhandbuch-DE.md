@@ -4,151 +4,123 @@
 
 [Wiki-Startseite](Home) · [English](User-Guide-EN)
 
-## 1. Zweck
+## 1. E-Mail aus einem Ticket senden
 
-Mit **Ticket Email Client** können berechtigte Anwender E-Mails direkt aus einem GLPI-Ticket versenden. Der erfolgreiche Versand wird abschließend im Ticketverlauf und im Versandprotokoll dokumentiert.
-
-## 2. Voraussetzungen
-
-- Sie sind in GLPI angemeldet.
-- Sie dürfen das betreffende Ticket lesen.
-- Zum Verfassen und Versenden benötigen Sie die Berechtigung, das Ticket zu aktualisieren bzw. Folgeaktivitäten hinzuzufügen.
-- Die Plugin-Funktion muss für Ihre Entität und Ihr Profil freigegeben sein.
-
-Fehlt **E-Mail antworten**, wenden Sie sich an Ihre GLPI-Administration.
-
-## 3. E-Mail aus einem Ticket erstellen
-
-1. Öffnen Sie das gewünschte Ticket.
-2. Wählen Sie im Ticketverlauf **E-Mail antworten** bzw. **Reply**.
-3. Das Formular öffnet sich direkt im Ticket.
+1. Öffnen Sie das Ticket.
+2. Wählen Sie **E-Mail antworten**.
+3. Das E-Mail-Formular öffnet sich im Ticket.
 
 ![Geöffnetes E-Mail-Formular im Ticket](images/email-compose-form.png)
 
-Je nach Konfiguration kann das Formular beim Öffnen eines Tickets bereits ausgeklappt sein. Die native GLPI-Antwortfunktion kann zusätzlich sichtbar bleiben.
+Fehlt **E-Mail antworten**? Wenden Sie sich an Ihren GLPI-Administrator.
 
-## 4. Empfänger
+## 2. Empfänger wählen
 
 Das Formular bietet **An**, **CC** und **BCC**.
 
-### Automatische Vorbelegung
+Diese Empfänger sind oft schon eingetragen:
 
 - Anforderer → **An**
 - Beobachter → **CC**
 
-### Empfänger hinzufügen
+Sie können weitere Empfänger hinzufügen:
 
-- Suchen Sie interne GLPI-Benutzer über die Autovervollständigung.
-- Tragen Sie externe E-Mail-Adressen direkt ein.
+- Suchen Sie GLPI-Benutzer über die Autovervollständigung.
+- Tragen Sie andere E-Mail-Adressen direkt ein.
 - Trennen Sie mehrere Adressen mit Komma, Semikolon oder Eingabetaste.
-- Entfernen Sie Empfänger über das Entfernen-Symbol; **Leeren** entfernt alle Einträge eines Feldes.
 
-Mindestens eine gültige Adresse in **An**, **CC** oder **BCC** ist erforderlich. Ein Versand nur an BCC ist möglich. Ungültige Einträge werden nicht stillschweigend übersprungen, sondern als Fehler angezeigt.
+Mindestens eine gültige Adresse ist nötig. Ein Versand nur an BCC ist möglich. Ungültige Adressen werden angezeigt.
 
-### Wichtig: Sichtbarkeit von BCC
+### BCC ist im Ticket sichtbar
 
-BCC-Adressen sind in der versendeten E-Mail nicht als sichtbare An-/CC-Kopfzeile enthalten. Die vollständige BCC-Liste ist jedoch für **alle Benutzer mit Leserecht auf das Ticket** im Ticketverlauf und Versandprotokoll sichtbar. Verwenden Sie BCC daher nicht, um Adressen vor anderen Ticketlesern zu verbergen.
+Empfänger der E-Mail sehen die BCC-Adressen nicht.
 
-## 5. Betreff und Nachricht
+Alle Ticketleser sehen sie im Versandprotokoll. Nach erfolgreichem Versand stehen sie auch im Ticketverlauf.
 
-- **Betreff** ist erforderlich.
-- **Nachricht** darf nicht leer sein.
-- Der Editor unterstützt formatierte HTML-Inhalte.
-- Abhängig von der GLPI-Konfiguration können Vorlagen und Quellen angeboten werden.
-- Eine konfigurierte Signatur bzw. ein Betreffpräfix kann automatisch eingefügt werden.
+Nutzen Sie BCC nicht, um Adressen vor anderen Ticketlesern zu verbergen.
 
-## 6. Anhänge und eingebettete Bilder
+## 3. Betreff und Nachricht schreiben
 
-### Neue Dateien anhängen
+- **Betreff** und **Nachricht** sind Pflichtfelder.
+- Sie können den Text formatieren.
+- Eine Vorlage kann Betreff und Signatur einfügen.
+- Sie können Betreff, Nachricht und Signatur ändern.
+- Empfänger aus der Vorlage werden nicht übernommen.
+- Sie sehen nur Daten, für die Sie eine Berechtigung haben.
 
-- Wählen Sie **Dateien auswählen** oder ziehen Sie Dateien in den Anhangsbereich.
-- Mehrere Dateien sind möglich.
-- GLPI-Uploadgrenzen gelten weiterhin.
-- Entfernen Sie versehentlich hinzugefügte Dateien vor dem Versand.
+## 4. Dateien und Bilder hinzufügen
 
-### Bilder in die Nachricht einbetten
+### Neue Dateien
 
-Ziehen Sie ein Bild in den Nachrichteneditor oder fügen Sie es aus der Zwischenablage ein. Nur Bilddateien können inline eingebettet werden.
+Wählen Sie **Dateien auswählen**. Sie können Dateien auch in den Anhangsbereich ziehen.
 
-### Öffentliche Ticket-Anhänge übernehmen
+Prüfen Sie die Dateien vor dem Senden. Es gelten die Upload-Grenzen von GLPI.
 
-Innerhalb der Anhänge können bereits vorhandene Ticket-Anhänge einzeln ausgewählt werden. Über das Öffnen-Symbol lässt sich ein angebotener Anhang vorab in einem neuen Tab prüfen.
+### Bilder in der Nachricht
 
-Private Vermerke und deren Dokumente werden nicht angeboten oder versendet.
+Ziehen Sie ein Bild in den Editor. Sie können es auch aus der Zwischenablage einfügen.
 
-## 7. Öffentlichen Ticketverlauf anhängen
+### Dateien aus dem Ticket
 
-Aktivieren Sie **Öffentlichen Ticketverlauf anhängen**, um den öffentlichen Ticketverlauf an den Nachrichtentext anzufügen. Die Option ist standardmäßig nicht aktiviert.
+Sie können öffentliche Ticket-Anhänge auswählen. Private Vermerke und deren Dateien werden nicht angeboten.
 
-Die Auswahl einzelner öffentlicher Ticket-Anhänge ist davon unabhängig: Verlaufstext und Dateien können getrennt gewählt werden.
+## 5. Öffentlichen Ticketverlauf anhängen
 
-## 8. Ticketstatus nach Versand
+Aktivieren Sie **Öffentlichen Ticketverlauf anhängen**, wenn der Empfänger den öffentlichen Verlauf erhalten soll.
 
-Neben **Senden** können Optionen zum automatischen Setzen des Ticketstatus verfügbar sein:
+Die Option ist standardmäßig ausgeschaltet. Private Vermerke werden nicht versendet.
 
-- auf **Wartend** setzen;
-- auf **Gelöst** setzen.
+## 6. Ticketstatus wählen
 
-Prüfen Sie diese Optionen vor dem Versand. Voreinstellungen können durch die Administration festgelegt sein.
+Neben **Senden** können diese Optionen erscheinen:
 
-## 9. Warnung bei einem eingehenden Postfach
+- Ticket auf **Wartend** setzen
+- Ticket auf **Gelöst** setzen
 
-Stimmt ein Empfänger exakt mit der E-Mail-Adresse einer aktiven GLPI-Mail-Adresse überein, erscheint eine Warnung. Dadurch soll ein möglicher E-Mail-Kreislauf vermieden werden.
+Prüfen Sie die Auswahl vor dem Senden.
 
-1. Prüfen Sie die markierten Empfänger.
-2. Entfernen oder korrigieren Sie die Adresse, falls sie unbeabsichtigt gewählt wurde.
-3. Soll trotzdem versendet werden, aktivieren Sie **Ich verstehe und möchte trotzdem senden**.
+## 7. Warnung vor einem E-Mail-Kreislauf
+
+GLPI warnt, wenn ein Empfänger zu einem aktiven Mail-Collector passt.
+
+1. Prüfen Sie die Adresse.
+2. Entfernen oder korrigieren Sie die Adresse bei Bedarf.
+3. Bestätigen Sie den Versand nur, wenn die Adresse richtig ist.
 4. Senden Sie erneut.
 
-Der Abgleich ist nur eine Best-Effort-Prüfung. Aliase, Weiterleitungen und Logins ohne E-Mail-Format werden nicht erkannt.
+Die Prüfung erkennt nicht alle Aliase und Weiterleitungen.
 
-> Die Postfachwarnung erscheint im E-Mail-Formular, sobald GLPI einen passenden Mail-Collector erkennt.
+## 8. E-Mail senden
 
-## 10. Senden und Ergebnis
+1. Prüfen Sie Empfänger, Betreff und Nachricht.
+2. Prüfen Sie Dateien und Statusoptionen.
+3. Wählen Sie **Senden** einmal.
 
-1. Prüfen Sie Empfänger, BCC-Sichtbarkeit, Betreff, Nachricht, Anhänge und Statusoptionen.
-2. Wählen Sie **Senden**.
-3. Klicken Sie nicht mehrfach. Das Plugin führt pro akzeptiertem Versandvorgang genau einen Versuch aus und startet bei Fehlern keinen automatischen Neuversand.
+Das Plugin startet keinen automatischen Neuversand.
 
-### Mögliche Ergebnisse
+## 9. Versand prüfen
 
-- **Gesendet:** Versand erfolgreich; Eintrag im Ticketverlauf wurde erstellt.
-- **Fehlgeschlagen:** Versand fehlgeschlagen; es gibt keinen erfolgreichen Versandseintrag im Ticketverlauf.
-
-## 11. Versand im Ticket prüfen
-
-Nach vollständigem Erfolg erscheint eine normale Folgeaktivität im Ticketverlauf. Sie enthält Absender, Versandzeit, An/CC/BCC, Betreff, Nachricht und sichere Links zu Anhängen.
-
-Alle Benutzer mit Leserecht auf das Ticket können diese Angaben einschließlich der vollständigen BCC-Liste sehen und die Anhänge öffnen.
+Nach einem vollständigen Versand erscheint die E-Mail im Ticketverlauf.
 
 ![Erfolgreiche E-Mail-Einträge im Ticketverlauf](images/ticket-email-timeline.png)
 
-## 12. Versandprotokoll öffnen
+Der Eintrag zeigt Nachricht, Empfänger und Anhänge. Alle Benutzer mit Leserecht auf das Ticket können diese Daten sehen.
 
-Im Ticket-Tab **Gesendete E-Mails** finden Sie die zugehörigen Protokolleinträge. Öffnen Sie einen Eintrag für:
-
-- Empfänger einschließlich BCC;
-- Nachricht und Klartextalternative;
-- Anhänge und eingebettete Bilder;
-- Versandstatus;
-- Fehlerdetails;
-- dokumentierte Bestätigung einer Postfachwarnung.
-
-Der Zugriff setzt Leserecht auf das Ticket voraus.
+Zusätzliche Details stehen im Tab **Gesendete E-Mails**.
 
 ![Liste gesendeter E-Mails](images/sent-email-log.png)
 
 ![Detailansicht einer gesendeten E-Mail](images/sent-email-detail.png)
 
-## 13. Fehlerbehebung
+## 10. Probleme lösen
 
-| Problem                               | Vorgehen                                                                                              |
-| ------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| **E-Mail antworten** fehlt            | Ticketrechte prüfen lassen; Plugin-Freigabe für Entität/Profil durch Administration prüfen lassen.    |
-| Ungültige Adresse                     | Angezeigten Eintrag vollständig korrigieren oder entfernen.                                           |
-| Kein Empfänger                        | Mindestens eine gültige Adresse in An, CC oder BCC eintragen.                                         |
-| Upload fehlgeschlagen / Datei zu groß | Dateityp und GLPI-Uploadgrenze beachten; kleinere Datei versuchen; sonst Administration kontaktieren. |
-| Postfachwarnung                       | Empfänger prüfen; nur bewusst mit Bestätigungsfeld fortfahren.                                        |
-| Versand fehlgeschlagen                | Fehlerdetail im Versandprotokoll öffnen; Administration kontaktieren. Kein automatischer Neuversand.  |
-| Unvollständiger Versand               | Nicht erneut senden; Administration informieren, da SMTP bereits erfolgreich war.                     |
-| Anhang lässt sich nicht öffnen        | Ticket-Leserecht und Anmeldung prüfen; bei fortbestehendem Fehler Administration kontaktieren.        |
+| Problem | Lösung |
+| --- | --- |
+| **E-Mail antworten** fehlt | Wenden Sie sich an Ihre GLPI-Administration. |
+| Adresse ist ungültig | Korrigieren oder entfernen Sie die Adresse. |
+| Kein Empfänger | Tragen Sie mindestens eine Adresse ein. |
+| Datei ist zu groß | Wählen Sie eine kleinere Datei. |
+| Postfachwarnung erscheint | Prüfen Sie die Adresse. Bestätigen Sie nur bewusst. |
+| Versand ist fehlgeschlagen | Öffnen Sie das Versandprotokoll. Wenden Sie sich an die Administration. |
+| E-Mail fehlt im Ticketverlauf | Senden Sie nicht erneut. Die E-Mail könnte bereits zugestellt sein. Wenden Sie sich an die Administration. |
+| Anhang lässt sich nicht öffnen | Prüfen Sie Anmeldung und Ticket-Leserecht. |

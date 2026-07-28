@@ -31,24 +31,20 @@ class PluginTicketmailerConfig
 
     /**
      * @return array{
-     *     subject_prefix:string,
+     *     notificationtemplates_id:int,
      *     signature_html:string,
      *     set_waiting:bool,
      *     timeline_newest_first:bool,
-     *     open_reply_on_ticket:bool,
-     *     recipient_autocomplete_show_email:bool
      * }
      */
     public static function forEntity(int $entities_id): array
     {
         global $DB;
         $settings = [
-            'subject_prefix'                    => '[##ticket.id##]',
+            'notificationtemplates_id'          => 0,
             'signature_html'                    => '',
             'set_waiting'                       => true,
             'timeline_newest_first'             => true,
-            'open_reply_on_ticket'              => true,
-            'recipient_autocomplete_show_email' => true,
         ];
         if (!$DB->tableExists('glpi_plugin_ticketmailer_configs')) {
             return $settings;
@@ -58,64 +54,66 @@ class PluginTicketmailerConfig
             'WHERE' => ['entities_id' => 0],
         ])->current();
         if ($global) {
-            $settings['subject_prefix'] = (string) $global['subject_prefix'];
             $settings['set_waiting'] = (bool) $global['set_waiting'];
             $settings['timeline_newest_first'] = !isset($global['timeline_newest_first'])
                 || (bool) $global['timeline_newest_first'];
-            $settings['open_reply_on_ticket'] = !isset($global['open_reply_on_ticket'])
-                || (bool) $global['open_reply_on_ticket'];
-            $settings['recipient_autocomplete_show_email'] = !isset($global['recipient_autocomplete_show_email'])
-                || (bool) $global['recipient_autocomplete_show_email'];
         }
         $entity = $DB->request([
             'FROM'  => 'glpi_plugin_ticketmailer_configs',
             'WHERE' => ['entities_id' => $entities_id],
         ])->current();
+        $settings['notificationtemplates_id'] = (int) ($entity['notificationtemplates_id'] ?? 0);
         $settings['signature_html'] = (string) (($entity ?: $global)['signature_html'] ?? '');
         return $settings;
     }
 
     public static function saveEntity(
         int $entities_id,
-        string $subject_prefix,
-        string $signature_html,
+        int $notificationtemplates_id,
         bool $set_waiting,
         bool $timeline_newest_first,
-        bool $open_reply_on_ticket,
-        bool $recipient_autocomplete_show_email,
     ): void {
         global $DB;
-        $global = self::forEntity(0);
-        $DB->updateOrInsert(
-            'glpi_plugin_ticketmailer_configs',
-            [
-                'subject_prefix'                    => substr(trim($subject_prefix), 0, 255),
-                'signature_html'                    => $global['signature_html'],
-                'set_waiting'                       => $set_waiting ? 1 : 0,
-                'timeline_newest_first'             => $timeline_newest_first ? 1 : 0,
-                'open_reply_on_ticket'              => $open_reply_on_ticket ? 1 : 0,
-                'recipient_autocomplete_show_email' => $recipient_autocomplete_show_email ? 1 : 0,
-            ],
-            ['entities_id' => 0],
-        );
-        if ($entities_id === 0) {
-            $DB->update(
-                'glpi_plugin_ticketmailer_configs',
-                ['signature_html' => PluginTicketmailerTimeline::sanitizeHtml($signature_html)],
-                ['entities_id' => 0],
-            );
-            return;
+        $globalSettings = self::forEntity(0);
+        $global = $DB->request([
+            'FROM'  => 'glpi_plugin_ticketmailer_configs',
+            'WHERE' => ['entities_id' => 0],
+        ])->current() ?? [];
+        $local = $DB->request([
+            'FROM'  => 'glpi_plugin_ticketmailer_configs',
+            'WHERE' => ['entities_id' => $entities_id],
+        ])->current() ?? [];
+        $values = [
+            'notificationtemplates_id'          => $entities_id === 0
+                ? self::validTicketTemplateId($notificationtemplates_id)
+                : (int) $globalSettings['notificationtemplates_id'],
+            'signature_html'                    => (string) ($globalSettings['signature_html'] ?? ''),
+            'set_waiting'                       => $set_waiting ? 1 : 0,
+            'timeline_newest_first'             => $timeline_newest_first ? 1 : 0,
+        ];
+        if (isset($global['subject_prefix'])) {
+            $values['subject_prefix'] = (string) $global['subject_prefix'];
         }
         $DB->updateOrInsert(
             'glpi_plugin_ticketmailer_configs',
-            [
-                'subject_prefix'                    => '[##ticket.id##]',
-                'signature_html'                    => PluginTicketmailerTimeline::sanitizeHtml($signature_html),
-                'set_waiting'                       => 1,
-                'timeline_newest_first'             => 1,
-                'open_reply_on_ticket'              => 1,
-                'recipient_autocomplete_show_email' => 1,
-            ],
+            $values,
+            ['entities_id' => 0],
+        );
+        if ($entities_id === 0) {
+            return;
+        }
+        $values = [
+            'notificationtemplates_id'          => self::validTicketTemplateId($notificationtemplates_id),
+            'signature_html'                    => (string) ($local['signature_html'] ?? ''),
+            'set_waiting'                       => 1,
+            'timeline_newest_first'             => 1,
+        ];
+        if (isset($local['subject_prefix'])) {
+            $values['subject_prefix'] = (string) $local['subject_prefix'];
+        }
+        $DB->updateOrInsert(
+            'glpi_plugin_ticketmailer_configs',
+            $values,
             ['entities_id' => $entities_id],
         );
     }
@@ -149,20 +147,244 @@ class PluginTicketmailerConfig
         $GLOBALS['CFG_GLPI']['timeline_order'] = $timeline_order;
     }
 
+    /**
+     * @return array{subject:string, signature:string, native_template_selected:bool}
+     */
+    public static function contentForTicket(Ticket $ticket): array
+    {
+        $templateId = self::notificationTemplateForEntity((int) $ticket->getField('entities_id'));
+        if ($templateId > 0) {
+            $rendered = self::renderNotificationTemplate($templateId, $ticket);
+            return [
+                'subject' => $rendered['subject'] !== ''
+                    ? $rendered['subject']
+                    : self::fallbackSubjectForTicket($ticket),
+                'signature' => $rendered['signature'],
+                'native_template_selected' => true,
+            ];
+        }
+
+        return [
+            'subject' => self::fallbackSubjectForTicket($ticket),
+            'signature' => self::expandTicketVariables(
+                self::legacySignatureForEntity((int) $ticket->getField('entities_id')),
+                $ticket,
+                true,
+            ),
+            'native_template_selected' => false,
+        ];
+    }
+
     public static function subjectForTicket(Ticket $ticket): string
     {
-        $settings = self::forEntity((int) $ticket->getField('entities_id'));
-        $template = $settings['subject_prefix'] . ' ##ticket.title##';
-        return trim(strip_tags(self::expandTicketVariables($template, $ticket, false)));
+        return self::contentForTicket($ticket)['subject'];
     }
 
     public static function signatureForTicket(Ticket $ticket): string
     {
-        return self::expandTicketVariables(
-            self::forEntity((int) $ticket->getField('entities_id'))['signature_html'],
-            $ticket,
-            true,
+        return self::contentForTicket($ticket)['signature'];
+    }
+
+    /**
+     * @return array{direct:int, effective:int, source_entities_id:int}
+     */
+    public static function notificationTemplateAssignmentForEntity(int $entities_id): array
+    {
+        global $DB;
+        $direct = 0;
+        if (!$DB->tableExists('glpi_plugin_ticketmailer_configs')) {
+            return ['direct' => 0, 'effective' => 0, 'source_entities_id' => $entities_id];
+        }
+        $entities = [$entities_id];
+        if ($entities_id !== 0) {
+            $entities = array_merge($entities, array_values(getAncestorsOf(Entity::getTable(), $entities_id)));
+            if (!in_array(0, $entities, true)) {
+                $entities[] = 0;
+            }
+        }
+        foreach (array_unique(array_map('intval', $entities)) as $entityId) {
+            $row = $DB->request([
+                'FROM'  => 'glpi_plugin_ticketmailer_configs',
+                'WHERE' => ['entities_id' => $entityId],
+            ])->current();
+            $templateId = (int) ($row['notificationtemplates_id'] ?? 0);
+            if ($entityId === $entities_id) {
+                $direct = $templateId;
+            }
+            if ($templateId > 0 && self::validTicketTemplateId($templateId) > 0) {
+                return [
+                    'direct' => $direct,
+                    'effective' => $templateId,
+                    'source_entities_id' => $entityId,
+                ];
+            }
+        }
+        return ['direct' => $direct, 'effective' => 0, 'source_entities_id' => $entities_id];
+    }
+
+    public static function notificationTemplateForEntity(int $entities_id): int
+    {
+        return self::notificationTemplateAssignmentForEntity($entities_id)['effective'];
+    }
+
+    public static function saveNotificationTemplateAssignment(
+        int $entities_id,
+        int $notificationtemplates_id,
+    ): void {
+        global $DB;
+        $local = $DB->request([
+            'FROM'  => 'glpi_plugin_ticketmailer_configs',
+            'WHERE' => ['entities_id' => $entities_id],
+        ])->current();
+        $values = [
+            'notificationtemplates_id'          => self::validTicketTemplateId($notificationtemplates_id),
+            'signature_html'                    => (string) ($local['signature_html'] ?? ''),
+            'set_waiting'                       => isset($local['set_waiting']) ? (int) $local['set_waiting'] : 1,
+            'timeline_newest_first'             => isset($local['timeline_newest_first']) ? (int) $local['timeline_newest_first'] : 1,
+        ];
+        if (isset($local['subject_prefix'])) {
+            $values['subject_prefix'] = (string) $local['subject_prefix'];
+        }
+        $DB->updateOrInsert(
+            'glpi_plugin_ticketmailer_configs',
+            $values,
+            ['entities_id' => $entities_id],
         );
+    }
+
+    private static function validTicketTemplateId(int $notificationtemplates_id): int
+    {
+        if ($notificationtemplates_id <= 0) {
+            return 0;
+        }
+        $template = new NotificationTemplate();
+        return $template->getFromDB($notificationtemplates_id)
+            && $template->getField('itemtype') === Ticket::class
+            ? $notificationtemplates_id
+            : 0;
+    }
+
+    /** @return array{subject:string, signature:string} */
+    private static function renderNotificationTemplate(int $notificationtemplates_id, Ticket $ticket): array
+    {
+        $template = new NotificationTemplate();
+        $target = NotificationTarget::getInstance($ticket, 'update', [
+            'entities_id' => (int) $ticket->getField('entities_id'),
+        ]);
+        if (
+            !$template->getFromDB($notificationtemplates_id)
+            || $template->getField('itemtype') !== Ticket::class
+            || !$target instanceof NotificationTargetTicket
+        ) {
+            return ['subject' => '', 'signature' => ''];
+        }
+        $target->setMode(Notification_NotificationTemplate::MODE_MAIL);
+        $target->setAllowResponse(false);
+        $template->resetComputedTemplates();
+        $template->setSignature('');
+        $options = ['item' => $ticket];
+        $tid = $template->getTemplateByLanguage(
+            $target,
+            [
+                'language' => (string) ($_SESSION['glpilanguage'] ?? ($GLOBALS['CFG_GLPI']['language'] ?? 'en_GB')),
+                'additionnaloption' => ['usertype' => NotificationTarget::GLPI_USER],
+            ],
+            'update',
+            $options,
+        );
+        if ($tid === false) {
+            return ['subject' => '', 'signature' => ''];
+        }
+        $rendered = $template->templates_by_languages[$tid] ?? [];
+        return [
+            'subject' => self::cleanSubject((string) ($rendered['subject'] ?? '')),
+            'signature' => self::renderedBodyFragment((string) ($rendered['content_html'] ?? '')),
+        ];
+    }
+
+    private static function fallbackSubjectForTicket(Ticket $ticket): string
+    {
+        return self::cleanSubject(sprintf(
+            '[%d] %s',
+            (int) $ticket->getField('id'),
+            strip_tags((string) $ticket->getField('name')),
+        ));
+    }
+
+    private static function cleanSubject(string $subject): string
+    {
+        return trim((string) preg_replace('/[\x00\r\n]+/', ' ', $subject));
+    }
+
+    private static function renderedBodyFragment(string $html): string
+    {
+        if ($html === '' || !preg_match('/<body[^>]*>([\\s\\S]*?)<\\/body>/i', $html, $match)) {
+            return '';
+        }
+        $body = preg_replace(
+            '/<br>' . preg_quote(
+                sprintf(__('Automatically generated by %s'), (string) ($GLOBALS['CFG_GLPI']['app_name'] ?? 'GLPI')),
+                '/',
+            ) . '<br><br>\s*$/s',
+            '',
+            trim($match[1]),
+        );
+        return PluginTicketmailerTimeline::sanitizeHtml(trim((string) $body));
+    }
+
+    private static function legacySignatureForEntity(int $entities_id): string
+    {
+        global $DB;
+        if (!$DB->tableExists('glpi_plugin_ticketmailer_configs')) {
+            return '';
+        }
+        $entities = [$entities_id];
+        if ($entities_id !== 0) {
+            $entities = array_merge($entities, array_values(getAncestorsOf(Entity::getTable(), $entities_id)));
+            if (!in_array(0, $entities, true)) {
+                $entities[] = 0;
+            }
+        }
+        foreach (array_unique(array_map('intval', $entities)) as $entityId) {
+            $row = $DB->request([
+                'FROM'  => 'glpi_plugin_ticketmailer_configs',
+                'WHERE' => ['entities_id' => $entityId],
+            ])->current();
+            $signature = trim((string) ($row['signature_html'] ?? ''));
+            if ($signature !== '') {
+                return $signature;
+            }
+        }
+        return '';
+    }
+
+    public static function variableHelpHtml(): string
+    {
+        $groups = [
+            __('Ticket', 'ticketmailer') => [
+                '##ticket.id##', '##ticket.title##', '##ticket.description##',
+                '##ticket.creationdate##', '##ticket.lastupdate##', '##ticket.status##',
+                '##ticket.priority##', '##ticket.urgency##', '##ticket.impact##', '##ticket.url##',
+            ],
+            __('Agent', 'ticketmailer') => [
+                '##agent.firstname##', '##agent.lastname##', '##agent.name##',
+                '##agent.email##', '##agent.phone##', '##agent.phone2##', '##agent.mobile##',
+            ],
+            __('Entity', 'ticketmailer') => [
+                '##entity.name##', '##entity.fullname##', '##entity.email##',
+                '##entity.phone##', '##entity.fax##', '##entity.address##',
+                '##entity.postcode##', '##entity.town##', '##entity.state##', '##entity.country##',
+            ],
+        ];
+        $html = '<details class="mt-2"><summary>' . __('Available variables', 'ticketmailer') . '</summary>';
+        foreach ($groups as $label => $variables) {
+            $html .= '<strong class="d-block mt-2">' . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '</strong><ul class="mb-0">';
+            foreach ($variables as $variable) {
+                $html .= '<li><code>' . $variable . '</code></li>';
+            }
+            $html .= '</ul>';
+        }
+        return $html . '</details>';
     }
 
     private static function expandTicketVariables(string $template, Ticket $ticket, bool $html): string
@@ -209,34 +431,6 @@ class PluginTicketmailerConfig
         ]);
     }
 
-    public static function variableHelpHtml(): string
-    {
-        $groups = [
-            __('Ticket', 'ticketmailer') => [
-                '##ticket.id##', '##ticket.title##', '##ticket.description##',
-                '##ticket.creationdate##', '##ticket.lastupdate##', '##ticket.status##',
-                '##ticket.priority##', '##ticket.urgency##', '##ticket.impact##', '##ticket.url##',
-            ],
-            __('Agent', 'ticketmailer') => [
-                '##agent.firstname##', '##agent.lastname##', '##agent.name##',
-                '##agent.email##', '##agent.phone##', '##agent.phone2##', '##agent.mobile##',
-            ],
-            __('Entity', 'ticketmailer') => [
-                '##entity.name##', '##entity.fullname##', '##entity.email##',
-                '##entity.phone##', '##entity.fax##', '##entity.address##',
-                '##entity.postcode##', '##entity.town##', '##entity.state##', '##entity.country##',
-            ],
-        ];
-        $html = '<details class="mt-2"><summary>' . __('Available variables', 'ticketmailer') . '</summary>';
-        foreach ($groups as $label => $variables) {
-            $html .= '<strong class="d-block mt-2">' . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '</strong><ul class="mb-0">';
-            foreach ($variables as $variable) {
-                $html .= '<li><code>' . $variable . '</code></li>';
-            }
-            $html .= '</ul>';
-        }
-        return $html . '</details>';
-    }
     public static function setWaitingAfterSend(Ticket $ticket): bool
     {
         return self::forEntity((int) $ticket->getField('entities_id'))['set_waiting'];

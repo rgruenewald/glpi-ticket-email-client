@@ -1,21 +1,21 @@
 # GLPI Ticket Email Client
 
-A GPL-3.0-or-later plugin for **GLPI 11** that lets authorized ticket agents compose and send a ticket-context email without using GLPI's notification delivery pipeline.
+A plugin for **GLPI 11**. It lets ticket agents send emails directly from a ticket.
 
-Ticketmailer sends one SMTP message through GLPI's existing mail configuration, keeps a durable audit record, and creates one notification-suppressed `ITILFollowup` in the ticket timeline.
+Sent emails are shown in the ticket history and send log.
 
-> **Compatibility:** PHP 8.2 or later; GLPI 11.0.x. The implementation is verified against GLPI 11.0.8. Marketplace publication is not implied by this repository.
+> **Compatibility:** PHP 8.2 or later; GLPI 11.0.x. Tested with GLPI 11.0.8.
 
 ## See it in GLPI
 
-Compose a rich ticket-context email, then keep the delivered message visible in the ticket timeline.
+Write a formatted email from a ticket. The sent email stays visible in the ticket history.
 
 <p align="center">
   <img src="docs/wiki/images/email-compose-form.png" width="52%" alt="Ticketmailer compose form in GLPI with To, CC, BCC, subject, rich-text body, ticket-history option, attachments, and Send action">
   <img src="docs/wiki/images/ticket-email-timeline.png" width="42%" alt="A delivered Ticketmailer message recorded as a standard followup in the GLPI ticket timeline">
 </p>
 
-The plugin also keeps a durable, ticket-authorized audit view of sent and failed attempts.
+The send log shows successful and failed attempts. Only ticket readers can view it.
 
 <p align="center">
   <img src="docs/wiki/images/sent-email-log.png" width="100%" alt="Ticketmailer's sent-email audit list in GLPI showing send time, subject, recipient counts, and delivery status">
@@ -23,33 +23,33 @@ The plugin also keeps a durable, ticket-authorized audit view of sent and failed
 
 ## Features
 
-- Inline **Email reply** action beside GLPI's native **Answer** control.
-- Rich HTML email using GLPI's bundled editor.
-- To, CC, and BCC recipients; GLPI-user autocomplete; strict server-side address validation.
-- Requesters prefilled in To and observers prefilled in CC. Assignees are not added automatically.
-- Normal attachments, server-validated inline images, and optional public ticket-history content and attachments.
-- SMTP delivery through GLPI core configuration only; no plugin SMTP settings and no GLPI notification-engine delivery.
-- Durable send audit and one standard `ITILFollowup` with `_disablenotif=1` after a successful SMTP send.
-- Per-entity compose preferences: subject prefix, signature, ticket waiting status, timeline order, auto-open reply form, and recipient-autocomplete email visibility.
-- English and German user-interface translations.
+- Send emails from a ticket.
+- Use To, CC, and BCC.
+- Write formatted messages.
+- Add files, images, and public ticket history.
+- Use GLPI's existing mail settings.
+- Keep sent emails in the ticket history and send log.
+- Choose a ticket template for each entity.
+- Available in English and German.
 
 ## Important security and privacy behavior
 
 Read this section before installing the plugin.
 
-- The plugin stores the complete **To, CC, and BCC** recipient lists in the audit record and timeline followup. Every user permitted to read the ticket can see BCC recipients. BCC is not private within GLPI.
-- Outgoing SMTP headers do not expose BCC recipients in To or CC headers.
-- Ticket attachments and outbound audit attachments are served only through ticket-read-authorized routes. Filesystem paths are not rendered in the UI.
-- Recipient addresses matching an active GLPI mail collector login trigger a warning. Sending requires an explicit confirmation. This is best effort: aliases, forwarding, and non-email collector logins cannot be detected.
-- Sending is deliberately single-attempt. There is no automatic retry, resend queue, draft storage, or inbound-mail processing.
-- SMTP success without a successful timeline followup is recorded as an incomplete send. The plugin does not retry SMTP in that case.
+- Everyone who can read a ticket can also see its BCC recipients.
+- BCC recipients are hidden from recipients of the email.
+- Only ticket readers can open stored attachments.
+- A warning appears if an address matches a GLPI mail collector.
+- The plugin sends each email only once. It does not retry automatically.
+- A send is incomplete if the email was sent but could not be added to the ticket history. Do not send it again.
 
 ## Requirements
 
 - GLPI 11.0.x.
 - PHP 8.2 or later.
 - A working GLPI core SMTP configuration.
-- A GLPI user with permission to update the ticket or add followups. Ticket readers may view the audit log and download recorded outbound attachments.
+- A GLPI user who can update tickets or add followups.
+- Ticket readers can view the send log and stored attachments.
 - Database permissions sufficient for GLPI plugin installation and upgrade.
 
 ## Installation
@@ -85,40 +85,40 @@ The installer applies the versioned database migrations included in `sql/`. Do n
 
 ### SMTP
 
-Configure SMTP only in GLPI core settings. GLPI Ticket Email Client uses GLPI's configured direct mail transport. It does not add an SMTP configuration page and does not bypass GLPI's transport configuration.
+Configure email delivery in GLPI. The plugin has no separate mail settings.
 
 ### Per-entity preferences
 
 A GLPI administrator can open the plugin configuration page and choose an entity. The following settings are available:
 
-- **Ticket subject prefix** — supports the ticket variables listed in the configuration; default `[##ticket.id##]`.
-- **Email signature** — rich HTML with ticket-variable support; GLPI Ticket Email Client generates the plain-text alternative.
-- **Set ticket status to waiting after a successful email send** — enabled by default.
-- **Show newest timeline entries first** — enabled by default.
-- **Open the Email reply form when a ticket is opened** — enabled by default.
-- **Show email addresses in recipient autocomplete** — enabled by default.
+- **Ticket notification template** — choose one ticket template for each entity.
+  - Child entities can inherit it.
+  - It fills the subject and adds an editable signature.
+  - Recipients still come from the email form.
+  - Users only see data they are allowed to view.
+- **Set ticket status to waiting after sending** — enabled by default.
+- **Show newest ticket entries first** — enabled by default.
 
-Reply-policy rows support exact entity/profile and entity-default precedence. The stored `hide_native` mode is intentionally treated as `promoted` until GLPI provides a verified extension point for hiding its native reply control. GLPI Ticket Email Client never hides native controls with DOM or CSS workarounds.
+The plugin does not hide GLPI's own reply button.
 
 ## Sending an email
 
-1. Open a ticket and select **Email reply** beside **Answer**.
-2. Add recipients to **To**, **CC**, and/or **BCC**. Separate manually entered addresses with a comma, semicolon, or Enter. BCC-only delivery is supported.
-3. Enter a subject and non-empty message body.
-4. Add files, paste or drop supported inline images, and optionally select public ticket attachments.
-5. Enable **Attach public ticket history** only when the recipient should receive the ticket description and public followups. Private followups and their documents are never included.
-6. Resolve any active-mailbox warning by reviewing the recipients and explicitly confirming the override only when appropriate.
-7. Select **Send**. The interface prevents duplicate submissions while the request is in progress.
+1. Open a ticket and select **Email reply**.
+2. Add at least one recipient.
+3. Check the subject and message.
+4. Add files or public ticket history if needed.
+5. Review any warning shown by GLPI.
+6. Select **Send** once.
 
-A successful send has both `status = sent` and `timeline_status = recorded` in the audit log. If SMTP fails, no successful-send followup is created. If SMTP succeeds but the followup cannot be created, the audit record remains available with `timeline_status = failed` and the result must be treated as incomplete.
+The send is complete when the email appears in the ticket history.
+
+If it does not appear, check the send log. Do not send it again until you know whether it was delivered.
 
 ## Data stored by the plugin
 
-`glpi_plugin_ticketmailer_logs` stores the ticket and sender IDs, timestamp, subject, HTML and plain-text body, complete recipient lists, attachment descriptors, mailbox-override evidence, SMTP result, message ID, and linked followup/timeline status.
+The plugin stores sent messages, recipients, files, delivery results, and ticket-history links.
 
-Outbound files are stored under GLPI's plugin document directory. They are addressed by generated identifiers and resolved server-side only after ticket-read authorization.
-
-Retention is not currently configurable. Align ticket deletion, database backups, and document-directory backups with your organization's privacy and retention policy.
+Only ticket readers can open this data. Set suitable backup, deletion, and retention rules for your organization.
 
 ## Non-goals
 
@@ -155,7 +155,9 @@ composer install
 vendor/bin/phpunit
 ```
 
-Before a release, manually verify one rich email with To/CC/BCC, normal and inline attachments, the mailbox-warning override, ticket-reader download access, an SMTP failure, and a followup-after-SMTP failure. Confirm Mailpit contains exactly one outbound message and no BCC header.
+Before a release, test one complete email with recipients, attachments, and warnings. Also test failed delivery and a missing ticket-history entry.
+
+Mailpit must contain one email. Its visible headers must not contain BCC.
 
 ## Repository layout
 

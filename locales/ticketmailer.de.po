@@ -199,14 +199,6 @@ msgid "Drag & drop your file here, or choose files."
 msgstr "Datei hierher ziehen und ablegen oder Dateien auswählen."
 
 #: front/config.form.php
-msgid "Ticket subject prefix"
-msgstr "Ticket-Betreffpräfix"
-
-#: front/config.form.php
-msgid "Use %d for the ticket ID."
-msgstr "Mit %d wird die Ticket-ID eingefügt."
-
-#: front/config.form.php
 msgid "E-mail signature"
 msgstr "E-Mail-Signatur"
 
@@ -254,14 +246,9 @@ msgstr "Quelle"
 msgid "Show newest timeline entries first."
 msgstr "Neueste Verlaufseinträge zuerst anzeigen."
 
-#: front/config.form.php
-msgid "Open the E-Mail reply form when a ticket is opened."
-msgstr "E-Mail-Antwortformular beim Öffnen eines Tickets anzeigen."
-
 #: templates/compose.html.twig
 msgid "Attach public ticket history"
 msgstr "Öffentlichen Ticketverlauf anhängen"
-
 #: templates/compose.html.twig
 msgid "No public ticket attachments are available."
 msgstr "Keine öffentlichen Ticket-Anhänge verfügbar."
@@ -290,14 +277,9 @@ msgstr "Anhang"
 msgid "Unknown"
 msgstr "Unbekannt"
 
-#: front/config.form.php
-msgid "Show email addresses in recipient autocomplete."
-msgstr "E-Mail-Adressen in der Empfänger-Autovervollständigung anzeigen."
-
 #: templates/compose.html.twig public/js/composer.js
 msgid "Remove %s"
 msgstr "%s entfernen"
-
 #: templates/compose.html.twig public/js/composer.js
 msgid "bytes"
 msgstr "Bytes"
@@ -345,3 +327,61 @@ msgstr "Aliase, Weiterleitungen und Nicht-E-Mail-Logins werden nicht erkannt."
 
 msgid "This address may not receive the message because GLPI uses the ticket number to assign it to this ticket instead of creating a new ticket."
 msgstr "Diese Adresse erhält die Nachricht möglicherweise nicht, weil GLPI sie aufgrund der Ticketnummer diesem Ticket zuordnet und kein neues Ticket anlegt."
+#: front/config.form.php
+msgid "Notification template assignments by entity"
+msgstr "Benachrichtigungsvorlagen-Zuordnung nach Entität"
+
+#: front/config.form.php
+msgid "The selected template provides the initial subject and signature."
+msgstr "Die ausgewählte Vorlage liefert den initialen Betreff und Signatur."
+
+#: front/config.form.php
+msgid "Assigned template"
+msgstr "Zugeordnete Vorlage"
+
+#: front/config.form.php
+msgid "Effective template"
+msgstr "Effektive Vorlage"
+
+#: front/config.form.php
+msgid "Template #%d"
+msgstr "Vorlage #%d"
+
+#: front/config.form.php
+msgid "inherited from %s"
+msgstr "geerbt von %s"
+
+#: front/config.form.php
+msgid "No accessible entities."
+msgstr "Keine zugänglichen Entitäten."
+
+#: front/config.form.php
+msgid "Outbound email"
+msgstr "Ausgehende E-Mail"
+
+#: front/config.form.php
+msgid "Global settings"
+msgstr "Globale Einstellungen"
+#: front/send.php
+msgid "Subject contains invalid characters."
+msgstr "Der Betreff enthält ungültige Zeichen."
+
+#: front/config.form.php
+msgid "Preselect \"Set ticket status to waiting\" in the e-mail form."
+msgstr "Im E-Mail-Formular \"Ticketstatus auf wartend setzen\" vorauswählen."
+
+#: inc/config.class.php
+msgid "Available variables"
+msgstr "Verfügbare Variablen"
+
+#: inc/config.class.php
+msgid "Ticket"
+msgstr "Ticket"
+
+#: inc/config.class.php
+msgid "Agent"
+msgstr "Bearbeiter"
+
+#: inc/config.class.php front/config.form.php
+msgid "Entity"
+msgstr "Entität"

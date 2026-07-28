@@ -4,151 +4,123 @@
 
 [Wiki home](Home) · [Deutsch](Benutzerhandbuch-DE)
 
-## 1. Purpose
+## 1. Send an email from a ticket
 
-**Ticket Email Client** lets authorized users send email directly from a GLPI ticket. A successful send is then documented in the ticket timeline and send log.
-
-## 2. Requirements
-
-- You are signed in to GLPI.
-- You can read the relevant ticket.
-- Composing and sending requires permission to update the ticket or add follow-ups.
-- The plugin feature must be available for your entity and profile.
-
-If **Email reply** is missing, contact your GLPI administrator.
-
-## 3. Compose email from a ticket
-
-1. Open the required ticket.
-2. In the ticket timeline, select **Email reply** or **Reply**.
-3. The form opens inside the ticket.
+1. Open the ticket.
+2. Select **Email reply**.
+3. The email form opens inside the ticket.
 
 ![Email form open in a ticket](images/email-compose-form.png)
 
-Depending on configuration, the form may already be expanded when the ticket opens. GLPI's native reply control may remain visible as well.
+Is **Email reply** missing? Contact your GLPI administrator.
 
-## 4. Recipients
+## 2. Choose recipients
 
 The form provides **To**, **CC**, and **BCC**.
 
-### Automatic defaults
+These recipients are often filled in:
 
 - Requesters → **To**
 - Observers → **CC**
 
-### Add recipients
+You can add more recipients:
 
-- Find internal GLPI users with autocomplete.
-- Enter external email addresses directly.
+- Find GLPI users with autocomplete.
+- Enter other email addresses directly.
 - Separate addresses with a comma, semicolon, or Enter.
-- Remove one recipient with its remove control; **Clear** removes all entries from a field.
 
-At least one valid address in **To**, **CC**, or **BCC** is required. BCC-only sending is allowed. Invalid entries are reported as errors, never silently discarded.
+At least one valid address is required. BCC-only sending is allowed. Invalid addresses are shown.
 
-### Important: BCC visibility
+### BCC is visible in the ticket
 
-BCC addresses are not included as visible To/CC headers in the delivered email. However, the complete BCC list is visible in the ticket timeline and send log to **every user who can read the ticket**. Do not use BCC to hide addresses from other ticket readers.
+Email recipients do not see BCC addresses.
 
-## 5. Subject and message
+Every ticket reader can see them in the send log. After a successful send, they also appear in the ticket history.
 
-- **Subject** is required.
-- **Message** must not be empty.
-- The editor supports rich HTML content.
-- Depending on GLPI configuration, template and source controls may be available.
-- A configured signature or subject prefix may be inserted automatically.
+Do not use BCC to hide addresses from other ticket readers.
 
-## 6. Attachments and inline images
+## 3. Write the subject and message
 
-### Attach new files
+- **Subject** and **Message** are required.
+- You can format the text.
+- A template may fill the subject and signature.
+- You can change the subject, message, and signature.
+- Recipients from the template are not used.
+- You only see data you are allowed to view.
 
-- Select **Choose files** or drag files into the attachment area.
-- Multiple files are supported.
-- GLPI upload limits still apply.
-- Remove accidentally added files before sending.
+## 4. Add files and images
 
-### Embed images in the message
+### New files
 
-Drop an image into the message editor or paste it from the clipboard. Only image files can be embedded inline.
+Select **Choose files**. You can also drag files into the attachment area.
 
-### Include public ticket attachments
+Check the files before sending. GLPI upload limits apply.
 
-Existing ticket attachments can be selected individually within the attachments area. Use the open control to inspect an offered attachment in a new tab before sending.
+### Images in the message
 
-Private notes and their documents are never offered or sent.
+Drag an image into the editor. You can also paste it from the clipboard.
 
-## 7. Attach public ticket history
+### Files from the ticket
 
-Enable **Attach public ticket history** to append the public ticket history to the message body. It is unchecked by default.
+You can select public ticket attachments. Private notes and their files are not offered.
 
-Public ticket attachments are selected independently: history text and individual files can be included separately.
+## 5. Attach public ticket history
 
-## 8. Ticket status after sending
+Enable **Attach public ticket history** when the recipient should receive the public history.
 
-Options beside **Send** may be available to set the ticket status automatically:
+The option is off by default. Private notes are not sent.
 
-- set to **Waiting**;
-- set to **Solved**.
+## 6. Choose the ticket status
 
-Review these controls before sending. Administrators may define defaults.
+These options may appear beside **Send**:
 
-## 9. Incoming mailbox warning
+- Set the ticket to **Waiting**
+- Set the ticket to **Solved**
 
-A warning appears when a recipient exactly matches the email address of an active GLPI mail receiver. This helps prevent a possible mail loop.
+Check the selection before sending.
 
-1. Review the matched recipients.
-2. Remove or correct an unintended address.
-3. To proceed deliberately, select **I understand and want to send anyway**.
+## 7. Mail-loop warning
+
+GLPI warns you when a recipient matches an active mail collector.
+
+1. Check the address.
+2. Remove or correct it if needed.
+3. Confirm only when the address is correct.
 4. Send again.
 
-This is a best-effort check only. Aliases, forwarding, and non-email logins are not detected.
+The check cannot find every alias or forwarding address.
 
-> The mailbox warning appears in the email form when GLPI detects a matching mail collector.
+## 8. Send the email
 
-## 10. Send and result
+1. Check recipients, subject, and message.
+2. Check files and status options.
+3. Select **Send** once.
 
-1. Review recipients, BCC visibility, subject, message, attachments, and status options.
-2. Select **Send**.
-3. Do not click repeatedly. For each accepted send operation, the plugin performs exactly one attempt and does not retry automatically after an error.
+The plugin does not retry automatically.
 
-### Possible results
+## 9. Check the send
 
-- **Sent:** Delivery succeeded and the timeline entry was recorded.
-- **Failed:** Delivery failed; no successful-send timeline follow-up was created.
-
-## 11. Verify the send in the ticket
-
-After complete success, a normal follow-up appears in the ticket timeline. It contains sender, sent time, To/CC/BCC, subject, message, and secure attachment links.
-
-Every user who can read the ticket can view these details—including the full BCC list—and open the attachments.
+After a complete send, the email appears in the ticket history.
 
 ![Successful email entries in the ticket timeline](images/ticket-email-timeline.png)
 
-## 12. Open the send log
+The entry shows the message, recipients, and attachments. Every user who can read the ticket can see this data.
 
-The ticket tab **Sent emails** lists related log entries. Open an entry to review:
-
-- recipients, including BCC;
-- message and plain-text alternative;
-- attachments and inline images;
-- delivery status;
-- error details;
-- recorded confirmation of a mailbox warning.
-
-Ticket-read permission is required.
+More details are available in the **Sent emails** tab.
 
 ![Sent email list](images/sent-email-log.png)
 
 ![Sent email detail](images/sent-email-detail.png)
 
-## 13. Troubleshooting
+## 10. Troubleshooting
 
-| Problem | Action |
+| Problem | Solution |
 | --- | --- |
-| **Email reply** is missing | Ask an administrator to check ticket rights and plugin availability for your entity/profile. |
-| Invalid address | Correct or remove the complete entry shown in the error. |
-| No recipient | Add at least one valid address to To, CC, or BCC. |
-| Upload failed / file too large | Check file type and GLPI upload limits; try a smaller file; otherwise contact an administrator. |
-| Mailbox warning | Review the recipient; proceed with the confirmation control only when intentional. |
-| Send failed | Open the error details in the send log; contact an administrator. No automatic retry occurs. |
-| Incomplete send | Do not resend; contact an administrator because SMTP delivery already succeeded. |
-| Attachment does not open | Check your sign-in and ticket-read access; contact an administrator if the error persists. |
+| **Email reply** is missing | Contact your GLPI administrator. |
+| Address is invalid | Correct or remove the address. |
+| No recipient | Add at least one address. |
+| File is too large | Choose a smaller file. |
+| Mailbox warning appears | Check the address. Confirm only when intended. |
+| Send failed | Open the send log. Contact your administrator. |
+| Email is missing from ticket history | Do not send again. The email may already have been delivered. Contact your administrator. |
+| Attachment does not open | Check your sign-in and ticket access. |

@@ -63,22 +63,14 @@ class PluginTicketmailerTimelineAction
             return;
         }
 
-        $settings = PluginTicketmailerConfig::forEntity(
-            (int) $ticket->getField('entities_id'),
-        );
-
         $label = self::label();
         $modal = self::modalName($ticket);
-        $auto_open = $settings['open_reply_on_ticket']
-            ? ' data-ticketmailer-auto-open="1"'
-            : '';
         $open = $modal . '.show();';
         $ready = 'window.' . $modal . ' ? 1 : 0';
         echo '<li><button type="button" class="btn btn-primary mb-2 ticketmailer-timeline-action"'
             . ' aria-label="' . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '" title="'
             . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '" onclick="' . $open . '"'
-            . ' data-ticketmailer-modal-ready="' . $ready . '"'
-            . $auto_open . '><i class="ti ti-mail"></i><span>'
+            . ' data-ticketmailer-modal-ready="' . $ready . '"><i class="ti ti-mail"></i><span>'
             . htmlspecialchars(__('Reply', 'ticketmailer'), ENT_QUOTES, 'UTF-8')
             . '</span></button></li>';
     }
@@ -136,6 +128,7 @@ class PluginTicketmailerTimelineAction
         $tickets_id = (int) $ticket->getField('id');
         $web = Plugin::getWebDir('ticketmailer');
         $editor_id = 'ticketmailer-body-html-' . self::REPLY;
+        $content = PluginTicketmailerConfig::contentForTicket($ticket);
 
         return TemplateRenderer::getInstance()->render('@ticketmailer/compose.html.twig', [
             'tickets_id' => $tickets_id,
@@ -146,8 +139,8 @@ class PluginTicketmailerTimelineAction
             'recipients_to_raw' => implode(', ', $recipients_to),
             'recipients_cc_raw' => implode(', ', $recipients_cc),
             'recipients_bcc_raw' => '',
-            'subject' => PluginTicketmailerConfig::subjectForTicket($ticket),
-            'body_editor' => $this->editor(self::entitySignature($ticket), self::REPLY, 14),
+            'subject' => $content['subject'],
+            'body_editor' => $this->editor(self::entitySignature($ticket, $content), self::REPLY, 14),
             'editor_id' => $editor_id,
             'followup_template_dropdown' => self::followupTemplateDropdown(),
             'solution_template_dropdown' => self::solutionTemplateDropdown(),
@@ -161,9 +154,7 @@ class PluginTicketmailerTimelineAction
             'image_url' => $web . '/ajax/upload_image.php',
             'validate_url' => $web . '/ajax/validate_recipients.php',
             'user_autocomplete_url' => $web . '/ajax/autocomplete_users.php',
-            'user_autocomplete_show_email' => PluginTicketmailerConfig::forEntity(
-                (int) $ticket->getField('entities_id'),
-            )['recipient_autocomplete_show_email'],
+            'user_autocomplete_show_email' => true,
             'set_waiting' => PluginTicketmailerConfig::setWaitingAfterSend($ticket),
             'attachment_max' => PluginTicketmailerConfig::uploadMaxSizeLabel(),
             'mailbox_override' => false,
@@ -256,25 +247,29 @@ class PluginTicketmailerTimelineAction
     }
 
     /**
-     * Return the ticket entity's email signature as HTML,
-     * wrapped in a signature block. Shown by default in
-     * the compose body so the sender sees the unit signature.
+     * Return the ticket entity's rendered notification-template signature
+     * as the editable HTML block shown in the compose body.
+     *
+     * @param array{subject:string, signature:string, native_template_selected:bool}|null $content
      */
-    private static function entitySignature(Ticket $ticket): string
+    private static function entitySignature(Ticket $ticket, ?array $content = null): string
     {
-        $sig = trim(PluginTicketmailerConfig::signatureForTicket($ticket));
+        $content ??= PluginTicketmailerConfig::contentForTicket($ticket);
+        $sig = trim($content['signature']);
+        if ($content['native_template_selected'] && $sig === '') {
+            return '';
+        }
         if ($sig === '') {
-            $entity = new Entity();
-            if (!$entity->getFromDB((int) $ticket->getField('entities_id'))) {
-                return '';
-            }
-            $sig = trim((string) $entity->getField('mailing_signature'));
+            $sig = trim((string) Notification::getMailingSignature(
+                (int) $ticket->getField('entities_id'),
+            ));
             if ($sig === '') {
                 return '';
             }
         }
-        // ponytail: nl2br for plain text; HTML passes through as-is
-        $html = preg_match('/<[a-z][\s\S]*>/i', $sig) ? $sig : nl2br(htmlspecialchars($sig, ENT_QUOTES, 'UTF-8'));
+        $html = preg_match('/<[a-z][\s\S]*>/i', $sig)
+            ? PluginTicketmailerTimeline::sanitizeHtml($sig)
+            : nl2br(htmlspecialchars($sig, ENT_QUOTES, 'UTF-8'));
 
         return '<div class="ticketmailer-signature">' . $html . '</div>';
     }

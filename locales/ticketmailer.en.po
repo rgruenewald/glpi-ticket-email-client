@@ -199,14 +199,6 @@ msgid "Drag & drop your file here, or choose files."
 msgstr "Drag & drop your file here, or choose files."
 
 #: front/config.form.php
-msgid "Ticket subject prefix"
-msgstr "Ticket subject prefix"
-
-#: front/config.form.php
-msgid "Use %d for the ticket ID."
-msgstr "Use %d for the ticket ID."
-
-#: front/config.form.php
 msgid "E-mail signature"
 msgstr "E-mail signature"
 
@@ -254,14 +246,9 @@ msgstr "Source"
 msgid "Show newest timeline entries first."
 msgstr "Show newest timeline entries first."
 
-#: front/config.form.php
-msgid "Open the E-Mail reply form when a ticket is opened."
-msgstr "Open the E-Mail reply form when a ticket is opened."
-
 #: templates/compose.html.twig
 msgid "Attach public ticket history"
 msgstr "Attach public ticket history"
-
 #: templates/compose.html.twig
 msgid "No public ticket attachments are available."
 msgstr "No public ticket attachments are available."
@@ -290,14 +277,9 @@ msgstr "Attachment"
 msgid "Unknown"
 msgstr "Unknown"
 
-#: front/config.form.php
-msgid "Show email addresses in recipient autocomplete."
-msgstr "Show email addresses in recipient autocomplete."
-
 #: templates/compose.html.twig public/js/composer.js
 msgid "Remove %s"
 msgstr "Remove %s"
-
 #: templates/compose.html.twig public/js/composer.js
 msgid "bytes"
 msgstr "bytes"
@@ -345,3 +327,61 @@ msgstr "Aliases, forwarding, and non-email logins are not detected."
 
 msgid "This address may not receive the message because GLPI uses the ticket number to assign it to this ticket instead of creating a new ticket."
 msgstr "This address may not receive the message because GLPI uses the ticket number to assign it to this ticket instead of creating a new ticket."
+#: front/config.form.php
+msgid "Notification template assignments by entity"
+msgstr "Notification template assignments by entity"
+
+#: front/config.form.php
+msgid "The selected template provides the initial subject and signature."
+msgstr "The selected template provides the initial subject and signature."
+
+#: front/config.form.php
+msgid "Assigned template"
+msgstr "Assigned template"
+
+#: front/config.form.php
+msgid "Effective template"
+msgstr "Effective template"
+
+#: front/config.form.php
+msgid "Template #%d"
+msgstr "Template #%d"
+
+#: front/config.form.php
+msgid "inherited from %s"
+msgstr "inherited from %s"
+
+#: front/config.form.php
+msgid "No accessible entities."
+msgstr "No accessible entities."
+
+#: front/config.form.php
+msgid "Outbound email"
+msgstr "Outbound email"
+
+#: front/config.form.php
+msgid "Global settings"
+msgstr "Global settings"
+#: front/send.php
+msgid "Subject contains invalid characters."
+msgstr "Subject contains invalid characters."
+
+#: front/config.form.php
+msgid "Preselect \"Set ticket status to waiting\" in the e-mail form."
+msgstr "Preselect \"Set ticket status to waiting\" in the e-mail form."
+
+#: inc/config.class.php
+msgid "Available variables"
+msgstr "Available variables"
+
+#: inc/config.class.php
+msgid "Ticket"
+msgstr "Ticket"
+
+#: inc/config.class.php
+msgid "Agent"
+msgstr "Agent"
+
+#: inc/config.class.php front/config.form.php
+msgid "Entity"
+msgstr "Entity"

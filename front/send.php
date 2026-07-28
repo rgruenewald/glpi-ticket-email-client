@@ -19,6 +19,7 @@ $web = Plugin::getWebDir('ticketmailer');
 
 
 $subject = trim((string) ($_POST['subject'] ?? ''));
+$subject_has_unsafe_header_characters = preg_match('/[\x00\r\n]/', $subject) === 1;
 $body_html = (string) ($_POST['body_html'] ?? '');
 $body_text = (string) ($_POST['body_text'] ?? '');
 $include_history = !empty($_POST['include_history']);
@@ -59,6 +60,8 @@ if ($requesttypes_id !== 0) {
 }
 if ($subject === '') {
     $errors[] = __('Subject is required.', 'ticketmailer');
+} elseif ($subject_has_unsafe_header_characters) {
+    $errors[] = __('Subject contains invalid characters.', 'ticketmailer');
 }
 if (trim(strip_tags($body_html)) === '') {
     $errors[] = __('Body is required.', 'ticketmailer');

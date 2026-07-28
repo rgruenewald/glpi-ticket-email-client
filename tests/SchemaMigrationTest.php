@@ -43,15 +43,20 @@ final class SchemaMigrationTest extends TestCase
         $DB = new SchemaMigrationDatabase([
             'glpi_plugin_ticketmailer_logs.followups_id' => false,
             'glpi_plugin_ticketmailer_configs.timeline_newest_first' => false,
+            'glpi_plugin_ticketmailer_configs.open_reply_on_ticket' => false,
             'glpi_plugin_ticketmailer_configs.recipient_autocomplete_show_email' => false,
+            'glpi_plugin_ticketmailer_configs.notificationtemplates_id' => false,
         ]);
 
         try {
             self::assertTrue(PluginTicketmailerHook::migrateSchema(__DIR__ . '/../sql'));
-            self::assertCount(6, $DB->queries);
+            self::assertCount(8, $DB->queries);
             self::assertStringContainsString('ADD COLUMN followups_id', $DB->queries[1]);
             self::assertStringContainsString('ADD COLUMN timeline_newest_first', $DB->queries[4]);
-            self::assertStringContainsString('ADD COLUMN recipient_autocomplete_show_email', $DB->queries[5]);
+            self::assertStringContainsString('ADD COLUMN open_reply_on_ticket', $DB->queries[5]);
+            self::assertStringNotContainsString('ADD COLUMN timeline_newest_first', $DB->queries[5]);
+            self::assertStringContainsString('ADD COLUMN recipient_autocomplete_show_email', $DB->queries[6]);
+            self::assertStringContainsString('ADD COLUMN notificationtemplates_id', $DB->queries[7]);
         } finally {
             $DB = $previous;
         }
@@ -66,7 +71,9 @@ final class SchemaMigrationTest extends TestCase
         $DB = new SchemaMigrationDatabase([
             'glpi_plugin_ticketmailer_logs.followups_id' => true,
             'glpi_plugin_ticketmailer_configs.timeline_newest_first' => true,
+            'glpi_plugin_ticketmailer_configs.open_reply_on_ticket' => true,
             'glpi_plugin_ticketmailer_configs.recipient_autocomplete_show_email' => true,
+            'glpi_plugin_ticketmailer_configs.notificationtemplates_id' => true,
         ]);
 
         try {
