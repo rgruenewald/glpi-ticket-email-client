@@ -244,9 +244,6 @@ msgstr ""
 msgid "Show newest timeline entries first."
 msgstr ""
 
-#: front/config.form.php
-msgid "Open the E-Mail reply form when a ticket is opened."
-msgstr ""
 #: templates/compose.html.twig
 msgid "Attach public ticket history"
 msgstr ""
@@ -279,9 +276,6 @@ msgstr ""
 msgid "Unknown"
 msgstr ""
 
-#: front/config.form.php
-msgid "Show email addresses in recipient autocomplete."
-msgstr ""
 #: templates/compose.html.twig public/js/composer.js
 msgid "Remove %s"
 msgstr ""
@@ -338,7 +332,7 @@ msgid "Notification template assignments by entity"
 msgstr ""
 
 #: front/config.form.php
-msgid "The selected Ticket notification template provides the initial subject and editable signature in the current GLPI language. Child entities inherit the nearest assignment; recipients remain controlled by this plugin."
+msgid "The selected template provides the initial subject and signature."
 msgstr ""
 
 #: front/config.form.php
@@ -373,7 +367,7 @@ msgid "Subject contains invalid characters."
 msgstr ""
 
 #: front/config.form.php
-msgid "Preselect \"Set ticket status to waiting\" in the e-mail form. Users can change it before sending."
+msgid "Preselect \"Set ticket status to waiting\" in the e-mail form."
 msgstr ""
 
 #: inc/config.class.php

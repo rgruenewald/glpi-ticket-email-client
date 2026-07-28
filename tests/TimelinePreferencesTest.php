@@ -80,8 +80,6 @@ final class TimelinePreferencesTest extends TestCase
             'signature_html' => '',
             'set_waiting' => true,
             'timeline_newest_first' => true,
-            'open_reply_on_ticket' => true,
-            'recipient_autocomplete_show_email' => true,
         ], PluginTicketmailerConfig::forEntity(7));
 
         PluginTicketmailerConfig::applyTimelineOrderForCurrentTicket();
@@ -96,12 +94,8 @@ final class TimelinePreferencesTest extends TestCase
             'signature_html' => '',
             'set_waiting' => 1,
             'timeline_newest_first' => 0,
-            'open_reply_on_ticket' => 0,
-            'recipient_autocomplete_show_email' => 0,
         ];
 
-        self::assertFalse(PluginTicketmailerConfig::forEntity(7)['open_reply_on_ticket']);
-        self::assertFalse(PluginTicketmailerConfig::forEntity(7)['recipient_autocomplete_show_email']);
         PluginTicketmailerConfig::applyTimelineOrderForCurrentTicket();
 
         self::assertSame(CommonITILObject::TIMELINE_ORDER_NATURAL, $_SESSION['glpitimeline_order']);

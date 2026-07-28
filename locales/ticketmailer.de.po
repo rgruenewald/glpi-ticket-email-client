@@ -246,13 +246,9 @@ msgstr "Quelle"
 msgid "Show newest timeline entries first."
 msgstr "Neueste Verlaufseinträge zuerst anzeigen."
 
-#: front/config.form.php
-msgid "Open the E-Mail reply form when a ticket is opened."
-msgstr "E-Mail-Antwortformular beim Öffnen eines Tickets anzeigen."
 #: templates/compose.html.twig
 msgid "Attach public ticket history"
 msgstr "Öffentlichen Ticketverlauf anhängen"
-
 #: templates/compose.html.twig
 msgid "No public ticket attachments are available."
 msgstr "Keine öffentlichen Ticket-Anhänge verfügbar."
@@ -281,13 +277,9 @@ msgstr "Anhang"
 msgid "Unknown"
 msgstr "Unbekannt"
 
-#: front/config.form.php
-msgid "Show email addresses in recipient autocomplete."
-msgstr "E-Mail-Adressen in der Empfänger-Autovervollständigung anzeigen."
 #: templates/compose.html.twig public/js/composer.js
 msgid "Remove %s"
 msgstr "%s entfernen"
-
 #: templates/compose.html.twig public/js/composer.js
 msgid "bytes"
 msgstr "Bytes"
@@ -340,8 +332,8 @@ msgid "Notification template assignments by entity"
 msgstr "Benachrichtigungsvorlagen-Zuordnung nach Entität"
 
 #: front/config.form.php
-msgid "The selected Ticket notification template provides the initial subject and editable signature in the current GLPI language. Child entities inherit the nearest assignment; recipients remain controlled by this plugin."
-msgstr "Die ausgewählte Ticket-Benachrichtigungsvorlage liefert den initialen Betreff und die bearbeitbare Signatur in der aktuellen GLPI-Sprache. Unterentitäten erben die nächste Zuordnung; Empfänger werden weiterhin durch dieses Plugin gesteuert."
+msgid "The selected template provides the initial subject and signature."
+msgstr "Die ausgewählte Vorlage liefert den initialen Betreff und Signatur."
 
 #: front/config.form.php
 msgid "Assigned template"
@@ -375,8 +367,8 @@ msgid "Subject contains invalid characters."
 msgstr "Der Betreff enthält ungültige Zeichen."
 
 #: front/config.form.php
-msgid "Preselect \"Set ticket status to waiting\" in the e-mail form. Users can change it before sending."
-msgstr "Im E-Mail-Formular \"Ticketstatus auf wartend setzen\" vorauswählen. Dies kann vor dem Versand geändert werden."
+msgid "Preselect \"Set ticket status to waiting\" in the e-mail form."
+msgstr "Im E-Mail-Formular \"Ticketstatus auf wartend setzen\" vorauswählen."
 
 #: inc/config.class.php
 msgid "Available variables"

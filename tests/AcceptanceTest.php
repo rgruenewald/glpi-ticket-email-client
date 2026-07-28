@@ -574,6 +574,8 @@ final class AcceptanceTest extends TestCase
         $this->assertStringNotContainsString('ticketmailer-signature-sep', $action);
         $this->assertStringContainsString('Notification::getMailingSignature', $action);
         $this->assertStringContainsString('native_template_selected', $action);
+        $this->assertStringNotContainsString('data-ticketmailer-auto-open', $action);
+        $this->assertStringContainsString("'user_autocomplete_show_email' => true", $action);
         $this->assertStringNotContainsString("\$settings['subject_prefix']", $config);
         $this->assertStringContainsString("preg_match('/[\\x00\\r\\n]/'", $send);
         $entrypoint = (string) file_get_contents(self::REPO_ROOT . '/docker/glpi/docker-entrypoint.sh');
@@ -618,7 +620,10 @@ final class AcceptanceTest extends TestCase
         $this->assertStringContainsString("'Assigned template'", $config);
         $this->assertStringContainsString("'Effective template'", $config);
         $this->assertStringNotContainsString('name="subject_prefix"', $config);
-        $this->assertStringContainsString('provides the initial subject and editable signature', $config);
+        $this->assertStringNotContainsString('name="open_reply_on_ticket"', $config);
+        $this->assertStringNotContainsString('name="recipient_autocomplete_show_email"', $config);
+        $this->assertStringContainsString('provides the initial subject and signature', $config);
+        $this->assertStringNotContainsString('Users can change it before sending.', $config);
         $this->assertStringContainsString('saveNotificationTemplateAssignment', $config);
         $this->assertStringContainsString('notificationTemplateAssignmentForEntity', $config);
         $this->assertStringContainsString("'on_change'", $config);

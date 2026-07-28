@@ -63,8 +63,6 @@ class PluginTicketmailerTimelineAction
             return;
         }
 
-        $settings = PluginTicketmailerConfig::forEntity((int) $ticket->getField('entities_id'));
-        $auto_open = $settings['open_reply_on_ticket'] ? ' data-ticketmailer-auto-open="1"' : '';
         $label = self::label();
         $modal = self::modalName($ticket);
         $open = $modal . '.show();';
@@ -72,7 +70,7 @@ class PluginTicketmailerTimelineAction
         echo '<li><button type="button" class="btn btn-primary mb-2 ticketmailer-timeline-action"'
             . ' aria-label="' . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '" title="'
             . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '" onclick="' . $open . '"'
-            . ' data-ticketmailer-modal-ready="' . $ready . '"' . $auto_open . '><i class="ti ti-mail"></i><span>'
+            . ' data-ticketmailer-modal-ready="' . $ready . '"><i class="ti ti-mail"></i><span>'
             . htmlspecialchars(__('Reply', 'ticketmailer'), ENT_QUOTES, 'UTF-8')
             . '</span></button></li>';
     }
@@ -130,7 +128,6 @@ class PluginTicketmailerTimelineAction
         $tickets_id = (int) $ticket->getField('id');
         $web = Plugin::getWebDir('ticketmailer');
         $editor_id = 'ticketmailer-body-html-' . self::REPLY;
-        $settings = PluginTicketmailerConfig::forEntity((int) $ticket->getField('entities_id'));
         $content = PluginTicketmailerConfig::contentForTicket($ticket);
 
         return TemplateRenderer::getInstance()->render('@ticketmailer/compose.html.twig', [
@@ -157,7 +154,7 @@ class PluginTicketmailerTimelineAction
             'image_url' => $web . '/ajax/upload_image.php',
             'validate_url' => $web . '/ajax/validate_recipients.php',
             'user_autocomplete_url' => $web . '/ajax/autocomplete_users.php',
-            'user_autocomplete_show_email' => $settings['recipient_autocomplete_show_email'],
+            'user_autocomplete_show_email' => true,
             'set_waiting' => PluginTicketmailerConfig::setWaitingAfterSend($ticket),
             'attachment_max' => PluginTicketmailerConfig::uploadMaxSizeLabel(),
             'mailbox_override' => false,

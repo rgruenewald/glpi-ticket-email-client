@@ -1,6 +1,4 @@
 (() => {
-    let autoOpened = false;
-    let openObserver;
     let classObserver;
 
     const COMPOSE_SELECTOR = '.ticketmailer-compose';
@@ -60,33 +58,12 @@
         });
     };
 
-    const openReply = () => {
-        if (autoOpened) {
-            return;
-        }
 
-        const reply = document.querySelector('.ticketmailer-timeline-action[data-ticketmailer-auto-open="1"]');
-        if (!reply || !reply.getAttribute('onclick')
-            || Function('return ' + reply.dataset.ticketmailerModalReady)() !== 1) {
-            return;
-        }
-
-        reply.click();
-        autoOpened = true;
-        openObserver?.disconnect();
-    };
-
-    if (typeof MutationObserver !== 'undefined' && document.documentElement) {
-        openObserver = new MutationObserver(openReply);
-        openObserver.observe(document.documentElement, {childList: true, subtree: true});
-    }
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => {
-            openReply();
             syncComposeActions();
         }, {once: true});
     } else {
-        openReply();
         syncComposeActions();
     }
     const onCollapseHidden = () => {
@@ -102,10 +79,7 @@
             .on('shown.bs.collapse', syncComposeActions)
             .on('hide.bs.collapse', syncComposeActions)
             .on('hidden.bs.collapse', onCollapseHidden)
-            .ajaxComplete(() => {
-                openReply();
-                syncComposeActions();
-            });
+            .ajaxComplete(syncComposeActions);
     }
     if (typeof MutationObserver !== 'undefined' && document.body) {
         classObserver = new MutationObserver(scheduleSyncBurst);

@@ -31,8 +31,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             (int) $settings['notificationtemplates_id'],
             !empty($_POST['set_waiting']),
             !empty($_POST['timeline_newest_first']),
-            !empty($_POST['open_reply_on_ticket']),
-            !empty($_POST['recipient_autocomplete_show_email']),
         );
     }
     Html::redirect($config_url . '?entities_id=' . $entities_id);
@@ -48,19 +46,11 @@ echo '<div class="card mb-3"><div class="card-header"><h3 class="card-title">'
 echo '<div class="col-12 form-check"><input class="form-check-input" id="ticketmailer-set-waiting" type="checkbox" name="set_waiting" value="1"'
     . ($settings['set_waiting'] ? ' checked' : '') . '>';
 echo '<label class="form-check-label" for="ticketmailer-set-waiting">'
-    . __('Preselect "Set ticket status to waiting" in the e-mail form. Users can change it before sending.', 'ticketmailer') . '</label></div>';
+    . __('Preselect "Set ticket status to waiting" in the e-mail form.', 'ticketmailer') . '</label></div>';
 echo '<div class="col-12 form-check"><input class="form-check-input" id="ticketmailer-timeline-newest-first" type="checkbox" name="timeline_newest_first" value="1"'
     . ($settings['timeline_newest_first'] ? ' checked' : '') . '>';
 echo '<label class="form-check-label" for="ticketmailer-timeline-newest-first">'
     . __('Show newest timeline entries first.', 'ticketmailer') . '</label></div>';
-echo '<div class="col-12 form-check"><input class="form-check-input" id="ticketmailer-open-reply-on-ticket" type="checkbox" name="open_reply_on_ticket" value="1"'
-    . ($settings['open_reply_on_ticket'] ? ' checked' : '') . '>';
-echo '<label class="form-check-label" for="ticketmailer-open-reply-on-ticket">'
-    . __('Open the E-Mail reply form when a ticket is opened.', 'ticketmailer') . '</label></div>';
-echo '<div class="col-12 form-check"><input class="form-check-input" id="ticketmailer-recipient-autocomplete-show-email" type="checkbox" name="recipient_autocomplete_show_email" value="1"'
-    . ($settings['recipient_autocomplete_show_email'] ? ' checked' : '') . '>';
-echo '<label class="form-check-label" for="ticketmailer-recipient-autocomplete-show-email">'
-    . __('Show email addresses in recipient autocomplete.', 'ticketmailer') . '</label></div>';
 echo '<div class="col-12"><button type="submit" class="btn btn-primary">' . __('Save') . '</button></div>';
 echo '</div></div></div></form>';
 
@@ -85,7 +75,7 @@ if ($active_entities !== []) {
 echo '<div class="card mt-3"><div class="card-header"><h3 class="card-title">'
     . __('Notification template assignments by entity', 'ticketmailer') . '</h3></div><div class="card-body">'
     . '<p class="text-secondary">'
-    . __('The selected Ticket notification template provides the initial subject and editable signature in the current GLPI language. Child entities inherit the nearest assignment; recipients remain controlled by this plugin.', 'ticketmailer')
+    . __('The selected template provides the initial subject and signature.', 'ticketmailer')
     . '</p></div><div class="table-responsive">';
 echo '<table class="table table-vcenter card-table"><thead><tr><th>' . __('Entity') . '</th><th>'
     . __('Assigned template', 'ticketmailer') . '</th><th>' . __('Effective template', 'ticketmailer')

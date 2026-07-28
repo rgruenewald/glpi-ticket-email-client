@@ -461,11 +461,9 @@ final class NotificationTemplateSignatureTest extends TestCase
         NotificationTemplate::$templates[10] = ['id' => 10, 'itemtype' => Ticket::class];
         NotificationTemplate::$templates[20] = ['id' => 20, 'itemtype' => Ticket::class];
 
-        PluginTicketmailerConfig::saveEntity(7, 20, true, true, false, false);
+        PluginTicketmailerConfig::saveEntity(7, 20, true, true);
 
         self::assertSame(20, $this->database->rows[7]['notificationtemplates_id']);
-        self::assertSame(0, $this->database->rows[0]['open_reply_on_ticket']);
-        self::assertSame(0, $this->database->rows[0]['recipient_autocomplete_show_email']);
         self::assertSame(10, $this->database->rows[0]['notificationtemplates_id']);
         self::assertSame('<p>Root legacy</p>', $this->database->rows[0]['signature_html']);
         self::assertSame('[old]', $this->database->rows[0]['subject_prefix']);

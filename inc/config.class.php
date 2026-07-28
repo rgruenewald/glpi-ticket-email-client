@@ -35,8 +35,6 @@ class PluginTicketmailerConfig
      *     signature_html:string,
      *     set_waiting:bool,
      *     timeline_newest_first:bool,
-     *     open_reply_on_ticket:bool,
-     *     recipient_autocomplete_show_email:bool
      * }
      */
     public static function forEntity(int $entities_id): array
@@ -47,8 +45,6 @@ class PluginTicketmailerConfig
             'signature_html'                    => '',
             'set_waiting'                       => true,
             'timeline_newest_first'             => true,
-            'open_reply_on_ticket'               => true,
-            'recipient_autocomplete_show_email'  => true,
         ];
         if (!$DB->tableExists('glpi_plugin_ticketmailer_configs')) {
             return $settings;
@@ -61,10 +57,6 @@ class PluginTicketmailerConfig
             $settings['set_waiting'] = (bool) $global['set_waiting'];
             $settings['timeline_newest_first'] = !isset($global['timeline_newest_first'])
                 || (bool) $global['timeline_newest_first'];
-            $settings['open_reply_on_ticket'] = !isset($global['open_reply_on_ticket'])
-                || (bool) $global['open_reply_on_ticket'];
-            $settings['recipient_autocomplete_show_email'] = !isset($global['recipient_autocomplete_show_email'])
-                || (bool) $global['recipient_autocomplete_show_email'];
         }
         $entity = $DB->request([
             'FROM'  => 'glpi_plugin_ticketmailer_configs',
@@ -80,8 +72,6 @@ class PluginTicketmailerConfig
         int $notificationtemplates_id,
         bool $set_waiting,
         bool $timeline_newest_first,
-        bool $open_reply_on_ticket,
-        bool $recipient_autocomplete_show_email,
     ): void {
         global $DB;
         $globalSettings = self::forEntity(0);
@@ -100,8 +90,6 @@ class PluginTicketmailerConfig
             'signature_html'                    => (string) ($globalSettings['signature_html'] ?? ''),
             'set_waiting'                       => $set_waiting ? 1 : 0,
             'timeline_newest_first'             => $timeline_newest_first ? 1 : 0,
-            'open_reply_on_ticket'              => $open_reply_on_ticket ? 1 : 0,
-            'recipient_autocomplete_show_email' => $recipient_autocomplete_show_email ? 1 : 0,
         ];
         if (isset($global['subject_prefix'])) {
             $values['subject_prefix'] = (string) $global['subject_prefix'];
@@ -119,8 +107,6 @@ class PluginTicketmailerConfig
             'signature_html'                    => (string) ($local['signature_html'] ?? ''),
             'set_waiting'                       => 1,
             'timeline_newest_first'             => 1,
-            'open_reply_on_ticket'              => 1,
-            'recipient_autocomplete_show_email' => 1,
         ];
         if (isset($local['subject_prefix'])) {
             $values['subject_prefix'] = (string) $local['subject_prefix'];
@@ -255,8 +241,6 @@ class PluginTicketmailerConfig
             'signature_html'                    => (string) ($local['signature_html'] ?? ''),
             'set_waiting'                       => isset($local['set_waiting']) ? (int) $local['set_waiting'] : 1,
             'timeline_newest_first'             => isset($local['timeline_newest_first']) ? (int) $local['timeline_newest_first'] : 1,
-            'open_reply_on_ticket'              => isset($local['open_reply_on_ticket']) ? (int) $local['open_reply_on_ticket'] : 1,
-            'recipient_autocomplete_show_email' => isset($local['recipient_autocomplete_show_email']) ? (int) $local['recipient_autocomplete_show_email'] : 1,
         ];
         if (isset($local['subject_prefix'])) {
             $values['subject_prefix'] = (string) $local['subject_prefix'];
