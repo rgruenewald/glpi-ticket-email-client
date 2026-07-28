@@ -30,7 +30,7 @@ The plugin also keeps a durable, ticket-authorized audit view of sent and failed
 - Normal attachments, server-validated inline images, and optional public ticket-history content and attachments.
 - SMTP delivery through GLPI core configuration only; no plugin SMTP settings and no GLPI notification-engine delivery.
 - Durable send audit and one standard `ITILFollowup` with `_disablenotif=1` after a successful SMTP send.
-- Per-entity compose preferences: subject prefix, signature, ticket waiting status, timeline order, auto-open reply form, and recipient-autocomplete email visibility.
+- Per-entity compose preferences: native Ticket notification template, ticket waiting status, timeline order, auto-open reply form, and recipient-autocomplete email visibility.
 - English and German user-interface translations.
 
 ## Important security and privacy behavior
@@ -91,12 +91,11 @@ Configure SMTP only in GLPI core settings. GLPI Ticket Email Client uses GLPI's 
 
 A GLPI administrator can open the plugin configuration page and choose an entity. The following settings are available:
 
-- **Ticket subject prefix** — supports the ticket variables listed in the configuration; default `[##ticket.id##]`.
-- **Email signature** — rich HTML with ticket-variable support; GLPI Ticket Email Client generates the plain-text alternative.
+- **Ticket notification template** — select a native GLPI notification template whose item type is **Ticket**. The assignment matrix shows every accessible entity, its direct selection, and its effective inherited template; child entities inherit the nearest configured parent selection. GLPI renders the template for the ticket in the composing user's current language, falling back to its language-neutral variant. Its native rendered subject prefills the editable subject field, so all GLPI template variables are available; when no usable native subject exists, the fallback is `[<ticket id>] <ticket title>`. Only the rendered HTML body enters the editable message as the signature. Template recipients remain ignored. Until a template is selected, an existing plugin signature and then GLPI's entity/global mailing signature remain compatibility fallbacks.
 - **Set ticket status to waiting after a successful email send** — enabled by default.
 - **Show newest timeline entries first** — enabled by default.
 - **Open the Email reply form when a ticket is opened** — enabled by default.
-- **Show email addresses in recipient autocomplete** — enabled by default.
+- **Show email addresses in recipient autocomplete** — enabled by default; disable it to show names only.
 
 Reply-policy rows support exact entity/profile and entity-default precedence. The stored `hide_native` mode is intentionally treated as `promoted` until GLPI provides a verified extension point for hiding its native reply control. GLPI Ticket Email Client never hides native controls with DOM or CSS workarounds.
 

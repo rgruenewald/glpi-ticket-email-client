@@ -55,7 +55,8 @@ BCC addresses are not included as visible To/CC headers in the delivered email. 
 - **Message** must not be empty.
 - The editor supports rich HTML content.
 - Depending on GLPI configuration, template and source controls may be available.
-- A configured signature or subject prefix may be inserted automatically.
+- Administrators can select a native GLPI **Ticket notification template** for each entity. The configuration matrix shows all accessible entities, their direct assignment, and the effective inherited template; child entities inherit the nearest parent selection. GLPI renders the template for the ticket in the current language, with its language-neutral variant as fallback. The native rendered subject prefills the editable subject field and supports all GLPI template variables; without a usable native subject, the fallback is `[<ticket id>] <ticket title>`. Only the rendered HTML body is inserted as the editable signature. Template recipients are ignored. Until selection, an existing plugin signature and then GLPI's entity/global signature remain compatibility fallbacks.
+- Administrators can also choose timeline order, automatic opening of the Email reply form, and whether recipient autocomplete displays email addresses or names only.
 
 ## 6. Attachments and inline images
 

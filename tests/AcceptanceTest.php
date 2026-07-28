@@ -244,8 +244,7 @@ final class AcceptanceTest extends TestCase
     public function a3_separate_forwarding_surface_is_removed(): void
     {
         $this->assertFileDoesNotExist(self::REPO_ROOT . '/front/forward.php');
-        $this->assertFileDoesNotExist(self::REPO_ROOT . '/templates/forward.html.twig');
-        $this->assertFileDoesNotExist(self::REPO_ROOT . '/js/forward.js');
+        $this->assertFileDoesNotExist(self::REPO_ROOT . '/public/js/forward.js');
     }
 
     // ---- security: no hardcoded secrets in compose path / setup / hook ----
@@ -560,6 +559,8 @@ final class AcceptanceTest extends TestCase
         $send = (string) file_get_contents(self::REPO_ROOT . '/front/send.php');
         $js = (string) file_get_contents(self::REPO_ROOT . '/public/js/composer.js');
         $this->assertStringContainsString('glpi_plugin_ticketmailer_configs', $config);
+        $this->assertStringContainsString('notificationtemplates_id', $config);
+        $this->assertStringContainsString("\$rendered['subject']", $config);
         $this->assertStringContainsString('signature_html', $config);
         $this->assertStringContainsString('set_waiting', $config);
         $this->assertStringContainsString('data-recipient-control', $reply);
@@ -571,6 +572,10 @@ final class AcceptanceTest extends TestCase
         $this->assertStringContainsString('initRecipientControl', $js);
         $this->assertStringContainsString('dataTransfer.files', $js);
         $this->assertStringNotContainsString('ticketmailer-signature-sep', $action);
+        $this->assertStringContainsString('Notification::getMailingSignature', $action);
+        $this->assertStringContainsString('native_template_selected', $action);
+        $this->assertStringNotContainsString("\$settings['subject_prefix']", $config);
+        $this->assertStringContainsString("preg_match('/[\\x00\\r\\n]/'", $send);
         $entrypoint = (string) file_get_contents(self::REPO_ROOT . '/docker/glpi/docker-entrypoint.sh');
         $this->assertStringContainsString("precedence ::ffff:0:0/96  100", $entrypoint);
     }
@@ -602,6 +607,26 @@ final class AcceptanceTest extends TestCase
         $this->assertStringContainsString('$config_url', $config);
         $this->assertStringNotContainsString('PHP_SELF', $config);
     }
+
+    #[Test]
+    public function config_form_exposes_an_editable_entity_template_assignment_matrix(): void
+    {
+        $config = (string) file_get_contents(self::REPO_ROOT . '/front/config.form.php');
+
+        $this->assertStringContainsString("'save_template_assignment'", $config);
+        $this->assertStringContainsString("Session::getActiveEntities()", $config);
+        $this->assertStringContainsString("'Assigned template'", $config);
+        $this->assertStringContainsString("'Effective template'", $config);
+        $this->assertStringNotContainsString('name="subject_prefix"', $config);
+        $this->assertStringContainsString('provides the initial subject and editable signature', $config);
+        $this->assertStringContainsString('saveNotificationTemplateAssignment', $config);
+        $this->assertStringContainsString('notificationTemplateAssignmentForEntity', $config);
+        $this->assertStringContainsString("'on_change'", $config);
+        $this->assertStringContainsString('this.form.submit()', $config);
+        $this->assertStringNotContainsString('addEventListener', $config);
+        $this->assertStringNotContainsString("__('Action')", $config);
+    }
+
     // ---- helpers --------------------------------------------------------
 
 

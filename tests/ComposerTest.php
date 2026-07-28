@@ -16,6 +16,11 @@ if (!class_exists('Ticket')) {
         public static bool $loadable = true;
         public static int $entityId = 27;
 
+        /** @param array<string, mixed> $fields */
+        public function __construct(private array $fields = [])
+        {
+        }
+
         public function getFromDB(int $id): bool
         {
             return self::$loadable;
@@ -23,6 +28,9 @@ if (!class_exists('Ticket')) {
 
         public function getField(string $field): mixed
         {
+            if (array_key_exists($field, $this->fields)) {
+                return $this->fields[$field];
+            }
             return $field === 'entities_id' ? self::$entityId : null;
         }
     }

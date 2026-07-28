@@ -15,7 +15,7 @@ final class PluginIdentityTest extends TestCase
         $setup = (string) file_get_contents(self::REPO_ROOT . '/setup.php');
         $hooks = (string) file_get_contents(self::REPO_ROOT . '/hook.php');
 
-        $this->assertStringContainsString('PLUGIN_TICKETMAILER_VERSION', $setup);
+        $this->assertStringContainsString("PLUGIN_TICKETMAILER_VERSION', '2.1.0'", $setup);
         $this->assertStringContainsString('function plugin_version_ticketmailer()', $setup);
         $this->assertStringContainsString('GLPI Ticket Email Client', $setup);
         $this->assertStringNotContainsString('ticketemailclient', $setup);

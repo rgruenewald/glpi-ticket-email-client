@@ -197,14 +197,6 @@ msgid "Drag & drop your file here, or choose files."
 msgstr ""
 
 #: front/config.form.php
-msgid "Ticket subject prefix"
-msgstr ""
-
-#: front/config.form.php
-msgid "Use %d for the ticket ID."
-msgstr ""
-
-#: front/config.form.php
 msgid "E-mail signature"
 msgstr ""
 
@@ -255,7 +247,6 @@ msgstr ""
 #: front/config.form.php
 msgid "Open the E-Mail reply form when a ticket is opened."
 msgstr ""
-
 #: templates/compose.html.twig
 msgid "Attach public ticket history"
 msgstr ""
@@ -291,7 +282,6 @@ msgstr ""
 #: front/config.form.php
 msgid "Show email addresses in recipient autocomplete."
 msgstr ""
-
 #: templates/compose.html.twig public/js/composer.js
 msgid "Remove %s"
 msgstr ""
@@ -342,4 +332,62 @@ msgid "Aliases, forwarding, and non-email logins are not detected."
 msgstr ""
 
 msgid "This address may not receive the message because GLPI uses the ticket number to assign it to this ticket instead of creating a new ticket."
+msgstr ""
+#: front/config.form.php
+msgid "Notification template assignments by entity"
+msgstr ""
+
+#: front/config.form.php
+msgid "The selected Ticket notification template provides the initial subject and editable signature in the current GLPI language. Child entities inherit the nearest assignment; recipients remain controlled by this plugin."
+msgstr ""
+
+#: front/config.form.php
+msgid "Assigned template"
+msgstr ""
+
+#: front/config.form.php
+msgid "Effective template"
+msgstr ""
+
+#: front/config.form.php
+msgid "Template #%d"
+msgstr ""
+
+#: front/config.form.php
+msgid "inherited from %s"
+msgstr ""
+
+#: front/config.form.php
+msgid "No accessible entities."
+msgstr ""
+
+#: front/config.form.php
+msgid "Outbound email"
+msgstr ""
+
+#: front/config.form.php
+msgid "Global settings"
+msgstr ""
+#: front/send.php
+msgid "Subject contains invalid characters."
+msgstr ""
+
+#: front/config.form.php
+msgid "Preselect \"Set ticket status to waiting\" in the e-mail form. Users can change it before sending."
+msgstr ""
+
+#: inc/config.class.php
+msgid "Available variables"
+msgstr ""
+
+#: inc/config.class.php
+msgid "Ticket"
+msgstr ""
+
+#: inc/config.class.php
+msgid "Agent"
+msgstr ""
+
+#: inc/config.class.php front/config.form.php
+msgid "Entity"
 msgstr ""

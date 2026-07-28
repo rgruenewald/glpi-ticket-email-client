@@ -45,7 +45,9 @@ class PluginTicketmailerHook
         $migrations = [
             ['glpi_plugin_ticketmailer_logs', 'followups_id', 'update-1.1.0.sql'],
             ['glpi_plugin_ticketmailer_configs', 'timeline_newest_first', 'update-1.3.0.sql'],
+            ['glpi_plugin_ticketmailer_configs', 'open_reply_on_ticket', 'update-1.3.1.sql'],
             ['glpi_plugin_ticketmailer_configs', 'recipient_autocomplete_show_email', 'update-1.4.0.sql'],
+            ['glpi_plugin_ticketmailer_configs', 'notificationtemplates_id', 'update-2.0.3.sql'],
         ];
         foreach ($migrations as [$table, $field, $filename]) {
             if ($DB->fieldExists($table, $field)) {

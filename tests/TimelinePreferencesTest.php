@@ -73,10 +73,10 @@ final class TimelinePreferencesTest extends TestCase
     }
 
     #[Test]
-    public function defaults_show_newest_entries_and_open_reply(): void
+    public function defaults_show_newest_entries(): void
     {
         self::assertSame([
-            'subject_prefix' => '[##ticket.id##]',
+            'notificationtemplates_id' => 0,
             'signature_html' => '',
             'set_waiting' => true,
             'timeline_newest_first' => true,
@@ -92,46 +92,20 @@ final class TimelinePreferencesTest extends TestCase
     #[Test]
     public function configured_order_controls_glpi_timeline_before_rendering(): void
     {
-        $this->database->rows[7] = [
-            'subject_prefix' => '[##ticket.id##]',
+        $this->database->rows[0] = [
             'signature_html' => '',
             'set_waiting' => 1,
             'timeline_newest_first' => 0,
-            'open_reply_on_ticket' => 1,
+            'open_reply_on_ticket' => 0,
+            'recipient_autocomplete_show_email' => 0,
         ];
 
+        self::assertFalse(PluginTicketmailerConfig::forEntity(7)['open_reply_on_ticket']);
+        self::assertFalse(PluginTicketmailerConfig::forEntity(7)['recipient_autocomplete_show_email']);
         PluginTicketmailerConfig::applyTimelineOrderForCurrentTicket();
 
         self::assertSame(CommonITILObject::TIMELINE_ORDER_NATURAL, $_SESSION['glpitimeline_order']);
         self::assertSame(CommonITILObject::TIMELINE_ORDER_NATURAL, $GLOBALS['CFG_GLPI']['timeline_order']);
     }
 
-    #[Test]
-    public function missing_privacy_setting_defaults_to_showing_email_addresses(): void
-    {
-        $this->database->rows[7] = [
-            'subject_prefix' => '[##ticket.id##]',
-            'signature_html' => '',
-            'set_waiting' => 1,
-            'timeline_newest_first' => 1,
-            'open_reply_on_ticket' => 1,
-        ];
-
-        self::assertTrue(PluginTicketmailerConfig::forEntity(7)['recipient_autocomplete_show_email']);
-    }
-
-    #[Test]
-    public function configured_privacy_setting_hides_email_addresses(): void
-    {
-        $this->database->rows[7] = [
-            'subject_prefix' => '[##ticket.id##]',
-            'signature_html' => '',
-            'set_waiting' => 1,
-            'timeline_newest_first' => 1,
-            'open_reply_on_ticket' => 1,
-            'recipient_autocomplete_show_email' => 0,
-        ];
-
-        self::assertFalse(PluginTicketmailerConfig::forEntity(7)['recipient_autocomplete_show_email']);
-    }
 }

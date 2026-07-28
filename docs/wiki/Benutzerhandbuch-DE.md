@@ -55,7 +55,8 @@ BCC-Adressen sind in der versendeten E-Mail nicht als sichtbare An-/CC-Kopfzeile
 - **Nachricht** darf nicht leer sein.
 - Der Editor unterstützt formatierte HTML-Inhalte.
 - Abhängig von der GLPI-Konfiguration können Vorlagen und Quellen angeboten werden.
-- Eine konfigurierte Signatur bzw. ein Betreffpräfix kann automatisch eingefügt werden.
+- Administratoren können pro Entität eine native GLPI-**Ticket-Benachrichtigungsvorlage** auswählen. Die Konfigurationsmatrix zeigt alle zugänglichen Entitäten, ihre direkte Zuordnung und die effektiv geerbte Vorlage; Unterentitäten erben die nächste Auswahl ihrer übergeordneten Entität. GLPI rendert die Vorlage für das Ticket in der aktuellen Sprache und verwendet ersatzweise ihre sprachneutrale Variante. Der nativ gerenderte Betreff füllt das bearbeitbare Betrefffeld vor und unterstützt alle GLPI-Vorlagenvariablen; ohne nutzbaren nativen Betreff gilt `[<Ticket-ID>] <Ticket-Titel>` als Fallback. Nur der gerenderte HTML-Inhalt wird als bearbeitbare Signatur eingefügt. Empfänger der Vorlage werden ignoriert. Bis zur Auswahl bleiben eine vorhandene Plugin-Signatur und danach die GLPI-Entitäts-/Globalsignatur als Kompatibilitäts-Fallback erhalten.
+- Administratoren können außerdem die Verlaufsreihenfolge, das automatische Öffnen des E-Mail-Antwortformulars und die Anzeige von E-Mail-Adressen oder nur Namen in der Empfänger-Autovervollständigung festlegen.
 
 ## 6. Anhänge und eingebettete Bilder
 
