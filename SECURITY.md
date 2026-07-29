@@ -25,4 +25,4 @@ GLPI Ticket Email Client relies on GLPI authentication, CSRF protection, ticket 
 
 The plugin intentionally records full BCC recipient lists in ticket-visible audit and timeline records. Treat this as a product behavior, not a confidentiality guarantee for BCC recipients within GLPI.
 
-GitHub CodeQL does not analyze this plugin's PHP source. Repository CodeQL results cover only the supported languages selected by GitHub's default setup and must not be interpreted as comprehensive PHP application scanning.
+GitHub CodeQL does not analyze this plugin's PHP source. Repository CodeQL results cover only GitHub Actions and JavaScript/TypeScript selected by GitHub's default setup; they are not comprehensive PHP application scanning.
