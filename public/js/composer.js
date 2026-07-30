@@ -74,7 +74,9 @@
 			? matches.map((email) => String(email).toLowerCase())
 			: [];
 		var warning = form.querySelector(".ticketmailer-mailbox");
-		var matchesElement = warning ? warning.querySelector('.ticketmailer-mailbox-matches') : null;
+		var matchesElement = warning
+			? warning.querySelector(".ticketmailer-mailbox-matches")
+			: null;
 		var override = warning
 			? warning.querySelector('input[name="mailbox_override"]')
 			: null;
@@ -103,7 +105,8 @@
 			}
 		});
 		form.querySelectorAll('button[type="submit"]').forEach((button) => {
-			button.disabled = normalized.length > 0 && (!override || !override.checked);
+			button.disabled =
+				normalized.length > 0 && (!override || !override.checked);
 		});
 		form.ticketmailerMailboxMatches = matches;
 	}
@@ -168,7 +171,7 @@
 						"tickets_id",
 						form.querySelector('input[name="tickets_id"]').value,
 					);
-					['recipients_to', 'recipients_cc', 'recipients_bcc'].forEach(
+					["recipients_to", "recipients_cc", "recipients_bcc"].forEach(
 						(name) => {
 							var field = form.querySelector('input[name="' + name + '"]');
 							data.append(name, field ? field.value : "");
@@ -390,7 +393,7 @@
 		control.addEventListener("click", () => {
 			input.focus();
 		});
-		input.addEventListener('input', () => {
+		input.addEventListener("input", () => {
 			++requestId;
 			if (requestTimer) {
 				window.clearTimeout(requestTimer);
@@ -590,8 +593,7 @@
 			"pointer-events:auto;";
 		var overlaySpinner = document.createElement("span");
 		overlaySpinner.className = "spinner-border";
-		overlaySpinner.style.cssText =
-			"width:3rem;height:3rem;border-width:0.35em";
+		overlaySpinner.style.cssText = "width:3rem;height:3rem;border-width:0.35em";
 		overlaySpinner.setAttribute("aria-hidden", "true");
 		if (typeof overlay.appendChild === "function") {
 			overlay.appendChild(overlaySpinner);
@@ -653,7 +655,7 @@
 					if (cancel.tagName === "BUTTON") {
 						cancel.disabled = true;
 					} else {
-						cancel.classList.add('disabled');
+						cancel.classList.add("disabled");
 						cancel.setAttribute("aria-disabled", "true");
 						cancel.addEventListener("click", (cancelEvent) => {
 							cancelEvent.preventDefault();
@@ -864,6 +866,7 @@
 										templateField.querySelector(":scope > label");
 									var templateText =
 										delivery.dataset.answerTemplatesLabel ||
+										templateLabel?.querySelector("i")?.title ||
 										(templateLabel ? templateLabel.textContent.trim() : "");
 									var templateSelect = templateField.querySelector("select");
 									var emptyTemplate = templateSelect
@@ -874,18 +877,25 @@
 									if (emptyTemplate && templateText) {
 										emptyTemplate.textContent = templateText;
 										if (!Number(templateSelect.value)) {
-											var templateLabelAttempts = 0;
 											var showTemplateLabel = () => {
+												var currentEmptyTemplate = templateSelect.querySelector(
+													'option[value="0"], option[value=""]',
+												);
 												var renderedTemplate = templateField.querySelector(
 													".select2-selection__rendered",
 												);
-												if (renderedTemplate) {
+												if (currentEmptyTemplate?.textContent !== templateText) {
+													currentEmptyTemplate.textContent = templateText;
+												}
+												if (renderedTemplate?.textContent !== templateText) {
 													renderedTemplate.textContent = templateText;
 													renderedTemplate.title = templateText;
-												} else if (templateLabelAttempts++ < 20) {
-													setTimeout(showTemplateLabel, 50);
 												}
 											};
+											new MutationObserver(showTemplateLabel).observe(templateField, {
+												childList: true,
+												subtree: true,
+											});
 											showTemplateLabel();
 										}
 									}
@@ -979,7 +989,7 @@
 							var solvedInput = document.createElement("input");
 							solvedInput.type = "checkbox";
 							solvedInput.className = "form-check-input m-0";
-							solvedInput.name = "add_close";
+							solvedInput.name = "_ticketmailer_set_solved";
 							solvedInput.value = "1";
 							var solvedText = document.createElement("span");
 							solvedText.className = "visually-hidden";
@@ -1061,9 +1071,6 @@
 								label.append(text);
 							}
 						});
-						if (footer && typeof privateField !== "undefined" && privateField) {
-							footer.insertBefore(privateField, pendingControl || add);
-						}
 						if (
 							footer &&
 							typeof saveKnowledgeField !== "undefined" &&
@@ -1102,10 +1109,32 @@
 								uploadContainer.append(dropHelp);
 							}
 						}
+						var template = notePanel.querySelector(
+							'[name="itilfollowuptemplates_id"]',
+						);
+						template?.closest(".form-field")?.classList.add(
+							"ticketmailer-note-meta",
+							"ticketmailer-note-template",
+						);
+						notePanel
+							.querySelector('[name="requesttypes_id"]')
+							?.closest(".form-field")
+							?.classList.add("ticketmailer-note-meta", "ticketmailer-note-source");
+						notePanel
+							.querySelector('[name="is_private"]')
+							?.closest(".form-field")
+							?.classList.add("ticketmailer-note-private");
+						notePanel
+							.querySelector('[name="_fup_to_kb"]')
+							?.closest(".form-field")
+							?.classList.add("ticketmailer-note-save-knowledge");
 						var knowledge = notePanel.querySelector(
 							'button[name^="search_knowbaseitem_"]',
 						);
 						if (knowledge) {
+							knowledge.closest(".form-field")?.classList.add(
+								"ticketmailer-note-knowledge",
+							);
 							knowledge.classList.add("ticketmailer-knowledge-search");
 							if (!knowledge.dataset.ticketmailerLabelled) {
 								knowledge.dataset.ticketmailerLabelled = "true";

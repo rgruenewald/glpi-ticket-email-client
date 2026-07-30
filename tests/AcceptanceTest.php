@@ -656,6 +656,13 @@ final class AcceptanceTest extends TestCase
         $this->assertStringContainsString('pre_item_add', $setup);
         $this->assertStringContainsString("['_ticketmailer_internal_note']", $hooks);
         $this->assertStringContainsString("\$followup->input['is_private'] = 1", $hooks);
+        $this->assertStringContainsString('item_add', $setup);
+        $this->assertStringContainsString("['_ticketmailer_set_solved']", $hooks);
+        $this->assertStringContainsString("'status' => Ticket::SOLVED", $hooks);
+        $this->assertStringContainsString('if (!$ticket->getFromDB', $hooks);
+        $this->assertStringContainsString('|| !$ticket->canSolve()', $hooks);
+        $this->assertStringContainsString('|| !$ticket->update([', $hooks);
+        $this->assertStringContainsString('The internal note was added, but the ticket status could not be set to solved.', $hooks);
 
         $modeValidation = strpos($send, "\$_POST['delivery_mode']");
         $recipientParsing = strpos($send, 'PluginTicketmailerRecipients::parseRaw');

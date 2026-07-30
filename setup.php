@@ -56,6 +56,9 @@ function plugin_init_ticketmailer(): void
     $PLUGIN_HOOKS['pre_item_add']['ticketmailer'] = [
         ITILFollowup::class => 'plugin_ticketmailer_force_internal_note_private',
     ];
+    $PLUGIN_HOOKS['item_add']['ticketmailer'] = [
+        ITILFollowup::class => 'plugin_ticketmailer_set_internal_note_solved',
+    ];
     $PLUGIN_HOOKS['item_get_datas']['ticketmailer'] = [
         NotificationTargetTicket::class => 'plugin_ticketmailer_filter_notification_template_data',
     ];

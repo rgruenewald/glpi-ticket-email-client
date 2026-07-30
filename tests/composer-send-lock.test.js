@@ -1,5 +1,3 @@
-
-
 const assert = require("node:assert/strict");
 
 const listeners = {};
@@ -177,15 +175,15 @@ const deliveryModePanels = deliveryModeRoot.panels;
 let templateChangeHandler;
 let ajaxComplete;
 global.$ = () => ({
-		ajaxComplete(handler) {
-			ajaxComplete = handler;
-		},
-		on(type, selector, handler) {
-			if (type === "change") {
-				templateChangeHandler = handler;
-			}
-		},
-	});
+	ajaxComplete(handler) {
+		ajaxComplete = handler;
+	},
+	on(type, selector, handler) {
+		if (type === "change") {
+			templateChangeHandler = handler;
+		}
+	},
+});
 const templateEditor = {
 	content: "<p>Signature</p>",
 	getContent() {
@@ -335,6 +333,10 @@ const composerCss = require("node:fs").readFileSync(
 	require.resolve("../public/css/ticketmailer.css"),
 	"utf8",
 );
+const composeTemplate = require("node:fs").readFileSync(
+	require.resolve("../templates/compose.html.twig"),
+	"utf8",
+);
 assert.match(
 	composerSource,
 	/var pendingIcon = pendingLabel[\s\S]*pendingLabel\.querySelector\(["']:scope > i["']\)/,
@@ -356,6 +358,16 @@ assert.match(
 	"first native toggle labels share the status layout class",
 );
 assert.match(
+	composerSource,
+	/solvedInput\.name = ["']_ticketmailer_set_solved["'];[\s\S]*solvedInput\.value = ["']1["']/,
+	"Internal note solved toggle requests the deferred plugin status update",
+);
+assert.doesNotMatch(
+	composerSource,
+	/solvedInput\.name = ["']add_close["']/,
+	"Internal note solved toggle does not use GLPI's close-existing-solution action",
+);
+assert.match(
 	composerCss,
 	/\.ticketmailer-status-toggle\s*\{[^}]*align-items:\s*center[^}]*gap:\s*0\.5rem[^}]*padding:\s*0 0\.5rem/s,
 	"all status groups use centered equal geometry",
@@ -367,13 +379,33 @@ assert.match(
 );
 assert.match(
 	composerCss,
-	/\[id\^="pending-reasons-control-"\]\s*\{[^}]*padding:\s*0;/s,
-	"pending wrapper adds no asymmetric outer spacing",
+	/\.ticketmailer-note-cancel\s*\{[^}]*margin-right:\s*auto/s,
+	"Internal note status toggles and Add stay right-aligned",
+);
+assert.match(
+	composeTemplate,
+	/name="save_knowledge"/,
+	"Email actions include the knowledge-base toggle",
 );
 assert.match(
 	composerCss,
-	/\.ticketmailer-note-knowledge\s*\{[^}]*justify-self:\s*start[^}]*width:\s*auto\s*!important/s,
-	"Knowledge base stays flush with adjacent metadata controls",
+	/\[id\^="pending-reasons-control-"\]\s*\{[^}]*padding:\s*0;/s,
+	"pending wrapper adds no asymmetric outer spacing",
+);
+assert.doesNotMatch(
+	composerSource,
+	/footer\.insertBefore\(privateField, pendingControl \|\| add\)/,
+	"Internal note does not expose the implicit Private toggle",
+);
+assert.match(
+	composerCss,
+	/\.ticketmailer-note-knowledge\s*\{[^}]*justify-self:\s*end[^}]*width:\s*auto\s*!important/s,
+	"Knowledge base field occupies the right metadata column",
+);
+assert.match(
+	composerCss,
+	/\.ticketmailer-note-knowledge[\s\S]*> \.field-container\s*\{[^}]*width:\s*auto[^}]*padding:\s*0[^}]*transform:\s*translateX\(1rem\)/s,
+	"Knowledge base button aligns with the editor's right edge",
 );
 assert.match(
 	composerSource,

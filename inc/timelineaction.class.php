@@ -157,6 +157,7 @@ class PluginTicketmailerTimelineAction
             'user_autocomplete_url' => $web . '/ajax/autocomplete_users.php',
             'user_autocomplete_show_email' => true,
             'set_waiting' => PluginTicketmailerConfig::setWaitingAfterSend($ticket),
+            'can_update_knowledge' => Session::haveRight('knowbase', UPDATE),
             'attachment_max' => PluginTicketmailerConfig::uploadMaxSizeLabel(),
             'mailbox_override' => false,
             'mailbox_matches' => [],
