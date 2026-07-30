@@ -33,7 +33,11 @@ Requesters default to **To**. Observers only default to **CC**. Assignees are no
 
 ### D6 — Deliberate BCC visibility
 
-BCC is supported. Full BCC addresses are visible to every user who may read the ticket (timeline + secure audit detail). Compose warns the sender. SMTP still omits BCC from visible To/CC headers. Hiding BCC from ticket readers is explicitly **not** a v2 goal.
+BCC is supported in Email mode. Full BCC addresses are visible to every user who may read the ticket (timeline + secure audit detail). Compose warns the sender. SMTP still omits BCC from visible To/CC headers. Hiding BCC from ticket readers is explicitly **not** a v2 goal.
+
+### D7 — Email or native Internal note
+
+Ticketmailer compose offers **Email** (default) and **Internal note**. Email retains the direct SMTP, audit, recipients, signature, and public outbound-followup invariants. Internal note mounts GLPI's native `ITILFollowup` form, enforces private visibility, posts to GLPI's native controller/model, and never enters Ticketmailer's recipient/audit/SMTP/outbound-timeline pipeline. GLPI's native configured private-followup notifications remain unchanged. The two forms stay mounted as isolated drafts.
 
 ## Consequences
 

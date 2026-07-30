@@ -16,8 +16,12 @@ if ($tickets_id <= 0 || !$ticket->getFromDB($tickets_id) || !( $ticket->canUpdat
     Html::displayRightError();
 }
 $web = Plugin::getWebDir('ticketmailer');
-
-
+$delivery_mode = (string) ($_POST['delivery_mode'] ?? 'email');
+if ($delivery_mode !== 'email') {
+    $error = new \Glpi\Exception\Http\BadRequestHttpException();
+    $error->setMessageToDisplay(__('Unsupported delivery mode.', 'ticketmailer'));
+    throw $error;
+}
 $subject = trim((string) ($_POST['subject'] ?? ''));
 $subject_has_unsafe_header_characters = preg_match('/[\x00\r\n]/', $subject) === 1;
 $body_html = (string) ($_POST['body_html'] ?? '');
@@ -161,6 +165,7 @@ if ($errors !== []) {
         'set_solved'         => $set_solved,
         'history_attachments' => PluginTicketmailerHistory::availableAttachments($ticket),
         'selected_history_attachments' => $selected_history_attachments,
+        'native_followup_form' => PluginTicketmailerTimelineAction::nativeFollowupForm($ticket),
     ]);
     Html::footer();
     exit;

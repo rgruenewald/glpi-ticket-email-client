@@ -23,8 +23,9 @@ The send log shows successful and failed attempts. Only ticket readers can view 
 
 ## Features
 
-- Send emails from a ticket.
-- Use To, CC, and BCC.
+- Choose **Email** (default) or **Internal note** when replying from a ticket.
+- Email keeps Ticketmailer's To/CC/BCC, signature, audit, and direct SMTP workflow.
+- Internal note mounts GLPI's native private-followup form; it has no Ticketmailer recipients or generated signature and never enters Ticketmailer's audit/SMTP pipeline. GLPI's configured native followup notifications remain unchanged.
 - Write formatted messages.
 - Add files, images, and public ticket history.
 - Use GLPI's existing mail settings.
@@ -101,8 +102,13 @@ A GLPI administrator can open the plugin configuration page and choose an entity
 
 The plugin does not hide GLPI's own reply button.
 
-## Sending an email
+## Email or Internal note
 
+Open **Email reply**, then choose a mode. **Email** is selected by default. Each mode keeps its own mounted draft and attachments when switching.
+
+**Internal note** uses GLPI's native private-followup form, with private visibility enforced. Native permissions, CSRF, editor/uploads, templates, source, pending reasons/status, timeline/history, merged tickets, and notification configuration remain authoritative.
+
+## Sending an email
 1. Open a ticket and select **Email reply**.
 2. Add at least one recipient.
 3. Check the subject and message.

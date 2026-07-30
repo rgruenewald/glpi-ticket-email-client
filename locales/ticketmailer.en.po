@@ -154,6 +154,26 @@ msgstr "%count hidden recipient(s)"
 msgid "E-Mail antworten"
 msgstr "E-Mail antworten"
 
+#: templates/compose.html.twig
+msgid "Reply mode"
+msgstr "Reply mode"
+
+#: templates/compose.html.twig
+msgid "Email"
+msgstr "Email"
+
+#: templates/compose.html.twig
+msgid "Internal note"
+msgstr "Internal note"
+
+#: templates/compose.html.twig
+msgid "Knowledge base"
+msgstr "Knowledge base"
+
+#: front/send.php
+msgid "Unsupported delivery mode."
+msgstr "Unsupported delivery mode."
+
 msgid "Email reply"
 msgstr "Email reply"
 
@@ -385,3 +405,11 @@ msgstr "Agent"
 #: inc/config.class.php front/config.form.php
 msgid "Entity"
 msgstr "Entity"
+
+#: templates/compose.html.twig
+msgid "Set ticket status to waiting after sending."
+msgstr "Set ticket status to waiting after sending."
+
+#: templates/compose.html.twig
+msgid "Set ticket status to solved after sending."
+msgstr "Set ticket status to solved after sending."

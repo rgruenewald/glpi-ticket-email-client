@@ -129,6 +129,7 @@ class PluginTicketmailerTimelineAction
         $web = Plugin::getWebDir('ticketmailer');
         $editor_id = 'ticketmailer-body-html-' . self::REPLY;
         $content = PluginTicketmailerConfig::contentForTicket($ticket);
+        $native_followup_form = self::nativeFollowupForm($ticket);
 
         return TemplateRenderer::getInstance()->render('@ticketmailer/compose.html.twig', [
             'tickets_id' => $tickets_id,
@@ -164,11 +165,69 @@ class PluginTicketmailerTimelineAction
             'include_history' => false,
             'selected_history_attachments' => [],
             'inline' => $inline,
-            'form_id' => 'ticketmailer-email-reply',
+            'form_id' => 'ticketmailer-email-reply-' . $tickets_id . '-' . ($inline ? 'inline' : 'modal'),
+            'native_followup_form' => $native_followup_form,
             'close_target' => $inline ? self::collapseTarget() : '',
         ]);
     }
 
+    public static function nativeFollowupForm(Ticket $ticket): string
+    {
+        $had_private_default = array_key_exists('glpifollowup_private', $_SESSION);
+        $private_default = $_SESSION['glpifollowup_private'] ?? null;
+        $_SESSION['glpifollowup_private'] = 1;
+
+        $buffer_level = ob_get_level();
+        try {
+            ob_start();
+            (new ITILFollowup())->showForm(0, ['parent' => $ticket]);
+            $form = (string) ob_get_clean();
+            $form = preg_replace_callback(
+                '/<input\b[^>]*>/i',
+                static function (array $match): string {
+                    if (preg_match('/\bname=["\']is_private["\']/i', $match[0]) !== 1) {
+                        return $match[0];
+                    }
+                    if (preg_match('/\btype=["\']hidden["\']/i', $match[0]) === 1) {
+                        return (string) preg_replace(
+                            '/\bvalue=["\'][^"\']*["\']/i',
+                            'value="1"',
+                            $match[0],
+                            1,
+                        );
+                    }
+                    if (preg_match('/\btype=["\']checkbox["\']/i', $match[0]) === 1
+                        && preg_match('/\bdisabled\b/i', $match[0]) !== 1) {
+                        return (string) preg_replace('/\s*\/?>$/', ' disabled$0', $match[0], 1);
+                    }
+                    return $match[0];
+                },
+                $form,
+            );
+            $form = preg_replace(
+                '/(<form\b[^>]*>)/',
+                '$1<input type="hidden" name="_ticketmailer_internal_note" value="1">',
+                (string) $form,
+                1,
+                $form_count,
+            );
+            if ($form_count !== 1) {
+                throw new UnexpectedValueException('Native private followup form is incompatible.');
+            }
+            return (string) $form;
+        } catch (Throwable $error) {
+            if (ob_get_level() > $buffer_level) {
+                ob_end_clean();
+            }
+            throw $error;
+        } finally {
+            if ($had_private_default) {
+                $_SESSION['glpifollowup_private'] = $private_default;
+            } else {
+                unset($_SESSION['glpifollowup_private']);
+            }
+        }
+    }
 
     private function editor(string $value, string $mode, int $rows): string
     {

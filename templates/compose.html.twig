@@ -15,6 +15,33 @@
 {% set include_history = include_history|default(false) %}
 {% set history_attachments = history_attachments|default([]) %}
 {% set selected_history_attachments = selected_history_attachments|default([]) %}
+{% set native_followup_form = native_followup_form|default('') %}
+<div data-ticketmailer-delivery
+     data-email-title="{{ __('E-Mail antworten', 'ticketmailer') }}"
+     data-note-title="{{ __('Internal note', 'ticketmailer') }}"
+     data-cancel-label="{{ __('Cancel', 'ticketmailer') }}"
+     data-close-target="{{ close_target }}"
+     data-knowledge-label="{{ __('Knowledge base', 'ticketmailer') }}"
+     data-choose-files-label="{{ __('Choose files', 'ticketmailer') }}"
+     data-drop-files-label="{{ __('Drag & drop your file here, or choose files.', 'ticketmailer') }}"
+     data-private-label="{{ __('Private') }}"
+     data-save-knowledge-label="{{ __('Save and add to the knowledge base') }}"
+     data-waiting-label="{{ __('Set ticket status to waiting after sending.', 'ticketmailer') }}"
+     data-solved-label="{{ __('Set ticket status to solved after sending.', 'ticketmailer') }}">
+    <fieldset class="ticketmailer-delivery-mode d-flex gap-3 mb-3">
+        <legend class="visually-hidden">{{ __('Reply mode', 'ticketmailer') }}</legend>
+        <label>
+            <input type="radio" name="delivery_mode_{{ form_id }}" data-delivery-mode value="email" checked>
+            {{ __('Email', 'ticketmailer') }}
+        </label>
+        {% if native_followup_form is not empty %}
+        <label>
+            <input type="radio" name="delivery_mode_{{ form_id }}" data-delivery-mode value="internal_note">
+            {{ __('Internal note', 'ticketmailer') }}
+        </label>
+        {% endif %}
+    </fieldset>
+<div data-ticketmailer-panel="email">
 <form method="post"
       action="{{ send_url }}"
       enctype="multipart/form-data"
@@ -35,6 +62,7 @@
   data-i18n-mailbox-recipient="{{ __('This address may not receive the message because GLPI uses the ticket number to assign it to this ticket instead of creating a new ticket.', 'ticketmailer') }}"
   data-mailbox-matches="{{ mailbox_matches|json_encode|e('html_attr') }}">
     <input type="hidden" name="_glpi_csrf_token" value="{{ csrf_token }}">
+    <input type="hidden" name="delivery_mode" value="email">
     <input type="hidden" name="tickets_id" value="{{ tickets_id }}">
 
     <div class="ticketmailer-mail-panel">
@@ -227,3 +255,10 @@
         </button>
     </div>
 </form>
+</div>
+{% if native_followup_form %}
+    <div data-ticketmailer-panel="internal_note" hidden aria-hidden="true">
+        {{ native_followup_form|raw }}
+    </div>
+{% endif %}
+</div>
