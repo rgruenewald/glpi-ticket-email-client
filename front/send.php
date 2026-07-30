@@ -16,8 +16,12 @@ if ($tickets_id <= 0 || !$ticket->getFromDB($tickets_id) || !( $ticket->canUpdat
     Html::displayRightError();
 }
 $web = Plugin::getWebDir('ticketmailer');
-
-
+$delivery_mode = (string) ($_POST['delivery_mode'] ?? 'email');
+if ($delivery_mode !== 'email') {
+    $error = new \Glpi\Exception\Http\BadRequestHttpException();
+    $error->setMessageToDisplay(__('Unsupported delivery mode.', 'ticketmailer'));
+    throw $error;
+}
 $subject = trim((string) ($_POST['subject'] ?? ''));
 $subject_has_unsafe_header_characters = preg_match('/[\x00\r\n]/', $subject) === 1;
 $body_html = (string) ($_POST['body_html'] ?? '');
@@ -25,6 +29,7 @@ $body_text = (string) ($_POST['body_text'] ?? '');
 $include_history = !empty($_POST['include_history']);
 $set_waiting = !empty($_POST['set_waiting']);
 $set_solved = !empty($_POST['set_solved']);
+$save_knowledge = !empty($_POST['save_knowledge']) && Session::haveRight('knowbase', UPDATE);
 $selected_history_attachments = array_values(array_filter(
     (array) ($_POST['history_attachments'] ?? []),
     static fn (mixed $attachment): bool => is_scalar($attachment),
@@ -159,8 +164,11 @@ if ($errors !== []) {
         'include_history'    => $include_history,
         'set_waiting'        => $set_waiting,
         'set_solved'         => $set_solved,
+        'save_knowledge'      => $save_knowledge,
+        'can_update_knowledge' => Session::haveRight('knowbase', UPDATE),
         'history_attachments' => PluginTicketmailerHistory::availableAttachments($ticket),
         'selected_history_attachments' => $selected_history_attachments,
+        'native_followup_form' => PluginTicketmailerTimelineAction::nativeFollowupForm($ticket),
     ]);
     Html::footer();
     exit;
@@ -283,6 +291,7 @@ PluginTicketmailerAudit::markSmtpResult(
 );
 
 $timeline_recorded = false;
+$followups_id = 0;
 if ($result['status'] === 'sent') {
     $timeline = PluginTicketmailerTimeline::recordOutbound([
         'tickets_id'     => $tickets_id,
@@ -307,6 +316,7 @@ if ($result['status'] === 'sent') {
             null,
         );
         $timeline_recorded = true;
+        $followups_id = (int) $timeline['followups_id'];
         if ($set_waiting || $set_solved) {
             $ticket->update([
                 'id'            => $tickets_id,
@@ -329,5 +339,6 @@ if ($result['status'] === 'sent') {
 Html::redirect(
     $timeline_recorded
         ? Ticket::getFormURLWithID($tickets_id)
+            . ($save_knowledge ? '&_fup_to_kb=' . $followups_id : '')
         : $web . '/front/log_entry.php?id=' . $log_id,
 );

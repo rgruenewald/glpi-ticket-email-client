@@ -2,309 +2,594 @@
 
 /* ── Panel frame ───────────────────────────────────────── */
 .ticketmailer-compose {
-    width: 100%;
-    max-width: none;
-    margin: 0;
+	width: 100%;
+	max-width: none;
+	margin: 0;
 }
 
 .ticketmailer-mail-panel {
-    border: 1px solid #d8d8d8;
-    border-radius: 4px;
-    background: #fff;
-    overflow: hidden;
+	border: 1px solid #d8d8d8;
+	border-radius: 4px;
+	background: #fff;
+	overflow: hidden;
 }
 
 /* ── Header ─────────────────────────────────────────────── */
 .ticketmailer-mail-header {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.4rem;
-    padding: 0.45rem 0.75rem;
-    background: #fff8db;
-    border-bottom: 1px solid #e8d58b;
-    color: #66520a;
-    font-weight: 600;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.4rem;
+	padding: 0.45rem 0.75rem;
+	background: #fff8db;
+	border-bottom: 1px solid #e8d58b;
+	color: #66520a;
+	font-weight: 600;
 }
 
 /* ── Row label + field ─────────────────────────────────── */
 .ticketmailer-mail-row {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.4rem 0.75rem;
-    border-bottom: 1px solid #ececec;
-    min-height: 2.5rem;
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	padding: 0.4rem 0.75rem;
+	border-bottom: 1px solid #ececec;
+	min-height: 2.5rem;
 }
 
 /* Editor / attach rows: no label, content fills row */
 .ticketmailer-mail-row--editor {
-    align-items: stretch;
-    padding: 0.25rem 0.75rem;
+	align-items: stretch;
+	padding: 0.25rem 0.75rem;
 }
 
 .ticketmailer-mail-row--attach {
-    padding: 0.25rem 0.75rem;
+	padding: 0.25rem 0.75rem;
 }
 
 .ticketmailer-mail-row--editor .ticketmailer-mail-field,
 .ticketmailer-mail-row--attach .ticketmailer-mail-field {
-    flex: 1 1 auto;
-    width: 100%;
+	flex: 1 1 auto;
+	width: 100%;
 }
 
 .ticketmailer-mail-label {
-    flex: 0 0 4.5rem;
-    text-align: right;
-    font-weight: 600;
+	flex: 0 0 4.5rem;
+	text-align: right;
+	font-weight: 600;
 }
 
 .ticketmailer-mail-row--followup-meta {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto minmax(0, 1fr);
-    column-gap: 0.75rem;
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto minmax(0, 1fr);
+	column-gap: 0.75rem;
 }
 
 .ticketmailer-mail-row--followup-meta .ticketmailer-mail-field {
-    min-width: 0;
+	min-width: 0;
 }
 
 .ticketmailer-mail-row--followup-meta .ticketmailer-mail-field .btn-group {
-    display: flex;
-    flex-wrap: nowrap;
-    align-items: stretch;
-    width: 100%;
-    min-width: 0;
+	display: flex;
+	flex-wrap: nowrap;
+	align-items: stretch;
+	width: 100%;
+	min-width: 0;
 }
 
 .ticketmailer-mail-row--followup-meta .btn-group .select2-container {
-    flex: 1 1 auto;
-    min-width: 0;
-    width: auto !important;
+	flex: 1 1 auto;
+	min-width: 0;
+	width: auto !important;
 }
 
 .ticketmailer-mail-row--followup-meta .btn-group > a.btn,
 .ticketmailer-mail-row--followup-meta .btn-group > .btn {
-    flex: 0 0 auto;
+	flex: 0 0 auto;
 }
 
 .ticketmailer-mail-field {
-    flex: 1 1 auto;
-    min-width: 0;
+	flex: 1 1 auto;
+	min-width: 0;
 }
 
 /* ── Text inputs ───────────────────────────────────────── */
 .ticketmailer-compose input[type="text"] {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 0.45rem 0.6rem;
-    font-size: 14px;
-    border: 1px solid #c8c8c8;
-    border-radius: 3px;
-    background: #fff;
+	width: 100%;
+	box-sizing: border-box;
+	padding: 0.45rem 0.6rem;
+	font-size: 14px;
+	border: 1px solid #c8c8c8;
+	border-radius: 3px;
+	background: #fff;
 }
 
 .ticketmailer-compose input[type="text"]:focus {
-    outline: none;
-    border-color: #6c8ebf;
-    box-shadow: 0 0 0 2px rgba(108, 142, 191, 0.2);
+	outline: none;
+	border-color: #6c8ebf;
+	box-shadow: 0 0 0 2px rgba(108, 142, 191, 0.2);
 }
 
 /* Followup template / source dropdowns fill the field */
 .ticketmailer-mail-field select {
-    width: 100%;
+	width: 100%;
 }
 
 /* TinyMCE / GLPI editor sit under Message label */
 .ticketmailer-editor .tox-tinymce,
 .ticketmailer-editor textarea {
-    width: 100% !important;
-    min-height: 20rem !important;
-    box-sizing: border-box;
+	width: 100% !important;
+	min-height: 20rem !important;
+	box-sizing: border-box;
 }
 
 /* ── Attachment drop zone — full width, no centering ───── */
 .ticketmailer-attach {
-    border: 1px dashed #c8c8c8;
-    border-radius: 3px;
-    padding: 0.6rem 0.75rem;
-    background: #fafafa;
-    text-align: center;
+	border: 1px dashed #c8c8c8;
+	border-radius: 3px;
+	padding: 0.6rem 0.75rem;
+	background: #fafafa;
+	text-align: center;
 }
 
 .ticketmailer-attach.is-dragover {
-    border-color: #6c8ebf;
-    background: #edf4ff;
+	border-color: #6c8ebf;
+	background: #edf4ff;
 }
 
 .ticketmailer-attach ul {
-    margin: 0.4rem auto 0;
-    padding-left: 1.2em;
-    text-align: left;
+	margin: 0.4rem auto 0;
+	padding-left: 1.2em;
+	text-align: left;
 }
 
 .ticketmailer-help {
-    color: #666;
-    font-size: 12px;
-    margin: 0.4em 0 0;
+	color: #666;
+	font-size: 12px;
+	margin: 0.4em 0 0;
 }
 
 /* ── Error banner ───────────────────────────────────────── */
 .ticketmailer-errors {
-    background: #fde7e9;
-    border: 0;
-    border-bottom: 1px solid #e0a4a8;
-    color: #800;
-    padding: 0.5em 1em;
-    margin: 0;
-    border-radius: 0;
+	background: #fde7e9;
+	border: 0;
+	border-bottom: 1px solid #e0a4a8;
+	color: #800;
+	padding: 0.5em 1em;
+	margin: 0;
+	border-radius: 0;
 }
 
 .ticketmailer-errors ul {
-    margin: 0;
-    padding-left: 1.2em;
+	margin: 0;
+	padding-left: 1.2em;
 }
 
 /* ── Mailbox warning ───────────────────────────────────── */
 .ticketmailer-mailbox {
-    margin-top: 0.75rem;
-    padding: 0.5em 1em;
-    background: #fffbe6;
-    border: 1px solid #e0d08a;
-    border-radius: 3px;
+	margin-top: 0.75rem;
+	padding: 0.5em 1em;
+	background: #fffbe6;
+	border: 1px solid #e0d08a;
+	border-radius: 3px;
 }
 
 .ticketmailer-mailbox code {
-    font-size: 13px;
-    background: #f5f0d8;
-    padding: 0.15em 0.35em;
-    border-radius: 2px;
+	font-size: 13px;
+	background: #f5f0d8;
+	padding: 0.15em 0.35em;
+	border-radius: 2px;
 }
 
 /* ── Actions — right-aligned like classic mail client ──── */
 .ticketmailer-actions {
-    display: flex;
-    align-items: center;
-    gap: 0.5em;
-    margin-top: 0.75rem;
-    padding-left: 0;
+	display: flex;
+	align-items: center;
+	gap: 0.5em;
+	margin-top: 0.75rem;
+	padding-left: 0;
 }
 
+/* Native private-note form: match the email composer proportions/actions. */
+[data-ticketmailer-panel="internal_note"] .itilfollowup,
+[data-ticketmailer-panel="internal_note"] .itilfollowup > div,
+[data-ticketmailer-panel="internal_note"] form,
+[data-ticketmailer-panel="internal_note"] .ticketmailer-note-layout {
+	width: 100% !important;
+	max-width: none !important;
+}
+[data-ticketmailer-panel="internal_note"] .tox-tinymce,
+[data-ticketmailer-panel="internal_note"] textarea {
+	min-height: 20rem !important;
+}
+
+[data-ticketmailer-panel="internal_note"] .ticketmailer-note-options {
+	order: 0 !important;
+	width: 100% !important;
+	max-width: none !important;
+	padding: 0;
+}
+
+[data-ticketmailer-panel="internal_note"] .ticketmailer-note-options > .row {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) max-content;
+	align-items: center;
+	gap: 0.5rem;
+	margin: 0 0 0.75rem;
+}
+
+[data-ticketmailer-panel="internal_note"]
+	.ticketmailer-note-options
+	> .row
+	> :not(.form-field) {
+	display: none;
+}
+[data-ticketmailer-panel="internal_note"]
+	.ticketmailer-note-options
+	.form-field {
+	width: auto;
+	margin: 0 !important;
+	padding: 0;
+}
+
+[data-ticketmailer-panel="internal_note"]
+	.ticketmailer-note-options
+	.ticketmailer-note-meta {
+	display: block;
+	order: 1;
+}
+[data-ticketmailer-panel="internal_note"] .ticketmailer-note-template {
+	grid-column: 1;
+}
+[data-ticketmailer-panel="internal_note"] .ticketmailer-note-source {
+	grid-column: 2;
+}
+
+[data-ticketmailer-panel="internal_note"] .ticketmailer-note-meta > label {
+	display: none;
+}
+
+[data-ticketmailer-panel="internal_note"]
+	.ticketmailer-note-meta
+	> .field-container {
+	width: 100%;
+	max-width: none;
+	padding: 0;
+}
+
+[data-ticketmailer-panel="internal_note"] .ticketmailer-note-knowledge {
+	grid-column: auto;
+	justify-self: end;
+	order: 2;
+	width: auto !important;
+	margin: 0 !important;
+}
+[data-ticketmailer-panel="internal_note"]
+	.ticketmailer-note-knowledge
+	> label {
+	display: none;
+}
+[data-ticketmailer-panel="internal_note"]
+	.ticketmailer-note-knowledge
+	> .field-container {
+	width: auto;
+	max-width: none;
+	padding: 0;
+}
+
+[data-ticketmailer-panel="internal_note"] .ticketmailer-note-private,
+[data-ticketmailer-panel="internal_note"] .ticketmailer-note-save-knowledge {
+	display: none;
+}
+
+[data-ticketmailer-panel="internal_note"] .ticketmailer-note-editor {
+	order: 1 !important;
+	width: 100% !important;
+	max-width: none !important;
+	padding: 0;
+}
+
+[data-ticketmailer-panel="internal_note"] .ticketmailer-knowledge-search {
+	width: auto;
+	min-height: 2.25rem;
+	margin-left: 0;
+	text-align: left;
+	white-space: nowrap;
+}
+
+[data-ticketmailer-panel="internal_note"] .ticketmailer-note-upload {
+	text-align: center;
+}
+
+[data-ticketmailer-panel="internal_note"] .ticketmailer-note-upload > b,
+[data-ticketmailer-panel="internal_note"] .ticketmailer-note-upload > .b,
+[data-ticketmailer-panel="internal_note"] .ticketmailer-note-upload > br {
+	display: none;
+}
+
+[data-ticketmailer-panel="internal_note"] .ticketmailer-note-actions {
+	display: flex !important;
+	align-items: center;
+	gap: 0.5rem;
+	min-height: auto !important;
+	padding: 0.75rem 1.5rem;
+}
+
+[data-ticketmailer-panel="internal_note"] .ticketmailer-note-cancel {
+	margin-right: auto;
+}
+
+[data-ticketmailer-panel="internal_note"]
+	.ticketmailer-note-actions
+	> .input-group:empty {
+	display: none;
+}
+
+[data-ticketmailer-panel="internal_note"]
+	.ticketmailer-note-actions
+	.ticketmailer-note-private,
+[data-ticketmailer-panel="internal_note"]
+	.ticketmailer-note-actions
+	.ticketmailer-note-save-knowledge {
+	display: flex;
+	flex: 0 0 auto;
+	width: auto !important;
+	margin: 0 !important;
+	align-items: center;
+	padding: 0;
+}
+
+[data-ticketmailer-panel="internal_note"]
+	.ticketmailer-note-actions
+	.ticketmailer-note-private {
+	margin-left: auto !important;
+}
+
+[data-ticketmailer-panel="internal_note"]
+	.ticketmailer-note-actions
+	.ticketmailer-note-private
+	> label:first-child,
+[data-ticketmailer-panel="internal_note"]
+	.ticketmailer-note-actions
+	.ticketmailer-note-save-knowledge
+	> label:first-child {
+	display: inline-flex;
+	width: auto;
+	padding: 0 0.5rem;
+	align-items: center;
+	gap: 0.5rem;
+	text-align: left !important;
+	font-size: 0;
+}
+
+[data-ticketmailer-panel="internal_note"]
+	.ticketmailer-note-actions
+	.ticketmailer-note-private
+	> label:first-child
+	i,
+[data-ticketmailer-panel="internal_note"]
+	.ticketmailer-note-actions
+	.ticketmailer-note-save-knowledge
+	> label:first-child
+	i {
+	align-self: center;
+	margin: 0 !important;
+	font-size: 1rem;
+	line-height: 1;
+}
+
+[data-ticketmailer-panel="internal_note"]
+	.ticketmailer-note-actions
+	.field-container {
+	width: auto;
+	padding: 0;
+}
+
+[data-ticketmailer-panel="internal_note"]
+	.ticketmailer-note-actions
+	.form-switch {
+	margin: 0 !important;
+}
+
+[data-ticketmailer-panel="internal_note"] .ticketmailer-status-toggle {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0 0.5rem;
+}
+
+[data-ticketmailer-panel="internal_note"] .ticketmailer-status-toggle > i {
+	align-self: center;
+	margin: 0 !important;
+	line-height: 1;
+}
+
+[data-ticketmailer-panel="internal_note"] .ticketmailer-note-toggle-label {
+	display: none;
+}
+
+[data-ticketmailer-panel="internal_note"]
+	.ticketmailer-note-actions
+	[id^="pending-reasons-control-"] {
+	display: inline-flex;
+	width: auto;
+	max-width: max-content;
+	margin-left: 0;
+	padding: 0;
+	border: 0;
+	background: transparent !important;
+}
+
+[data-ticketmailer-panel="internal_note"]
+	.ticketmailer-note-actions
+	[id^="pending-reasons-control-"]
+	.collapse {
+	flex: 0 0 auto !important;
+}
+
+[data-ticketmailer-panel="internal_note"] .ticketmailer-note-actions > .btn,
+[data-ticketmailer-panel="internal_note"]
+	.ticketmailer-note-actions
+	> .input-group
+	> .btn {
+	min-width: 7rem;
+	justify-content: center;
+}
+
+[data-ticketmailer-panel="internal_note"]
+	.ticketmailer-note-actions
+	> button[name="add"] {
+	min-width: 8.5rem;
+}
+
+#modal_search_knowbaseitem .list-group-item .col-auto {
+	display: flex;
+	gap: 0.5rem;
+	align-items: center;
+	flex-wrap: wrap;
+}
+
+#modal_search_knowbaseitem .list-group-item .use-knowbaseitem,
+#modal_search_knowbaseitem .list-group-item .view-knowbaseitem {
+	width: auto;
+	min-width: 8rem;
+	min-height: 2.5rem;
+	gap: 0.4rem;
+	padding: 0.45rem 0.75rem;
+	font-weight: 600;
+	justify-content: center;
+}
+
+#modal_search_knowbaseitem .list-group-item .use-knowbaseitem {
+	color: var(--tblr-body-color) !important;
+	background: var(--tblr-warning-lt) !important;
+	border: 1px solid var(--tblr-warning);
+}
+
+#modal_search_knowbaseitem .list-group-item .use-knowbaseitem i,
+#modal_search_knowbaseitem .list-group-item .use-knowbaseitem span {
+	color: var(--tblr-body-color) !important;
+}
+
+#modal_search_knowbaseitem .list-group-item .view-knowbaseitem {
+	color: var(--tblr-secondary);
+	border: 1px solid var(--tblr-secondary);
+}
 .ticketmailer-actions > label:first-of-type {
-    margin-left: auto;
+	margin-left: auto;
 }
 /* ── Recipient control ──────────────────────────────────── */
 .ticketmailer-recipient-control {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.3rem;
-    min-height: 2.4rem;
-    padding: 0.3rem 0.45rem;
-    border: 1px solid #c8c8c8;
-    border-radius: 3px;
-    background: #fff;
-    cursor: text;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.3rem;
+	min-height: 2.4rem;
+	padding: 0.3rem 0.45rem;
+	border: 1px solid #c8c8c8;
+	border-radius: 3px;
+	background: #fff;
+	cursor: text;
 }
 
 .ticketmailer-recipient-control:focus-within {
-    border-color: #6c8ebf;
-    box-shadow: 0 0 0 2px rgba(108, 142, 191, 0.2);
+	border-color: #6c8ebf;
+	box-shadow: 0 0 0 2px rgba(108, 142, 191, 0.2);
 }
 
 .ticketmailer-recipient-chips {
-    display: contents;
+	display: contents;
 }
 
 .ticketmailer-recipient-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.3rem;
-    max-width: 100%;
-    padding: 0.2rem 0.35rem 0.2rem 0.5rem;
-    border: 1px solid #bfc8d8;
-    border-radius: 3px;
-    background: #f4f7fb;
-    color: #334155;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.3rem;
+	max-width: 100%;
+	padding: 0.2rem 0.35rem 0.2rem 0.5rem;
+	border: 1px solid #bfc8d8;
+	border-radius: 3px;
+	background: #f4f7fb;
+	color: #334155;
 }
 
 .ticketmailer-recipient-chip--mailbox {
-    background: #fff3cd;
-    border-color: #e0a800;
-    color: #664d03;
+	background: #fff3cd;
+	border-color: #e0a800;
+	color: #664d03;
 }
 
 .ticketmailer-recipient-warning {
-    color: #b26a00;
+	color: #b26a00;
 }
 
 .ticketmailer-recipient-remove {
-    border: 0;
-    padding: 0;
-    background: transparent;
-    color: inherit;
-    cursor: pointer;
+	border: 0;
+	padding: 0;
+	background: transparent;
+	color: inherit;
+	cursor: pointer;
 }
 
 .ticketmailer-recipient-clear {
-    align-self: center;
-    border: 0;
-    padding: 0.15rem;
-    background: transparent;
-    color: #64748b;
-    cursor: pointer;
+	align-self: center;
+	border: 0;
+	padding: 0.15rem;
+	background: transparent;
+	color: #64748b;
+	cursor: pointer;
 }
 
 .ticketmailer-compose input.ticketmailer-recipient-input {
-    flex: 1 1 12rem;
-    width: auto;
-    min-width: 12rem;
-    padding: 0.15rem;
-    border: 0;
-    box-shadow: none;
+	flex: 1 1 12rem;
+	width: auto;
+	min-width: 12rem;
+	padding: 0.15rem;
+	border: 0;
+	box-shadow: none;
 }
 
 .ticketmailer-recipient-control {
-    position: relative;
+	position: relative;
 }
 
 .ticketmailer-recipient-suggestions {
-    position: absolute;
-    z-index: 1050;
-    top: calc(100% + 0.2rem);
-    right: 0;
-    left: 0;
-    max-height: 15rem;
-    overflow-y: auto;
-    margin: 0;
-    padding: 0.25rem;
-    border: 1px solid #bfc8d8;
-    border-radius: 3px;
-    background: #fff;
-    box-shadow: 0 0.35rem 0.8rem rgba(15, 23, 42, 0.16);
-    list-style: none;
+	position: absolute;
+	z-index: 1050;
+	top: calc(100% + 0.2rem);
+	right: 0;
+	left: 0;
+	max-height: 15rem;
+	overflow-y: auto;
+	margin: 0;
+	padding: 0.25rem;
+	border: 1px solid #bfc8d8;
+	border-radius: 3px;
+	background: #fff;
+	box-shadow: 0 0.35rem 0.8rem rgba(15, 23, 42, 0.16);
+	list-style: none;
 }
 
 .ticketmailer-recipient-suggestion {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    padding: 0.35rem 0.5rem;
-    border: 0;
-    border-radius: 2px;
-    background: transparent;
-    color: inherit;
-    text-align: left;
-    cursor: pointer;
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	padding: 0.35rem 0.5rem;
+	border: 0;
+	border-radius: 2px;
+	background: transparent;
+	color: inherit;
+	text-align: left;
+	cursor: pointer;
 }
 
 .ticketmailer-recipient-suggestion:hover,
 .ticketmailer-recipient-suggestion.is-active {
-    background: #edf4ff;
+	background: #edf4ff;
 }
 
 .ticketmailer-recipient-suggestion-email {
-    color: #64748b;
-    font-size: 0.85em;
+	color: #64748b;
+	font-size: 0.85em;
 }
 
 /* ── Email action buttons ───────────────────────────────── */
@@ -314,78 +599,79 @@
    button and its dropdown toggle. Target the split group directly (no
    :has()) so it works regardless of browser :has() support. */
 .timeline-buttons .main-actions {
-    gap: 0 !important;
+	gap: 0 !important;
 }
 
 .timeline-buttons .main-actions > .answer-action,
 .timeline-buttons .main-actions > .btn:first-child {
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
+	border-top-right-radius: 0;
+	border-bottom-right-radius: 0;
 }
 
 .timeline-buttons .main-actions > .dropdown-toggle-split,
 .timeline-buttons .main-actions > .btn:not(:first-child) {
-    margin-left: -1px !important;
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
+	margin-left: -1px !important;
+	border-top-left-radius: 0;
+	border-bottom-left-radius: 0;
 }
 ul.legacy-timeline-actions li:has(> .ticketmailer-timeline-action) {
-    padding: 0;
-    border-radius: 0;
+	padding: 0;
+	border-radius: 0;
 }
 
 ul.legacy-timeline-actions li .ticketmailer-timeline-action i {
-    padding-right: 0;
+	padding-right: 0;
 }
 
 /* Hide only the legacy email reply action while its compose panel is open. */
 body.ticketmailer-compose-active .ticketmailer-timeline-action {
-    display: none !important;
+	display: none !important;
 }
 
 /* ── Log entries ─────────────────────────────────────────── */
 .ticketmailer-log-entry .status-sent {
-    color: #15803d;
-    font-weight: 600;
+	color: #15803d;
+	font-weight: 600;
 }
 
 .ticketmailer-log-entry .status-failed {
-    color: #b91c1c;
-    font-weight: 600;
+	color: #b91c1c;
+	font-weight: 600;
 }
 
 .ticketmailer-attachments ul,
 .ticketmailer-inline-images ul {
-    margin: 0;
-    padding-left: 1.2em;
+	margin: 0;
+	padding-left: 1.2em;
 }
 
 .ticketmailer-attachment-open {
-    margin-left: 0.25rem;
+	margin-left: 0.25rem;
 }
 
 .ticketmailer-error pre {
-    background: #fde7e9;
-    color: #800;
-    padding: 0.5em;
-    border-radius: 3px;
-    white-space: pre-wrap;
+	background: #fde7e9;
+	color: #800;
+	padding: 0.5em;
+	border-radius: 3px;
+	white-space: pre-wrap;
 }
 
 .ticketmailer-upload-error {
-    color: #b91c1c;
+	color: #b91c1c;
 }
 
 /* ── Responsive ─────────────────────────────────────────── */
 @media (max-width: 640px) {
-    .ticketmailer-mail-row:not(.ticketmailer-mail-row--followup-meta) {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 0.25rem;
-    }
+	.ticketmailer-mail-row:not(.ticketmailer-mail-row--followup-meta) {
+		flex-direction: column;
+		align-items: stretch;
+		gap: 0.25rem;
+	}
 
-    .ticketmailer-mail-row:not(.ticketmailer-mail-row--followup-meta) .ticketmailer-mail-label {
-        flex: none;
-        text-align: left;
-    }
+	.ticketmailer-mail-row:not(.ticketmailer-mail-row--followup-meta)
+		.ticketmailer-mail-label {
+		flex: none;
+		text-align: left;
+	}
 }

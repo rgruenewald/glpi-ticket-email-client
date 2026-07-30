@@ -632,8 +632,60 @@ final class AcceptanceTest extends TestCase
         $this->assertStringNotContainsString("__('Action')", $config);
     }
 
-    // ---- helpers --------------------------------------------------------
+    // ---- Internal note: native private followup + email-only endpoint ------
 
+    #[Test]
+    public function internal_note_uses_native_private_followup_and_email_endpoint_fails_closed(): void
+    {
+        $action = (string) file_get_contents(self::REPO_ROOT . '/inc/timelineaction.class.php');
+        $compose = (string) file_get_contents(self::REPO_ROOT . '/templates/compose.html.twig');
+        $send = (string) file_get_contents(self::REPO_ROOT . '/front/send.php');
+        $setup = (string) file_get_contents(self::REPO_ROOT . '/setup.php');
+        $hooks = (string) file_get_contents(self::REPO_ROOT . '/hook.php');
+
+        $this->assertStringContainsString('new ITILFollowup()', $action);
+        $this->assertStringContainsString('showForm(0', $action);
+        $this->assertStringContainsString("\$_SESSION['glpifollowup_private'] = 1", $action);
+        $this->assertStringContainsString('finally', $action);
+        $this->assertStringContainsString('native_followup_form', $compose);
+        $this->assertStringContainsString("(\$inline ? 'inline' : 'modal')", $action);
+        $this->assertStringContainsString('value="email"', $compose);
+        $this->assertStringContainsString('value="internal_note"', $compose);
+        $this->assertStringContainsString('data-delivery-mode', $compose);
+        $this->assertStringContainsString('delivery_mode', $send);
+        $this->assertStringContainsString('pre_item_add', $setup);
+        $this->assertStringContainsString("['_ticketmailer_internal_note']", $hooks);
+        $this->assertStringContainsString("\$followup->input['is_private'] = 1", $hooks);
+        $this->assertStringContainsString('item_add', $setup);
+        $this->assertStringContainsString("['_ticketmailer_set_solved']", $hooks);
+        $this->assertStringContainsString("'status' => Ticket::SOLVED", $hooks);
+        $this->assertStringContainsString('if (!$ticket->getFromDB', $hooks);
+        $this->assertStringContainsString('|| !$ticket->canSolve()', $hooks);
+        $this->assertStringContainsString('|| !$ticket->update([', $hooks);
+        $this->assertStringContainsString('The internal note was added, but the ticket status could not be set to solved.', $hooks);
+
+        $modeValidation = strpos($send, "\$_POST['delivery_mode']");
+        $recipientParsing = strpos($send, 'PluginTicketmailerRecipients::parseRaw');
+        $audit = strpos($send, 'PluginTicketmailerAudit::createIntent');
+        $this->assertNotFalse($modeValidation);
+        $this->assertNotFalse($recipientParsing);
+        $this->assertNotFalse($audit);
+        $this->assertLessThan($recipientParsing, $modeValidation);
+        $this->assertLessThan($audit, $modeValidation);
+        $this->assertStringContainsString('/\\bname=["\\\']is_private["\\\']/i', $action);
+        $this->assertStringContainsString('/\\btype=["\\\']hidden["\\\']/i', $action);
+        $this->assertStringContainsString('/\\btype=["\\\']checkbox["\\\']/i', $action);
+        $this->assertDoesNotMatchRegularExpression(
+            '/PluginTicketmailerMailer::send|PluginTicketmailerAudit::createIntent|PluginTicketmailerTimeline::recordOutbound/',
+            $action,
+        );
+        $this->assertDoesNotMatchRegularExpression(
+            '/NotificationEvent::raiseEvent|Notification::raiseEvent|NotificationMailing::send/',
+            $action,
+        );
+    }
+
+    // ---- helpers --------------------------------------------------------
 
     private static function grepRecursive(string $subdir, string $pattern): string
     {

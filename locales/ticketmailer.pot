@@ -152,6 +152,26 @@ msgstr ""
 msgid "E-Mail antworten"
 msgstr ""
 
+#: templates/compose.html.twig
+msgid "Reply mode"
+msgstr ""
+
+#: templates/compose.html.twig
+msgid "Email"
+msgstr ""
+
+#: templates/compose.html.twig
+msgid "Internal note"
+msgstr ""
+
+#: templates/compose.html.twig
+msgid "Knowledge base"
+msgstr ""
+
+#: front/send.php
+msgid "Unsupported delivery mode."
+msgstr ""
+
 msgid "Email reply"
 msgstr ""
 
@@ -384,4 +404,12 @@ msgstr ""
 
 #: inc/config.class.php front/config.form.php
 msgid "Entity"
+msgstr ""
+
+#: templates/compose.html.twig
+msgid "Set ticket status to waiting after sending."
+msgstr ""
+
+#: templates/compose.html.twig
+msgid "Set ticket status to solved after sending."
 msgstr ""

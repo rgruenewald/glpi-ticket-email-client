@@ -36,7 +36,7 @@ for file in \
   front/compose.php front/config.form.php front/send.php front/download.php front/history_attachment.php front/log_entry.php \
   ajax/validate_recipients.php ajax/upload.php ajax/upload_image.php \
   templates/compose.html.twig templates/timeline_action.html.twig templates/log_entry.html.twig \
-  js/composer.js sql/install.sql sql/update-1.1.0.sql sql/uninstall.sql \
+  public/js/composer.js sql/install.sql sql/update-1.1.0.sql sql/uninstall.sql \
   locales/ticketmailer.pot locales/ticketmailer.en.po locales/ticketmailer.de.po; do
   require_file "$file"
 done
@@ -92,12 +92,12 @@ require_re "log_entry.php" front/send.php "incomplete sends stay on their audit 
 require_re "mailbox" ajax/validate_recipients.php "recipient AJAX reports mailbox warning"
 require_re "followup_template_dropdown" templates/compose.html.twig "reply form exposes GLPI followup templates"
 require_re "itilfollowuptemplates_id|itilfollowup.php" inc/timelineaction.class.php "forms use GLPI's followup-template API"
-require_re "applyFollowupTemplate" js/composer.js "template selection renders through GLPI's endpoint"
-require_re "ajaxComplete" js/composer.js "forms initialize after GLPI loads the ticket timeline"
-require_re "X-Glpi-Csrf-Token" js/composer.js "template selection sends GLPI's CSRF header"
-require_re "tinymce.get" js/composer.js "template selection updates the active TinyMCE editor"
-require_re "ticketmailerSending|spinner-border" js/composer.js "send submit disables duplicate requests with a spinner"
-require_re "ticketmailer-actions.*disabled|cancel\\.classList\\.add\\('disabled'\\)" js/composer.js "send submit disables cancellation"
+require_re "applyTemplate" public/js/composer.js "template selection renders through GLPI's endpoint"
+require_re "ajaxComplete" public/js/composer.js "forms initialize after GLPI loads the ticket timeline"
+require_re "X-Glpi-Csrf-Token" public/js/composer.js "template selection sends GLPI's CSRF header"
+require_re "tinymce.get" public/js/composer.js "template selection updates the active TinyMCE editor"
+require_re "ticketmailerSending|spinner-border" public/js/composer.js "send submit disables duplicate requests with a spinner"
+require_re "ticketmailer-actions.*disabled|cancel\\.classList\\.add\\('disabled'\\)" public/js/composer.js "send submit disables cancellation"
 
 # 5. Timeline integration: standard followup but no notification delivery call.
 require_re "ITILFollowup" inc/timeline.class.php "timeline integration uses ITILFollowup"

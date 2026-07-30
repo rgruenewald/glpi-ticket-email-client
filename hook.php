@@ -54,6 +54,43 @@ function plugin_ticketmailer_filter_notification_template_data(NotificationTarge
     unset($target->data['costs']);
 }
 
+/**
+ * Keep followups submitted by Ticketmailer's native Internal-note form private.
+ */
+function plugin_ticketmailer_force_internal_note_private(ITILFollowup $followup): void
+{
+    if (($followup->input['_ticketmailer_internal_note'] ?? null) === '1') {
+        $followup->input['is_private'] = 1;
+        unset($followup->input['_ticketmailer_internal_note']);
+    }
+}
+
+/**
+ * Apply the optional solved status after GLPI has finished adding the followup.
+ */
+function plugin_ticketmailer_set_internal_note_solved(ITILFollowup $followup): void
+{
+    if (($followup->input['_ticketmailer_set_solved'] ?? null) !== '1'
+        || $followup->getField('itemtype') !== Ticket::class) {
+        return;
+    }
+
+    $ticket = new Ticket();
+    if (!$ticket->getFromDB((int) $followup->getField('items_id'))
+        || !$ticket->canSolve()
+        || !$ticket->update([
+            'id' => (int) $ticket->getID(),
+            'status' => Ticket::SOLVED,
+            '_disablenotif' => true,
+        ])) {
+        Session::addMessageAfterRedirect(
+            __('The internal note was added, but the ticket status could not be set to solved.', 'ticketmailer'),
+            false,
+            ERROR,
+        );
+    }
+}
+
 function plugin_ticketmailer_post_init(): void
 {
     Plugin::registerClass(
