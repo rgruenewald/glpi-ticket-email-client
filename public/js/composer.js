@@ -862,9 +862,9 @@
 								if (templateField) {
 									var templateLabel =
 										templateField.querySelector(":scope > label");
-									var templateText = templateLabel
-										? templateLabel.textContent.trim()
-										: "";
+									var templateText =
+										delivery.dataset.answerTemplatesLabel ||
+										(templateLabel ? templateLabel.textContent.trim() : "");
 									var templateSelect = templateField.querySelector("select");
 									var emptyTemplate = templateSelect
 										? templateSelect.querySelector(
@@ -945,15 +945,11 @@
 							footer.prepend(cancel);
 							var pendingLabel = null;
 							if (pendingControl) {
-								var pendingWrapper =
-									pendingControl.querySelector(":scope > span");
 								pendingLabel =
 									pendingControl.querySelector("label.form-switch");
-								var pendingIcon =
-									pendingControl.querySelector(":scope > span > i") ||
-									(pendingLabel
-										? pendingLabel.querySelector(":scope > i")
-										: null);
+								var pendingIcon = pendingLabel
+									? pendingLabel.querySelector(":scope > i")
+									: null;
 								if (pendingLabel) {
 									pendingLabel.classList.add(
 										"form-check",
@@ -965,7 +961,7 @@
 									if (!pendingIcon) {
 										pendingIcon = document.createElement("i");
 									}
-									pendingWrapper.prepend(pendingIcon);
+									pendingLabel.prepend(pendingIcon);
 								}
 								if (pendingIcon) {
 									pendingIcon.className = "ti ti-player-pause";

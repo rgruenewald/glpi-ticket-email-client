@@ -253,7 +253,9 @@
 
 [data-ticketmailer-panel="internal_note"] .ticketmailer-note-knowledge {
 	grid-column: auto;
+	justify-self: start;
 	order: 2;
+	width: auto !important;
 	margin: 0 !important;
 }
 

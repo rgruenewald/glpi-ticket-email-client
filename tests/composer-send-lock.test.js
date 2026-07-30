@@ -337,8 +337,18 @@ const composerCss = require("node:fs").readFileSync(
 );
 assert.match(
 	composerSource,
-	/pendingControl\.querySelector\(["']:scope > span > i["']\)[\s\S]*pendingWrapper\.prepend\(pendingIcon\)/,
-	"pending icon renders immediately before the native Waiting toggle",
+	/var pendingIcon = pendingLabel[\s\S]*pendingLabel\.querySelector\(["']:scope > i["']\)/,
+	"pending icon lookup cannot hijack unrelated native pending-control icons",
+);
+assert.doesNotMatch(
+	composerSource,
+	/var pendingIcon = pendingControl\.querySelector\(["']i["']\)/,
+	"pending icon lookup is not an unrestricted descendant query",
+);
+assert.match(
+	composerSource,
+	/pendingLabel\.prepend\(pendingIcon\)[\s\S]*pendingIcon\.className = ["']ti ti-player-pause["']/,
+	"pending icon visibly renders inside the native Waiting toggle label",
 );
 assert.match(
 	composerSource,
@@ -359,6 +369,16 @@ assert.match(
 	composerCss,
 	/\[id\^="pending-reasons-control-"\]\s*\{[^}]*padding:\s*0;/s,
 	"pending wrapper adds no asymmetric outer spacing",
+);
+assert.match(
+	composerCss,
+	/\.ticketmailer-note-knowledge\s*\{[^}]*justify-self:\s*start[^}]*width:\s*auto\s*!important/s,
+	"Knowledge base stays flush with adjacent metadata controls",
+);
+assert.match(
+	composerSource,
+	/delivery\.dataset\.answerTemplatesLabel[\s\S]*emptyTemplate\.textContent = templateText/,
+	"native Internal note empty template uses the localized Answer templates label",
 );
 assert.match(composerSource, /form\.dataset\.validateUrl/);
 assert.match(
