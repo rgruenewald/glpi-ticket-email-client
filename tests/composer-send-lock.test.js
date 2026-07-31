@@ -404,8 +404,8 @@ assert.match(
 );
 assert.match(
 	composerCss,
-	/\.ticketmailer-note-knowledge[\s\S]*> \.field-container\s*\{[^}]*width:\s*auto[^}]*padding:\s*0[^}]*transform:\s*translateX\(1rem\)/s,
-	"Knowledge base button aligns with the editor's right edge",
+	/\.ticketmailer-note-knowledge[\s\S]*> \.field-container\s*\{[^}]*width:\s*auto[^}]*padding:\s*0/s,
+	"Knowledge base button keeps its compact field container",
 );
 assert.match(
 	composerSource,
@@ -415,17 +415,17 @@ assert.match(
 assert.match(composerSource, /form\.dataset\.validateUrl/);
 assert.match(
 	composerSource,
-	/\['recipients_to', 'recipients_cc', 'recipients_bcc'\]/,
+	/\[["']recipients_to["'], ["']recipients_cc["'], ["']recipients_bcc["']\]/,
 );
 assert.match(
 	composerSource,
-	/var matchesElement = warning \? warning\.querySelector\('\.ticketmailer-mailbox-matches'\) : null;/,
+	/var matchesElement = warning\s*\? warning\.querySelector\(["']\.ticketmailer-mailbox-matches["']\)\s*:\s*null;/,
 );
 assert.match(
 	composerSource,
 	/if \(matchesElement\) \{\s*matchesElement\.textContent/,
 );
-assert.match(composerSource, /button\.disabled = normalized\.length > 0/);
+assert.match(composerSource, /button\.disabled =\s*normalized\.length > 0/);
 assert.match(composerSource, /ticketmailer-recipient-chip--mailbox/);
 assert.match(composerSource, /ti-alert-triangle/);
 assert.match(composerSource, /form\.ticketmailerRecipientValidation/);
@@ -435,7 +435,7 @@ assert.match(
 );
 assert.match(
 	composerSource,
-	/input\.addEventListener\('input',[\s\S]*\+\+requestId/,
+	/input\.addEventListener\(["']input["'],[\s\S]*\+\+requestId/,
 );
 const autocompleteSource = require("node:fs").readFileSync(
 	require.resolve("../ajax/autocomplete_users.php"),
@@ -455,7 +455,10 @@ assert.match(
 );
 
 const {
+	bindKnowledgeModal,
 	recipientForSuggestion,
+	selectKnowledgeArticle,
+	setKnowledgeArticleContent,
 	validUserSuggestions,
 } = require("../public/js/composer.js");
 assert.deepEqual(
@@ -591,3 +594,145 @@ assert.equal(
 	false,
 	"solution template unchecks waiting through existing status logic",
 );
+
+function notePanel(contentField) {
+	return {
+		querySelector(selector) {
+			return selector === 'textarea[name="content"]' ? contentField : null;
+		},
+	};
+}
+
+const knowledgeFields = {
+	"knowledge-a": { id: "knowledge-a", value: "" },
+	"knowledge-b": { id: "knowledge-b", value: "" },
+};
+const knowledgeEditors = {};
+Object.values(knowledgeFields).forEach((field) => {
+	knowledgeEditors[field.id] = {
+		content: "",
+		save() {},
+		setContent(content) {
+			this.content = content;
+		},
+	};
+	field.dispatchEvent = () => {};
+});
+global.window.tinymce = {
+	get(id) {
+		return knowledgeEditors[id] || null;
+	},
+};
+let hiddenKnowledgeModal = null;
+global.bootstrap = {
+	Modal: {
+		getOrCreateInstance(modal) {
+			return {
+				hide() {
+					hiddenKnowledgeModal = modal;
+				},
+			};
+		},
+	},
+};
+global.CFG_ROOT = "/glpi";
+
+assert.equal(
+	setKnowledgeArticleContent(
+		notePanel(knowledgeFields["knowledge-a"]),
+		"<p>Knowledge article</p>",
+	),
+	true,
+);
+assert.equal(
+	knowledgeEditors["knowledge-a"].content,
+	"<p>Knowledge article</p>",
+);
+assert.equal(
+	knowledgeFields["knowledge-a"].value,
+	"<p>Knowledge article</p>",
+);
+
+const knowledgeModal = {
+	dataset: {},
+	handlers: {},
+	addEventListener(type, handler) {
+		(this.handlers[type] ||= []).push(handler);
+	},
+};
+const parentA = {};
+const parentB = {};
+bindKnowledgeModal(
+	knowledgeModal,
+	notePanel(knowledgeFields["knowledge-a"]),
+	parentA,
+);
+bindKnowledgeModal(
+	knowledgeModal,
+	notePanel(knowledgeFields["knowledge-b"]),
+	parentB,
+);
+assert.equal(knowledgeModal.handlers.click.length, 1);
+assert.equal(knowledgeModal.handlers["hidden.bs.modal"].length, 1);
+assert.equal(knowledgeModal.ticketmailerParentModal, parentB);
+
+global.window.fetch = () =>
+	Promise.resolve({
+		ok: true,
+		text: () => Promise.resolve("<p>Active article</p>"),
+	});
+knowledgeModal.handlers.click[0]({
+	target: {
+		closest(selector) {
+			return selector === ".use-knowbaseitem"
+				? {
+						dataset: { knowbaseitemId: "7" },
+						closest() {
+							return null;
+						},
+					}
+				: null;
+		},
+	},
+	preventDefault() {},
+	stopImmediatePropagation() {},
+});
+
+setImmediate(() => {
+Promise.resolve().then(async () => {
+	assert.equal(knowledgeEditors["knowledge-a"].content, "<p>Knowledge article</p>");
+	assert.equal(knowledgeEditors["knowledge-b"].content, "<p>Active article</p>");
+	assert.equal(hiddenKnowledgeModal, knowledgeModal);
+
+	const responses = [];
+	global.window.fetch = () =>
+		new Promise((resolve) => {
+			responses.push(resolve);
+		});
+	const first = selectKnowledgeArticle(
+		notePanel(knowledgeFields["knowledge-b"]),
+		knowledgeModal,
+		"1",
+	);
+	const second = selectKnowledgeArticle(
+		notePanel(knowledgeFields["knowledge-b"]),
+		knowledgeModal,
+		"2",
+	);
+	responses[1]({
+		ok: true,
+		text: () => Promise.resolve("<p>Newest article</p>"),
+	});
+	await second;
+	responses[0]({
+		ok: true,
+		text: () => Promise.resolve("<p>Stale article</p>"),
+	});
+	assert.equal(await first, false);
+	assert.equal(knowledgeEditors["knowledge-b"].content, "<p>Newest article</p>");
+}).catch((error) => {
+	process.nextTick(() => {
+		throw error;
+	});
+});
+});

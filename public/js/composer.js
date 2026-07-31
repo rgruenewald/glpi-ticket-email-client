@@ -61,11 +61,105 @@
 		};
 	}
 
+	function setKnowledgeArticleContent(notePanel, content) {
+		var contentField = notePanel.querySelector('textarea[name="content"]');
+		if (!contentField) {
+			return false;
+		}
+		var editor =
+			window.tinymce && typeof window.tinymce.get === "function"
+				? window.tinymce.get(contentField.id)
+				: null;
+		if (editor) {
+			editor.setContent(content);
+			editor.save();
+		} else if (typeof setRichTextEditorContent === "function") {
+			setRichTextEditorContent(contentField.id, content);
+		}
+		contentField.value = content;
+		contentField.dispatchEvent(new Event("change", { bubbles: true }));
+		return true;
+	}
+
+	function selectKnowledgeArticle(notePanel, knowledgeModal, itemId) {
+		var requestId = (knowledgeModal.ticketmailerKnowledgeRequestId || 0) + 1;
+		knowledgeModal.ticketmailerKnowledgeRequestId = requestId;
+		return window
+			.fetch(CFG_ROOT + "/Knowbase/KnowbaseItem/" + itemId + "/Content", {
+				headers: { "X-Requested-With": "XMLHttpRequest" },
+			})
+			.then((response) => {
+				if (!response.ok) {
+					throw new Error("Unable to load knowledge article");
+				}
+				return response.text();
+			})
+			.then((content) => {
+				if (knowledgeModal.ticketmailerKnowledgeRequestId !== requestId) {
+					return false;
+				}
+				if (!setKnowledgeArticleContent(notePanel, content)) {
+					throw new Error("Unable to update knowledge article content");
+				}
+				bootstrap.Modal.getOrCreateInstance(knowledgeModal).hide();
+				return true;
+			});
+	}
+
+	function bindKnowledgeModal(knowledgeModal, notePanel, parentModal) {
+		knowledgeModal.ticketmailerNotePanel = notePanel;
+		knowledgeModal.ticketmailerParentModal = parentModal;
+		knowledgeModal.ticketmailerKnowledgeRequestId =
+			(knowledgeModal.ticketmailerKnowledgeRequestId || 0) + 1;
+		if (knowledgeModal.dataset.ticketmailerBound) {
+			return;
+		}
+		knowledgeModal.dataset.ticketmailerBound = "true";
+		knowledgeModal.addEventListener(
+			"click",
+			(event) => {
+				var useButton = event.target.closest(".use-knowbaseitem");
+				if (!useButton) {
+					return;
+				}
+				var item = useButton.closest(".list-group-item");
+				var itemId =
+					useButton.dataset.knowbaseitemId ||
+					(item ? item.dataset.knowbaseitemId : "");
+				event.preventDefault();
+				event.stopImmediatePropagation();
+				if (itemId) {
+					selectKnowledgeArticle(
+						knowledgeModal.ticketmailerNotePanel,
+						knowledgeModal,
+						itemId,
+					).catch(() => {});
+				} else {
+					bootstrap.Modal.getOrCreateInstance(knowledgeModal).hide();
+				}
+			},
+			true,
+		);
+		knowledgeModal.addEventListener(
+			"hidden.bs.modal",
+			() => {
+				if (document.contains(knowledgeModal.ticketmailerParentModal)) {
+					window.setTimeout(() => {
+						document.body.classList.add("modal-open");
+					}, 100);
+				}
+			},
+			true,
+		);
+	}
 	if (typeof module !== "undefined") {
 		module.exports = {
+			bindKnowledgeModal: bindKnowledgeModal,
+			recipientForSuggestion: recipientForSuggestion,
+			selectKnowledgeArticle: selectKnowledgeArticle,
+			setKnowledgeArticleContent: setKnowledgeArticleContent,
 			splitRecipientTokens: splitRecipientTokens,
 			validUserSuggestions: validUserSuggestions,
-			recipientForSuggestion: recipientForSuggestion,
 		};
 	}
 
@@ -105,8 +199,7 @@
 			}
 		});
 		form.querySelectorAll('button[type="submit"]').forEach((button) => {
-			button.disabled =
-				normalized.length > 0 && (!override || !override.checked);
+			button.disabled = normalized.length > 0 && (!override || !override.checked);
 		});
 		form.ticketmailerMailboxMatches = matches;
 	}
@@ -655,7 +748,7 @@
 					if (cancel.tagName === "BUTTON") {
 						cancel.disabled = true;
 					} else {
-						cancel.classList.add("disabled");
+						cancel.classList.add('disabled');
 						cancel.setAttribute("aria-disabled", "true");
 						cancel.addEventListener("click", (cancelEvent) => {
 							cancelEvent.preventDefault();
@@ -1190,119 +1283,23 @@
 										window.setTimeout(() => {
 											window.clearInterval(labelTimer);
 										}, 2500);
-										window.setTimeout(() => {
+										var modalBindAttempts = 0;
+										var bindCurrentKnowledgeModal = () => {
 											document.body.classList.add("modal-open");
 											var knowledgeModal = document.getElementById(
 												"modal_search_knowbaseitem",
 											);
 											if (!knowledgeModal) {
+												modalBindAttempts += 1;
+												if (modalBindAttempts < 25) {
+													window.setTimeout(bindCurrentKnowledgeModal, 100);
+												}
 												return;
 											}
 											labelKnowledgeButtons();
-											knowledgeModal.addEventListener(
-												"click",
-												(event) => {
-													var useButton =
-														event.target.closest(".use-knowbaseitem");
-													if (!useButton) {
-														return;
-													}
-													var item = useButton.closest(".list-group-item");
-													var itemId =
-														useButton.dataset.knowbaseitemId ||
-														(item ? item.dataset.knowbaseitemId : "");
-													event.preventDefault();
-													event.stopImmediatePropagation();
-													if (itemId) {
-														window
-															.fetch(
-																CFG_ROOT +
-																	"/Knowbase/KnowbaseItem/" +
-																	itemId +
-																	"/Content",
-																{
-																	headers: {
-																		"X-Requested-With": "XMLHttpRequest",
-																	},
-																},
-															)
-															.then((response) => response.text())
-															.then((content) => {
-																var contentField = notePanel.querySelector(
-																	'textarea[name="content"]',
-																);
-																if (contentField) {
-																	if (
-																		typeof setRichTextEditorContent ===
-																		"function"
-																	) {
-																		setRichTextEditorContent(
-																			contentField.id,
-																			content,
-																		);
-																	} else if (
-																		typeof tinyMCE !== "undefined" &&
-																		tinyMCE.get(contentField.id)
-																	) {
-																		tinyMCE
-																			.get(contentField.id)
-																			.setContent(content);
-																		tinyMCE.get(contentField.id).save();
-																	}
-																	contentField.value = content;
-																	window.setTimeout(() => {
-																		if (
-																			typeof tinyMCE !== "undefined" &&
-																			tinyMCE.get(contentField.id)
-																		) {
-																			tinyMCE
-																				.get(contentField.id)
-																				.setContent(content);
-																			tinyMCE.get(contentField.id).save();
-																		}
-																	}, 0);
-																	contentField.dispatchEvent(
-																		new Event("change", { bubbles: true }),
-																	);
-																}
-																bootstrap.Modal.getOrCreateInstance(
-																	knowledgeModal,
-																).hide();
-																var modalOpenAttempts = 0;
-																var modalOpenTimer = window.setInterval(() => {
-																	document.body.classList.add("modal-open");
-																	modalOpenAttempts += 1;
-																	if (modalOpenAttempts === 5) {
-																		window.clearInterval(modalOpenTimer);
-																	}
-																}, 200);
-															});
-													} else {
-														bootstrap.Modal.getOrCreateInstance(
-															knowledgeModal,
-														).hide();
-													}
-													if (!document.contains(parentModal)) {
-														document.body.append(parentModal);
-													}
-													window.setTimeout(() => {
-														document.body.classList.add("modal-open");
-													}, 0);
-												},
-												true,
-											);
-											knowledgeModal.addEventListener(
-												"hidden.bs.modal",
-												() => {
-													if (document.contains(parentModal)) {
-														window.setTimeout(() => {
-															document.body.classList.add("modal-open");
-														}, 100);
-													}
-												},
-												true,
-											);
-										}, 0);
+											bindKnowledgeModal(knowledgeModal, notePanel, parentModal);
+										};
+										bindCurrentKnowledgeModal();
 									},
 									true,
 								);
