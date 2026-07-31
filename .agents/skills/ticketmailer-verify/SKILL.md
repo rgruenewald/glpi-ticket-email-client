@@ -1,6 +1,6 @@
 ---
 name: ticketmailer-verify
-description: How to verify ticketmailer changes — v2 score.sh, PHPUnit, docker/mailpit smoke.
+description: How to verify ticketmailer changes — v2 score.sh, PHPUnit, and Docker/SMTP smoke checks.
 ---
 
 # Skill: ticketmailer-verify
@@ -38,19 +38,19 @@ If PHP/GLPI stubs are incomplete in a bare checkout, still keep score.sh green; 
 ## 3. Runtime smoke (docker)
 
 ```bash
-docker compose up -d
-# GLPI  : http://localhost:8080  (glpi / glpi)
-# mailpit: http://localhost:8025
+docker compose up -d --build
+# GLPI: http://localhost:8080  (glpi / glpi)
+# SMTP: real test server configured through the ignored .env
 ```
 
 Manual checks (README M1–M8, aligned with v2 where noted):
 
 | Id | Check |
-|---|---|
+| --- | --- |
 | M1 | compose stack healthy |
 | M2 | login technician |
 | M3 | compose+send → audit row `sent` |
-| M4 | message in mailpit (To/CC/BCC/body) |
+| M4 | exactly one message at the test receiver (To/CC/BCC/body) |
 | M5 | forward subject/body shape |
 | M6 | purge ticket cascades audit rows |
 | M7 | SMTP fail → audit `failed` + UI error |
@@ -61,10 +61,10 @@ Also verify v2-specific paths when touched: timeline followup present, `_disable
 ## What “green” means
 
 | Change type | Minimum bar |
-|---|---|
+| --- | --- |
 | Structural / rename / new surface | v2 `score.sh` |
 | Logic in `inc/` or send path | score.sh + PHPUnit (or targeted test) |
-| End-to-end mail behavior | docker smoke against mailpit |
+| End-to-end mail behavior | Docker smoke against the configured SMTP test receiver |
 | Locales only | score.sh locale checks + spot UI language switch |
 
 ## Do not

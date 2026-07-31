@@ -21,7 +21,7 @@ RUN apt-get update \
         libcurl4-openssl-dev \
         libonig-dev \
  && docker-php-ext-configure gd --with-freetype --with-jpeg \
- && docker-php-ext-install -j$(nproc) bcmath curl mbstring mysqli ldap xml intl gd opcache \
+ && docker-php-ext-install bcmath mysqli ldap intl gd \
  && rm -rf /var/lib/apt/lists/*
 
 # Install GLPI upstream release.

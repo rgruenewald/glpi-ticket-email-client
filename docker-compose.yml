@@ -1,16 +1,12 @@
-# docker-compose.yml — local GLPI 11 + MariaDB + Mailpit
-# development stack. GLPI is pre-configured to point at
-# `mailpit:1025` for outbound SMTP; the plugin under
-# development is mounted at
-# `/var/www/html/plugins/ticketmailer`.
+# docker-compose.yml — local GLPI 11 + MariaDB development stack
+#
+# The plugin uses GLPI core's SMTP configuration. Set GLPI_SMTP_HOST and the
+# optional SMTP variables documented in README.md; keep credentials in .env.
 #
 # Usage:
-#   docker compose up -d
+#   docker compose up -d --build
 #   open http://localhost:8080   (default GLPI login:
 #     glpi / glpi — change on first login)
-#   open http://localhost:8025   (mailpit UI)
-#
-# Implements spec § A14.
 
 services:
   db:
@@ -29,32 +25,14 @@ services:
       timeout: 3s
       retries: 20
 
-  mailpit:
-    build:
-      context: ./docker/mailpit
-    image: ticketmailer/mailpit:latest
-    restart: unless-stopped
-    ports:
-      - "8025:8025" # web UI
-      - "1025:1025" # SMTP
-    environment:
-      MP_MAX_MESSAGES: 5000
-      MP_SMTP_AUTH_ACCEPT_ANY: 0
-      MP_SMTP_AUTH_ALLOW_INSECURE: 0
-
   glpi:
     build:
       context: ./docker/glpi
     image: ticketmailer/glpi:latest
     restart: unless-stopped
-    dns:
-      - 1.1.1.1
-      - 8.8.8.8
     depends_on:
       db:
         condition: service_healthy
-      mailpit:
-        condition: service_started
     ports:
       - "8080:80"
     environment:
@@ -62,9 +40,11 @@ services:
       GLPI_DB_NAME: glpi
       GLPI_DB_USER: glpi
       GLPI_DB_PASSWORD: glpi
-      GLPI_SMTP_HOST: mailpit
-      GLPI_SMTP_PORT: 1025
-      GLPI_SMTP_NO_TLS: 1
+      GLPI_SMTP_HOST: ${GLPI_SMTP_HOST:-}
+      GLPI_SMTP_PORT: ${GLPI_SMTP_PORT:-587}
+      GLPI_SMTP_MODE: ${GLPI_SMTP_MODE:-3}
+      GLPI_SMTP_USERNAME: ${GLPI_SMTP_USERNAME:-}
+      GLPI_SMTP_PASSWORD: ${GLPI_SMTP_PASSWORD:-}
       GLPI_INSTALL: "1"
     volumes:
       # Mount the plugin source from the repo root.
@@ -72,6 +52,7 @@ services:
       # Persist GLPI config and data.
       - glpi_config:/var/www/html/config
       - glpi_data:/var/www/html/files
+
 volumes:
   db_data:
   glpi_data:
