@@ -1,4 +1,8 @@
-# docker-compose.yml — local GLPI 11 + MariaDB development stack
+# docker-compose.yml — shared local GLPI 11 + MariaDB development stack
+#
+# All Git worktrees use one Compose project, including its containers and volumes.
+# Running `docker compose up` from another worktree switches the mounted plugin
+# source without creating another GLPI test instance.
 #
 # The plugin uses GLPI core's SMTP configuration. Set GLPI_SMTP_HOST and the
 # optional SMTP variables documented in README.md; keep credentials in .env.
@@ -8,6 +12,7 @@
 #   open http://localhost:8080   (default GLPI login:
 #     glpi / glpi — change on first login)
 
+name: ticketmailer
 services:
   db:
     image: mariadb:10.11

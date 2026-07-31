@@ -140,7 +140,7 @@ GLPI Ticket Email Client does not provide:
 
 ## Development and verification
 
-The repository includes a local GLPI/MariaDB development stack. Configure a real SMTP server in `.env` (ignored by Git):
+The repository includes one local GLPI/MariaDB development stack shared by all Git worktrees. Starting Compose from another worktree reuses the test instance and switches its mounted plugin source to that worktree. Configure a real SMTP server in `.env` (ignored by Git):
 
 ```dotenv
 GLPI_SMTP_HOST=smtp.example.com
