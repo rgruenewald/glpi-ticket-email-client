@@ -109,6 +109,7 @@ Open **Email reply**, then choose a mode. **Email** is selected by default. Each
 **Internal note** uses GLPI's native private-followup form, with private visibility enforced. Native permissions, CSRF, editor/uploads, templates, source, pending reasons/status, timeline/history, merged tickets, and notification configuration remain authoritative.
 
 ## Sending an email
+
 1. Open a ticket and select **Email reply**.
 2. Add at least one recipient.
 3. Check the subject and message.
@@ -139,14 +140,23 @@ GLPI Ticket Email Client does not provide:
 
 ## Development and verification
 
-The repository includes a local GLPI/MariaDB/Mailpit development stack:
+The repository includes one local GLPI/MariaDB development stack shared by all Git worktrees. Starting Compose from another worktree reuses the test instance and switches its mounted plugin source to that worktree. Configure a real SMTP server in `.env` (ignored by Git):
 
-```bash
-docker compose up -d
+```dotenv
+GLPI_SMTP_HOST=smtp.example.com
+GLPI_SMTP_PORT=587
+GLPI_SMTP_MODE=3
+GLPI_SMTP_USERNAME=developer@example.com
+GLPI_SMTP_PASSWORD=replace-with-a-local-secret
 ```
 
-- GLPI: `http://localhost:8080` (`glpi` / `glpi` in the development stack only)
-- Mailpit: `http://localhost:8025`
+`GLPI_SMTP_HOST` is required for automatic SMTP configuration. `GLPI_SMTP_PORT` defaults to `587`; `GLPI_SMTP_MODE` defaults to `3` (STARTTLS). Use `1` for plain SMTP or `2` for implicit TLS. Username and password may be empty when the server does not require authentication. These values configure GLPI core; the plugin has no SMTP settings.
+
+```bash
+docker compose up -d --build
+```
+
+GLPI is available at `http://localhost:8080` (`glpi` / `glpi` in the development stack only). Change the default login immediately.
 
 Run the contract verifier from the repository root:
 
@@ -161,9 +171,7 @@ composer install
 vendor/bin/phpunit
 ```
 
-Before a release, test one complete email with recipients, attachments, and warnings. Also test failed delivery and a missing ticket-history entry.
-
-Mailpit must contain one email. Its visible headers must not contain BCC.
+Before a release, use a dedicated SMTP test receiver to test one complete email with recipients, attachments, and warnings. Also test failed delivery and a missing ticket-history entry. The receiver must contain exactly one email; its visible headers must not contain BCC.
 
 ## Repository layout
 
@@ -177,7 +185,7 @@ locales/    Gettext template and English/German catalogues
 sql/        Fresh-install schema and upgrade migrations
 templates/  Twig views
 tests/      PHPUnit and browser-behavior tests
-docker/     Local GLPI and Mailpit development images
+docker/     Local GLPI development image
 ```
 
 ## Contributing and security

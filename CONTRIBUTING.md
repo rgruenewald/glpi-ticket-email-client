@@ -3,7 +3,7 @@
 ## Before opening a change
 
 - Discuss behavior changes in an issue before implementing them.
-- Keep the plugin compatible with PHP 8.1+ and GLPI 10.0.x.
+- Keep the plugin compatible with PHP 8.2+ and GLPI 11.0.x.
 - Do not add SMTP settings, notification-engine delivery, inbound mail handling, drafts, queues, editor libraries, or GLPI core patches.
 - Preserve the send invariant: validate → create audit intent → exactly one SMTP attempt → create one `_disablenotif` timeline followup after SMTP success.
 - Preserve ticket authorization and CSRF checks on every controller and AJAX endpoint.
@@ -13,10 +13,10 @@
 Use the bundled local stack:
 
 ```bash
-docker compose up -d
+docker compose up -d --build
 ```
 
-The development-only credentials and Mailpit endpoint are documented in the README. Do not commit local databases, uploaded files, `vendor/`, secrets, or generated artifacts.
+The development-only login and required SMTP environment variables are documented in the README. Keep SMTP credentials in the ignored `.env`; do not commit local databases, uploaded files, `vendor/`, secrets, or generated artifacts.
 
 ## Quality bar
 
@@ -47,4 +47,4 @@ Keep English and German translations complete and do not introduce raw untransla
 
 ## Pull requests
 
-Use a focused branch and describe the problem, behavior change, verification performed, and any manual GLPI/Mailpit checks. Keep documentation in English and update the README when installation, configuration, security, or user-visible behavior changes.
+Use a focused branch and describe the problem, behavior change, verification performed, and any manual GLPI/SMTP checks. Keep documentation in English and update the README when installation, configuration, security, or user-visible behavior changes.

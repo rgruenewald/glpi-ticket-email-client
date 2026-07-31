@@ -31,7 +31,6 @@ updates:
     directories:
       - "/"
       - "/docker/glpi"
-      - "/docker/mailpit"
     schedule:
       interval: weekly
     cooldown:
