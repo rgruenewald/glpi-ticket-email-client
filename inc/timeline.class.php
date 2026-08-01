@@ -19,7 +19,8 @@ class PluginTicketmailerTimeline
      *   attachments:list<array<string,mixed>>,
      *   log_id:int,
      *   sent_at?:string,
-     *   from?:string
+     *   from?:string,
+     *   new_conversation?:bool,
      *   requesttypes_id?:int,
      * } $payload
      * @return array{ok:bool,followups_id:?int,error:?string}
@@ -110,6 +111,10 @@ class PluginTicketmailerTimeline
             . $join((array) ($payload['recipients_bcc'] ?? [])) . '</dd>';
         $lines[] = '<dt>' . $esc(__('Subject', 'ticketmailer')) . '</dt><dd>'
             . $esc((string) ($payload['subject'] ?? '')) . '</dd>';
+        if (!empty($payload['new_conversation'])) {
+            $lines[] = '<dt>' . $esc(__('Routing', 'ticketmailer')) . '</dt><dd>'
+                . $esc(__('New conversation; replies may create a new ticket.', 'ticketmailer')) . '</dd>';
+        }
         $lines[] = '</dl>';
 
         $body = self::sanitizeHtml((string) ($payload['body_html'] ?? ''));

@@ -13,6 +13,9 @@ namespace Symfony\Component\Mime {
         }
     }
 
+}
+
+namespace Symfony\Component\Mime\Part {
     if (!class_exists(DataPart::class)) {
         final class DataPart
         {

@@ -2,6 +2,9 @@
 <article class="ticketmailer-log-entry">
     <header>
         <h2>{{ entry.subject }}</h2>
+        {% if entry.new_conversation %}
+            <p><strong>{{ __('New conversation; replies may create a new ticket.', 'ticketmailer') }}</strong></p>
+        {% endif %}
         <p class="ticketmailer-meta">
             <span>{{ __('Sent at', 'ticketmailer') }}: {{ entry.sent_at }}</span>
             <span class="status-{{ entry.status }}">

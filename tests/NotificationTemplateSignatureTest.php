@@ -83,6 +83,15 @@ if (!class_exists('User')) {
 if (!class_exists('Session')) {
     class Session
     {
+        public static bool $canReadCosts = false;
+
+        public static function haveRight(string $right, int $access): bool
+        {
+            return $right === 'ticketcost'
+                && $access === (defined('READ') ? READ : 1)
+                && self::$canReadCosts;
+        }
+
         public static function getLoginUserID(): int
         {
             return 1;
@@ -129,9 +138,10 @@ if (!class_exists('Notification_NotificationTemplate')) {
 if (!class_exists('NotificationTargetTicket')) {
     class NotificationTargetTicket
     {
+        /** @var array<string, mixed> */
+        public array $data = [];
         public bool $responseAllowed = true;
         public ?string $mode = null;
-
         public function setMode(string $mode): void
         {
             $this->mode = $mode;
@@ -368,7 +378,7 @@ final class NotificationTemplateSignatureTest extends TestCase
         ];
 
         self::assertSame(
-            '[42] Printer offline',
+            'Printer offline',
             PluginTicketmailerConfig::subjectForTicket(new Ticket([
                 'id' => 42,
                 'name' => 'Printer offline',
@@ -386,7 +396,7 @@ final class NotificationTemplateSignatureTest extends TestCase
         ];
 
         self::assertSame(
-            '[42] Printer offline',
+            'Printer offline',
             PluginTicketmailerConfig::subjectForTicket(new Ticket([
                 'id' => 42,
                 'name' => 'Printer offline',

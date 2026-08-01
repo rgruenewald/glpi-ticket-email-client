@@ -22,8 +22,11 @@ if ($delivery_mode !== 'email') {
     $error->setMessageToDisplay(__('Unsupported delivery mode.', 'ticketmailer'));
     throw $error;
 }
-$subject = trim((string) ($_POST['subject'] ?? ''));
-$subject_has_unsafe_header_characters = preg_match('/[\x00\r\n]/', $subject) === 1;
+$human_subject = trim((string) ($_POST['subject'] ?? ''));
+$new_conversation = !empty($_POST['new_conversation']);
+$subject_has_unsafe_header_characters = preg_match('/[\x00\r\n]/', $human_subject) === 1;
+$normalized_human_subject = PluginTicketmailerConfig::assembleSubject($human_subject, $tickets_id, true);
+$subject = PluginTicketmailerConfig::assembleSubject($human_subject, $tickets_id, $new_conversation);
 $body_html = (string) ($_POST['body_html'] ?? '');
 $body_text = (string) ($_POST['body_text'] ?? '');
 $include_history = !empty($_POST['include_history']);
@@ -63,7 +66,7 @@ if ($requesttypes_id !== 0) {
         $errors[] = __('Selected follow-up source is unavailable.', 'ticketmailer');
     }
 }
-if ($subject === '') {
+if ($normalized_human_subject === '') {
     $errors[] = __('Subject is required.', 'ticketmailer');
 } elseif ($subject_has_unsafe_header_characters) {
     $errors[] = __('Subject contains invalid characters.', 'ticketmailer');
@@ -142,7 +145,8 @@ if ($errors !== []) {
         'recipients_to_raw'  => $recipients_to_raw,
         'recipients_cc_raw'  => $recipients_cc_raw,
         'recipients_bcc_raw' => $recipients_bcc_raw,
-        'subject'            => $subject,
+        'subject'            => $human_subject,
+        'new_conversation'   => $new_conversation,
         'body_editor'        => $body_editor,
         'editor_id'          => $editor_id,
         'followup_template_dropdown' => PluginTicketmailerTimelineAction::followupTemplateDropdown(),
@@ -280,6 +284,7 @@ $log_id = PluginTicketmailerAudit::createIntent(
     $audit_inline,
     $mailbox_override && $mailbox_matches !== [],
     $mailbox_matches,
+    $new_conversation,
 );
 
 $result = PluginTicketmailerMailer::send($payload);
@@ -307,6 +312,7 @@ if ($result['status'] === 'sent') {
         'sent_at'        => date('Y-m-d H:i:s'),
         'from'           => (string) ($payload['from'] ?? ''),
         'requesttypes_id' => $requesttypes_id,
+        'new_conversation' => $new_conversation,
     ]);
     if ($timeline['ok']) {
         PluginTicketmailerAudit::markTimelineResult(

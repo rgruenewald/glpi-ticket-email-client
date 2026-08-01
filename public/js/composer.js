@@ -880,6 +880,19 @@
 				});
 			}
 		});
+		var newConversation = form.querySelector(
+			"[data-ticketmailer-new-conversation]",
+		);
+		var subjectMarker = form.querySelector(
+			"[data-ticketmailer-subject-marker]",
+		);
+		if (newConversation && subjectMarker) {
+			var updateSubjectMarker = () => {
+				subjectMarker.hidden = newConversation.checked;
+			};
+			newConversation.addEventListener("change", updateSubjectMarker);
+			updateSubjectMarker();
+		}
 		var override = form.querySelector('input[name="mailbox_override"]');
 		if (override) {
 			override.addEventListener("change", () => {

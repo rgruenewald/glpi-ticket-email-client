@@ -309,6 +309,22 @@ msgid "Upload failed."
 msgstr "Upload failed."
 
 #: templates/compose.html.twig
+msgid "Start a new conversation"
+msgstr "Start a new conversation"
+
+#: templates/compose.html.twig
+msgid "Replies may create a new ticket."
+msgstr "Replies may create a new ticket."
+
+#: inc/timeline.class.php
+msgid "Routing"
+msgstr "Routing"
+
+#: inc/timeline.class.php templates/log_entry.html.twig
+msgid "New conversation; replies may create a new ticket."
+msgstr "New conversation; replies may create a new ticket."
+
+#: templates/compose.html.twig
 msgid "Choose files"
 msgstr "Choose files"
 

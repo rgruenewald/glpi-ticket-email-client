@@ -39,6 +39,10 @@ BCC is supported in Email mode. Full BCC addresses are visible to every user who
 
 Ticketmailer compose offers **Email** (default) and **Internal note**. Email retains the direct SMTP, audit, recipients, signature, and public outbound-followup invariants. Internal note mounts GLPI's native `ITILFollowup` form, enforces private visibility, posts to GLPI's native controller/model, and never enters Ticketmailer's recipient/audit/SMTP/outbound-timeline pipeline. GLPI's native configured private-followup notifications remain unchanged. The two forms stay mounted as isolated drafts.
 
+### D8 — Protected routing marker
+
+Normal Email subjects use a server-assembled `[GLPI #<ticket-id>]` marker beside editable human text. An unchecked explicit new-conversation option omits the marker; replies may then create a new ticket. Audit and timeline records retain this deliberate intent.
+
 ## Consequences
 
 - v2 contract supersedes conflicting v1 provisions (followup integration, ASSIGN→CC default, silent token drop, BCC count-only detail).

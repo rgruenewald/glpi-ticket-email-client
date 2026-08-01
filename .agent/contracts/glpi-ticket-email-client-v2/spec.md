@@ -1,12 +1,15 @@
 # Contract: GLPI Ticket Email Client v2
 
 ## Type
+
 Feature / v2 cutover.
 
 ## Goal
+
 Turn `ticketmailer` into a ticket-context email reply client for GLPI 10. A permitted user composes an outbound email from a ticket using GLPI’s rich-text editor, To/CC/BCC, subject, and attachments. The send is SMTP-delivered once, durably audited, and represented as a normal GLPI timeline followup.
 
 ## Supersedes v1
+
 This contract supersedes conflicting parts of `.agent/contracts/ticket-mailer/spec.md`:
 
 - The v1 exclusion of core ticket-history/followup integration is removed. A v2 successful send creates an `ITILFollowup`.
@@ -42,7 +45,7 @@ This contract supersedes conflicting parts of `.agent/contracts/ticket-mailer/sp
 ## Affected surfaces
 
 | Area | Required change |
-|---|---|
+| --- | --- |
 | Schema | Evolve `glpi_plugin_ticketmailer_logs`; add reply-policy persistence and versioned migration. |
 | Compose | Change actor defaults, raw recipient validation, collector warning/override. |
 | Send | Create audit intent, send SMTP exactly once, create suppressed-notification timeline followup, record all outcomes. |
@@ -58,6 +61,7 @@ Expected implementation files: `setup.php`, `hook.php`, `sql/install.sql`, `sql/
 ## Data contract
 
 ### Audit log migration
+
 The existing audit table retains `tickets_id`, `users_id`, timestamps, subject, HTML/text, To/CC/BCC JSON, attachment/inline-image JSON, SMTP status/error, and Message-ID. Migration adds:
 
 ```text
@@ -72,6 +76,7 @@ mailbox_matches    MEDIUMTEXT NULL           -- JSON list of matched collector l
 `pending` is an internal durable intent state. A user-facing success requires both `status='sent'` and `timeline_status='recorded'`.
 
 ### Reply policy
+
 A minimal plugin table has `entities_id`, nullable `profiles_id`, and `mode` in `available|promoted|hide_native`. Effective policy precedence is:
 
 1. exact entity/profile row;
@@ -81,23 +86,29 @@ A minimal plugin table has `entities_id`, nullable `profiles_id`, and `mode` in 
 No rule inheritance beyond that order is required.
 
 ### Attachments
+
 Stored attachment descriptors use a generated server-side ID plus filename, trusted MIME, size, and controlled storage reference. URLs contain an audit ID and attachment ID only. `front/download.php` resolves descriptors server-side and requires `Ticket::canViewItem()` before streaming.
 
 ## Acceptance criteria
 
 ### A1 — Entry and effective reply policy
+
 A ticket user who may update/follow up sees **E-Mail antworten** when the effective policy permits it. The effective policy honors exact entity/profile, entity default, then global default precedence. `hide_native` is implemented only through a verified GLPI extension point; absent that proof, implementation must retain the native reply control and treat the policy as `promoted`/`available`, never hide it with DOM/CSS manipulation.
 
 ### A2 — Actor recipient defaults
+
 Opening E-Mail antworten defaults all requester addresses to To and all observer addresses to CC. Assignees are not auto-added. Alternative actor emails are used first; otherwise the GLPI user default email is used. Empty/unavailable actor emails are omitted. Users may add internal users and external email addresses to each field.
 
 ### A3 — Compose experience
-The form exposes To, CC, BCC, Subject, rich HTML Body, normal attachments, and inline images. It uses the GLPI-bundled rich-text editor; no editor dependency is added. Subject and non-empty body are required. It offers an unchecked **Attach public ticket history** option instead of a separate forwarding action. The sender may individually select attachments from the ticket and public follow-ups independently of that option; private follow-ups and their documents are never offered or sent. Each offered attachment can be opened in a separate tab through a ticket-read-authorized endpoint. Enabling the option appends the public ticket history to the message body only.
+
+The form exposes To, CC, BCC, Subject, rich HTML Body, normal attachments, and inline images. Normal Email shows a non-editable `[GLPI #<ticket-id>]` routing marker beside editable subject text; the server assembles the final subject. An unchecked explicit new-conversation option omits the marker and warns replies may create a new ticket; this intent is audited. It uses the GLPI-bundled rich-text editor; no editor dependency is added. Subject and non-empty body are required. It offers an unchecked **Attach public ticket history** option instead of a separate forwarding action. The sender may individually select attachments from the ticket and public follow-ups independently of that option; private follow-ups and their documents are never offered or sent. Each offered attachment can be opened in a separate tab through a ticket-read-authorized endpoint. Enabling the option appends the public ticket history to the message body only.
 
 ### A4 — Strict raw recipient parsing
+
 Server-side parsing splits raw To/CC/BCC input on supported delimiters, rejects every malformed non-empty token with a field error, normalizes valid addresses, and preserves the fields in the error form. Invalid tokens must never be silently discarded. At least one valid recipient in To, CC, or BCC is required. Whether BCC-only is allowed is explicit: **v2 allows it**, because a BCC recipient is a valid SMTP envelope recipient.
 
 ### A5 — Incoming-mailbox warning and override
+
 For each normalized recipient, the server compares exact normalized addresses with `login` values from active `glpi_mailcollectors` rows only when `login` is a valid email address. Matching is best effort and must state that aliases, forwarding, and non-email logins are not detected. A match:
 
 - is shown by AJAX as a non-authoritative warning;
@@ -107,28 +118,35 @@ For each normalized recipient, the server compares exact normalized addresses wi
 The POST must reject missing, false, forged, or stale override evidence. Audit records the accepted override and matched addresses.
 
 ### A6 — Authorization, CSRF, and controlled files
+
 Compose, send, recipient validation, upload, and download require GLPI login. Compose/send/upload require the appropriate ticket update/followup right. Download and all audit/detail access require `Ticket::canViewItem()`. POST and AJAX CSRF checks are enforced. Files use configured GLPI upload limits, generated storage identifiers, ticket-scoped ownership checks, and server-determined MIME; user-provided paths, MIME, or same-name uploads cannot overwrite or expose another attachment.
 
 ### A7 — Durable SMTP intent and exactly-once send attempt
+
 After all validation, create audit intent `status='pending'` and `timeline_status='pending'`. Submit exactly one SMTP send through GLPI’s configured SMTP settings. The compose/send path must not call `NotificationEvent::raiseEvent`, `Notification::raiseEvent`, `NotificationMailing::send`, or another GLPI notification-delivery API.
 
 On SMTP failure, mark the audit row `status='failed'`, store a safe error message, leave no successful-send followup, and show the failure from secure audit detail. No automatic resend occurs.
 
 ### A8 — Complete timeline followup without duplicate notifications
+
 On SMTP success, persist `status='sent'` and Message-ID. Create exactly one standard `ITILFollowup` linked to the ticket with `itemtype=Ticket`, `items_id`, current sender, sanitized complete outbound content, and `_disablenotif=1`. The content includes sender, sent time, To, CC, **full BCC list**, subject, rendered body, and secure attachment links. Record its ID as `followups_id` and set `timeline_status='recorded'`.
 
 With GLPI notifications enabled, this followup must not cause a second GLPI-generated outbound email. The SMTP message itself must not put BCC recipients in visible To/CC headers.
 
 ### A9 — Timeline-failure semantics
+
 If SMTP succeeds but followup creation fails, retain the sent audit row, set `timeline_status='failed'`, store the failure, and show a hard incomplete-send outcome. Do not automatically resend SMTP. Do not report full success until the followup is recorded. This is an external-SMTP failure boundary, not a silent fallback.
 
 ### A10 — BCC and attachment reader visibility
+
 Every ticket reader may see the complete BCC list in the followup and audit detail and may open secure outbound attachment links. A user without ticket-read access receives no BCC data, attachment metadata, body, or download bytes.
 
 ### A11 — Audit detail and timeline consistency
+
 Audit detail and its linked followup expose identical sender, recipient, subject, body, attachment, and delivery fields under ticket-read authorization. Neither view renders raw filesystem paths, untrusted HTML, attachment descriptors from another ticket, or SMTP credentials. BCC remains excluded from outgoing visible headers but intentionally remains visible in these ticket views.
 
 ### A12 — Localization and migration
+
 All new user-facing labels, error text, policy labels, and incomplete-send state are translated through GLPI and present in `ticketmailer.pot`, English, and German catalogs. Install creates new schema idempotently; upgrade from v1 runs a versioned migration without losing existing audit rows. Existing rows receive safe defaults for new timeline/override fields.
 
 ## Required automated verification
