@@ -8,19 +8,40 @@ if (!defined('READ')) {
     define('READ', 1);
 }
 
-final class NotificationTargetTicket
-{
-    /** @var array<string, mixed> */
-    public array $data = [];
+if (!class_exists('NotificationTargetTicket')) {
+    class NotificationTargetTicket
+    {
+        /** @var array<string, mixed> */
+        public array $data = [];
+        public ?string $mode = null;
+        public bool $responseAllowed = true;
+
+        public function setMode(string $mode): void
+        {
+            $this->mode = $mode;
+        }
+
+        public function setAllowResponse(bool $allowed): void
+        {
+            $this->responseAllowed = $allowed;
+        }
+    }
 }
 
-final class Session
-{
-    public static bool $canReadCosts = false;
-
-    public static function haveRight(string $right, int $access): bool
+if (!class_exists('Session')) {
+    class Session
     {
-        return $right === 'ticketcost' && $access === READ && self::$canReadCosts;
+        public static bool $canReadCosts = false;
+
+        public static function haveRight(string $right, int $access): bool
+        {
+            return $right === 'ticketcost' && $access === READ && self::$canReadCosts;
+        }
+
+        public static function getLoginUserID(): int
+        {
+            return 1;
+        }
     }
 }
 

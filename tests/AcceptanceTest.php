@@ -483,7 +483,7 @@ final class AcceptanceTest extends TestCase
         $this->assertStringContainsString('showSendingOverlay();', $js);
         $this->assertStringContainsString('child.inert = true', $js);
         $this->assertStringContainsString(
-            "['pointerdown', 'click', 'keydown', 'submit']",
+            '["pointerdown", "click", "keydown", "submit"]',
             $js,
         );
     }

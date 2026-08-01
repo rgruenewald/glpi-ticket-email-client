@@ -7,6 +7,7 @@
 {% set recipients_bcc_raw = recipients_bcc_raw|default(recipients_bcc|default([])|join(', ')) %}
 {% set mailbox_matches = mailbox_matches|default([]) %}
 {% set mailbox_override = mailbox_override|default(false) %}
+{% set new_conversation = new_conversation|default(false) %}
 {% set form_id = form_id|default('ticketmailer-compose') %}
 {% set close_target = close_target|default('') %}
 {% set followup_template_dropdown = followup_template_dropdown|default('') %}
@@ -119,7 +120,17 @@
 
         <div class="ticketmailer-mail-row">
             <label class="ticketmailer-mail-label" for="{{ form_id }}-subject">{{ __('Subject', 'ticketmailer') }}</label>
+            <span class="ticketmailer-subject-marker" data-ticketmailer-subject-marker {% if new_conversation %}hidden{% endif %}>[GLPI #{{ tickets_id }}]</span>
             <input type="text" class="ticketmailer-mail-field" id="{{ form_id }}-subject" name="subject" value="{{ subject }}" required>
+        </div>
+        <div class="ticketmailer-mail-row">
+            <span class="ticketmailer-mail-label"></span>
+            <label class="form-check">
+                <input type="checkbox" class="form-check-input" name="new_conversation" value="1"
+                       data-ticketmailer-new-conversation {% if new_conversation %}checked{% endif %}>
+                {{ __('Start a new conversation', 'ticketmailer') }}
+                <span class="ticketmailer-help">{{ __('Replies may create a new ticket.', 'ticketmailer') }}</span>
+            </label>
         </div>
 
         {% if followup_template_dropdown or solution_template_dropdown or followup_source_dropdown %}

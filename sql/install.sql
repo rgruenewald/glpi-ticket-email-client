@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS glpi_plugin_ticketmailer_logs (
     timeline_error    TEXT         NULL,
     mailbox_override  TINYINT      NOT NULL DEFAULT 0,
     mailbox_matches   MEDIUMTEXT   NULL,
+    new_conversation  TINYINT      NOT NULL DEFAULT 0,
     PRIMARY KEY (id),
     INDEX idx_ticket_sent (tickets_id, sent_at),
     INDEX idx_user        (users_id),

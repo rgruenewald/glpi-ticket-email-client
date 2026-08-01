@@ -59,9 +59,9 @@ tests/                   PHPUnit acceptance
 
 ## Schema
 
-- `glpi_plugin_ticketmailer_logs` — audit + SMTP + followup link + mailbox override evidence
+- `glpi_plugin_ticketmailer_logs` — audit + SMTP + followup link + mailbox override and explicit new-conversation evidence
 - `glpi_plugin_ticketmailer_reply_policies` — `entities_id`, nullable `profiles_id`, `mode`
-- Fresh install: `sql/install.sql` · Upgrade path: `sql/update-1.1.0.sql` · Drop: `sql/uninstall.sql`
+- Fresh install: `sql/install.sql` · Latest upgrade: `sql/update-2.2.0.sql` · Drop: `sql/uninstall.sql`
 
 ## Non-goals
 

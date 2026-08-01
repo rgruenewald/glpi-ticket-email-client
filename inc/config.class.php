@@ -156,16 +156,20 @@ class PluginTicketmailerConfig
         if ($templateId > 0) {
             $rendered = self::renderNotificationTemplate($templateId, $ticket);
             return [
-                'subject' => $rendered['subject'] !== ''
-                    ? $rendered['subject']
-                    : self::fallbackSubjectForTicket($ticket),
+                'subject' => self::humanSubject(
+                    $rendered['subject'] !== '' ? $rendered['subject'] : self::fallbackSubjectForTicket($ticket),
+                    (int) $ticket->getField('id'),
+                ),
                 'signature' => $rendered['signature'],
                 'native_template_selected' => true,
             ];
         }
 
         return [
-            'subject' => self::fallbackSubjectForTicket($ticket),
+            'subject' => self::humanSubject(
+                self::fallbackSubjectForTicket($ticket),
+                (int) $ticket->getField('id'),
+            ),
             'signature' => self::expandTicketVariables(
                 self::legacySignatureForEntity((int) $ticket->getField('entities_id')),
                 $ticket,
@@ -309,6 +313,26 @@ class PluginTicketmailerConfig
             (int) $ticket->getField('id'),
             strip_tags((string) $ticket->getField('name')),
         ));
+    }
+
+    public static function humanSubject(string $subject, int $tickets_id): string
+    {
+        $subject = trim((string) preg_replace(
+            '/(?:\[[^\]\r\n]*#0*' . preg_quote((string) $tickets_id, '/') . '\]|\[0*' . preg_quote((string) $tickets_id, '/') . '\])\s*/i',
+            '',
+            $subject,
+        ));
+        return $subject;
+    }
+
+    public static function assembleSubject(string $subject, int $tickets_id, bool $new_conversation): string
+    {
+        if (preg_match('/[\x00\r\n]/', $subject) === 1) {
+            return $subject;
+        }
+        $subject = trim((string) preg_replace('/\[[^\]\r\n]*#\d+\]\s*/', '', $subject));
+        $subject = self::humanSubject($subject, $tickets_id);
+        return $new_conversation ? $subject : '[GLPI #' . $tickets_id . '] ' . $subject;
     }
 
     private static function cleanSubject(string $subject): string

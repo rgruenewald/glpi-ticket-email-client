@@ -93,6 +93,11 @@
 	min-width: 0;
 }
 
+.ticketmailer-subject-marker {
+	flex: 0 0 auto;
+	font-weight: 600;
+}
+
 /* ── Text inputs ───────────────────────────────────────── */
 .ticketmailer-compose input[type="text"] {
 	width: 100%;

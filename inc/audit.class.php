@@ -28,6 +28,7 @@ class PluginTicketmailerAudit
         array $inline_images,
         bool $mailbox_override,
         array $mailbox_matches,
+        bool $new_conversation = false,
     ): int {
         global $DB;
         $DB->insert(
@@ -52,6 +53,7 @@ class PluginTicketmailerAudit
                 'timeline_error'   => null,
                 'mailbox_override' => $mailbox_override ? 1 : 0,
                 'mailbox_matches'  => self::encode($mailbox_matches),
+                'new_conversation' => $new_conversation ? 1 : 0,
             ],
         );
         return (int) $DB->insertid();
@@ -122,6 +124,7 @@ class PluginTicketmailerAudit
         ?string $timeline_error = null,
         bool $mailbox_override = false,
         array $mailbox_matches = [],
+        bool $new_conversation = false,
     ): int {
         $id = self::createIntent(
             $tickets_id,
@@ -136,6 +139,7 @@ class PluginTicketmailerAudit
             $inline_images,
             $mailbox_override,
             $mailbox_matches,
+            $new_conversation,
         );
         self::markSmtpResult($id, $status, $error_message, $remote_msg_id);
         if ($timeline_status !== 'pending' || $followups_id !== null || $timeline_error !== null) {
