@@ -97,7 +97,7 @@ class PluginTicketmailerAudit
     }
 
     /**
-     * Legacy one-shot record (kept for any remaining callers).
+     * Compatibility one-shot record. Prefer createIntent() and result methods for new code.
      *
      * @param list<string> $recipients_to
      * @param list<string> $recipients_cc
