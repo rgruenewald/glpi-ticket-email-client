@@ -7,9 +7,11 @@
 class PluginTicketmailerConfig
 {
 
+    /** Compatibility accessor retained for external callers. */
     public static function smtpUsername(): string
     {
         global $CFG_GLPI;
+        /** @disregard P1013 GLPI provides this method at runtime. */
         $value = Config::getConfigurationValue('core', 'smtp_username');
         if ($value === null || $value === false) {
             return (string) ($CFG_GLPI['smtp_username'] ?? '');

@@ -834,14 +834,7 @@
 					var solved = form.querySelector('input[name="set_solved"]');
 					if (solved) {
 						solved.checked = true;
-						var changeEvent;
-						if (typeof Event === "function") {
-							changeEvent = new Event("change", { bubbles: true });
-						} else {
-							changeEvent = document.createEvent("Event");
-							changeEvent.initEvent("change", true, false);
-						}
-						solved.dispatchEvent(changeEvent);
+						solved.dispatchEvent(new Event("change", { bubbles: true }));
 					}
 				}
 			} catch (e) {
