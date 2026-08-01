@@ -91,5 +91,7 @@ mkdir -p /var/www/html/files/_log /var/www/html/files/_cache \
          /var/www/html/files/_sessions /var/www/html/files/_tmp \
          /var/www/html/files/_uploads
 chown -R www-data:www-data /var/www/html/files /var/www/html/config
+find /var/www/html/plugins -type d -exec chmod 755 {} +
+find /var/www/html/plugins -type f -exec chmod 644 {} +
 
 exec "$@"

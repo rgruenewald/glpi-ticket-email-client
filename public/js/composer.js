@@ -61,11 +61,130 @@
 		};
 	}
 
+	function setKnowledgeArticleContent(notePanel, content) {
+		var contentField = notePanel.querySelector('textarea[name="content"]');
+		if (!contentField) {
+			return false;
+		}
+		var editor =
+			window.tinymce && typeof window.tinymce.get === "function"
+				? window.tinymce.get(contentField.id)
+				: null;
+		if (editor) {
+			editor.setContent(content);
+			editor.save();
+		} else if (typeof setRichTextEditorContent === "function") {
+			setRichTextEditorContent(contentField.id, content);
+		}
+		contentField.value = content;
+		contentField.dispatchEvent(new Event("change", { bubbles: true }));
+		return true;
+	}
+
+	function selectKnowledgeArticle(notePanel, knowledgeModal, itemId) {
+		var requestId = (knowledgeModal.ticketmailerKnowledgeRequestId || 0) + 1;
+		knowledgeModal.ticketmailerKnowledgeRequestId = requestId;
+		return window
+			.fetch(CFG_GLPI.root_doc + "/Knowbase/KnowbaseItem/" + itemId + "/Content", {
+				headers: { "X-Requested-With": "XMLHttpRequest" },
+			})
+			.then((response) => {
+				if (!response.ok) {
+					throw new Error("Unable to load knowledge article");
+				}
+				return response.text();
+			})
+			.then((content) => {
+				if (knowledgeModal.ticketmailerKnowledgeRequestId !== requestId) {
+					return false;
+				}
+				if (!setKnowledgeArticleContent(notePanel, content)) {
+					throw new Error("Unable to update knowledge article content");
+				}
+				bootstrap.Modal.getOrCreateInstance(knowledgeModal).hide();
+				return true;
+			});
+	}
+
+	function preserveModalWhileOpeningKnowledge(parentModal) {
+		if (typeof window.glpi_close_all_dialogs !== "function") {
+			return () => {};
+		}
+		var closeAllDialogs = window.glpi_close_all_dialogs;
+		var guardedCloseAllDialogs = () => {
+			var parent = parentModal.parentNode;
+			var next = parentModal.nextSibling;
+			parentModal.remove();
+			try {
+				closeAllDialogs();
+			} finally {
+				if (parent && !parentModal.parentNode) {
+					parent.insertBefore(parentModal, next && next.parentNode ? next : null);
+				}
+			}
+		};
+		window.glpi_close_all_dialogs = guardedCloseAllDialogs;
+		return () => {
+			if (window.glpi_close_all_dialogs === guardedCloseAllDialogs) {
+				window.glpi_close_all_dialogs = closeAllDialogs;
+			}
+		};
+	}
+	function bindKnowledgeModal(knowledgeModal, notePanel, parentModal) {
+		knowledgeModal.ticketmailerNotePanel = notePanel;
+		knowledgeModal.ticketmailerParentModal = parentModal;
+		knowledgeModal.ticketmailerKnowledgeRequestId =
+			(knowledgeModal.ticketmailerKnowledgeRequestId || 0) + 1;
+		if (knowledgeModal.dataset.ticketmailerBound) {
+			return;
+		}
+		knowledgeModal.dataset.ticketmailerBound = "true";
+		knowledgeModal.addEventListener(
+			"click",
+			(event) => {
+				var useButton = event.target.closest(".use-knowbaseitem");
+				if (!useButton) {
+					return;
+				}
+				var item = useButton.closest(".list-group-item");
+				var itemId =
+					useButton.dataset.knowbaseitemId ||
+					(item ? item.dataset.knowbaseitemId : "");
+				event.preventDefault();
+				event.stopImmediatePropagation();
+				if (itemId) {
+					selectKnowledgeArticle(
+						knowledgeModal.ticketmailerNotePanel,
+						knowledgeModal,
+						itemId,
+					).catch(() => {});
+				} else {
+					bootstrap.Modal.getOrCreateInstance(knowledgeModal).hide();
+				}
+			},
+			true,
+		);
+		knowledgeModal.addEventListener(
+			"hidden.bs.modal",
+			() => {
+				if (document.contains(knowledgeModal.ticketmailerParentModal)) {
+					window.setTimeout(() => {
+						document.body.classList.add("modal-open");
+					}, 100);
+				}
+			},
+			true,
+		);
+	}
 	if (typeof module !== "undefined") {
 		module.exports = {
+			bindKnowledgeModal: bindKnowledgeModal,
+			preserveModalWhileOpeningKnowledge: preserveModalWhileOpeningKnowledge,
+			recipientForSuggestion: recipientForSuggestion,
+			selectKnowledgeArticle: selectKnowledgeArticle,
+			setKnowledgeArticleContent: setKnowledgeArticleContent,
 			splitRecipientTokens: splitRecipientTokens,
 			validUserSuggestions: validUserSuggestions,
-			recipientForSuggestion: recipientForSuggestion,
 		};
 	}
 
@@ -595,12 +714,7 @@
 		overlaySpinner.className = "spinner-border";
 		overlaySpinner.style.cssText = "width:3rem;height:3rem;border-width:0.35em";
 		overlaySpinner.setAttribute("aria-hidden", "true");
-		if (typeof overlay.appendChild === "function") {
-			overlay.appendChild(overlaySpinner);
-		} else {
-			overlay.children = overlay.children || [];
-			overlay.children.push(overlaySpinner);
-		}
+		overlay.appendChild(overlaySpinner);
 		document.body.appendChild(overlay);
 		lockPageWhileSending(overlay);
 	}
@@ -641,11 +755,7 @@
 				var buttonSpinner = document.createElement("span");
 				buttonSpinner.className = "spinner-border spinner-border-sm me-2";
 				buttonSpinner.setAttribute("aria-hidden", "true");
-				if (typeof button.prepend === "function") {
-					button.prepend(buttonSpinner);
-				} else {
-					button.spinner = buttonSpinner;
-				}
+				button.prepend(buttonSpinner);
 			});
 			form
 				.querySelectorAll(
@@ -885,7 +995,9 @@
 												var renderedTemplate = templateField.querySelector(
 													".select2-selection__rendered",
 												);
-												if (currentEmptyTemplate?.textContent !== templateText) {
+												if (
+													currentEmptyTemplate?.textContent !== templateText
+												) {
 													currentEmptyTemplate.textContent = templateText;
 												}
 												if (renderedTemplate?.textContent !== templateText) {
@@ -893,10 +1005,13 @@
 													renderedTemplate.title = templateText;
 												}
 											};
-											new MutationObserver(showTemplateLabel).observe(templateField, {
-												childList: true,
-												subtree: true,
-											});
+											new MutationObserver(showTemplateLabel).observe(
+												templateField,
+												{
+													childList: true,
+													subtree: true,
+												},
+											);
 											showTemplateLabel();
 										}
 									}
@@ -1113,14 +1228,19 @@
 						var template = notePanel.querySelector(
 							'[name="itilfollowuptemplates_id"]',
 						);
-						template?.closest(".form-field")?.classList.add(
-							"ticketmailer-note-meta",
-							"ticketmailer-note-template",
-						);
+						template
+							?.closest(".form-field")
+							?.classList.add(
+								"ticketmailer-note-meta",
+								"ticketmailer-note-template",
+							);
 						notePanel
 							.querySelector('[name="requesttypes_id"]')
 							?.closest(".form-field")
-							?.classList.add("ticketmailer-note-meta", "ticketmailer-note-source");
+							?.classList.add(
+								"ticketmailer-note-meta",
+								"ticketmailer-note-source",
+							);
 						notePanel
 							.querySelector('[name="is_private"]')
 							?.closest(".form-field")
@@ -1133,9 +1253,9 @@
 							'button[name^="search_knowbaseitem_"]',
 						);
 						if (knowledge) {
-							knowledge.closest(".form-field")?.classList.add(
-								"ticketmailer-note-knowledge",
-							);
+							knowledge
+								.closest(".form-field")
+								?.classList.add("ticketmailer-note-knowledge");
 							knowledge.classList.add("ticketmailer-knowledge-search");
 							if (!knowledge.dataset.ticketmailerLabelled) {
 								knowledge.dataset.ticketmailerLabelled = "true";
@@ -1154,6 +1274,8 @@
 										if (!parentModal) {
 											return;
 										}
+										var restoreDialogClosing =
+											preserveModalWhileOpeningKnowledge(parentModal);
 										var labelKnowledgeButtons = () => {
 											var knowledgeModal = document.getElementById(
 												"modal_search_knowbaseitem",
@@ -1191,119 +1313,30 @@
 										window.setTimeout(() => {
 											window.clearInterval(labelTimer);
 										}, 2500);
-										window.setTimeout(() => {
+										var modalBindAttempts = 0;
+										var bindCurrentKnowledgeModal = () => {
 											document.body.classList.add("modal-open");
 											var knowledgeModal = document.getElementById(
 												"modal_search_knowbaseitem",
 											);
 											if (!knowledgeModal) {
+												modalBindAttempts += 1;
+												if (modalBindAttempts < 25) {
+													window.setTimeout(bindCurrentKnowledgeModal, 100);
+												} else {
+													restoreDialogClosing();
+												}
 												return;
 											}
+											restoreDialogClosing();
 											labelKnowledgeButtons();
-											knowledgeModal.addEventListener(
-												"click",
-												(event) => {
-													var useButton =
-														event.target.closest(".use-knowbaseitem");
-													if (!useButton) {
-														return;
-													}
-													var item = useButton.closest(".list-group-item");
-													var itemId =
-														useButton.dataset.knowbaseitemId ||
-														(item ? item.dataset.knowbaseitemId : "");
-													event.preventDefault();
-													event.stopImmediatePropagation();
-													if (itemId) {
-														window
-															.fetch(
-																CFG_ROOT +
-																	"/Knowbase/KnowbaseItem/" +
-																	itemId +
-																	"/Content",
-																{
-																	headers: {
-																		"X-Requested-With": "XMLHttpRequest",
-																	},
-																},
-															)
-															.then((response) => response.text())
-															.then((content) => {
-																var contentField = notePanel.querySelector(
-																	'textarea[name="content"]',
-																);
-																if (contentField) {
-																	if (
-																		typeof setRichTextEditorContent ===
-																		"function"
-																	) {
-																		setRichTextEditorContent(
-																			contentField.id,
-																			content,
-																		);
-																	} else if (
-																		typeof tinyMCE !== "undefined" &&
-																		tinyMCE.get(contentField.id)
-																	) {
-																		tinyMCE
-																			.get(contentField.id)
-																			.setContent(content);
-																		tinyMCE.get(contentField.id).save();
-																	}
-																	contentField.value = content;
-																	window.setTimeout(() => {
-																		if (
-																			typeof tinyMCE !== "undefined" &&
-																			tinyMCE.get(contentField.id)
-																		) {
-																			tinyMCE
-																				.get(contentField.id)
-																				.setContent(content);
-																			tinyMCE.get(contentField.id).save();
-																		}
-																	}, 0);
-																	contentField.dispatchEvent(
-																		new Event("change", { bubbles: true }),
-																	);
-																}
-																bootstrap.Modal.getOrCreateInstance(
-																	knowledgeModal,
-																).hide();
-																var modalOpenAttempts = 0;
-																var modalOpenTimer = window.setInterval(() => {
-																	document.body.classList.add("modal-open");
-																	modalOpenAttempts += 1;
-																	if (modalOpenAttempts === 5) {
-																		window.clearInterval(modalOpenTimer);
-																	}
-																}, 200);
-															});
-													} else {
-														bootstrap.Modal.getOrCreateInstance(
-															knowledgeModal,
-														).hide();
-													}
-													if (!document.contains(parentModal)) {
-														document.body.append(parentModal);
-													}
-													window.setTimeout(() => {
-														document.body.classList.add("modal-open");
-													}, 0);
-												},
-												true,
+											bindKnowledgeModal(
+												knowledgeModal,
+												notePanel,
+												parentModal,
 											);
-											knowledgeModal.addEventListener(
-												"hidden.bs.modal",
-												() => {
-													if (document.contains(parentModal)) {
-														window.setTimeout(() => {
-															document.body.classList.add("modal-open");
-														}, 100);
-													}
-												},
-												true,
-											);
-										}, 0);
+										};
+										bindCurrentKnowledgeModal();
 									},
 									true,
 								);
