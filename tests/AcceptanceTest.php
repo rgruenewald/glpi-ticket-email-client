@@ -453,6 +453,7 @@ final class AcceptanceTest extends TestCase
         $this->assertStringContainsString('followup_template_dropdown', $reply);
         $this->assertStringContainsString('solution_template_dropdown', $reply);
         $this->assertStringNotContainsString("__('Template', 'ticketmailer')", $reply);
+        $this->assertStringNotContainsString("__('Source', 'ticketmailer')", $reply);
         $this->assertStringNotContainsString("__('Test version', 'ticketmailer')", $reply);
         $this->assertStringContainsString('itilfollowuptemplates_id', $action);
         $this->assertStringContainsString('solutiontemplates_id', $action);
