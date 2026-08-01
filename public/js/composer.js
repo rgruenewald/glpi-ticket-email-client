@@ -106,6 +106,30 @@
 			});
 	}
 
+	function preserveModalWhileOpeningKnowledge(parentModal) {
+		if (typeof window.glpi_close_all_dialogs !== "function") {
+			return () => {};
+		}
+		var closeAllDialogs = window.glpi_close_all_dialogs;
+		var guardedCloseAllDialogs = () => {
+			var parent = parentModal.parentNode;
+			var next = parentModal.nextSibling;
+			parentModal.remove();
+			try {
+				closeAllDialogs();
+			} finally {
+				if (parent && !parentModal.parentNode) {
+					parent.insertBefore(parentModal, next && next.parentNode ? next : null);
+				}
+			}
+		};
+		window.glpi_close_all_dialogs = guardedCloseAllDialogs;
+		return () => {
+			if (window.glpi_close_all_dialogs === guardedCloseAllDialogs) {
+				window.glpi_close_all_dialogs = closeAllDialogs;
+			}
+		};
+	}
 	function bindKnowledgeModal(knowledgeModal, notePanel, parentModal) {
 		knowledgeModal.ticketmailerNotePanel = notePanel;
 		knowledgeModal.ticketmailerParentModal = parentModal;
@@ -155,6 +179,7 @@
 	if (typeof module !== "undefined") {
 		module.exports = {
 			bindKnowledgeModal: bindKnowledgeModal,
+			preserveModalWhileOpeningKnowledge: preserveModalWhileOpeningKnowledge,
 			recipientForSuggestion: recipientForSuggestion,
 			selectKnowledgeArticle: selectKnowledgeArticle,
 			setKnowledgeArticleContent: setKnowledgeArticleContent,
@@ -689,12 +714,7 @@
 		overlaySpinner.className = "spinner-border";
 		overlaySpinner.style.cssText = "width:3rem;height:3rem;border-width:0.35em";
 		overlaySpinner.setAttribute("aria-hidden", "true");
-		if (typeof overlay.appendChild === "function") {
-			overlay.appendChild(overlaySpinner);
-		} else {
-			overlay.children = overlay.children || [];
-			overlay.children.push(overlaySpinner);
-		}
+		overlay.appendChild(overlaySpinner);
 		document.body.appendChild(overlay);
 		lockPageWhileSending(overlay);
 	}
@@ -735,11 +755,7 @@
 				var buttonSpinner = document.createElement("span");
 				buttonSpinner.className = "spinner-border spinner-border-sm me-2";
 				buttonSpinner.setAttribute("aria-hidden", "true");
-				if (typeof button.prepend === "function") {
-					button.prepend(buttonSpinner);
-				} else {
-					button.spinner = buttonSpinner;
-				}
+				button.prepend(buttonSpinner);
 			});
 			form
 				.querySelectorAll(
@@ -1258,6 +1274,8 @@
 										if (!parentModal) {
 											return;
 										}
+										var restoreDialogClosing =
+											preserveModalWhileOpeningKnowledge(parentModal);
 										var labelKnowledgeButtons = () => {
 											var knowledgeModal = document.getElementById(
 												"modal_search_knowbaseitem",
@@ -1305,9 +1323,12 @@
 												modalBindAttempts += 1;
 												if (modalBindAttempts < 25) {
 													window.setTimeout(bindCurrentKnowledgeModal, 100);
+												} else {
+													restoreDialogClosing();
 												}
 												return;
 											}
+											restoreDialogClosing();
 											labelKnowledgeButtons();
 											bindKnowledgeModal(
 												knowledgeModal,

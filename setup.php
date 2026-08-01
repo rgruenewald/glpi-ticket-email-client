@@ -41,10 +41,10 @@ function plugin_init_ticketmailer(): void
     global $PLUGIN_HOOKS;
 
     $PLUGIN_HOOKS['csrf_compliant']['ticketmailer'] = true;
-    $PLUGIN_HOOKS['add_css']['ticketmailer'] = 'css/ticketmailer.css';
+    $PLUGIN_HOOKS['add_css']['ticketmailer'] = 'public/css/ticketmailer.css';
     $PLUGIN_HOOKS['add_javascript']['ticketmailer'] = [
-        'js/composer.js',
-        'js/ticket-timeline.js',
+        'public/js/composer.js',
+        'public/js/ticket-timeline.js',
     ];
 
     PluginTicketmailerConfig::applyTimelineOrderForCurrentTicket();

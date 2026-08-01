@@ -24,7 +24,7 @@ const sendButton = {
 	setAttribute(name, value) {
 		this.attributes[name] = value;
 	},
-	insertAdjacentHTML() {},
+	prepend() {}
 };
 
 function statusToggle(name, checked) {
@@ -89,7 +89,7 @@ global.document = {
 			setAttribute(name, value) {
 				this.attributes[name] = value;
 			},
-			insertAdjacentHTML() {},
+			appendChild() {}
 		};
 	},
 	querySelector() {
@@ -456,6 +456,7 @@ assert.match(
 
 const {
 	bindKnowledgeModal,
+	preserveModalWhileOpeningKnowledge,
 	recipientForSuggestion,
 	selectKnowledgeArticle,
 	setKnowledgeArticleContent,
@@ -648,6 +649,38 @@ assert.equal(
 	"<p>Knowledge article</p>",
 );
 assert.equal(knowledgeFields["knowledge-a"].value, "<p>Knowledge article</p>");
+
+const dialogParent = {
+	children: [],
+	insertBefore(child) {
+		child.parentNode = this;
+		this.children.push(child);
+	},
+};
+const preservedParentModal = {
+	parentNode: dialogParent,
+	nextSibling: null,
+	remove() {
+		this.parentNode = null;
+	},
+};
+dialogParent.children.push(preservedParentModal);
+let closeAllCalls = 0;
+global.window.glpi_close_all_dialogs = () => {
+	closeAllCalls += 1;
+	assert.equal(preservedParentModal.parentNode, null);
+};
+const restoreDialogClosing = preserveModalWhileOpeningKnowledge(
+preservedParentModal,
+);
+global.window.glpi_close_all_dialogs();
+assert.equal(closeAllCalls, 1);
+assert.equal(preservedParentModal.parentNode, dialogParent);
+restoreDialogClosing();
+assert.notEqual(
+	global.window.glpi_close_all_dialogs.name,
+	"guardedCloseAllDialogs",
+);
 
 const knowledgeModal = {
 	dataset: {},
