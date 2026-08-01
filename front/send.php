@@ -32,7 +32,6 @@ $body_text = (string) ($_POST['body_text'] ?? '');
 $include_history = !empty($_POST['include_history']);
 $set_waiting = !empty($_POST['set_waiting']);
 $set_solved = !empty($_POST['set_solved']);
-$save_knowledge = !empty($_POST['save_knowledge']) && Session::haveRight('knowbase', UPDATE);
 $selected_history_attachments = array_values(array_filter(
     (array) ($_POST['history_attachments'] ?? []),
     static fn (mixed $attachment): bool => is_scalar($attachment),
@@ -168,8 +167,6 @@ if ($errors !== []) {
         'include_history'    => $include_history,
         'set_waiting'        => $set_waiting,
         'set_solved'         => $set_solved,
-        'save_knowledge'      => $save_knowledge,
-        'can_update_knowledge' => Session::haveRight('knowbase', UPDATE),
         'history_attachments' => PluginTicketmailerHistory::availableAttachments($ticket),
         'selected_history_attachments' => $selected_history_attachments,
         'native_followup_form' => PluginTicketmailerTimelineAction::nativeFollowupForm($ticket),
@@ -345,6 +342,5 @@ if ($result['status'] === 'sent') {
 Html::redirect(
     $timeline_recorded
         ? Ticket::getFormURLWithID($tickets_id)
-            . ($save_knowledge ? '&_fup_to_kb=' . $followups_id : '')
         : $web . '/front/log_entry.php?id=' . $log_id,
 );

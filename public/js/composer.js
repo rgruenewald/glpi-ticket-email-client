@@ -1036,9 +1036,8 @@
 									privateField.classList.add("ticketmailer-note-private");
 								}
 								if (saveKnowledgeField) {
-									saveKnowledgeField.classList.add(
-										"ticketmailer-note-save-knowledge",
-									);
+									saveKnowledgeField.remove();
+									saveKnowledgeField = null;
 								}
 							}
 						}
