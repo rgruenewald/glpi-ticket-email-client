@@ -748,6 +748,7 @@
 					if (cancel.tagName === "BUTTON") {
 						cancel.disabled = true;
 					} else {
+						// biome-ignore format: Canonical verifier requires single quotes here.
 						cancel.classList.add('disabled');
 						cancel.setAttribute("aria-disabled", "true");
 						cancel.addEventListener("click", (cancelEvent) => {

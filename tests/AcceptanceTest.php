@@ -632,6 +632,32 @@ final class AcceptanceTest extends TestCase
         $this->assertStringNotContainsString("__('Action')", $config);
     }
 
+    // ---- Local Docker stack: reproducible build + external SMTP -----------
+
+    #[Test]
+    public function local_docker_stack_uses_external_smtp_without_mailpit(): void
+    {
+        $compose = (string) file_get_contents(self::REPO_ROOT . '/docker-compose.yml');
+        $dockerfile = (string) file_get_contents(self::REPO_ROOT . '/docker/glpi/Dockerfile');
+        $setup = (string) file_get_contents(self::REPO_ROOT . '/docker/glpi/setup-glpi.sh');
+        $entrypoint = (string) file_get_contents(self::REPO_ROOT . '/docker/glpi/docker-entrypoint.sh');
+
+        $this->assertStringNotContainsString('mailpit', strtolower($compose));
+        $this->assertDirectoryDoesNotExist(self::REPO_ROOT . '/docker/mailpit');
+        $this->assertStringNotContainsString('docker-php-ext-install -j', $dockerfile);
+        foreach (['GLPI_SMTP_HOST', 'GLPI_SMTP_PORT', 'GLPI_SMTP_MODE', 'GLPI_SMTP_USERNAME', 'GLPI_SMTP_PASSWORD'] as $name) {
+            $this->assertStringContainsString($name, $compose);
+        }
+        $this->assertStringNotContainsString('smtp_passwd ""', $setup);
+        $this->assertStringContainsString('config:set smtp_passwd "${GLPI_SMTP_PASSWORD}"', $entrypoint);
+        $this->assertStringContainsString('--database="${GLPI_DB_NAME}"', $entrypoint);
+        $this->assertStringContainsString('table_schema = DATABASE()', $entrypoint);
+        $this->assertStringContainsString("table_name = 'glpi_configs'", $entrypoint);
+        $this->assertStringNotContainsString('table_schema = \'${GLPI_DB_NAME}\'', $entrypoint);
+        $this->assertStringNotContainsString('.glpi_installed', $entrypoint);
+        $this->assertStringNotContainsString('--force', $setup);
+    }
+
     // ---- Internal note: native private followup + email-only endpoint ------
 
     #[Test]

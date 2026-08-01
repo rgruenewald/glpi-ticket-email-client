@@ -43,7 +43,26 @@ class DB extends DBmysql {
 PHP
 fi
 
-# Heal a missing security key before any command reads encrypted config.
+# Use the database schema as installation state. The config and database volumes
+# can be removed independently, so a marker in the config volume is not reliable.
+glpi_schema_exists="$(
+  mariadb \
+    --host="${GLPI_DB_HOST}" \
+    --user="${GLPI_DB_USER}" \
+    --password="${GLPI_DB_PASSWORD}" \
+    --database="${GLPI_DB_NAME}" \
+    --ssl=OFF \
+    --batch --skip-column-names \
+    --execute="SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = 'glpi_configs'"
+ )"
+# Install only into an empty database. Existing shared test data must survive a
+# missing or regenerated config volume.
+if [ "${GLPI_INSTALL:-0}" = "1" ] && [ "${glpi_schema_exists}" = "0" ]; then
+  setup-glpi.sh
+fi
+
+# Heal a missing security key after the database is installed. Running this
+# command before db:install makes a fresh GLPI instance exit without a key.
 if [ ! -s /var/www/html/config/glpicrypt.key ]; then
   php /var/www/html/bin/console security:change_key --allow-superuser --no-interaction || true
   if [ ! -s /var/www/html/config/glpicrypt.key ]; then
@@ -52,20 +71,25 @@ if [ ! -s /var/www/html/config/glpicrypt.key ]; then
   fi
 fi
 
-# First-boot install (writes glpi DB schema, creates the
-# default admin user, activates plugins/ticketmailer).
-# Marker lives on the glpi_config volume so recreate is stable.
-if [ "${GLPI_INSTALL:-0}" = "1" ] && [ ! -f /var/www/html/config/.glpi_installed ]; then
-  setup-glpi.sh
-  touch /var/www/html/config/.glpi_installed
+# Configure GLPI core SMTP from the container environment on every boot.
+# Leave GLPI's existing mail configuration untouched when no host is supplied.
+if [ -n "${GLPI_SMTP_HOST:-}" ]; then
+  : "${GLPI_SMTP_PORT:=587}"
+  : "${GLPI_SMTP_MODE:=3}"
+  : "${GLPI_SMTP_USERNAME:=}"
+  : "${GLPI_SMTP_PASSWORD:=}"
+  php /var/www/html/bin/console config:set smtp_mode "${GLPI_SMTP_MODE}" -c core --allow-superuser --no-interaction
+  php /var/www/html/bin/console config:set smtp_host "${GLPI_SMTP_HOST}" -c core --allow-superuser --no-interaction
+  php /var/www/html/bin/console config:set smtp_port "${GLPI_SMTP_PORT}" -c core --allow-superuser --no-interaction
+  php /var/www/html/bin/console config:set smtp_username "${GLPI_SMTP_USERNAME}" -c core --allow-superuser --no-interaction
+  php /var/www/html/bin/console config:set smtp_passwd "${GLPI_SMTP_PASSWORD}" -c core --allow-superuser --no-interaction
 fi
-
 
 # setup-glpi.sh + CLI run as root → log/cache files end up
 # root-owned; apache workers are www-data. Fix every boot.
 mkdir -p /var/www/html/files/_log /var/www/html/files/_cache \
          /var/www/html/files/_sessions /var/www/html/files/_tmp \
          /var/www/html/files/_uploads
-chown -R www-data:www-data /var/www/html/files /var/www/html/config /etc/glpi || true
+chown -R www-data:www-data /var/www/html/files /var/www/html/config
 
 exec "$@"

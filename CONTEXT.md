@@ -15,7 +15,7 @@ Ticket-context reply client: **Email** (default) sends once via GLPI’s configu
 ## Vocabulary
 
 | Term | Meaning |
-|---|---|
+| --- | --- |
 | Audit log | Row in `glpi_plugin_ticketmailer_logs` (intent + outcome) |
 | Timeline followup | Standard GLPI `ITILFollowup` on the ticket (`_disablenotif=1`) |
 | Reply policy | Per entity/(optional) profile mode: `available` \| `promoted` \| `hide_native` |
@@ -48,7 +48,7 @@ ajax/*.php               validate, upload, forward_preview
 templates/*.html.twig    compose / forward / log_entry UI
 sql/                     install + versioned updates
 locales/                 ticketmailer.{pot,en.po,de.po}
-docker/ + compose        GLPI 11 + MariaDB + Mailpit
+docker/ + compose        GLPI 11 + MariaDB; external SMTP via GLPI core config
 tests/                   PHPUnit acceptance
 ```
 
@@ -70,7 +70,7 @@ IMAP/inbound parse · drafts · queue/retry daemon · SMTP server/UI · core GLP
 ## Skills
 
 | Skill | When |
-|---|---|
+| --- | --- |
 | `.agents/skills/glpi-plugin-runtime/SKILL.md` | hooks, install, class map, docker mount |
 | `.agents/skills/ticketmailer-compose-send/SKILL.md` | compose/send/timeline/mailbox/ACL |
 | `.agents/skills/ticketmailer-verify/SKILL.md` | score.sh, PHPUnit, smoke |
@@ -80,5 +80,5 @@ IMAP/inbound parse · drafts · queue/retry daemon · SMTP server/UI · core GLP
 ```bash
 ROOT=. bash .agent/contracts/glpi-ticket-email-client-v2/score.sh
 # optional: composer install && vendor/bin/phpunit
-# optional: docker compose up -d → README smoke M1–M8
+# optional: docker compose up -d --build → README smoke checks
 ```

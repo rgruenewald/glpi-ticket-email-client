@@ -15,7 +15,7 @@ description: GLPI 10 plugin bootstrap, hooks, install/migrate, class map, and do
 ## Plugin identity
 
 | Item | Value |
-|---|---|
+| --- | --- |
 | Directory name | `ticketmailer` (must match GLPI plugins path) |
 | Version defines | `PLUGIN_TICKETMAILER_VERSION`, `MIN/MAX_GLPI` in `setup.php` |
 | Gettext domain | `ticketmailer` |
@@ -33,7 +33,7 @@ description: GLPI 10 plugin bootstrap, hooks, install/migrate, class map, and do
 ## Class map (inc/)
 
 | Class | Role |
-|---|---|
+| --- | --- |
 | `PluginTicketmailer` | descriptor |
 | `PluginTicketmailerConfig` | read GLPI `smtp_*` |
 | `PluginTicketmailerMailer` | PHPMailer send |
@@ -60,9 +60,8 @@ Naming: GLPI plugin style `PluginTicketmailer*`, files `inc/<name>.class.php`.
 ## Local runtime
 
 ```bash
-docker compose up -d
+docker compose up -d --build
 # GLPI http://localhost:8080  (glpi/glpi)
-# mailpit http://localhost:8025
 # plugin mounted at /var/www/html/plugins/ticketmailer
 ```
 
@@ -74,7 +73,7 @@ php bin/console plugin:install ticketmailer
 php bin/console plugin:enable ticketmailer
 ```
 
-SMTP for the plugin always comes from GLPI core config (docker sets host `mailpit:1025`).
+SMTP for the plugin always comes from GLPI core config. Docker applies the real-server values from the ignored `.env`; see `README.md`.
 
 ## Do not
 
