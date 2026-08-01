@@ -648,10 +648,7 @@ assert.equal(
 	knowledgeEditors["knowledge-a"].content,
 	"<p>Knowledge article</p>",
 );
-assert.equal(
-	knowledgeFields["knowledge-a"].value,
-	"<p>Knowledge article</p>",
-);
+assert.equal(knowledgeFields["knowledge-a"].value, "<p>Knowledge article</p>");
 
 const knowledgeModal = {
 	dataset: {},
@@ -699,40 +696,51 @@ knowledgeModal.handlers.click[0]({
 });
 
 setImmediate(() => {
-Promise.resolve().then(async () => {
-	assert.equal(knowledgeEditors["knowledge-a"].content, "<p>Knowledge article</p>");
-	assert.equal(knowledgeEditors["knowledge-b"].content, "<p>Active article</p>");
-	assert.equal(hiddenKnowledgeModal, knowledgeModal);
+	Promise.resolve()
+		.then(async () => {
+			assert.equal(
+				knowledgeEditors["knowledge-a"].content,
+				"<p>Knowledge article</p>",
+			);
+			assert.equal(
+				knowledgeEditors["knowledge-b"].content,
+				"<p>Active article</p>",
+			);
+			assert.equal(hiddenKnowledgeModal, knowledgeModal);
 
-	const responses = [];
-	global.window.fetch = () =>
-		new Promise((resolve) => {
-			responses.push(resolve);
+			const responses = [];
+			global.window.fetch = () =>
+				new Promise((resolve) => {
+					responses.push(resolve);
+				});
+			const first = selectKnowledgeArticle(
+				notePanel(knowledgeFields["knowledge-b"]),
+				knowledgeModal,
+				"1",
+			);
+			const second = selectKnowledgeArticle(
+				notePanel(knowledgeFields["knowledge-b"]),
+				knowledgeModal,
+				"2",
+			);
+			responses[1]({
+				ok: true,
+				text: () => Promise.resolve("<p>Newest article</p>"),
+			});
+			await second;
+			responses[0]({
+				ok: true,
+				text: () => Promise.resolve("<p>Stale article</p>"),
+			});
+			assert.equal(await first, false);
+			assert.equal(
+				knowledgeEditors["knowledge-b"].content,
+				"<p>Newest article</p>",
+			);
+		})
+		.catch((error) => {
+			process.nextTick(() => {
+				throw error;
+			});
 		});
-	const first = selectKnowledgeArticle(
-		notePanel(knowledgeFields["knowledge-b"]),
-		knowledgeModal,
-		"1",
-	);
-	const second = selectKnowledgeArticle(
-		notePanel(knowledgeFields["knowledge-b"]),
-		knowledgeModal,
-		"2",
-	);
-	responses[1]({
-		ok: true,
-		text: () => Promise.resolve("<p>Newest article</p>"),
-	});
-	await second;
-	responses[0]({
-		ok: true,
-		text: () => Promise.resolve("<p>Stale article</p>"),
-	});
-	assert.equal(await first, false);
-	assert.equal(knowledgeEditors["knowledge-b"].content, "<p>Newest article</p>");
-}).catch((error) => {
-	process.nextTick(() => {
-		throw error;
-	});
-});
 });

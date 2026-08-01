@@ -199,7 +199,8 @@
 			}
 		});
 		form.querySelectorAll('button[type="submit"]').forEach((button) => {
-			button.disabled = normalized.length > 0 && (!override || !override.checked);
+			button.disabled =
+				normalized.length > 0 && (!override || !override.checked);
 		});
 		form.ticketmailerMailboxMatches = matches;
 	}
@@ -978,7 +979,9 @@
 												var renderedTemplate = templateField.querySelector(
 													".select2-selection__rendered",
 												);
-												if (currentEmptyTemplate?.textContent !== templateText) {
+												if (
+													currentEmptyTemplate?.textContent !== templateText
+												) {
 													currentEmptyTemplate.textContent = templateText;
 												}
 												if (renderedTemplate?.textContent !== templateText) {
@@ -986,10 +989,13 @@
 													renderedTemplate.title = templateText;
 												}
 											};
-											new MutationObserver(showTemplateLabel).observe(templateField, {
-												childList: true,
-												subtree: true,
-											});
+											new MutationObserver(showTemplateLabel).observe(
+												templateField,
+												{
+													childList: true,
+													subtree: true,
+												},
+											);
 											showTemplateLabel();
 										}
 									}
@@ -1206,14 +1212,19 @@
 						var template = notePanel.querySelector(
 							'[name="itilfollowuptemplates_id"]',
 						);
-						template?.closest(".form-field")?.classList.add(
-							"ticketmailer-note-meta",
-							"ticketmailer-note-template",
-						);
+						template
+							?.closest(".form-field")
+							?.classList.add(
+								"ticketmailer-note-meta",
+								"ticketmailer-note-template",
+							);
 						notePanel
 							.querySelector('[name="requesttypes_id"]')
 							?.closest(".form-field")
-							?.classList.add("ticketmailer-note-meta", "ticketmailer-note-source");
+							?.classList.add(
+								"ticketmailer-note-meta",
+								"ticketmailer-note-source",
+							);
 						notePanel
 							.querySelector('[name="is_private"]')
 							?.closest(".form-field")
@@ -1226,9 +1237,9 @@
 							'button[name^="search_knowbaseitem_"]',
 						);
 						if (knowledge) {
-							knowledge.closest(".form-field")?.classList.add(
-								"ticketmailer-note-knowledge",
-							);
+							knowledge
+								.closest(".form-field")
+								?.classList.add("ticketmailer-note-knowledge");
 							knowledge.classList.add("ticketmailer-knowledge-search");
 							if (!knowledge.dataset.ticketmailerLabelled) {
 								knowledge.dataset.ticketmailerLabelled = "true";
@@ -1298,7 +1309,11 @@
 												return;
 											}
 											labelKnowledgeButtons();
-											bindKnowledgeModal(knowledgeModal, notePanel, parentModal);
+											bindKnowledgeModal(
+												knowledgeModal,
+												notePanel,
+												parentModal,
+											);
 										};
 										bindCurrentKnowledgeModal();
 									},
