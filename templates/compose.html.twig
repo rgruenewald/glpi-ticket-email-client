@@ -27,7 +27,6 @@
      data-choose-files-label="{{ __('Choose files', 'ticketmailer') }}"
      data-drop-files-label="{{ __('Drag & drop your file here, or choose files.', 'ticketmailer') }}"
      data-private-label="{{ __('Private') }}"
-     data-save-knowledge-label="{{ __('Save and add to the knowledge base') }}"
      data-waiting-label="{{ __('Set ticket status to waiting after sending.', 'ticketmailer') }}"
      data-solved-label="{{ __('Set ticket status to solved after sending.', 'ticketmailer') }}">
     <fieldset class="ticketmailer-delivery-mode d-flex gap-3 mb-3">
@@ -260,18 +259,6 @@
                 {{ __('Set ticket status to solved after sending.', 'ticketmailer') }}
             </span>
         </label>
-        {% if can_update_knowledge|default(false) %}
-            <label class="form-check form-switch d-inline-flex align-items-center mb-0 px-2"
-                   title="{{ __('Save and add to the knowledge base') }}">
-                <i class="ti ti-device-floppy me-2" aria-hidden="true"></i>
-                <input type="checkbox" class="form-check-input m-0"
-                       name="save_knowledge" value="1"
-                       {% if save_knowledge|default(false) %}checked{% endif %}>
-                <span class="visually-hidden">
-                    {{ __('Save and add to the knowledge base') }}
-                </span>
-            </label>
-        {% endif %}
         <button type="submit" class="btn btn-primary"
                 {% if mailbox_matches and not mailbox_override %}disabled{% endif %}>
             {{ __('Send', 'ticketmailer') }}

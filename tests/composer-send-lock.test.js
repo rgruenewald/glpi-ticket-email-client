@@ -382,10 +382,15 @@ assert.match(
 	/\.ticketmailer-note-cancel\s*\{[^}]*margin-right:\s*auto/s,
 	"Internal note status toggles and Add stay right-aligned",
 );
-assert.match(
+assert.doesNotMatch(
 	composeTemplate,
 	/name="save_knowledge"/,
-	"Email actions include the knowledge-base toggle",
+	"Email actions omit the knowledge-base toggle",
+);
+assert.match(
+	composerSource,
+	/saveKnowledgeField\.remove\(\)/,
+	"Internal note actions omit the knowledge-base toggle",
 );
 assert.match(
 	composerCss,
