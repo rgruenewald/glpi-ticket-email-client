@@ -635,8 +635,7 @@ global.bootstrap = {
 		},
 	},
 };
-global.CFG_ROOT = "/glpi";
-
+global.CFG_GLPI = { root_doc: "/glpi" };
 assert.equal(
 	setKnowledgeArticleContent(
 		notePanel(knowledgeFields["knowledge-a"]),
@@ -673,11 +672,14 @@ assert.equal(knowledgeModal.handlers.click.length, 1);
 assert.equal(knowledgeModal.handlers["hidden.bs.modal"].length, 1);
 assert.equal(knowledgeModal.ticketmailerParentModal, parentB);
 
-global.window.fetch = () =>
-	Promise.resolve({
+let knowledgeRequest = null;
+global.window.fetch = (url, options) => {
+	knowledgeRequest = { url, options };
+	return Promise.resolve({
 		ok: true,
 		text: () => Promise.resolve("<p>Active article</p>"),
 	});
+};
 knowledgeModal.handlers.click[0]({
 	target: {
 		closest(selector) {
@@ -706,8 +708,15 @@ setImmediate(() => {
 				knowledgeEditors["knowledge-b"].content,
 				"<p>Active article</p>",
 			);
+			assert.equal(
+				knowledgeRequest.url,
+				"/glpi/Knowbase/KnowbaseItem/7/Content",
+			);
+			assert.equal(
+				knowledgeRequest.options.headers["X-Requested-With"],
+				"XMLHttpRequest",
+			);
 			assert.equal(hiddenKnowledgeModal, knowledgeModal);
-
 			const responses = [];
 			global.window.fetch = () =>
 				new Promise((resolve) => {

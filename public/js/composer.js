@@ -85,7 +85,7 @@
 		var requestId = (knowledgeModal.ticketmailerKnowledgeRequestId || 0) + 1;
 		knowledgeModal.ticketmailerKnowledgeRequestId = requestId;
 		return window
-			.fetch(CFG_ROOT + "/Knowbase/KnowbaseItem/" + itemId + "/Content", {
+			.fetch(CFG_GLPI.root_doc + "/Knowbase/KnowbaseItem/" + itemId + "/Content", {
 				headers: { "X-Requested-With": "XMLHttpRequest" },
 			})
 			.then((response) => {
