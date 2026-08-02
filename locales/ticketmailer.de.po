@@ -266,6 +266,10 @@ msgstr "Quelle"
 msgid "Show newest timeline entries first."
 msgstr "Neueste Verlaufseinträge zuerst anzeigen."
 
+#: front/config.form.php
+msgid "Hide GLPI native Answer action."
+msgstr "Native GLPI-Aktion „Antworten“ ausblenden."
+
 #: templates/compose.html.twig
 msgid "Attach public ticket history"
 msgstr "Öffentlichen Ticketverlauf anhängen"

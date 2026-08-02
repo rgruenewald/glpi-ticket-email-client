@@ -264,6 +264,10 @@ msgstr ""
 msgid "Show newest timeline entries first."
 msgstr ""
 
+#: front/config.form.php
+msgid "Hide GLPI native Answer action."
+msgstr ""
+
 #: templates/compose.html.twig
 msgid "Attach public ticket history"
 msgstr ""

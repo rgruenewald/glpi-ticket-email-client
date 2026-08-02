@@ -93,7 +93,7 @@ Stored attachment descriptors use a generated server-side ID plus filename, trus
 
 ### A1 — Entry and effective reply policy
 
-A ticket user who may update/follow up sees **E-Mail antworten** when the effective policy permits it. The effective policy honors exact entity/profile, entity default, then global default precedence. `hide_native` is implemented only through a verified GLPI extension point; absent that proof, implementation must retain the native reply control and treat the policy as `promoted`/`available`, never hide it with DOM/CSS manipulation.
+A ticket user who may update/follow up sees **E-Mail antworten** when the effective policy permits it. The effective policy honors exact entity/profile, entity default, then global default precedence. GLPI 11.0.8 proves native Answer suppression through the supported `timeline_answer_actions` descriptor replacement; the disabled-by-default global option uses it and never DOM/CSS manipulation.
 
 ### A2 — Actor recipient defaults
 
@@ -163,7 +163,7 @@ All new user-facing labels, error text, policy labels, and incomplete-send state
 
 ## Required manual verification — GLPI 11.0.8 + Mailpit
 
-- Verify the selected ticket action integration uses a supported GLPI extension point.
+- Verify the source-proven `timeline_answer_actions` descriptor replacement in the GLPI 11.0.8 runtime.
 - Send a rich email with To/CC/BCC, normal attachment, and inline image. Mailpit has exactly one message with expected envelope/body/attachments and no BCC visible header.
 - Open the ticket as a second ticket reader: complete followup shows To/CC/BCC/body and links download. A user without ticket read is denied every view/download.
 - Enable GLPI notifications and verify `_disablenotif` prevents a duplicate followup notification.

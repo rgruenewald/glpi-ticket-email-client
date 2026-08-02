@@ -37,6 +37,7 @@ class PluginTicketmailerConfig
      *     signature_html:string,
      *     set_waiting:bool,
      *     timeline_newest_first:bool,
+     *     hide_native_answer:bool,
      * }
      */
     public static function forEntity(int $entities_id): array
@@ -47,6 +48,7 @@ class PluginTicketmailerConfig
             'signature_html'                    => '',
             'set_waiting'                       => true,
             'timeline_newest_first'             => true,
+            'hide_native_answer'                 => false,
         ];
         if (!$DB->tableExists('glpi_plugin_ticketmailer_configs')) {
             return $settings;
@@ -59,6 +61,7 @@ class PluginTicketmailerConfig
             $settings['set_waiting'] = (bool) $global['set_waiting'];
             $settings['timeline_newest_first'] = !isset($global['timeline_newest_first'])
                 || (bool) $global['timeline_newest_first'];
+            $settings['hide_native_answer'] = (bool) ($global['hide_native_answer'] ?? false);
         }
         $entity = $DB->request([
             'FROM'  => 'glpi_plugin_ticketmailer_configs',
@@ -74,6 +77,7 @@ class PluginTicketmailerConfig
         int $notificationtemplates_id,
         bool $set_waiting,
         bool $timeline_newest_first,
+        bool $hide_native_answer = false,
     ): void {
         global $DB;
         $globalSettings = self::forEntity(0);
@@ -92,6 +96,7 @@ class PluginTicketmailerConfig
             'signature_html'                    => (string) ($globalSettings['signature_html'] ?? ''),
             'set_waiting'                       => $set_waiting ? 1 : 0,
             'timeline_newest_first'             => $timeline_newest_first ? 1 : 0,
+            'hide_native_answer'                 => $hide_native_answer ? 1 : 0,
         ];
         if (isset($global['subject_prefix'])) {
             $values['subject_prefix'] = (string) $global['subject_prefix'];

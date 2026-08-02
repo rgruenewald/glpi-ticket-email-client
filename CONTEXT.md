@@ -6,7 +6,7 @@
 - **Type:** GLPI 11 plugin (`composer.json` type `glpi-plugin`)
 - **Runtime:** PHP ≥ 8.2, GLPI ^11.0 (verified against 11.0.8). GLPI is the external host runtime, not a Composer package dependency.
 - **License:** GPL-3.0-or-later
-- **Version constant:** `PLUGIN_TICKETMAILER_VERSION` in `setup.php` (currently 2.2.0)
+- **Version constant:** `PLUGIN_TICKETMAILER_VERSION` in `setup.php` (currently 2.3.0)
 
 ## One-liner
 
@@ -34,7 +34,7 @@ Ticket-context reply client: **Email** (default) sends once via GLPI’s configu
 6. Email recipients: server rejects malformed non-empty tokens (no silent drop). BCC-only is allowed. SMTP headers omit BCC from To/CC.
 7. **BCC is ticket-visible** by design (timeline + audit detail). Not a privacy feature. UI warns before Email send.
 8. Mailbox match → warn + require override; aliases/forwarding/non-email logins **not** detected.
-9. `hide_native` is stored but effective policy demotes to `promoted` until a real GLPI extension point is proven — never hide native reply via DOM/CSS.
+9. GLPI 11.0.8 proves native Answer suppression through `timeline_answer_actions`; the disabled-by-default global setting replaces the `answer` descriptor with `hide_in_menu=true` — never hide via DOM/CSS.
 10. No plugin SMTP config UI; read GLPI core `smtp_*` only. No new editor library (GLPI-bundled rich text).
 11. i18n: English + German catalogs must stay complete for UI strings.
 
@@ -61,7 +61,7 @@ tests/                   PHPUnit acceptance
 
 - `glpi_plugin_ticketmailer_logs` — audit + SMTP + followup link + mailbox override and explicit new-conversation evidence
 - `glpi_plugin_ticketmailer_reply_policies` — `entities_id`, nullable `profiles_id`, `mode`
-- Fresh install: `sql/install.sql` · Latest upgrade: `sql/update-2.2.0.sql` · Drop: `sql/uninstall.sql`
+- Fresh install: `sql/install.sql` · Latest upgrade: `sql/update-2.3.0.sql` · Drop: `sql/uninstall.sql`
 
 ## Non-goals
 

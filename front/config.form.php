@@ -31,6 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             (int) $settings['notificationtemplates_id'],
             !empty($_POST['set_waiting']),
             !empty($_POST['timeline_newest_first']),
+            !empty($_POST['hide_native_answer']),
         );
     }
     Html::redirect($config_url . '?entities_id=' . $entities_id);
@@ -51,6 +52,10 @@ echo '<div class="col-12 form-check"><input class="form-check-input" id="ticketm
     . ($settings['timeline_newest_first'] ? ' checked' : '') . '>';
 echo '<label class="form-check-label" for="ticketmailer-timeline-newest-first">'
     . __('Show newest timeline entries first.', 'ticketmailer') . '</label></div>';
+echo '<div class="col-12 form-check"><input class="form-check-input" id="ticketmailer-hide-native-answer" type="checkbox" name="hide_native_answer" value="1"'
+    . ($settings['hide_native_answer'] ? ' checked' : '') . '>';
+echo '<label class="form-check-label" for="ticketmailer-hide-native-answer">'
+    . __('Hide GLPI native Answer action.', 'ticketmailer') . '</label></div>';
 echo '<div class="col-12"><button type="submit" class="btn btn-primary">' . __('Save') . '</button></div>';
 echo '</div></div></div></form>';
 

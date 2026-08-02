@@ -48,9 +48,13 @@ class PluginTicketmailerTimelineAction
             return [];
         }
 
-        return [
+        $actions = [
             'ticketmailer_email_reply' => self::action(),
         ];
+        if (PluginTicketmailerConfig::forEntity(0)['hide_native_answer']) {
+            $actions['answer'] = self::nativeAnswerAction($ticket);
+        }
+        return $actions;
     }
 
     /**
@@ -117,6 +121,31 @@ class PluginTicketmailerTimelineAction
             'item' => new self(),
             // The direct legacy action below keeps this control next to
             // Answer even when GLPI uses its merged action-button layout.
+            'hide_in_menu' => true,
+        ];
+    }
+
+    /**
+     * GLPI descriptor keys: x27answerx27 x27typex27 x27classx27 x27labelx27
+     * x27short_labelx27 x27itemx27.
+     *
+     * @return array<string, mixed>
+     */
+    private static function nativeAnswerAction(Ticket $ticket): array
+    {
+        $followup = new ITILFollowup();
+        $followup->getEmpty();
+        $followup->fields['itemtype'] = Ticket::class;
+        $followup->fields['items_id'] = (int) $ticket->getField('id');
+
+        return [
+            'type' => ITILFollowup::class,
+            'class' => ITILFollowup::class,
+            'icon' => ITILFollowup::getIcon(),
+            'label' => _x('button', 'Answer'),
+            'short_label' => _x('button', 'Answer'),
+            'template' => 'components/itilobject/timeline/form_followup.html.twig',
+            'item' => $followup,
             'hide_in_menu' => true,
         ];
     }

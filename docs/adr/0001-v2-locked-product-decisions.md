@@ -13,7 +13,7 @@
 
 ### D1 — Reply policy (not core replacement)
 
-Per entity / optional profile: email reply is `available`, `promoted`, or `hide_native`. No unsupported core patch. `hide_native` only via a verified GLPI extension point; without proof, keep native reply and treat policy as promoted/available — never DOM/CSS suppression.
+Per entity / optional profile: email reply is `available`, `promoted`, or `hide_native`. GLPI 11.0.8 proves `timeline_answer_actions` can replace the string-keyed `answer` descriptor with `hide_in_menu=true`; the global suppression option uses that supported mechanism. Never use DOM/CSS suppression or a core patch.
 
 ### D2 — Timeline via ITILFollowup
 
