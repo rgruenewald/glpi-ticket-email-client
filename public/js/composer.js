@@ -68,13 +68,19 @@
 		if (!contentField) {
 			return false;
 		}
+		var tinyMce = window.tinymce || window.tinyMCE;
 		var editor =
-			window.tinymce && typeof window.tinymce.get === "function"
-				? window.tinymce.get(contentField.id)
+			tinyMce && typeof tinyMce.get === "function"
+				? tinyMce.get(contentField.id)
 				: null;
 		if (editor) {
 			editor.setContent(content);
-			editor.save();
+			if (typeof editor.fire === "function") {
+				editor.fire("keyup");
+			}
+			if (typeof editor.save === "function") {
+				editor.save();
+			}
 		} else if (typeof setRichTextEditorContent === "function") {
 			setRichTextEditorContent(contentField.id, content);
 		}
@@ -108,23 +114,12 @@
 			});
 	}
 
-	function preserveModalWhileOpeningKnowledge(parentModal) {
+	function preserveModalWhileOpeningKnowledge() {
 		if (typeof window.glpi_close_all_dialogs !== "function") {
 			return () => {};
 		}
 		var closeAllDialogs = window.glpi_close_all_dialogs;
-		var guardedCloseAllDialogs = () => {
-			var parent = parentModal.parentNode;
-			var next = parentModal.nextSibling;
-			parentModal.remove();
-			try {
-				closeAllDialogs();
-			} finally {
-				if (parent && !parentModal.parentNode) {
-					parent.insertBefore(parentModal, next && next.parentNode ? next : null);
-				}
-			}
-		};
+		var guardedCloseAllDialogs = () => {};
 		window.glpi_close_all_dialogs = guardedCloseAllDialogs;
 		return () => {
 			if (window.glpi_close_all_dialogs === guardedCloseAllDialogs) {
@@ -1335,43 +1330,6 @@
 										}
 										var restoreDialogClosing =
 											preserveModalWhileOpeningKnowledge(parentModal);
-										var labelKnowledgeButtons = () => {
-											var knowledgeModal = document.getElementById(
-												"modal_search_knowbaseitem",
-											);
-											if (!knowledgeModal) {
-												return;
-											}
-											knowledgeModal
-												.querySelectorAll(
-													".list-group-item .use-knowbaseitem, .list-group-item .view-knowbaseitem",
-												)
-												.forEach((button) => {
-													if (!button.dataset.ticketmailerLabelled) {
-														button.dataset.ticketmailerLabelled = "true";
-														button.classList.remove(
-															"btn-icon",
-															"btn-sm",
-															"btn-ghost-secondary",
-														);
-														button.classList.add(
-															button.classList.contains("use-knowbaseitem")
-																? "btn-primary"
-																: "btn-outline-secondary",
-														);
-														var label = document.createElement("span");
-														label.textContent = button.title;
-														button.append(label);
-													}
-												});
-										};
-										var labelTimer = window.setInterval(
-											labelKnowledgeButtons,
-											200,
-										);
-										window.setTimeout(() => {
-											window.clearInterval(labelTimer);
-										}, 2500);
 										var modalBindAttempts = 0;
 										var bindCurrentKnowledgeModal = () => {
 											document.body.classList.add("modal-open");
@@ -1390,7 +1348,6 @@
 											}
 											delete knowledge.dataset.ticketmailerOpening;
 											restoreDialogClosing();
-											labelKnowledgeButtons();
 											bindKnowledgeModal(
 												knowledgeModal,
 												notePanel,

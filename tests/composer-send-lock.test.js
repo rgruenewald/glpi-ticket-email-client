@@ -401,6 +401,16 @@ assert.match(
 	/data-ticketmailer-email-knowledge/,
 	"Email compose exposes the knowledge-base article selector",
 );
+assert.doesNotMatch(
+	composerSource,
+	/button\.append\(label\)|label\.textContent = button\.title/,
+	"Knowledge-base actions remain icon-only in both compose modes",
+);
+assert.doesNotMatch(
+	composerCss,
+	/#modal_search_knowbaseitem \.list-group-item \.use-knowbaseitem,[\s\S]*min-width:\s*8rem/,
+	"Knowledge-base icon actions retain native compact sizing",
+);
 assert.match(
 	composerSource,
 	/saveKnowledgeField\.remove\(\)/,
@@ -739,6 +749,30 @@ assert.equal(
 	knowledgeEditors["knowledge-b"].content,
 	"<p>Email knowledge article</p>",
 );
+delete global.window.tinymce;
+global.window.tinyMCE = {
+	get(id) {
+		return knowledgeEditors[id] || null;
+	},
+};
+knowledgeFields["knowledge-a"].value = "";
+assert.equal(
+	setKnowledgeArticleContent(
+		notePanel(knowledgeFields["knowledge-a"]),
+		"<p>Legacy TinyMCE global article</p>",
+	),
+	true,
+ );
+assert.equal(
+	knowledgeEditors["knowledge-a"].content,
+	"<p>Legacy TinyMCE global article</p>",
+);
+delete global.window.tinyMCE;
+global.window.tinymce = {
+	get(id) {
+		return knowledgeEditors[id] || null;
+	},
+};
 
 const dialogParent = {
 	children: [],
@@ -758,13 +792,16 @@ dialogParent.children.push(preservedParentModal);
 let closeAllCalls = 0;
 global.window.glpi_close_all_dialogs = () => {
 	closeAllCalls += 1;
-	assert.equal(preservedParentModal.parentNode, null);
 };
 const restoreDialogClosing = preserveModalWhileOpeningKnowledge(
 preservedParentModal,
 );
 global.window.glpi_close_all_dialogs();
-assert.equal(closeAllCalls, 1);
+assert.equal(
+	closeAllCalls,
+	0,
+	"Opening knowledge never detaches the parent modal and its TinyMCE iframe",
+);
 assert.equal(preservedParentModal.parentNode, dialogParent);
 restoreDialogClosing();
 assert.notEqual(
@@ -825,7 +862,7 @@ setImmediate(() => {
 		.then(async () => {
 			assert.equal(
 				knowledgeEditors["knowledge-a"].content,
-				"<p>Knowledge article</p>",
+				"<p>Legacy TinyMCE global article</p>",
 			);
 			assert.equal(
 				knowledgeEditors["knowledge-b"].content,
