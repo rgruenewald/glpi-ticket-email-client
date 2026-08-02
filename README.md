@@ -158,17 +158,10 @@ docker compose up -d --build
 
 GLPI is available at `http://localhost:8080` (`glpi` / `glpi` in the development stack only). Change the default login immediately.
 
-Run the contract verifier from the repository root:
+Run the reproducible test container from the repository root. It installs the locked PHP dependencies into Docker volumes, then runs PHPUnit and the canonical v2 verifier:
 
 ```bash
-ROOT=. bash .agent/contracts/glpi-ticket-email-client-v2/score.sh
-```
-
-When PHP dependencies are installed, run the PHPUnit suite:
-
-```bash
-composer install
-vendor/bin/phpunit
+docker compose run --rm test
 ```
 
 Before a release, use a dedicated SMTP test receiver to test one complete email with recipients, attachments, and warnings. Also test failed delivery and a missing ticket-history entry. The receiver must contain exactly one email; its visible headers must not contain BCC.

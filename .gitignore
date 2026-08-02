@@ -1,6 +1,5 @@
 # --- composer (PHP deps) ---
 vendor/
-composer.lock
 
 # --- npm (frontend, if any) ---
 node_modules/

@@ -58,7 +58,19 @@ services:
       - glpi_config:/var/www/html/config
       - glpi_data:/var/www/html/files
 
+  test:
+    build:
+      context: .
+      dockerfile: docker/test/Dockerfile
+    working_dir: /app
+    volumes:
+      - .:/app:ro
+      - test_vendor:/app/vendor
+      - test_phpunit_cache:/phpunit-cache
+
 volumes:
   db_data:
   glpi_data:
   glpi_config:
+  test_vendor:
+  test_phpunit_cache:
