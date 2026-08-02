@@ -24,7 +24,7 @@ const sendButton = {
 	setAttribute(name, value) {
 		this.attributes[name] = value;
 	},
-	prepend() {}
+	prepend() {},
 };
 
 function statusToggle(name, checked) {
@@ -89,7 +89,7 @@ global.document = {
 			setAttribute(name, value) {
 				this.attributes[name] = value;
 			},
-			appendChild() {}
+			appendChild() {},
 		};
 	},
 	querySelector() {
@@ -401,6 +401,16 @@ assert.doesNotMatch(
 	composerSource,
 	/footer\.insertBefore\(privateField, pendingControl \|\| add\)/,
 	"Internal note does not expose the implicit Private toggle",
+);
+assert.match(
+	composerSource,
+	/solved\.dispatchEvent\(new Event\(["']change["'], \{ bubbles: true \}\)\)/,
+	"solution templates dispatch a bubbling modern change event",
+);
+assert.doesNotMatch(
+	composerSource,
+	/\.initEvent\(/,
+	"composer does not use deprecated Event.initEvent()",
 );
 assert.match(
 	composerCss,

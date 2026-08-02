@@ -209,7 +209,7 @@
 			override.checked = false;
 		}
 		form.querySelectorAll(".ticketmailer-recipient-chip").forEach((chip) => {
-			var matched = normalized.indexOf(chip.dataset.email.toLowerCase()) !== -1;
+			var matched = normalized.includes(chip.dataset.email.toLowerCase());
 			chip.classList.toggle("ticketmailer-recipient-chip--mailbox", matched);
 			chip.title = matched ? form.dataset.i18nMailboxRecipient : "";
 			chip.setAttribute("aria-invalid", matched ? "true" : "false");
@@ -815,14 +815,17 @@
 			try {
 				var result = JSON.parse(xhr.responseText);
 				var editor = window.tinymce && tinymce.get(editorId);
-				var textarea = editor ? null : form.querySelector("#" + editorId);
+				var textarea = null;
+				if (!editor) {
+					textarea = form.querySelector("#" + editorId);
+				}
 				var signature = form.ticketmailerSignature;
 				if (typeof signature === "undefined") {
-					signature = editor
-						? editor.getContent()
-						: textarea
-							? textarea.value
-							: "";
+					if (editor) {
+						signature = editor.getContent();
+					} else {
+						signature = textarea ? textarea.value : "";
+					}
 					form.ticketmailerSignature = signature;
 				}
 				if (editor) {
@@ -834,14 +837,7 @@
 					var solved = form.querySelector('input[name="set_solved"]');
 					if (solved) {
 						solved.checked = true;
-						var changeEvent;
-						if (typeof Event === "function") {
-							changeEvent = new Event("change", { bubbles: true });
-						} else {
-							changeEvent = document.createEvent("Event");
-							changeEvent.initEvent("change", true, false);
-						}
-						solved.dispatchEvent(changeEvent);
+						solved.dispatchEvent(new Event("change", { bubbles: true }));
 					}
 				}
 			} catch (e) {

@@ -6,7 +6,7 @@
 - **Type:** GLPI 11 plugin (`composer.json` type `glpi-plugin`)
 - **Runtime:** PHP ≥ 8.2, GLPI ^11.0 (verified against 11.0.8). GLPI is the external host runtime, not a Composer package dependency.
 - **License:** GPL-3.0-or-later
-- **Version constant:** `PLUGIN_TICKETMAILER_VERSION` in `setup.php` (currently 2.0.0)
+- **Version constant:** `PLUGIN_TICKETMAILER_VERSION` in `setup.php` (currently 2.2.0)
 
 ## One-liner
 

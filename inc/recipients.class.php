@@ -67,6 +67,8 @@ class PluginTicketmailerRecipients
     }
 
     /**
+     * Compatibility utility retained for external callers.
+     *
      * @param list<string> $addresses
      */
     public static function hasInvalid(array $addresses): bool
