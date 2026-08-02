@@ -78,7 +78,7 @@ Read this section before installing the plugin.
 1. Back up the GLPI database and document directory using your normal GLPI maintenance procedure.
 2. Replace the plugin directory with the new release while preserving the directory name `ticketmailer`.
 3. Run GLPI's plugin update flow from the administration UI or CLI.
-4. Confirm that the plugin reports version `2.2.0` and execute the smoke checks below.
+4. Confirm that the plugin reports version `2.3.0` and execute the smoke checks below.
 
 The installer applies the versioned database migrations included in `sql/`. Do not edit plugin tables manually during an upgrade.
 
@@ -99,8 +99,7 @@ A GLPI administrator can open the plugin configuration page and choose an entity
   - Users only see data they are allowed to view.
 - **Set ticket status to waiting after sending** — enabled by default.
 - **Show newest ticket entries first** — enabled by default.
-
-The plugin does not hide GLPI's own reply button.
+- **Hide GLPI native Answer action** — disabled by default. When enabled, the plugin uses GLPI 11's supported `timeline_answer_actions` hook to remove the duplicate action-bar entry. The native followup form remains mounted, so **Internal note** keeps GLPI's private followup lifecycle.
 
 ## Email or Internal note
 

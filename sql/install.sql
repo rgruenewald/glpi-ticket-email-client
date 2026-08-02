@@ -49,5 +49,6 @@ CREATE TABLE IF NOT EXISTS glpi_plugin_ticketmailer_configs (
     timeline_newest_first    TINYINT      NOT NULL DEFAULT 1,
     open_reply_on_ticket     TINYINT      NOT NULL DEFAULT 1,
     recipient_autocomplete_show_email TINYINT NOT NULL DEFAULT 1,
+    hide_native_answer       TINYINT      NOT NULL DEFAULT 0,
     PRIMARY KEY (entities_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

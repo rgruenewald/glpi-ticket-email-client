@@ -47,11 +47,12 @@ final class SchemaMigrationTest extends TestCase
             'glpi_plugin_ticketmailer_configs.recipient_autocomplete_show_email' => false,
             'glpi_plugin_ticketmailer_configs.notificationtemplates_id' => false,
             'glpi_plugin_ticketmailer_logs.new_conversation' => false,
+            'glpi_plugin_ticketmailer_configs.hide_native_answer' => false,
         ]);
 
         try {
             self::assertTrue(PluginTicketmailerHook::migrateSchema(__DIR__ . '/../sql'));
-            self::assertCount(9, $DB->queries);
+            self::assertCount(10, $DB->queries);
             self::assertStringContainsString('ADD COLUMN followups_id', $DB->queries[1]);
             self::assertStringContainsString('ADD COLUMN timeline_newest_first', $DB->queries[4]);
             self::assertStringContainsString('ADD COLUMN open_reply_on_ticket', $DB->queries[5]);
@@ -59,6 +60,7 @@ final class SchemaMigrationTest extends TestCase
             self::assertStringContainsString('ADD COLUMN recipient_autocomplete_show_email', $DB->queries[6]);
             self::assertStringContainsString('ADD COLUMN notificationtemplates_id', $DB->queries[7]);
             self::assertStringContainsString('ADD COLUMN new_conversation', $DB->queries[8]);
+            self::assertStringContainsString('ADD COLUMN hide_native_answer', $DB->queries[9]);
         } finally {
             $DB = $previous;
         }
@@ -77,6 +79,7 @@ final class SchemaMigrationTest extends TestCase
             'glpi_plugin_ticketmailer_configs.recipient_autocomplete_show_email' => true,
             'glpi_plugin_ticketmailer_configs.notificationtemplates_id' => true,
             'glpi_plugin_ticketmailer_logs.new_conversation' => true,
+            'glpi_plugin_ticketmailer_configs.hide_native_answer' => true,
         ]);
 
         try {
