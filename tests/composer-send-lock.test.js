@@ -337,6 +337,15 @@ const composeTemplate = require("node:fs").readFileSync(
 	require.resolve("../templates/compose.html.twig"),
 	"utf8",
 );
+const timelineActionSource = require("node:fs").readFileSync(
+	require.resolve("../inc/timelineaction.class.php"),
+	"utf8",
+);
+assert.match(
+	timelineActionSource,
+	/\$editor_id = 'ticketmailer-body-html-'[\s\S]*\$tickets_id[\s\S]*\$inline \? 'inline' : 'modal'/,
+	"inline and modal email editors have distinct TinyMCE IDs",
+);
 assert.match(
 	composerSource,
 	/var pendingIcon = pendingLabel[\s\S]*pendingLabel\.querySelector\(["']:scope > i["']\)/,
@@ -386,6 +395,11 @@ assert.doesNotMatch(
 	composeTemplate,
 	/name="save_knowledge"/,
 	"Email actions omit the knowledge-base toggle",
+);
+assert.match(
+	composeTemplate,
+	/data-ticketmailer-email-knowledge/,
+	"Email compose exposes the knowledge-base article selector",
 );
 assert.match(
 	composerSource,
@@ -470,6 +484,7 @@ assert.match(
 );
 
 const {
+	bindEmailKnowledge,
 	bindKnowledgeModal,
 	preserveModalWhileOpeningKnowledge,
 	recipientForSuggestion,
@@ -611,12 +626,19 @@ assert.equal(
 	"solution template unchecks waiting through existing status logic",
 );
 
-function notePanel(contentField) {
+function editorPanel(contentField) {
 	return {
 		querySelector(selector) {
-			return selector === 'textarea[name="content"]' ? contentField : null;
+			return selector.includes('textarea[name="content"]') ||
+				selector.includes('textarea[name="body_html"]')
+				? contentField
+				: null;
 		},
 	};
+}
+
+function notePanel(contentField) {
+	return editorPanel(contentField);
 }
 
 const knowledgeFields = {
@@ -652,6 +674,47 @@ global.bootstrap = {
 	},
 };
 global.CFG_GLPI = { root_doc: "/glpi" };
+let openedKnowledgeDialog = null;
+let openedKnowledgeDialogCount = 0;
+global.window.glpi_ajax_dialog = (options) => {
+	openedKnowledgeDialog = options;
+	openedKnowledgeDialogCount += 1;
+};
+const emailKnowledgeButton = {
+	dataset: {},
+	textContent: " Knowledge base ",
+	addEventListener(type, handler) {
+		this[type] = handler;
+	},
+};
+const emailKnowledgeForm = {
+	closest() {
+		return null;
+	},
+	querySelector(selector) {
+		if (selector === "[data-ticketmailer-email-knowledge]") {
+			return emailKnowledgeButton;
+		}
+		if (selector === '[name="tickets_id"]') {
+			return { value: "42" };
+		}
+		return null;
+	},
+};
+global.document.getElementById = () => null;
+global.window.setTimeout = () => {};
+bindEmailKnowledge(emailKnowledgeForm);
+emailKnowledgeButton.click();
+emailKnowledgeButton.click();
+assert.equal(
+	openedKnowledgeDialogCount,
+	1,
+	"Email knowledge dialog ignores repeated opens until binding completes",
+);
+assert.equal(
+	openedKnowledgeDialog.url,
+	"/glpi/Knowbase/KnowbaseItem/Search/Ticket/42",
+);
 assert.equal(
 	setKnowledgeArticleContent(
 		notePanel(knowledgeFields["knowledge-a"]),
@@ -664,6 +727,18 @@ assert.equal(
 	"<p>Knowledge article</p>",
 );
 assert.equal(knowledgeFields["knowledge-a"].value, "<p>Knowledge article</p>");
+assert.equal(
+	setKnowledgeArticleContent(
+		editorPanel(knowledgeFields["knowledge-b"]),
+		"<p>Email knowledge article</p>",
+	),
+	true,
+	"Knowledge articles can populate the email body editor",
+);
+assert.equal(
+	knowledgeEditors["knowledge-b"].content,
+	"<p>Email knowledge article</p>",
+);
 
 const dialogParent = {
 	children: [],
