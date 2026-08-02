@@ -156,7 +156,7 @@ class PluginTicketmailerTimelineAction
         $recipients_cc = self::actorEmails($ticket, CommonITILActor::OBSERVER);
         $tickets_id = (int) $ticket->getField('id');
         $web = Plugin::getWebDir('ticketmailer');
-        $editor_id = 'ticketmailer-body-html-' . self::REPLY;
+        $editor_id = 'ticketmailer-body-html-' . self::REPLY . '-' . $tickets_id . '-' . ($inline ? 'inline' : 'modal');
         $content = PluginTicketmailerConfig::contentForTicket($ticket);
         $native_followup_form = self::nativeFollowupForm($ticket);
 
@@ -170,7 +170,7 @@ class PluginTicketmailerTimelineAction
             'recipients_cc_raw' => implode(', ', $recipients_cc),
             'recipients_bcc_raw' => '',
             'subject' => $content['subject'],
-            'body_editor' => $this->editor(self::entitySignature($ticket, $content), self::REPLY, 14),
+            'body_editor' => $this->editor(self::entitySignature($ticket, $content), $editor_id, 14),
             'editor_id' => $editor_id,
             'followup_template_dropdown' => self::followupTemplateDropdown(),
             'solution_template_dropdown' => self::solutionTemplateDropdown(),
@@ -258,12 +258,12 @@ class PluginTicketmailerTimelineAction
         }
     }
 
-    private function editor(string $value, string $mode, int $rows): string
+    private function editor(string $value, string $editor_id, int $rows): string
     {
         return Html::textarea([
             'name' => 'body_html',
             'value' => $value,
-            'editor_id' => 'ticketmailer-body-html-' . $mode,
+            'editor_id' => $editor_id,
             'enable_richtext' => true,
             'enable_images' => true,
             'enable_fileupload' => false,

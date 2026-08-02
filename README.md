@@ -78,7 +78,7 @@ Read this section before installing the plugin.
 1. Back up the GLPI database and document directory using your normal GLPI maintenance procedure.
 2. Replace the plugin directory with the new release while preserving the directory name `ticketmailer`.
 3. Run GLPI's plugin update flow from the administration UI or CLI.
-4. Confirm that the plugin reports version `2.3.0` and execute the smoke checks below.
+4. Confirm that the plugin reports version `2.3.1` and execute the smoke checks below.
 
 The installer applies the versioned database migrations included in `sql/`. Do not edit plugin tables manually during an upgrade.
 

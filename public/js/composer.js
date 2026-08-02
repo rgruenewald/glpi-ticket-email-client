@@ -62,17 +62,25 @@
 	}
 
 	function setKnowledgeArticleContent(notePanel, content) {
-		var contentField = notePanel.querySelector('textarea[name="content"]');
+		var contentField = notePanel.querySelector(
+			'textarea[name="content"], textarea[name="body_html"]',
+		);
 		if (!contentField) {
 			return false;
 		}
+		var tinyMce = window.tinymce || window.tinyMCE;
 		var editor =
-			window.tinymce && typeof window.tinymce.get === "function"
-				? window.tinymce.get(contentField.id)
+			tinyMce && typeof tinyMce.get === "function"
+				? tinyMce.get(contentField.id)
 				: null;
 		if (editor) {
 			editor.setContent(content);
-			editor.save();
+			if (typeof editor.fire === "function") {
+				editor.fire("keyup");
+			}
+			if (typeof editor.save === "function") {
+				editor.save();
+			}
 		} else if (typeof setRichTextEditorContent === "function") {
 			setRichTextEditorContent(contentField.id, content);
 		}
@@ -106,23 +114,12 @@
 			});
 	}
 
-	function preserveModalWhileOpeningKnowledge(parentModal) {
+	function preserveModalWhileOpeningKnowledge() {
 		if (typeof window.glpi_close_all_dialogs !== "function") {
 			return () => {};
 		}
 		var closeAllDialogs = window.glpi_close_all_dialogs;
-		var guardedCloseAllDialogs = () => {
-			var parent = parentModal.parentNode;
-			var next = parentModal.nextSibling;
-			parentModal.remove();
-			try {
-				closeAllDialogs();
-			} finally {
-				if (parent && !parentModal.parentNode) {
-					parent.insertBefore(parentModal, next && next.parentNode ? next : null);
-				}
-			}
-		};
+		var guardedCloseAllDialogs = () => {};
 		window.glpi_close_all_dialogs = guardedCloseAllDialogs;
 		return () => {
 			if (window.glpi_close_all_dialogs === guardedCloseAllDialogs) {
@@ -176,8 +173,51 @@
 			true,
 		);
 	}
+	function bindEmailKnowledge(form) {
+		var button = form.querySelector("[data-ticketmailer-email-knowledge]");
+		if (!button || button.dataset.ticketmailerBound) {
+			return;
+		}
+		button.dataset.ticketmailerBound = "true";
+		button.addEventListener("click", () => {
+			if (button.dataset.ticketmailerOpening) {
+				return;
+			}
+			button.dataset.ticketmailerOpening = "true";
+			var parentModal = form.closest(".modal");
+			var restoreDialogClosing = parentModal
+				? preserveModalWhileOpeningKnowledge(parentModal)
+				: () => {};
+			window.glpi_ajax_dialog({
+				id: "modal_search_knowbaseitem",
+				modalclass: "modal-xl",
+				title: button.textContent.trim(),
+				url:
+					CFG_GLPI.root_doc +
+					"/Knowbase/KnowbaseItem/Search/Ticket/" +
+					form.querySelector('[name="tickets_id"]').value,
+			});
+			var attempts = 0;
+			var bindModal = () => {
+				var knowledgeModal = document.getElementById(
+					"modal_search_knowbaseitem",
+				);
+				if (!knowledgeModal && attempts++ < 24) {
+					window.setTimeout(bindModal, 100);
+					return;
+				}
+				delete button.dataset.ticketmailerOpening;
+				restoreDialogClosing();
+				if (knowledgeModal) {
+					bindKnowledgeModal(knowledgeModal, form, parentModal);
+				}
+			};
+			bindModal();
+		});
+	}
 	if (typeof module !== "undefined") {
 		module.exports = {
+			bindEmailKnowledge: bindEmailKnowledge,
 			bindKnowledgeModal: bindKnowledgeModal,
 			preserveModalWhileOpeningKnowledge: preserveModalWhileOpeningKnowledge,
 			recipientForSuggestion: recipientForSuggestion,
@@ -900,6 +940,7 @@
 			.forEach(initRecipientControl);
 		updateMailboxState(form, form.ticketmailerMailboxMatches, false);
 		initAttachments(form);
+		bindEmailKnowledge(form);
 		ensureTinyMce(form);
 		initTinyMceSave(form);
 	}
@@ -1278,49 +1319,17 @@
 								knowledge.addEventListener(
 									"click",
 									() => {
+										if (knowledge.dataset.ticketmailerOpening) {
+											return;
+										}
+										knowledge.dataset.ticketmailerOpening = "true";
 										var parentModal = delivery.closest(".modal");
 										if (!parentModal) {
+											delete knowledge.dataset.ticketmailerOpening;
 											return;
 										}
 										var restoreDialogClosing =
 											preserveModalWhileOpeningKnowledge(parentModal);
-										var labelKnowledgeButtons = () => {
-											var knowledgeModal = document.getElementById(
-												"modal_search_knowbaseitem",
-											);
-											if (!knowledgeModal) {
-												return;
-											}
-											knowledgeModal
-												.querySelectorAll(
-													".list-group-item .use-knowbaseitem, .list-group-item .view-knowbaseitem",
-												)
-												.forEach((button) => {
-													if (!button.dataset.ticketmailerLabelled) {
-														button.dataset.ticketmailerLabelled = "true";
-														button.classList.remove(
-															"btn-icon",
-															"btn-sm",
-															"btn-ghost-secondary",
-														);
-														button.classList.add(
-															button.classList.contains("use-knowbaseitem")
-																? "btn-primary"
-																: "btn-outline-secondary",
-														);
-														var label = document.createElement("span");
-														label.textContent = button.title;
-														button.append(label);
-													}
-												});
-										};
-										var labelTimer = window.setInterval(
-											labelKnowledgeButtons,
-											200,
-										);
-										window.setTimeout(() => {
-											window.clearInterval(labelTimer);
-										}, 2500);
 										var modalBindAttempts = 0;
 										var bindCurrentKnowledgeModal = () => {
 											document.body.classList.add("modal-open");
@@ -1332,12 +1341,13 @@
 												if (modalBindAttempts < 25) {
 													window.setTimeout(bindCurrentKnowledgeModal, 100);
 												} else {
+													delete knowledge.dataset.ticketmailerOpening;
 													restoreDialogClosing();
 												}
 												return;
 											}
+											delete knowledge.dataset.ticketmailerOpening;
 											restoreDialogClosing();
-											labelKnowledgeButtons();
 											bindKnowledgeModal(
 												knowledgeModal,
 												notePanel,

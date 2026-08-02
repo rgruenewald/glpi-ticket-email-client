@@ -149,6 +149,13 @@
                         {{ followup_source_dropdown|raw }}
                     </div>
                 {% endif %}
+                <div class="ticketmailer-mail-field ticketmailer-mail-field--knowledge">
+                    <button type="button" class="btn btn-secondary ticketmailer-knowledge-search"
+                            data-ticketmailer-email-knowledge>
+                        <i class="ti ti-search me-1" aria-hidden="true"></i>
+                        {{ __('Knowledge base', 'ticketmailer') }}
+                    </button>
+                </div>
             </div>
         {% endif %}
 
@@ -157,7 +164,6 @@
                 {{ body_editor|raw }}
             </div>
         </div>
-
 
         <div class="ticketmailer-mail-row">
             <div class="ticketmailer-mail-field">
