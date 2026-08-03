@@ -62,7 +62,20 @@
 	}
 
 	function copyKnowledgeArticleContent(content) {
-		return navigator.clipboard.writeText(content);
+		var container = document.createElement("div");
+		container.style.cssText = "position:fixed;left:-10000px;white-space:pre-wrap";
+		var parsed = new DOMParser().parseFromString(content, "text/html");
+		container.append(...parsed.body.childNodes);
+		document.body.appendChild(container);
+		var plainText = container.innerText;
+		container.remove();
+		var item = new ClipboardItem({
+			"text/html": new Blob([content], { type: "text/html" }),
+			"text/plain": new Blob([plainText], {
+				type: "text/plain",
+			}),
+		});
+		return navigator.clipboard.write([item]);
 	}
 
 	function replaceKnowledgeActionIcons(knowledgeModal) {
