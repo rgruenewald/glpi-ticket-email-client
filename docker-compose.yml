@@ -65,7 +65,7 @@ services:
     working_dir: /app
     volumes:
       - .:/app:ro
-      - test_vendor:/app/vendor
+      - test_vendor:/vendor
       - test_phpunit_cache:/phpunit-cache
 
 volumes:
