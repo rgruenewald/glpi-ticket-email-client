@@ -498,6 +498,7 @@ const {
 	bindKnowledgeModal,
 	copyKnowledgeArticleContent,
 	preserveModalWhileOpeningKnowledge,
+	bindKnowledgeActionIcons,
 	recipientForSuggestion,
 	selectKnowledgeArticle,
 	validUserSuggestions,
@@ -697,9 +698,17 @@ const emailKnowledgeButton = {
 		this[type] = handler;
 	},
 };
+const emailKnowledgeDelivery = {
+	dataset: {
+		knowledgeCopyFailed: "Copy failed",
+		knowledgeCopySucceeded: "Article copied",
+	},
+};
 const emailKnowledgeForm = {
-	closest() {
-		return null;
+	closest(selector) {
+		return selector === "[data-ticketmailer-delivery]"
+			? emailKnowledgeDelivery
+			: null;
 	},
 	querySelector(selector) {
 		if (selector === "[data-ticketmailer-email-knowledge]") {
@@ -711,8 +720,35 @@ const emailKnowledgeForm = {
 		return null;
 	},
 };
-global.document.getElementById = () => null;
-global.window.setTimeout = () => {};
+const knowledgeUseIcon = {
+	classList: {
+		classes: new Set(["ti", "ti-check"]),
+		replace(from, to) {
+			if (this.classes.delete(from)) {
+				this.classes.add(to);
+			}
+		},
+	},
+};
+const openedKnowledgeModal = {
+	dataset: {},
+	handlers: {},
+	addEventListener(type, handler) {
+		(this.handlers[type] ||= []).push(handler);
+	},
+	querySelectorAll(selector) {
+		return selector === ".use-knowbaseitem .ti-check"
+			? [knowledgeUseIcon]
+			: [];
+	},
+};
+let knowledgeDialogAvailable = false;
+global.document.getElementById = () =>
+	knowledgeDialogAvailable ? openedKnowledgeModal : null;
+let bindKnowledgeDialog = null;
+global.window.setTimeout = (handler) => {
+	bindKnowledgeDialog = handler;
+};
 bindEmailKnowledge(emailKnowledgeForm);
 emailKnowledgeButton.click();
 emailKnowledgeButton.click();
@@ -724,6 +760,29 @@ assert.equal(
 assert.equal(
 	openedKnowledgeDialog.url,
 	"/glpi/Knowbase/KnowbaseItem/Search/Ticket/42",
+);
+knowledgeDialogAvailable = true;
+bindKnowledgeDialog();
+assert.equal(
+	knowledgeUseIcon.classList.classes.has("ti-copy"),
+	true,
+	"Knowledge actions use a copy icon",
+);
+assert.equal(knowledgeUseIcon.classList.classes.has("ti-check"), false);
+knowledgeUseIcon.classList.classes.delete("ti-copy");
+knowledgeUseIcon.classList.classes.add("ti-check");
+const iconListenerCount = openedKnowledgeModal.handlers.click.length;
+bindKnowledgeActionIcons(openedKnowledgeModal);
+bindKnowledgeActionIcons(openedKnowledgeModal);
+assert.equal(
+	openedKnowledgeModal.handlers.click.length,
+	iconListenerCount,
+	"Repeated copy-icon binding adds no listener",
+);
+assert.equal(
+	knowledgeUseIcon.classList.classes.has("ti-copy"),
+	true,
+	"Internal-note and email bindings share copy icon setup",
 );
 let copiedKnowledgeContent = null;
 Object.defineProperty(global, "navigator", {
@@ -793,12 +852,30 @@ const knowledgeModal = {
 	addEventListener(type, handler) {
 		(this.handlers[type] ||= []).push(handler);
 	},
+	querySelectorAll() {
+		return [];
+	},
 };
 const parentA = {};
 const parentB = {};
-bindKnowledgeModal(knowledgeModal, parentA, "Copy failed");
-bindKnowledgeModal(knowledgeModal, parentB, "Copy failed");
-assert.equal(knowledgeModal.handlers.click.length, 1);
+let knowledgeToast = null;
+global.glpi_toast_success = (message, caption, options) => {
+	knowledgeToast = { message, caption, options };
+};
+bindKnowledgeModal(
+	knowledgeModal,
+	parentA,
+	"Copy failed",
+	"Text copied",
+);
+bindKnowledgeModal(
+	knowledgeModal,
+	parentB,
+	"Copy failed",
+	"Text copied",
+);
+assert.equal(knowledgeModal.handlers.click.length, 2);
+const selectKnowledgeArticleHandler = knowledgeModal.handlers.click[1];
 assert.equal(knowledgeModal.handlers["hidden.bs.modal"].length, 1);
 assert.equal(knowledgeModal.ticketmailerParentModal, parentB);
 
@@ -810,7 +887,7 @@ global.window.fetch = (url, options) => {
 		text: () => Promise.resolve("<p>Active article</p>"),
 	});
 };
-knowledgeModal.handlers.click[0]({
+selectKnowledgeArticleHandler({
 	target: {
 		closest(selector) {
 			return selector === ".use-knowbaseitem"
@@ -846,6 +923,77 @@ setImmediate(() => {
 				"XMLHttpRequest",
 			);
 			assert.equal(hiddenKnowledgeModal, knowledgeModal);
+			assert.deepEqual(knowledgeToast, {
+				message: "Text copied",
+				caption: undefined,
+				options: { delay: 3000 },
+			});
+			assert.equal(hiddenKnowledgeModal, knowledgeModal);
+			assert.equal(
+				knowledgeModal.ticketmailerParentModal,
+				parentB,
+				"Successful copy retains the editor modal",
+			);
+			knowledgeToast = null;
+			bindKnowledgeModal(knowledgeModal, parentB, "Copy failed", undefined);
+			selectKnowledgeArticleHandler({
+				target: {
+					closest(selector) {
+						return selector === ".use-knowbaseitem"
+							? {
+								dataset: { knowbaseitemId: "9" },
+								closest() {
+									return null;
+								},
+							  }
+							: null;
+					},
+				},
+				preventDefault() {},
+				stopImmediatePropagation() {},
+			});
+			await new Promise(setImmediate);
+			assert.deepEqual(
+				knowledgeToast,
+				{
+					message: "Text copied",
+					caption: undefined,
+					options: { delay: 3000 },
+				},
+				"A later binding without success text retains the localized toast",
+			);
+			assert.equal(
+				knowledgeModal.ticketmailerCopySucceededMessage,
+				"Text copied",
+				"Missing markup still has a safe success-text fallback",
+			);
+			knowledgeToast = null;
+			delete global.glpi_toast_success;
+			selectKnowledgeArticleHandler({
+				target: {
+					closest(selector) {
+						return selector === ".use-knowbaseitem"
+							? {
+								dataset: { knowbaseitemId: "8" },
+								closest() {
+									return null;
+								},
+							  }
+							: null;
+					},
+				},
+				preventDefault() {},
+				stopImmediatePropagation() {},
+			});
+			await new Promise(setImmediate);
+			assert.equal(
+				knowledgeAlert,
+				null,
+				"Missing toast API does not fall back to an information modal",
+			);
+			global.glpi_toast_success = (message, caption, options) => {
+				knowledgeToast = { message, caption, options };
+			};
 			const responses = [];
 			global.window.fetch = () =>
 				new Promise((resolve) => {
@@ -864,6 +1012,11 @@ setImmediate(() => {
 			});
 			assert.equal(await first, false);
 			assert.equal(copiedKnowledgeContent, "<p>Newest article</p>");
+			assert.equal(
+				knowledgeToast,
+				null,
+				"Direct selections do not show UI feedback outside the click handler",
+			);
 			assert.equal(knowledgeEditors["knowledge-b"].content, "");
 			let finishCopy;
 			navigator.clipboard.writeText = () =>
@@ -881,8 +1034,9 @@ setImmediate(() => {
 			finishCopy();
 			assert.equal(await slowCopy, false);
 			assert.equal(hiddenKnowledgeModal, knowledgeModal);
+			assert.equal(knowledgeToast, null, "Stale copies do not show a toast");
 			navigator.clipboard.writeText = () => Promise.reject(new Error("Denied"));
-			knowledgeModal.handlers.click[0]({
+			selectKnowledgeArticleHandler({
 				target: {
 					closest(selector) {
 						return selector === ".use-knowbaseitem"
@@ -900,6 +1054,7 @@ setImmediate(() => {
 			});
 			await new Promise(setImmediate);
 			assert.equal(knowledgeAlert, "Copy failed");
+			assert.equal(knowledgeToast, null, "Failed copies do not show a toast");
 		})
 		.catch((error) => {
 			process.nextTick(() => {

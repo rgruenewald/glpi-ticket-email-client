@@ -65,6 +65,31 @@
 		return navigator.clipboard.writeText(content);
 	}
 
+	function replaceKnowledgeActionIcons(knowledgeModal) {
+		knowledgeModal
+			.querySelectorAll(".use-knowbaseitem .ti-check")
+			.forEach((icon) => {
+				icon.classList.replace("ti-check", "ti-copy");
+			});
+	}
+
+	function bindKnowledgeActionIcons(knowledgeModal) {
+		replaceKnowledgeActionIcons(knowledgeModal);
+		if (knowledgeModal.dataset.ticketmailerCopyIconsBound) {
+			return;
+		}
+		knowledgeModal.dataset.ticketmailerCopyIconsBound = "true";
+		knowledgeModal.addEventListener("click", (event) => {
+			var viewButton = event.target.closest(".view-knowbaseitem");
+			if (!viewButton) {
+				return;
+			}
+			window.setTimeout(() => {
+				replaceKnowledgeActionIcons(knowledgeModal);
+			}, 0);
+		});
+	}
+
 	function selectKnowledgeArticle(knowledgeModal, itemId) {
 		var requestId = (knowledgeModal.ticketmailerKnowledgeRequestId || 0) + 1;
 		knowledgeModal.ticketmailerKnowledgeRequestId = requestId;
@@ -105,8 +130,19 @@
 			}
 		};
 	}
-	function bindKnowledgeModal(knowledgeModal, parentModal, copyFailedMessage) {
-		knowledgeModal.ticketmailerCopyFailedMessage = copyFailedMessage;
+	function bindKnowledgeModal(
+		knowledgeModal,
+		parentModal,
+		copyFailedMessage,
+		copySucceededMessage,
+	) {
+		bindKnowledgeActionIcons(knowledgeModal);
+		knowledgeModal.ticketmailerCopyFailedMessage =
+			copyFailedMessage || knowledgeModal.ticketmailerCopyFailedMessage;
+		knowledgeModal.ticketmailerCopySucceededMessage =
+			copySucceededMessage ||
+			knowledgeModal.ticketmailerCopySucceededMessage ||
+			"Text copied";
 		knowledgeModal.ticketmailerParentModal = parentModal;
 		knowledgeModal.ticketmailerKnowledgeRequestId =
 			(knowledgeModal.ticketmailerKnowledgeRequestId || 0) + 1;
@@ -128,9 +164,23 @@
 				event.preventDefault();
 				event.stopImmediatePropagation();
 				if (itemId) {
-					selectKnowledgeArticle(knowledgeModal, itemId).catch(() => {
-						window.alert(knowledgeModal.ticketmailerCopyFailedMessage);
-					});
+					selectKnowledgeArticle(knowledgeModal, itemId)
+						.then((copied) => {
+							if (
+								copied &&
+								knowledgeModal.ticketmailerCopySucceededMessage &&
+								typeof glpi_toast_success === "function"
+							) {
+								glpi_toast_success(
+									knowledgeModal.ticketmailerCopySucceededMessage,
+									undefined,
+									{ delay: 3000 },
+								);
+							}
+						})
+						.catch(() => {
+							window.alert(knowledgeModal.ticketmailerCopyFailedMessage);
+						});
 				} else {
 					bootstrap.Modal.getOrCreateInstance(knowledgeModal).hide();
 				}
@@ -185,11 +235,12 @@
 				delete button.dataset.ticketmailerOpening;
 				restoreDialogClosing();
 				if (knowledgeModal) {
+					var delivery = form.closest("[data-ticketmailer-delivery]");
 					bindKnowledgeModal(
 						knowledgeModal,
 						parentModal,
-						form.closest("[data-ticketmailer-delivery]")?.dataset
-							.knowledgeCopyFailed,
+						delivery?.dataset.knowledgeCopyFailed,
+						delivery?.dataset.knowledgeCopySucceeded,
 					);
 				}
 			};
@@ -200,6 +251,7 @@
 		module.exports = {
 			bindEmailKnowledge: bindEmailKnowledge,
 			bindKnowledgeModal: bindKnowledgeModal,
+			bindKnowledgeActionIcons: bindKnowledgeActionIcons,
 			copyKnowledgeArticleContent: copyKnowledgeArticleContent,
 			preserveModalWhileOpeningKnowledge: preserveModalWhileOpeningKnowledge,
 			recipientForSuggestion: recipientForSuggestion,
@@ -1328,12 +1380,13 @@
 												return;
 											}
 											delete knowledge.dataset.ticketmailerOpening;
-											restoreDialogClosing();
-											bindKnowledgeModal(
-												knowledgeModal,
-												parentModal,
-												delivery.dataset.knowledgeCopyFailed,
-											);
+										restoreDialogClosing();
+										bindKnowledgeModal(
+											knowledgeModal,
+											parentModal,
+											delivery.dataset.knowledgeCopyFailed,
+											delivery.dataset.knowledgeCopySucceeded,
+										);
 										};
 										bindCurrentKnowledgeModal();
 									},

@@ -173,6 +173,10 @@ msgstr "Wissensdatenbank"
 #: templates/compose.html.twig
 msgid "Could not copy the knowledge base article to the clipboard."
 msgstr "Der Wissensdatenbankartikel konnte nicht in die Zwischenablage kopiert werden."
+
+#: templates/compose.html.twig
+msgid "Text copied"
+msgstr "Text kopiert"
 #: front/send.php
 msgid "Unsupported delivery mode."
 msgstr "Nicht unterstützter Versandmodus."
