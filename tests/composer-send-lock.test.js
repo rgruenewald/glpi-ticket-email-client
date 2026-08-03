@@ -12,6 +12,7 @@ const body = {
 	attributes: {},
 	children: [page],
 	appendChild(child) {
+		child.parentNode = this;
 		this.children.push(child);
 	},
 	setAttribute(name, value) {
@@ -86,10 +87,18 @@ global.document = {
 		return {
 			attributes: {},
 			style: {},
+			append(...children) {
+				this.innerText = children.map((child) => child.innerText).join("");
+			},
 			setAttribute(name, value) {
 				this.attributes[name] = value;
 			},
 			appendChild() {},
+			remove() {
+				this.parentNode.children = this.parentNode.children.filter(
+					(child) => child !== this,
+				);
+			},
 		};
 	},
 	querySelector() {
@@ -104,6 +113,23 @@ global.document = {
 		}
 		return [];
 	},
+};
+global.DOMParser = class DOMParser {
+	parseFromString(content) {
+		return {
+			body: {
+				childNodes: [
+					{
+						innerText: content
+							.replace(/<\/(p|div|li|h[1-6])>/gi, "\n")
+							.replace(/<br\s*\/?>/gi, "\n")
+							.replace(/<[^>]*>/g, "")
+							.trim(),
+					},
+				],
+			},
+		};
+	}
 };
 function deliveryModeInput(value, checked) {
 	return {
@@ -784,13 +810,18 @@ assert.equal(
 	true,
 	"Internal-note and email bindings share copy icon setup",
 );
-let copiedKnowledgeContent = null;
+let copiedKnowledgeItems = null;
+global.ClipboardItem = class ClipboardItem {
+	constructor(items) {
+		this.items = items;
+	}
+};
 Object.defineProperty(global, "navigator", {
 	configurable: true,
 	value: {
 		clipboard: {
-			writeText(content) {
-				copiedKnowledgeContent = content;
+			write(items) {
+				copiedKnowledgeItems = items;
 				return Promise.resolve();
 			},
 		},
@@ -799,7 +830,7 @@ Object.defineProperty(global, "navigator", {
 knowledgeEditors["knowledge-a"].content = "<p>Existing note</p>";
 knowledgeFields["knowledge-a"].value = "<p>Existing note</p>";
 const directKnowledgeCopy = copyKnowledgeArticleContent(
-	"<p>Knowledge article</p>",
+	"<p>Knowledge article</p><p>Second paragraph</p>",
 );
 assert.equal(
 	knowledgeEditors["knowledge-a"].content,
@@ -884,7 +915,8 @@ global.window.fetch = (url, options) => {
 	knowledgeRequest = { url, options };
 	return Promise.resolve({
 		ok: true,
-		text: () => Promise.resolve("<p>Active article</p>"),
+		text: () =>
+			Promise.resolve("<p>Active article</p><p>Second paragraph</p>"),
 	});
 };
 selectKnowledgeArticleHandler({
@@ -908,7 +940,18 @@ setImmediate(() => {
 	Promise.resolve()
 		.then(async () => {
 			await directKnowledgeCopy;
-			assert.equal(copiedKnowledgeContent, "<p>Active article</p>");
+			assert.deepEqual(Object.keys(copiedKnowledgeItems[0].items).sort(), [
+				"text/html",
+				"text/plain",
+			]);
+			assert.equal(
+				await copiedKnowledgeItems[0].items["text/html"].text(),
+				"<p>Active article</p><p>Second paragraph</p>",
+			);
+			assert.equal(
+				await copiedKnowledgeItems[0].items["text/plain"].text(),
+				"Active article\nSecond paragraph",
+			);
 			assert.equal(
 				knowledgeEditors["knowledge-b"].content,
 				"",
@@ -1011,7 +1054,10 @@ setImmediate(() => {
 				text: () => Promise.resolve("<p>Stale article</p>"),
 			});
 			assert.equal(await first, false);
-			assert.equal(copiedKnowledgeContent, "<p>Newest article</p>");
+			assert.equal(
+				await copiedKnowledgeItems[0].items["text/html"].text(),
+				"<p>Newest article</p>",
+			);
 			assert.equal(
 				knowledgeToast,
 				null,
@@ -1019,7 +1065,7 @@ setImmediate(() => {
 			);
 			assert.equal(knowledgeEditors["knowledge-b"].content, "");
 			let finishCopy;
-			navigator.clipboard.writeText = () =>
+			navigator.clipboard.write = () =>
 				new Promise((resolve) => {
 					finishCopy = resolve;
 				});
@@ -1035,7 +1081,7 @@ setImmediate(() => {
 			assert.equal(await slowCopy, false);
 			assert.equal(hiddenKnowledgeModal, knowledgeModal);
 			assert.equal(knowledgeToast, null, "Stale copies do not show a toast");
-			navigator.clipboard.writeText = () => Promise.reject(new Error("Denied"));
+			navigator.clipboard.write = () => Promise.reject(new Error("Denied"));
 			selectKnowledgeArticleHandler({
 				target: {
 					closest(selector) {
