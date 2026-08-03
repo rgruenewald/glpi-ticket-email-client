@@ -9,6 +9,6 @@ RUN apt-get update \
 
 COPY --from=composer /usr/bin/composer /usr/local/bin/composer
 
-ENV COMPOSER_VENDOR_DIR=/app/vendor
+ENV COMPOSER_VENDOR_DIR=/vendor
 ENV COMPOSER_CACHE_DIR=/phpunit-cache
-CMD ["bash", "-lc", "composer install --no-interaction --prefer-dist && /app/vendor/bin/phpunit --cache-directory=/phpunit-cache && ROOT=. bash .agent/contracts/glpi-ticket-email-client-v2/score.sh"]
+CMD ["bash", "-lc", "composer install --no-interaction --prefer-dist && /vendor/bin/phpunit --cache-directory=/phpunit-cache && ROOT=. bash .agent/contracts/glpi-ticket-email-client-v2/score.sh"]

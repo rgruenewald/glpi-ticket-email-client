@@ -170,6 +170,13 @@ msgstr "Internal note"
 msgid "Knowledge base"
 msgstr "Knowledge base"
 
+#: templates/compose.html.twig
+msgid "Could not copy the knowledge base article to the clipboard."
+msgstr "Could not copy the knowledge base article to the clipboard."
+
+#: templates/compose.html.twig
+msgid "Text copied"
+msgstr "Text copied"
 #: front/send.php
 msgid "Unsupported delivery mode."
 msgstr "Unsupported delivery mode."
