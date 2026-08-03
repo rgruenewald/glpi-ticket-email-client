@@ -116,18 +116,19 @@ global.document = {
 };
 global.DOMParser = class DOMParser {
 	parseFromString(content) {
+		const renderedText = new Map([
+			[
+				"<p>Knowledge article</p><p>Second paragraph</p>",
+				"Knowledge article\nSecond paragraph",
+			],
+			[
+				"<p>Active article</p><p>Second paragraph</p>",
+				"Active article\nSecond paragraph",
+			],
+		]);
 		return {
 			body: {
-				childNodes: [
-					{
-						innerText: content
-							.replace(/<\/(p|div|li|h[1-6])>/gi, "\n")
-							.replace(/<br\s*\/?>/gi, "\n")
-							.replace(/<[^>]*>/g, "")
-							.replace(/[<>]/g, "")
-							.trim(),
-					},
-				],
+				childNodes: [{ innerText: renderedText.get(content) || "" }],
 			},
 		};
 	}
