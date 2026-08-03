@@ -170,6 +170,9 @@ msgstr "Interne Notiz"
 msgid "Knowledge base"
 msgstr "Wissensdatenbank"
 
+#: templates/compose.html.twig
+msgid "Could not copy the knowledge base article to the clipboard."
+msgstr "Der Wissensdatenbankartikel konnte nicht in die Zwischenablage kopiert werden."
 #: front/send.php
 msgid "Unsupported delivery mode."
 msgstr "Nicht unterstützter Versandmodus."

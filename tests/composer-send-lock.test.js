@@ -496,10 +496,10 @@ assert.match(
 const {
 	bindEmailKnowledge,
 	bindKnowledgeModal,
+	copyKnowledgeArticleContent,
 	preserveModalWhileOpeningKnowledge,
 	recipientForSuggestion,
 	selectKnowledgeArticle,
-	setKnowledgeArticleContent,
 	validUserSuggestions,
 } = require("../public/js/composer.js");
 assert.deepEqual(
@@ -725,55 +725,29 @@ assert.equal(
 	openedKnowledgeDialog.url,
 	"/glpi/Knowbase/KnowbaseItem/Search/Ticket/42",
 );
-assert.equal(
-	setKnowledgeArticleContent(
-		notePanel(knowledgeFields["knowledge-a"]),
-		"<p>Knowledge article</p>",
-	),
-	true,
-);
-assert.equal(
-	knowledgeEditors["knowledge-a"].content,
+let copiedKnowledgeContent = null;
+Object.defineProperty(global, "navigator", {
+	configurable: true,
+	value: {
+		clipboard: {
+			writeText(content) {
+				copiedKnowledgeContent = content;
+				return Promise.resolve();
+			},
+		},
+	},
+});
+knowledgeEditors["knowledge-a"].content = "<p>Existing note</p>";
+knowledgeFields["knowledge-a"].value = "<p>Existing note</p>";
+const directKnowledgeCopy = copyKnowledgeArticleContent(
 	"<p>Knowledge article</p>",
 );
-assert.equal(knowledgeFields["knowledge-a"].value, "<p>Knowledge article</p>");
-assert.equal(
-	setKnowledgeArticleContent(
-		editorPanel(knowledgeFields["knowledge-b"]),
-		"<p>Email knowledge article</p>",
-	),
-	true,
-	"Knowledge articles can populate the email body editor",
-);
-assert.equal(
-	knowledgeEditors["knowledge-b"].content,
-	"<p>Email knowledge article</p>",
-);
-delete global.window.tinymce;
-global.window.tinyMCE = {
-	get(id) {
-		return knowledgeEditors[id] || null;
-	},
-};
-knowledgeFields["knowledge-a"].value = "";
-assert.equal(
-	setKnowledgeArticleContent(
-		notePanel(knowledgeFields["knowledge-a"]),
-		"<p>Legacy TinyMCE global article</p>",
-	),
-	true,
- );
 assert.equal(
 	knowledgeEditors["knowledge-a"].content,
-	"<p>Legacy TinyMCE global article</p>",
+	"<p>Existing note</p>",
+	"Copying a knowledge article does not replace the editor content",
 );
-delete global.window.tinyMCE;
-global.window.tinymce = {
-	get(id) {
-		return knowledgeEditors[id] || null;
-	},
-};
-
+assert.equal(knowledgeFields["knowledge-a"].value, "<p>Existing note</p>");
 const dialogParent = {
 	children: [],
 	insertBefore(child) {
@@ -809,6 +783,10 @@ assert.notEqual(
 	"guardedCloseAllDialogs",
 );
 
+let knowledgeAlert = null;
+global.window.alert = (message) => {
+	knowledgeAlert = message;
+};
 const knowledgeModal = {
 	dataset: {},
 	handlers: {},
@@ -818,16 +796,8 @@ const knowledgeModal = {
 };
 const parentA = {};
 const parentB = {};
-bindKnowledgeModal(
-	knowledgeModal,
-	notePanel(knowledgeFields["knowledge-a"]),
-	parentA,
-);
-bindKnowledgeModal(
-	knowledgeModal,
-	notePanel(knowledgeFields["knowledge-b"]),
-	parentB,
-);
+bindKnowledgeModal(knowledgeModal, parentA, "Copy failed");
+bindKnowledgeModal(knowledgeModal, parentB, "Copy failed");
 assert.equal(knowledgeModal.handlers.click.length, 1);
 assert.equal(knowledgeModal.handlers["hidden.bs.modal"].length, 1);
 assert.equal(knowledgeModal.ticketmailerParentModal, parentB);
@@ -860,13 +830,12 @@ knowledgeModal.handlers.click[0]({
 setImmediate(() => {
 	Promise.resolve()
 		.then(async () => {
-			assert.equal(
-				knowledgeEditors["knowledge-a"].content,
-				"<p>Legacy TinyMCE global article</p>",
-			);
+			await directKnowledgeCopy;
+			assert.equal(copiedKnowledgeContent, "<p>Active article</p>");
 			assert.equal(
 				knowledgeEditors["knowledge-b"].content,
-				"<p>Active article</p>",
+				"",
+				"Selecting a knowledge article leaves the editor unchanged",
 			);
 			assert.equal(
 				knowledgeRequest.url,
@@ -882,16 +851,8 @@ setImmediate(() => {
 				new Promise((resolve) => {
 					responses.push(resolve);
 				});
-			const first = selectKnowledgeArticle(
-				notePanel(knowledgeFields["knowledge-b"]),
-				knowledgeModal,
-				"1",
-			);
-			const second = selectKnowledgeArticle(
-				notePanel(knowledgeFields["knowledge-b"]),
-				knowledgeModal,
-				"2",
-			);
+			const first = selectKnowledgeArticle(knowledgeModal, "1");
+			const second = selectKnowledgeArticle(knowledgeModal, "2");
 			responses[1]({
 				ok: true,
 				text: () => Promise.resolve("<p>Newest article</p>"),
@@ -902,10 +863,43 @@ setImmediate(() => {
 				text: () => Promise.resolve("<p>Stale article</p>"),
 			});
 			assert.equal(await first, false);
-			assert.equal(
-				knowledgeEditors["knowledge-b"].content,
-				"<p>Newest article</p>",
-			);
+			assert.equal(copiedKnowledgeContent, "<p>Newest article</p>");
+			assert.equal(knowledgeEditors["knowledge-b"].content, "");
+			let finishCopy;
+			navigator.clipboard.writeText = () =>
+				new Promise((resolve) => {
+					finishCopy = resolve;
+				});
+			global.window.fetch = () =>
+				Promise.resolve({
+					ok: true,
+					text: () => Promise.resolve("<p>Slow copy</p>"),
+				});
+			const slowCopy = selectKnowledgeArticle(knowledgeModal, "3");
+			await new Promise(setImmediate);
+			knowledgeModal.ticketmailerKnowledgeRequestId += 1;
+			finishCopy();
+			assert.equal(await slowCopy, false);
+			assert.equal(hiddenKnowledgeModal, knowledgeModal);
+			navigator.clipboard.writeText = () => Promise.reject(new Error("Denied"));
+			knowledgeModal.handlers.click[0]({
+				target: {
+					closest(selector) {
+						return selector === ".use-knowbaseitem"
+							? {
+									dataset: { knowbaseitemId: "4" },
+									closest() {
+										return null;
+									},
+								}
+							: null;
+					},
+				},
+				preventDefault() {},
+				stopImmediatePropagation() {},
+			});
+			await new Promise(setImmediate);
+			assert.equal(knowledgeAlert, "Copy failed");
 		})
 		.catch((error) => {
 			process.nextTick(() => {

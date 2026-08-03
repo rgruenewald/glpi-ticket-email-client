@@ -168,6 +168,9 @@ msgstr ""
 msgid "Knowledge base"
 msgstr ""
 
+#: templates/compose.html.twig
+msgid "Could not copy the knowledge base article to the clipboard."
+msgstr ""
 #: front/send.php
 msgid "Unsupported delivery mode."
 msgstr ""

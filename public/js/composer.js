@@ -61,35 +61,11 @@
 		};
 	}
 
-	function setKnowledgeArticleContent(notePanel, content) {
-		var contentField = notePanel.querySelector(
-			'textarea[name="content"], textarea[name="body_html"]',
-		);
-		if (!contentField) {
-			return false;
-		}
-		var tinyMce = window.tinymce || window.tinyMCE;
-		var editor =
-			tinyMce && typeof tinyMce.get === "function"
-				? tinyMce.get(contentField.id)
-				: null;
-		if (editor) {
-			editor.setContent(content);
-			if (typeof editor.fire === "function") {
-				editor.fire("keyup");
-			}
-			if (typeof editor.save === "function") {
-				editor.save();
-			}
-		} else if (typeof setRichTextEditorContent === "function") {
-			setRichTextEditorContent(contentField.id, content);
-		}
-		contentField.value = content;
-		contentField.dispatchEvent(new Event("change", { bubbles: true }));
-		return true;
+	function copyKnowledgeArticleContent(content) {
+		return navigator.clipboard.writeText(content);
 	}
 
-	function selectKnowledgeArticle(notePanel, knowledgeModal, itemId) {
+	function selectKnowledgeArticle(knowledgeModal, itemId) {
 		var requestId = (knowledgeModal.ticketmailerKnowledgeRequestId || 0) + 1;
 		knowledgeModal.ticketmailerKnowledgeRequestId = requestId;
 		return window
@@ -106,11 +82,13 @@
 				if (knowledgeModal.ticketmailerKnowledgeRequestId !== requestId) {
 					return false;
 				}
-				if (!setKnowledgeArticleContent(notePanel, content)) {
-					throw new Error("Unable to update knowledge article content");
-				}
-				bootstrap.Modal.getOrCreateInstance(knowledgeModal).hide();
-				return true;
+				return copyKnowledgeArticleContent(content).then(() => {
+					if (knowledgeModal.ticketmailerKnowledgeRequestId !== requestId) {
+						return false;
+					}
+					bootstrap.Modal.getOrCreateInstance(knowledgeModal).hide();
+					return true;
+				});
 			});
 	}
 
@@ -127,8 +105,8 @@
 			}
 		};
 	}
-	function bindKnowledgeModal(knowledgeModal, notePanel, parentModal) {
-		knowledgeModal.ticketmailerNotePanel = notePanel;
+	function bindKnowledgeModal(knowledgeModal, parentModal, copyFailedMessage) {
+		knowledgeModal.ticketmailerCopyFailedMessage = copyFailedMessage;
 		knowledgeModal.ticketmailerParentModal = parentModal;
 		knowledgeModal.ticketmailerKnowledgeRequestId =
 			(knowledgeModal.ticketmailerKnowledgeRequestId || 0) + 1;
@@ -150,11 +128,9 @@
 				event.preventDefault();
 				event.stopImmediatePropagation();
 				if (itemId) {
-					selectKnowledgeArticle(
-						knowledgeModal.ticketmailerNotePanel,
-						knowledgeModal,
-						itemId,
-					).catch(() => {});
+					selectKnowledgeArticle(knowledgeModal, itemId).catch(() => {
+						window.alert(knowledgeModal.ticketmailerCopyFailedMessage);
+					});
 				} else {
 					bootstrap.Modal.getOrCreateInstance(knowledgeModal).hide();
 				}
@@ -209,7 +185,12 @@
 				delete button.dataset.ticketmailerOpening;
 				restoreDialogClosing();
 				if (knowledgeModal) {
-					bindKnowledgeModal(knowledgeModal, form, parentModal);
+					bindKnowledgeModal(
+						knowledgeModal,
+						parentModal,
+						form.closest("[data-ticketmailer-delivery]")?.dataset
+							.knowledgeCopyFailed,
+					);
 				}
 			};
 			bindModal();
@@ -219,10 +200,10 @@
 		module.exports = {
 			bindEmailKnowledge: bindEmailKnowledge,
 			bindKnowledgeModal: bindKnowledgeModal,
+			copyKnowledgeArticleContent: copyKnowledgeArticleContent,
 			preserveModalWhileOpeningKnowledge: preserveModalWhileOpeningKnowledge,
 			recipientForSuggestion: recipientForSuggestion,
 			selectKnowledgeArticle: selectKnowledgeArticle,
-			setKnowledgeArticleContent: setKnowledgeArticleContent,
 			splitRecipientTokens: splitRecipientTokens,
 			validUserSuggestions: validUserSuggestions,
 		};
@@ -1350,8 +1331,8 @@
 											restoreDialogClosing();
 											bindKnowledgeModal(
 												knowledgeModal,
-												notePanel,
 												parentModal,
+												delivery.dataset.knowledgeCopyFailed,
 											);
 										};
 										bindCurrentKnowledgeModal();
