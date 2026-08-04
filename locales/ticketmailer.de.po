@@ -174,7 +174,11 @@ msgstr "Wissensdatenbank"
 msgid "Could not copy the knowledge base article to the clipboard."
 msgstr "Der Wissensdatenbankartikel konnte nicht in die Zwischenablage kopiert werden."
 
-#: templates/compose.html.twig
+#: templates/compose.html.twig templates/forward.html.twig
+msgid "Could not copy the template to the clipboard."
+msgstr "Die Vorlage konnte nicht in die Zwischenablage kopiert werden."
+
+#: templates/compose.html.twig templates/forward.html.twig
 msgid "Text copied"
 msgstr "Text kopiert"
 #: front/send.php

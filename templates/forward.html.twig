@@ -14,6 +14,8 @@
       data-image-url="{{ image_url|default('') }}"
       data-followup-template-url="{{ followup_template_url|default('') }}"
       data-editor-id="{{ editor_id|default('body_html') }}"
+      data-template-copy-failed="{{ __('Could not copy the template to the clipboard.', 'ticketmailer') }}"
+      data-template-copy-succeeded="{{ __('Text copied', 'ticketmailer') }}"
       data-ajax-csrf="{{ ajax_csrf|default('') }}">
     <input type="hidden" name="_glpi_csrf_token" value="{{ csrf_token }}">
     <input type="hidden" name="tickets_id" value="{{ tickets_id }}">

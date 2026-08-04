@@ -75,6 +75,10 @@ const form = makeForm();
 const composeForms = [form];
 
 global.window = {};
+let templateAlert = null;
+global.window.alert = (message) => {
+	templateAlert = message;
+};
 global.document = {
 	body,
 	addEventListener(type, handler) {
@@ -231,6 +235,32 @@ global.tinymce = {
 	init() {},
 };
 global.window.tinymce = global.tinymce;
+let templateCopiedItems = null;
+let templateToast = null;
+global.ClipboardItem = class ClipboardItem {
+	constructor(items) {
+		this.items = items;
+	}
+};
+Object.defineProperty(global, "navigator", {
+	configurable: true,
+	value: {
+		clipboard: {
+			write(items) {
+				templateCopiedItems = items;
+				return {
+					then(resolve) {
+						resolve();
+						return { catch() {} };
+					},
+				};
+			},
+		},
+	},
+});
+global.glpi_toast_success = (message, caption, options) => {
+	templateToast = { message, caption, options };
+};
 const templateRequestHeaders = {};
 global.XMLHttpRequest = class {
 	open() {}
@@ -454,10 +484,20 @@ assert.doesNotMatch(
 	/footer\.insertBefore\(privateField, pendingControl \|\| add\)/,
 	"Internal note does not expose the implicit Private toggle",
 );
-assert.match(
+assert.doesNotMatch(
 	composerSource,
 	/solved\.dispatchEvent\(new Event\(["']change["'], \{ bubbles: true \}\)\)/,
-	"solution templates dispatch a bubbling modern change event",
+	"solution templates do not change status",
+);
+assert.match(
+	composerSource,
+	/var requestId = \(form\.ticketmailerTemplateRequestId \|\| 0\) \+ 1;[\s\S]*form\.ticketmailerTemplateRequestId = requestId;[\s\S]*if \(!url \|\| !ticket \|\| !Number\(templateId\)\)/,
+	"empty template selection invalidates pending template work",
+);
+assert.match(
+	composerSource,
+	/\.catch\(\(\) => \{[\s\S]*requestId === form\.ticketmailerTemplateRequestId &&[\s\S]*form\.dataset\.templateCopyFailed/,
+	"stale template copy failures stay silent",
 );
 assert.doesNotMatch(
 	composerSource,
@@ -583,6 +623,8 @@ const templateForm = {
 	dataset: {
 		followupTemplateUrl: "/ajax/itilfollowup.php",
 		editorId: "body_html",
+		templateCopySucceeded: "Text copied",
+		templateCopyFailed: "Copy failed",
 	},
 	querySelector(selector) {
 		return selector === 'input[name="tickets_id"]' ? { value: "42" } : null;
@@ -595,16 +637,37 @@ const templateSelect = {
 };
 templateChangeHandler.call(templateSelect);
 assert.equal(templateRequestHeaders["X-Requested-With"], "XMLHttpRequest");
-assert.equal(templateEditor.content, "<p>Template</p><p>Signature</p>");
-templateChangeHandler.call(templateSelect);
-assert.equal(templateEditor.content, "<p>Template</p><p>Signature</p>");
-
+assert.equal(
+	templateEditor.content,
+	"<p>Signature</p>",
+	"answer templates leave the editor unchanged",
+);
+assert.deepEqual(Object.keys(templateCopiedItems[0].items).sort(), [
+	"text/html",
+	"text/plain",
+]);
+assert.deepEqual(templateToast, {
+	message: "Text copied",
+	caption: undefined,
+	options: { delay: 3000 },
+});
+templateCopiedItems = null;
+templateToast = null;
+templateChangeHandler.call({
+	form: templateForm,
+	value: "0",
+	name: "itilfollowuptemplates_id",
+});
+assert.equal(templateCopiedItems, null, "empty template selection copies nothing");
+assert.equal(templateToast, null, "empty template selection shows no toast");
 global.window.tinymce = undefined;
 const fallbackTextarea = { value: "<p>Fallback signature</p>" };
 const fallbackForm = {
 	dataset: {
 		followupTemplateUrl: "/ajax/itilfollowup.php",
 		editorId: "body_html",
+		templateCopySucceeded: "Text copied",
+		templateCopyFailed: "Copy failed",
 	},
 	querySelector(selector) {
 		if (selector === 'input[name="tickets_id"]') {
@@ -620,13 +683,16 @@ templateChangeHandler.call({
 });
 assert.equal(
 	fallbackTextarea.value,
-	"<p>Template</p><p>Fallback signature</p>",
+	"<p>Fallback signature</p>",
+	"answer templates leave the fallback editor unchanged",
 );
 
 global.window.tinymce = global.tinymce;
 const solutionForm = makeForm(true, false);
 solutionForm.dataset.solutionTemplateUrl = "/ajax/solution.php";
 solutionForm.dataset.editorId = "body_html";
+solutionForm.dataset.templateCopySucceeded = "Text copied";
+solutionForm.dataset.templateCopyFailed = "Copy failed";
 solutionForm.querySelector = function (selector) {
 	if (selector === 'input[name="tickets_id"]') {
 		return { value: "42" };
@@ -656,13 +722,13 @@ templateChangeHandler.call({
 });
 assert.equal(
 	solutionForm.status.solved.checked,
-	true,
-	"solution template checks solved",
+	false,
+	"solution templates do not change ticket status",
 );
 assert.equal(
 	solutionForm.status.waiting.checked,
-	false,
-	"solution template unchecks waiting through existing status logic",
+	true,
+	"solution templates leave waiting status unchanged",
 );
 
 function editorPanel(contentField) {
@@ -942,6 +1008,67 @@ setImmediate(() => {
 	Promise.resolve()
 		.then(async () => {
 			await directKnowledgeCopy;
+			delete global.ClipboardItem;
+			await assert.rejects(
+				copyKnowledgeArticleContent("<p>Unavailable</p>"),
+				/Clipboard API unavailable/,
+			);
+			global.ClipboardItem = class ClipboardItem {
+				constructor(items) {
+					this.items = items;
+				}
+			};
+			const successfulTemplateXhr = global.XMLHttpRequest;
+			templateAlert = null;
+			global.window.alert = (message) => {
+				templateAlert = message;
+			};
+			global.XMLHttpRequest = class {
+				open() {}
+				setRequestHeader() {}
+				send() {
+					this.status = 500;
+					this.onload();
+				}
+			};
+			templateChangeHandler.call(templateSelect);
+			assert.equal(templateAlert, "Copy failed", "HTTP failures show the localized error");
+			templateAlert = null;
+			global.XMLHttpRequest = class {
+				open() {}
+				setRequestHeader() {}
+				send() {
+					this.status = 200;
+					this.responseText = "not json";
+					this.onload();
+				}
+			};
+			templateChangeHandler.call(templateSelect);
+			assert.equal(templateAlert, "Copy failed", "invalid JSON shows the localized error");
+			templateAlert = null;
+			global.XMLHttpRequest = class {
+				open() {}
+				setRequestHeader() {}
+				send() {
+					this.onerror();
+				}
+			};
+			templateChangeHandler.call(templateSelect);
+			assert.equal(templateAlert, "Copy failed", "transport failures show the localized error");
+			templateAlert = null;
+			global.XMLHttpRequest = class {
+				open() {}
+				setRequestHeader() {}
+				send() {
+					throw new Error("Transport unavailable");
+				}
+			};
+			templateChangeHandler.call(templateSelect);
+			assert.equal(templateAlert, "Copy failed", "synchronous transport failures show the localized error");
+			global.XMLHttpRequest = successfulTemplateXhr;
+			global.window.alert = (message) => {
+				knowledgeAlert = message;
+			};
 			assert.deepEqual(Object.keys(copiedKnowledgeItems[0].items).sort(), [
 				"text/html",
 				"text/plain",
@@ -1065,6 +1192,15 @@ setImmediate(() => {
 				null,
 				"Direct selections do not show UI feedback outside the click handler",
 			);
+			let rejectStaleRequest;
+			global.window.fetch = () =>
+				new Promise((resolve, reject) => {
+					rejectStaleRequest = reject;
+				});
+			const staleFailure = selectKnowledgeArticle(knowledgeModal, "10");
+			knowledgeModal.ticketmailerKnowledgeRequestId += 1;
+			rejectStaleRequest(new Error("Stale failure"));
+			assert.equal(await staleFailure, false, "stale knowledge failures stay silent");
 			assert.equal(knowledgeEditors["knowledge-b"].content, "");
 			let finishCopy;
 			navigator.clipboard.write = () =>
