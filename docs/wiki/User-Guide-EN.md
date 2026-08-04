@@ -76,15 +76,15 @@ Do not use BCC to hide addresses from those people.
 
 ### Use answer and solution templates
 
-**Answer templates** add prepared text to the message.
+**Answer templates** copy prepared text to the clipboard.
 
 1. Choose a template under **Answer templates**.
-2. Check the added text.
-3. Change or add text if needed.
+2. Wait for the **Text copied** confirmation.
+3. Paste the text where needed.
 
-The template text replaces the previous message. The email signature stays in place. Choose the template first, then write your own text.
+The template contains HTML and plain text. Selecting it does not change the current message or email signature.
 
-**Solution templates** work in the same way. They also turn on **Solved** and turn off **Waiting**. Check the text and ticket status before sending.
+**Solution templates** work in the same way. Selecting one does not change the message or ticket status.
 
 ## 5. Add files and images
 

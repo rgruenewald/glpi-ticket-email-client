@@ -59,6 +59,8 @@
   data-followup-template-url="{{ followup_template_url|default('') }}"
   data-solution-template-url="{{ solution_template_url|default('') }}"
   data-editor-id="{{ editor_id|default('body_html') }}"
+  data-template-copy-failed="{{ __('Could not copy the template to the clipboard.', 'ticketmailer') }}"
+  data-template-copy-succeeded="{{ __('Text copied', 'ticketmailer') }}"
   data-i18n-remove-recipient="{{ __('Remove %s', 'ticketmailer') }}"
   data-i18n-bytes="{{ __('bytes', 'ticketmailer') }}"
   data-i18n-upload-failed="{{ __('Upload failed.', 'ticketmailer') }}"

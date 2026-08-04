@@ -76,15 +76,15 @@ Verwenden Sie BCC deshalb nicht, um Adressen vor diesen Personen zu verbergen.
 
 ### Antwort- und Lösungsvorlagen verwenden
 
-**Antwortvorlagen** fügen vorbereiteten Text in die Nachricht ein.
+**Antwortvorlagen** kopieren vorbereiteten Text in die Zwischenablage.
 
 1. Wählen Sie unter **Antwortvorlagen** eine Vorlage.
-2. Prüfen Sie den eingefügten Text.
-3. Ändern oder ergänzen Sie den Text bei Bedarf.
+2. Warten Sie auf die Bestätigung **Text kopiert**.
+3. Fügen Sie den Text an der gewünschten Stelle ein.
 
-Der Vorlagentext ersetzt den bisherigen Inhalt der Nachricht. Die E-Mail-Signatur bleibt erhalten. Wählen Sie deshalb zuerst die Vorlage und schreiben Sie danach Ihren eigenen Text.
+Die Vorlage enthält HTML und Klartext. Durch die Auswahl werden die aktuelle Nachricht und E-Mail-Signatur nicht verändert.
 
-**Lösungsvorlagen** funktionieren genauso. Zusätzlich wird **Gelöst** eingeschaltet. **Wartend** wird dabei ausgeschaltet. Prüfen Sie vor dem Senden den Text und den Ticketstatus.
+**Lösungsvorlagen** funktionieren genauso. Durch die Auswahl werden weder die Nachricht noch der Ticketstatus verändert.
 
 ## 5. Dateien und Bilder hinzufügen
 

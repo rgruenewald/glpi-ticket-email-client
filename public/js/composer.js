@@ -62,20 +62,27 @@
 	}
 
 	function copyKnowledgeArticleContent(content) {
-		var container = document.createElement("div");
-		container.style.cssText = "position:fixed;left:-10000px;white-space:pre-wrap";
-		var parsed = new DOMParser().parseFromString(content, "text/html");
-		container.append(...parsed.body.childNodes);
-		document.body.appendChild(container);
-		var plainText = container.innerText;
-		container.remove();
-		var item = new ClipboardItem({
-			"text/html": new Blob([content], { type: "text/html" }),
-			"text/plain": new Blob([plainText], {
-				type: "text/plain",
-			}),
-		});
-		return navigator.clipboard.write([item]);
+		try {
+			if (typeof ClipboardItem !== "function" || !navigator.clipboard?.write) {
+				return Promise.reject(new Error("Clipboard API unavailable"));
+			}
+			var container = document.createElement("div");
+			container.style.cssText = "position:fixed;left:-10000px;white-space:pre-wrap";
+			var parsed = new DOMParser().parseFromString(content, "text/html");
+			container.append(...parsed.body.childNodes);
+			document.body.appendChild(container);
+			var plainText = container.innerText;
+			container.remove();
+			var item = new ClipboardItem({
+				"text/html": new Blob([content], { type: "text/html" }),
+				"text/plain": new Blob([plainText], {
+					type: "text/plain",
+				}),
+			});
+			return navigator.clipboard.write([item]);
+		} catch (error) {
+			return Promise.reject(error);
+		}
 	}
 
 	function replaceKnowledgeActionIcons(knowledgeModal) {
@@ -120,13 +127,33 @@
 				if (knowledgeModal.ticketmailerKnowledgeRequestId !== requestId) {
 					return false;
 				}
-				return copyKnowledgeArticleContent(content).then(() => {
-					if (knowledgeModal.ticketmailerKnowledgeRequestId !== requestId) {
+				var copyOperation;
+				if (knowledgeModal.ticketmailerKnowledgeCopyQueue) {
+					copyOperation = knowledgeModal.ticketmailerKnowledgeCopyQueue.then(() => {
+						if (knowledgeModal.ticketmailerKnowledgeRequestId !== requestId) {
+							return false;
+						}
+						return copyKnowledgeArticleContent(content);
+					});
+				} else {
+					copyOperation = copyKnowledgeArticleContent(content);
+				}
+				if (typeof copyOperation.finally === "function") {
+					knowledgeModal.ticketmailerKnowledgeCopyQueue = copyOperation.catch(() => {});
+				}
+				return copyOperation.then((copied) => {
+					if (copied === false || knowledgeModal.ticketmailerKnowledgeRequestId !== requestId) {
 						return false;
 					}
 					bootstrap.Modal.getOrCreateInstance(knowledgeModal).hide();
 					return true;
 				});
+			})
+			.catch((error) => {
+				if (knowledgeModal.ticketmailerKnowledgeRequestId !== requestId) {
+					return false;
+				}
+				throw error;
 			});
 	}
 
@@ -179,16 +206,8 @@
 				if (itemId) {
 					selectKnowledgeArticle(knowledgeModal, itemId)
 						.then((copied) => {
-							if (
-								copied &&
-								knowledgeModal.ticketmailerCopySucceededMessage &&
-								typeof glpi_toast_success === "function"
-							) {
-								glpi_toast_success(
-									knowledgeModal.ticketmailerCopySucceededMessage,
-									undefined,
-									{ delay: 3000 },
-								);
+							if (copied && knowledgeModal.ticketmailerCopySucceededMessage) {
+								showCopySuccess(knowledgeModal.ticketmailerCopySucceededMessage);
 							}
 						})
 						.catch(() => {
@@ -862,6 +881,16 @@
 		});
 	}
 
+	function showCopySuccess(message) {
+		var toast =
+			typeof glpi_toast_success === "function"
+				? glpi_toast_success
+				: window.glpi_toast_success;
+		if (typeof toast === "function") {
+			toast(message, undefined, { delay: 3000 });
+		}
+	}
+
 	function applyTemplate(form, templateId, type) {
 		if (!form) {
 			return;
@@ -870,67 +899,95 @@
 		var url = solution
 			? form.dataset.solutionTemplateUrl
 			: form.dataset.followupTemplateUrl;
-		var editorId = form.dataset.editorId || "";
-		var ticket = form.querySelector('input[name="tickets_id"]');
-		if (!url || !editorId || !ticket) {
-			return;
-		}
 		var requestId = (form.ticketmailerTemplateRequestId || 0) + 1;
 		form.ticketmailerTemplateRequestId = requestId;
-		var xhr = new XMLHttpRequest();
-		var data = new FormData();
-		data.append(
-			solution ? "solutiontemplates_id" : "itilfollowuptemplates_id",
-			templateId,
-		);
-		data.append("items_id", ticket.value);
-		data.append("itemtype", "Ticket");
-		xhr.open("POST", url);
-		xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
-		var token = getAjaxCsrf(form);
-		if (token) {
-			xhr.setRequestHeader("X-Glpi-Csrf-Token", token);
+		var ticket = form.querySelector('input[name="tickets_id"]');
+		if (!url || !ticket || !Number(templateId)) {
+			return;
+		}
+		var xhr;
+		try {
+			xhr = new XMLHttpRequest();
+			var data = new FormData();
+			data.append(
+				solution ? "solutiontemplates_id" : "itilfollowuptemplates_id",
+				templateId,
+			);
+			data.append("items_id", ticket.value);
+			data.append("itemtype", "Ticket");
+			xhr.open("POST", url);
+			xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+			var token = getAjaxCsrf(form);
+			if (token) {
+				xhr.setRequestHeader("X-Glpi-Csrf-Token", token);
+			}
+		} catch (error) {
+			if (form.dataset.templateCopyFailed) {
+				window.alert(form.dataset.templateCopyFailed);
+			}
+			return;
 		}
 		xhr.onload = () => {
 			if (requestId !== form.ticketmailerTemplateRequestId) {
 				return;
 			}
 			if (xhr.status < 200 || xhr.status >= 300) {
+				if (form.dataset.templateCopyFailed) {
+					window.alert(form.dataset.templateCopyFailed);
+				}
 				return;
 			}
 			try {
 				var result = JSON.parse(xhr.responseText);
-				var editor = window.tinymce && tinymce.get(editorId);
-				var textarea = null;
-				if (!editor) {
-					textarea = form.querySelector("#" + editorId);
+				var copyOperation;
+				if (form.ticketmailerTemplateCopyQueue) {
+					copyOperation = form.ticketmailerTemplateCopyQueue.then(() => {
+						if (requestId !== form.ticketmailerTemplateRequestId) {
+							return false;
+						}
+						return copyKnowledgeArticleContent(result.content || "");
+					});
+				} else {
+					copyOperation = copyKnowledgeArticleContent(result.content || "");
 				}
-				var signature = form.ticketmailerSignature;
-				if (typeof signature === "undefined") {
-					if (editor) {
-						signature = editor.getContent();
-					} else {
-						signature = textarea ? textarea.value : "";
-					}
-					form.ticketmailerSignature = signature;
+				if (typeof copyOperation.finally === "function") {
+					form.ticketmailerTemplateCopyQueue = copyOperation.catch(() => {});
 				}
-				if (editor) {
-					editor.setContent((result.content || "") + signature);
-				} else if (textarea) {
-					textarea.value = (result.content || "") + signature;
-				}
-				if (solution && templateId) {
-					var solved = form.querySelector('input[name="set_solved"]');
-					if (solved) {
-						solved.checked = true;
-						solved.dispatchEvent(new Event("change", { bubbles: true }));
-					}
-				}
+				copyOperation
+					.then(() => {
+						if (requestId === form.ticketmailerTemplateRequestId && form.dataset.templateCopySucceeded) {
+							showCopySuccess(form.dataset.templateCopySucceeded);
+						}
+					})
+					.catch(() => {
+						if (
+							requestId === form.ticketmailerTemplateRequestId &&
+							form.dataset.templateCopyFailed
+						) {
+							window.alert(form.dataset.templateCopyFailed);
+						}
+					});
 			} catch (e) {
-				// The current form remains unchanged on an invalid response.
+				if (form.dataset.templateCopyFailed) {
+					window.alert(form.dataset.templateCopyFailed);
+				}
 			}
 		};
-		xhr.send(data);
+		xhr.onerror = xhr.ontimeout = () => {
+			if (
+				requestId === form.ticketmailerTemplateRequestId &&
+				form.dataset.templateCopyFailed
+			) {
+				window.alert(form.dataset.templateCopyFailed);
+			}
+		};
+		try {
+			xhr.send(data);
+		} catch (error) {
+			if (form.dataset.templateCopyFailed) {
+				window.alert(form.dataset.templateCopyFailed);
+			}
+		}
 	}
 
 	function initForm(form) {
