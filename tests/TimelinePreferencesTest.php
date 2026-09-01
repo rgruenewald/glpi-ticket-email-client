@@ -27,7 +27,7 @@ if (!class_exists('CommonITILObject')) {
 }
 
 if (!class_exists('Ticket')) {
-    class Ticket
+    class Ticket extends CommonGLPI
     {
         public static int $entityId = 0;
         public static bool $authorized = true;

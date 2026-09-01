@@ -31,7 +31,7 @@ class PluginTicketmailerLogTab extends CommonGLPI
 
     public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0): string|array
     {
-        if (!self::isVisible($item::class, (int) $item->getField('id'))) {
+        if (!($item instanceof Ticket) || !self::isVisible($item::class, (int) $item->getField('id'))) {
             return '';
         }
         return self::createTabEntry(
@@ -45,7 +45,7 @@ class PluginTicketmailerLogTab extends CommonGLPI
         $tabnum = 1,
         $withtemplate = 0,
     ): bool {
-        if (!self::isVisible($item::class, (int) $item->getField('id'))) {
+        if (!($item instanceof Ticket) || !self::isVisible($item::class, (int) $item->getField('id'))) {
             return false;
         }
         $tickets_id = (int) $item->getField('id');

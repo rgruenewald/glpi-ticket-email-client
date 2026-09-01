@@ -42,7 +42,7 @@ if (!class_exists('Entity')) {
     }
 }
 if (!class_exists('Ticket')) {
-    class Ticket
+    class Ticket extends CommonGLPI
     {
         public static bool $loadable = true;
         public static int $entityId = 0;
