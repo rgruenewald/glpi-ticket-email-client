@@ -11,7 +11,7 @@ if (!function_exists('__')) {
     }
 }
 if (!class_exists('Ticket')) {
-    class Ticket
+    class Ticket extends CommonGLPI
     {
         public static bool $loadable = true;
         public static int $entityId = 27;
@@ -24,6 +24,11 @@ if (!class_exists('Ticket')) {
         public function getFromDB(int $id): bool
         {
             return self::$loadable;
+        }
+
+        public function canViewItem(): bool
+        {
+            return true;
         }
 
         public function getField(string $field): mixed
