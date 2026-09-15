@@ -618,13 +618,13 @@
 
 		function commit() {
 			var tokens = splitRecipientTokens(input.value);
-			tokens.valid.forEach(add);
+			tokens.valid.forEach((email) => add(email));
 			input.value = tokens.invalid.join(", ");
 			hideSuggestions();
 			render();
 		}
 
-		splitRecipientTokens(value.value).valid.forEach(add);
+		splitRecipientTokens(value.value).valid.forEach((email) => add(email));
 		var initialInvalid = splitRecipientTokens(value.value).invalid;
 		input.value = initialInvalid.join(", ");
 		render();
