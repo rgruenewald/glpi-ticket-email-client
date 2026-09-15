@@ -369,6 +369,113 @@ assert.equal(
 	true,
 	"second compose keeps its note panel hidden",
 );
+
+function recipientDomNode(tagName) {
+	return {
+		tagName: tagName.toUpperCase(),
+		attributes: {},
+		children: [],
+		dataset: {},
+		handlers: {},
+		append(...children) {
+			this.children.push(...children);
+		},
+		appendChild(child) {
+			this.children.push(child);
+			child.parentNode = this;
+			return child;
+		},
+		replaceChildren(...children) {
+			this.children = children;
+		},
+		addEventListener(type, handler) {
+			this.handlers[type] = handler;
+		},
+		setAttribute(name, value) {
+			this.attributes[name] = value;
+		},
+		classList: {
+			toggle() {},
+		},
+		querySelector() {
+			return null;
+		},
+	};
+}
+
+const recipientChips = recipientDomNode("div");
+const recipientInput = recipientDomNode("input");
+const recipientValue = recipientDomNode("input");
+recipientValue.value =
+	"first@example.test, second@example.test, third@example.test";
+const recipientControl = recipientDomNode("div");
+const recipientForm = recipientDomNode("form");
+recipientForm.addEventListener = function (type, handler) {
+	this.handlers[type] = handler;
+};
+recipientForm.dataset = {
+	mailboxMatches: "[]",
+	i18nRemoveRecipient: "Remove %s",
+};
+recipientControl.querySelector = (selector) => {
+	if (selector === ".ticketmailer-recipient-chips") return recipientChips;
+	if (selector === ".ticketmailer-recipient-input") return recipientInput;
+	if (selector === 'input[type="hidden"]') return recipientValue;
+	return null;
+};
+recipientControl.closest = () => recipientForm;
+recipientForm.querySelector = () => null;
+recipientForm.querySelectorAll = (selector) => {
+	if (selector === "[data-recipient-control]") return [recipientControl];
+	if (selector === ".ticketmailer-recipient-chip") return recipientChips.children;
+	return [];
+};
+const originalCreateElement = document.createElement;
+const originalCreateTextNode = document.createTextNode;
+document.createElement = recipientDomNode;
+document.createTextNode = (text) => ({ nodeType: 3, textContent: text });
+composeForms.push(recipientForm);
+ajaxComplete();
+const recipientLabels = () =>
+	recipientChips.children.map(
+		(chip) => chip.children.find((child) => child.nodeType === 3).textContent,
+	);
+assert.deepEqual(recipientLabels(), [
+	"first@example.test",
+	"second@example.test",
+	"third@example.test",
+]);
+assert.equal(
+	recipientValue.value,
+	"first@example.test, second@example.test, third@example.test",
+);
+recipientInput.value =
+	"fourth@example.test, fifth@example.test, sixth@example.test";
+recipientInput.handlers.keydown({
+	key: "Enter",
+	preventDefault() {},
+});
+const allRecipientEmails = [
+	"first@example.test",
+	"second@example.test",
+	"third@example.test",
+	"fourth@example.test",
+	"fifth@example.test",
+	"sixth@example.test",
+];
+assert.deepEqual(recipientLabels(), allRecipientEmails);
+assert.equal(recipientValue.value, allRecipientEmails.join(", "));
+assert.equal(
+	recipientLabels().some((label) => ["1", "2", "3"].includes(label)),
+	false,
+);
+document.createElement = originalCreateElement;
+if (originalCreateTextNode) {
+	document.createTextNode = originalCreateTextNode;
+} else {
+	delete document.createTextNode;
+}
+
 form.status.waiting.checked = true;
 const secondForm = makeForm(false, true);
 composeForms.push(secondForm);
