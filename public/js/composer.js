@@ -61,20 +61,45 @@
 		};
 	}
 
+	function normalizeClipboardHtml(content) {
+		var container = document.createElement("div");
+		container.innerHTML = content;
+		var nodes = Array.from(container.childNodes);
+		var blockTags = /^(ADDRESS|ARTICLE|ASIDE|BLOCKQUOTE|DETAILS|DIALOG|DIV|DL|FIELDSET|FIGURE|FIGCAPTION|FOOTER|FORM|H[1-6]|HEADER|HR|LI|MAIN|NAV|OL|P|PRE|SECTION|TABLE|UL)$/i;
+		for (var index = 1; index < nodes.length - 1; index += 1) {
+			var node = nodes[index];
+			if (node.nodeType !== Node.TEXT_NODE || !/^\s*$/.test(node.nodeValue)) {
+				continue;
+			}
+			var previous = nodes[index - 1];
+			var next = nodes[index + 1];
+			if (
+				previous.nodeType === Node.ELEMENT_NODE &&
+				next.nodeType === Node.ELEMENT_NODE &&
+				blockTags.test(previous.tagName) &&
+				blockTags.test(next.tagName)
+			) {
+				node.remove();
+			}
+		}
+		return container.innerHTML;
+	}
+
 	function copyKnowledgeArticleContent(content) {
 		try {
 			if (typeof ClipboardItem !== "function" || !navigator.clipboard?.write) {
 				return Promise.reject(new Error("Clipboard API unavailable"));
 			}
+			var html = normalizeClipboardHtml(content);
 			var container = document.createElement("div");
 			container.style.cssText = "position:fixed;left:-10000px;white-space:pre-wrap";
-			var parsed = new DOMParser().parseFromString(content, "text/html");
+			var parsed = new DOMParser().parseFromString(html, "text/html");
 			container.append(...parsed.body.childNodes);
 			document.body.appendChild(container);
 			var plainText = container.innerText;
 			container.remove();
 			var item = new ClipboardItem({
-				"text/html": new Blob([content], { type: "text/html" }),
+				"text/html": new Blob([html], { type: "text/html" }),
 				"text/plain": new Blob([plainText], {
 					type: "text/plain",
 				}),
