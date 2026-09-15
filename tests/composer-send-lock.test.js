@@ -91,8 +91,29 @@ global.document = {
 		return {
 			attributes: {},
 			style: {},
+			childNodes: [],
 			append(...children) {
 				this.innerText = children.map((child) => child.innerText).join("");
+			},
+			set innerHTML(value) {
+				this._parts = value.split(/(<[^>]+>)/).filter(Boolean);
+				this.childNodes = this._parts.map((part, index) =>
+					part.startsWith("<")
+						? {
+								nodeType: Node.ELEMENT_NODE,
+								tagName: part.match(/^<\/?([a-z0-9]+)/i)?.[1].toUpperCase(),
+							}
+						: {
+								nodeType: Node.TEXT_NODE,
+								nodeValue: part,
+								remove: () => {
+									this._parts[index] = "";
+								},
+							},
+				);
+			},
+			get innerHTML() {
+				return this._parts.join("");
 			},
 			setAttribute(name, value) {
 				this.attributes[name] = value;
@@ -118,6 +139,10 @@ global.document = {
 		return [];
 	},
 };
+global.Node = {
+	TEXT_NODE: 3,
+	ELEMENT_NODE: 1,
+};
 global.DOMParser = class DOMParser {
 	parseFromString(content) {
 		const renderedText = new Map([
@@ -126,7 +151,23 @@ global.DOMParser = class DOMParser {
 				"Knowledge article\nSecond paragraph",
 			],
 			[
+				"<p>Knowledge article</p>\n<p>Second paragraph</p>",
+				"Knowledge article\nSecond paragraph",
+			],
+			[
+				"<p>Template</p>\n<p>Second template paragraph</p>",
+				"Template\nSecond template paragraph",
+			],
+			[
+				"<p>Template</p><p>Second template paragraph</p>",
+				"Template\nSecond template paragraph",
+			],
+			[
 				"<p>Active article</p><p>Second paragraph</p>",
+				"Active article\nSecond paragraph",
+			],
+			[
+				"<p>Active article</p>\n<p>Second paragraph</p>",
 				"Active article\nSecond paragraph",
 			],
 		]);
@@ -269,7 +310,9 @@ global.XMLHttpRequest = class {
 	}
 	send() {
 		this.status = 200;
-		this.responseText = JSON.stringify({ content: "<p>Template</p>" });
+		this.responseText = JSON.stringify({
+			content: "<p>Template</p>\n<p>Second template paragraph</p>",
+		});
 		this.onload();
 	}
 };
@@ -646,6 +689,7 @@ assert.deepEqual(Object.keys(templateCopiedItems[0].items).sort(), [
 	"text/html",
 	"text/plain",
 ]);
+const copiedTemplateItems = templateCopiedItems;
 assert.deepEqual(templateToast, {
 	message: "Text copied",
 	caption: undefined,
@@ -898,8 +942,9 @@ Object.defineProperty(global, "navigator", {
 knowledgeEditors["knowledge-a"].content = "<p>Existing note</p>";
 knowledgeFields["knowledge-a"].value = "<p>Existing note</p>";
 const directKnowledgeCopy = copyKnowledgeArticleContent(
-	"<p>Knowledge article</p><p>Second paragraph</p>",
+	"<p>Knowledge article</p>\n<p>Second paragraph</p>",
 );
+const directKnowledgeItems = copiedKnowledgeItems;
 assert.equal(
 	knowledgeEditors["knowledge-a"].content,
 	"<p>Existing note</p>",
@@ -984,7 +1029,7 @@ global.window.fetch = (url, options) => {
 	return Promise.resolve({
 		ok: true,
 		text: () =>
-			Promise.resolve("<p>Active article</p><p>Second paragraph</p>"),
+			Promise.resolve("<p>Active article</p>\n<p>Second paragraph</p>"),
 	});
 };
 selectKnowledgeArticleHandler({
@@ -1008,6 +1053,21 @@ setImmediate(() => {
 	Promise.resolve()
 		.then(async () => {
 			await directKnowledgeCopy;
+			assert.equal(
+				await copiedTemplateItems[0].items["text/html"].text(),
+				"<p>Template</p><p>Second template paragraph</p>",
+				"Template copies normalize whitespace-only paragraph separators",
+			);
+			assert.equal(
+				await copiedTemplateItems[0].items["text/plain"].text(),
+				"Template\nSecond template paragraph",
+				"Template copies keep paragraph separation",
+			);
+			assert.equal(
+				await directKnowledgeItems[0].items["text/html"].text(),
+				"<p>Knowledge article</p><p>Second paragraph</p>",
+				"Direct knowledge copies normalize whitespace-only paragraph separators",
+			);
 			delete global.ClipboardItem;
 			await assert.rejects(
 				copyKnowledgeArticleContent("<p>Unavailable</p>"),
@@ -1076,10 +1136,27 @@ setImmediate(() => {
 			assert.equal(
 				await copiedKnowledgeItems[0].items["text/html"].text(),
 				"<p>Active article</p><p>Second paragraph</p>",
+				"Clipboard HTML drops formatting whitespace between real paragraphs",
 			);
 			assert.equal(
 				await copiedKnowledgeItems[0].items["text/plain"].text(),
 				"Active article\nSecond paragraph",
+				"Knowledge selection keeps paragraph separation",
+			);
+			assert.equal(
+				await directKnowledgeItems[0].items["text/plain"].text(),
+				"Knowledge article\nSecond paragraph",
+				"Direct helper keeps paragraph separation",
+			);
+			const preservedInlineCopy = copyKnowledgeArticleContent(
+				"<span>Inline</span>\n<span>content</span>",
+			);
+			const preservedInlineItems = copiedKnowledgeItems;
+			await preservedInlineCopy;
+			assert.equal(
+				await preservedInlineItems[0].items["text/html"].text(),
+				"<span>Inline</span>\n<span>content</span>",
+				"Whitespace inside inline content is preserved",
 			);
 			assert.equal(
 				knowledgeEditors["knowledge-b"].content,
