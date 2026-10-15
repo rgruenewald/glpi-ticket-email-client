@@ -247,11 +247,19 @@
 	display: block;
 	order: 1;
 }
+[data-ticketmailer-panel="internal_note"] .ticketmailer-note-template,
+[data-ticketmailer-panel="internal_note"] .ticketmailer-note-solution-template,
+[data-ticketmailer-panel="internal_note"] .ticketmailer-note-source {
+	grid-row: 1;
+}
 [data-ticketmailer-panel="internal_note"] .ticketmailer-note-template {
 	grid-column: 1;
 }
-[data-ticketmailer-panel="internal_note"] .ticketmailer-note-source {
+[data-ticketmailer-panel="internal_note"] .ticketmailer-note-solution-template {
 	grid-column: 2;
+}
+[data-ticketmailer-panel="internal_note"] .ticketmailer-note-source {
+	grid-column: 3;
 }
 
 [data-ticketmailer-panel="internal_note"] .ticketmailer-note-meta > label {
@@ -678,8 +686,19 @@ body.ticketmailer-compose-active .ticketmailer-timeline-action {
 		grid-template-columns: minmax(0, 1fr);
 	}
 
+	[data-ticketmailer-panel="internal_note"] .ticketmailer-note-template,
+	[data-ticketmailer-panel="internal_note"] .ticketmailer-note-solution-template,
 	[data-ticketmailer-panel="internal_note"] .ticketmailer-note-source {
 		grid-column: 1;
+		grid-row: auto;
+	}
+
+	[data-ticketmailer-panel="internal_note"] .ticketmailer-note-options .ticketmailer-note-source {
+		order: 2;
+	}
+
+	[data-ticketmailer-panel="internal_note"] .ticketmailer-note-knowledge {
+		order: 3;
 	}
 
 	.ticketmailer-mail-row:not(.ticketmailer-mail-row--followup-meta) {

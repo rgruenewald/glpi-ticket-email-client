@@ -543,6 +543,9 @@ const composerCss = require("node:fs").readFileSync(
 	require.resolve("../public/css/ticketmailer.css"),
 	"utf8",
 );
+assert.match(composerCss, /\.ticketmailer-note-solution-template \{\s*grid-column: 2;/, "solution templates appear immediately after answer templates on desktop");
+assert.match(composerCss, /\.ticketmailer-note-source \{\s*grid-column: 3;/, "source follows both template dropdowns on desktop");
+assert.match(composerCss, /\.ticketmailer-note-template,[\s\S]*?\.ticketmailer-note-solution-template,[\s\S]*?\.ticketmailer-note-source \{\s*grid-row: 1;/, "desktop template controls share one row despite native DOM order");
 const composeTemplate = require("node:fs").readFileSync(
 	require.resolve("../templates/compose.html.twig"),
 	"utf8",
