@@ -56,3 +56,26 @@ upload/download, one captured delivery, audit and timeline, denied access and
 SMTP failure, public-history privacy, CID images, mailbox override, entity
 boundaries and entity/profile policy precedence. See the recipe for remaining coverage limits. PHPUnit and JS
 checks are separate from browser tests; report each result explicitly.
+
+## Compose dialog and layout checks
+
+For changes to the ticket reply UI, verify the ticket-button entry rather than
+using front/compose.php alone. The direct URL is a fallback and does not prove
+modal behavior.
+
+Use the isolated local test instance and synthetic fixtures. Open a ticket, click
+.ticketmailer-timeline-action, and verify that the compose modal opens without
+page navigation. Switch to Internal note and exercise the changed control there.
+For solution templates, verify clipboard output, unchanged editor content and
+status switches on selection, repeated Email/Internal note switching, native
+note submission with its marker visible in the ticket, and reopening/closing.
+
+For side-by-side controls, assert both horizontal order and the same vertical
+row. For stacked mobile controls, assert vertical order. A CSS-source assertion
+or increasing X coordinates alone does not prove the rendered layout.
+
+Before/after screenshots must use the same entry path, mode, language, viewport,
+and comparable synthetic fixture. Record the source revision for each image.
+Capture the changed dialog state, not the fallback page, when the normal user
+path is modal. State the GLPI version and distinguish actual browser checks from
+static checks or previously recorded evidence.
