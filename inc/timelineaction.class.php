@@ -174,6 +174,7 @@ class PluginTicketmailerTimelineAction
             'editor_id' => $editor_id,
             'followup_template_dropdown' => self::followupTemplateDropdown(),
             'solution_template_dropdown' => self::solutionTemplateDropdown(),
+            'note_solution_template_dropdown' => self::solutionTemplateDropdown(),
             'followup_source_dropdown' => self::followupSourceDropdown(),
             'followup_template_url' => self::followupTemplateUrl(),
             'solution_template_url' => self::solutionTemplateUrl(),

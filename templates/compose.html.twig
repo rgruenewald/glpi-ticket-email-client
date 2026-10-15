@@ -278,6 +278,10 @@
 </div>
 {% if native_followup_form %}
     <div data-ticketmailer-panel="internal_note" hidden aria-hidden="true">
+        <div class="form-field ticketmailer-note-meta ticketmailer-note-solution-template">
+            <label class="form-label">{{ __('Solution templates', 'ticketmailer') }}</label>
+            {{ note_solution_template_dropdown|default('')|raw }}
+        </div>
         {{ native_followup_form|raw }}
     </div>
 {% endif %}
