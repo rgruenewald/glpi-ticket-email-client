@@ -14,7 +14,7 @@ if ($tickets_id <= 0) {
     exit;
 }
 $ticket = new Ticket();
-if (!$ticket->getFromDB($tickets_id) || !( $ticket->canUpdateItem() || (method_exists($ticket, 'canAddFollowups') && $ticket->canAddFollowups()) )) {
+if (!$ticket->getFromDB($tickets_id) || (!Session::haveAccessToEntity((int) $ticket->getField('entities_id')) || !$ticket->can($tickets_id, READ)) || !Session::haveAccessToEntity((int) $ticket->getField('entities_id')) || !$ticket->can($tickets_id, READ) || !( $ticket->canUpdateItem() || (method_exists($ticket, 'canAddFollowups') && $ticket->canAddFollowups()) )) {
     http_response_code(403);
     echo json_encode(['error' => __('You are not allowed to add attachments to this ticket.', 'ticketmailer')]);
     exit;

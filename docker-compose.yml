@@ -1,17 +1,4 @@
-# docker-compose.yml — shared local GLPI 11 + MariaDB development stack
-#
-# All Git worktrees use one Compose project, including its containers and volumes.
-# Running `docker compose up` from another worktree switches the mounted plugin
-# source without creating another GLPI test instance.
-#
-# The plugin uses GLPI core's SMTP configuration. Set GLPI_SMTP_HOST and the
-# optional SMTP variables documented in README.md; keep credentials in .env.
-#
-# Usage:
-#   docker compose up -d --build
-#   open http://localhost:8080   (default GLPI login:
-#     glpi / glpi — change on first login)
-
+# One shared local instance. Starting from another worktree switches the plugin.
 name: ticketmailer
 services:
   db:
@@ -29,48 +16,64 @@ services:
       interval: 5s
       timeout: 3s
       retries: 20
-
   glpi:
-    build:
-      context: ./docker/glpi
+    build: ./docker/glpi
     image: ticketmailer/glpi:latest
     restart: unless-stopped
     depends_on:
       db:
         condition: service_healthy
+      mailpit:
+        condition: service_started
     ports:
-      - "8080:80"
+      - "127.0.0.1:8080:80"
     environment:
       GLPI_DB_HOST: db
       GLPI_DB_NAME: glpi
       GLPI_DB_USER: glpi
       GLPI_DB_PASSWORD: glpi
-      GLPI_SMTP_HOST: ${GLPI_SMTP_HOST:-}
-      GLPI_SMTP_PORT: ${GLPI_SMTP_PORT:-587}
-      GLPI_SMTP_MODE: ${GLPI_SMTP_MODE:-3}
-      GLPI_SMTP_USERNAME: ${GLPI_SMTP_USERNAME:-}
-      GLPI_SMTP_PASSWORD: ${GLPI_SMTP_PASSWORD:-}
       GLPI_INSTALL: "1"
+      TICKETMAILER_E2E: "1"
+      GLPI_SMTP_HOST: mailpit
+      GLPI_SMTP_PORT: "1025"
+      GLPI_SMTP_MODE: "1"
+      GLPI_SMTP_CHECK_CERTIFICATE: "0"
     volumes:
-      # Mount the plugin source from the repo root.
-      - .:/var/www/html/plugins/ticketmailer
-      # Persist GLPI config and data.
+      - ./inc:/var/www/html/plugins/ticketmailer/inc:ro
+      - ./front:/var/www/html/plugins/ticketmailer/front:ro
+      - ./ajax:/var/www/html/plugins/ticketmailer/ajax:ro
+      - ./templates:/var/www/html/plugins/ticketmailer/templates:ro
+      - ./locales:/var/www/html/plugins/ticketmailer/locales:ro
+      - ./public:/var/www/html/plugins/ticketmailer/public:ro
+      - ./sql:/var/www/html/plugins/ticketmailer/sql:ro
+      - ./setup.php:/var/www/html/plugins/ticketmailer/setup.php:ro
+      - ./hook.php:/var/www/html/plugins/ticketmailer/hook.php:ro
+      - ./docker/glpi/e2e-fixture.php:/usr/local/bin/e2e-fixture.php:ro
       - glpi_config:/var/www/html/config
-      - glpi_data:/var/www/html/files
-
+      - glpi_files:/var/www/html/files
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost/index.php >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 60s
+  mailpit:
+    image: axllent/mailpit:v1.27.10
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8025:8025"
   test:
-    build:
-      context: .
-      dockerfile: docker/test/Dockerfile
-    working_dir: /app
+    profiles: ["test"]
+    build: ./docker/test
     volumes:
       - .:/app:ro
-      - test_vendor:/vendor
-      - test_phpunit_cache:/phpunit-cache
-
+      - test_vendor:/app/vendor
+      - test_phpunit_cache:/app/.phpunit.cache
+    working_dir: /app
+    command: sh -c "composer install --no-interaction --prefer-dist && vendor/bin/phpunit"
 volumes:
   db_data:
-  glpi_data:
   glpi_config:
+  glpi_files:
   test_vendor:
   test_phpunit_cache:
