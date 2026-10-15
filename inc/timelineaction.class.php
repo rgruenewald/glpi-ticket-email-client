@@ -81,7 +81,7 @@ class PluginTicketmailerTimelineAction
 
     public static function canUse(Ticket $ticket): bool
     {
-        if (!$ticket->canViewItem()
+        if ((!Session::haveAccessToEntity((int) $ticket->getField('entities_id')) || !$ticket->canViewItem())
             || !($ticket->canUpdateItem()
                 || (method_exists($ticket, 'canAddFollowups') && $ticket->canAddFollowups()))
         ) {

@@ -429,6 +429,7 @@
 					data.append("_glpi_csrf_token", token);
 					var xhr = new XMLHttpRequest();
 					xhr.open("POST", url);
+					xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
 					if (token) {
 						xhr.setRequestHeader("X-Glpi-Csrf-Token", token);
 					}
@@ -584,7 +585,7 @@
 				data.append("_glpi_csrf_token", token);
 				var xhr = new XMLHttpRequest();
 				xhr.open("POST", url);
-				if (token) {
+				xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");				if (token) {
 					xhr.setRequestHeader("X-Glpi-Csrf-Token", token);
 				}
 				xhr.onload = () => {
@@ -733,6 +734,7 @@
 			fd.append("file", file);
 			var xhr = new XMLHttpRequest();
 			xhr.open("POST", uploadUrl);
+			xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
 			if (token) {
 				xhr.setRequestHeader("X-Glpi-Csrf-Token", token);
 			}

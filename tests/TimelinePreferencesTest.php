@@ -155,8 +155,20 @@ final class TimelinePreferencesTest extends TestCase
         $_SERVER['SCRIPT_NAME'] = '/front/ticket.form.php';
         $_GET = ['id' => 42];
         $_SESSION = [];
+        Session::$canAccessEntity = true;
         Ticket::$entityId = 7;
         TimelineActionTicket::$authorized = true;
+    }
+
+    #[Test]
+    public function foreign_entity_never_exposes_reply_action_even_with_global_followup_rights(): void
+    {
+        Session::$canAccessEntity = false;
+        try {
+            self::assertFalse(PluginTicketmailerTimelineAction::canUse(new TimelineActionTicket()));
+        } finally {
+            Session::$canAccessEntity = true;
+        }
     }
 
     #[Test]
