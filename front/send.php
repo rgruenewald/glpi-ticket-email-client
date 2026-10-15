@@ -12,7 +12,7 @@ Session::checkLoginUser();
 
 $tickets_id = (int) ($_POST['tickets_id'] ?? 0);
 $ticket = new Ticket();
-if ($tickets_id <= 0 || !$ticket->getFromDB($tickets_id) || !( $ticket->canUpdateItem() || (method_exists($ticket, 'canAddFollowups') && $ticket->canAddFollowups()) )) {
+if ($tickets_id <= 0 || !$ticket->getFromDB($tickets_id) || !Session::haveAccessToEntity((int) $ticket->getField('entities_id')) || !$ticket->can($tickets_id, READ) || !( $ticket->canUpdateItem() || (method_exists($ticket, 'canAddFollowups') && $ticket->canAddFollowups()) )) {
     Html::displayRightError();
 }
 $web = Plugin::getWebDir('ticketmailer');

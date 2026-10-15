@@ -1,3 +1,4 @@
+const { test } = require('node:test');
 const assert = require("node:assert/strict");
 
 const listeners = {};
@@ -1429,4 +1430,15 @@ setImmediate(() => {
 				throw error;
 			});
 		});
+});
+
+test('attachment upload identifies itself as AJAX so GLPI preserves the header CSRF token', () => {
+  assert.match(composerSource, /xhr\.open\("POST", uploadUrl\);\s*xhr\.setRequestHeader\("X-Requested-With", "XMLHttpRequest"\)/);
+});
+
+test('every composer POST XHR preserves the shared AJAX CSRF token', () => {
+  const posts = composerSource.match(/xhr\.open\("POST", [^)]+\);/g) || [];
+  const ajaxPosts = composerSource.match(/xhr\.open\("POST", [^)]+\);\s*xhr\.setRequestHeader\("X-Requested-With", "XMLHttpRequest"\)/g) || [];
+  assert.equal(posts.length, 4);
+  assert.equal(ajaxPosts.length, posts.length);
 });

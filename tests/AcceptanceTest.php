@@ -633,20 +633,26 @@ final class AcceptanceTest extends TestCase
         $this->assertStringNotContainsString("__('Action')", $config);
     }
 
-    // ---- Local Docker stack: reproducible build + external SMTP -----------
+    // ---- Local Docker stack: isolated SMTP capture -----------
 
     #[Test]
-    public function local_docker_stack_uses_external_smtp_without_mailpit(): void
+    public function local_docker_stack_captures_smtp_locally(): void
     {
         $compose = (string) file_get_contents(self::REPO_ROOT . '/docker-compose.yml');
         $dockerfile = (string) file_get_contents(self::REPO_ROOT . '/docker/glpi/Dockerfile');
         $setup = (string) file_get_contents(self::REPO_ROOT . '/docker/glpi/setup-glpi.sh');
         $entrypoint = (string) file_get_contents(self::REPO_ROOT . '/docker/glpi/docker-entrypoint.sh');
 
-        $this->assertStringNotContainsString('mailpit', strtolower($compose));
+        $this->assertStringContainsString('GLPI_SMTP_HOST: mailpit', $compose);
+        $this->assertStringContainsString('127.0.0.1:8080:80', $compose);
+        $this->assertStringContainsString('127.0.0.1:8025:8025', $compose);
+        $this->assertStringNotContainsString('1025:1025', $compose);
+        $this->assertStringContainsString('./inc:/var/www/html/plugins/ticketmailer/inc:ro', $compose);
+        $this->assertStringNotContainsString('- .:/var/www/html/plugins/ticketmailer', $compose);
+        $this->assertStringNotContainsString('find /var/www/html/plugins -type', $entrypoint);
         $this->assertDirectoryDoesNotExist(self::REPO_ROOT . '/docker/mailpit');
         $this->assertStringNotContainsString('docker-php-ext-install -j', $dockerfile);
-        foreach (['GLPI_SMTP_HOST', 'GLPI_SMTP_PORT', 'GLPI_SMTP_MODE', 'GLPI_SMTP_USERNAME', 'GLPI_SMTP_PASSWORD'] as $name) {
+        foreach (['GLPI_SMTP_HOST', 'GLPI_SMTP_PORT', 'GLPI_SMTP_MODE'] as $name) {
             $this->assertStringContainsString($name, $compose);
         }
         $this->assertStringNotContainsString('smtp_passwd ""', $setup);

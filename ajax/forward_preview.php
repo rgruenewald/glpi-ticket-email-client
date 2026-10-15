@@ -1,30 +1,26 @@
 <?php
-/**
- * ajax/forward_preview.php — preview of a forward
- * payload. The forward form posts the ticket id here
- * and gets back the rendered subject + body, so the
- * user can review before sending.
- *
- * The single mode is `full_history` (description +
- * every followup). There is no `last_message` mode
- * (spec § A11, OQ1).
- */
+/** Public ticket-history preview using the same authorization as composition. */
 require_once __DIR__ . '/../inc/bootstrap.php';
-
 Session::checkLoginUser();
 header('Content-Type: application/json; charset=utf-8');
-
 $tickets_id = (int) ($_POST['tickets_id'] ?? $_GET['tickets_id'] ?? 0);
 $ticket = new Ticket();
-if ($tickets_id <= 0 || !$ticket->getFromDB($tickets_id) || !$ticket->canUpdateItem()) {
+if ($tickets_id <= 0 || !$ticket->getFromDB($tickets_id) || !PluginTicketmailerTimelineAction::canUse($ticket)) {
     http_response_code(403);
     echo json_encode(['error' => 'forbidden']);
     exit;
 }
-$forward = PluginTicketmailerForwarder::build($ticket);
+try {
+    PluginTicketmailerHistory::validateSelectedAttachments($ticket, (array) ($_POST['history_attachments'] ?? []));
+} catch (InvalidArgumentException $exception) {
+    http_response_code(400);
+    echo json_encode(['error' => $exception->getMessage()]);
+    exit;
+}
+$body = PluginTicketmailerHistory::render($ticket);
 echo json_encode([
-    'mode'    => 'full_history',
-    'subject' => $forward['subject'],
-    'body_html' => $forward['body_html'],
-    'body_text' => $forward['body_text'],
+    'mode' => 'full_history',
+    'subject' => (string) $ticket->getField('name'),
+    'body_html' => $body,
+    'body_text' => trim(html_entity_decode(strip_tags($body), ENT_QUOTES | ENT_HTML5, 'UTF-8')),
 ]);
