@@ -49,7 +49,7 @@ class PluginTicketmailerConfig
             'set_waiting'                       => true,
             'timeline_newest_first'             => true,
             'hide_native_answer'                 => false,
-        ];
+        ] + self::interfaceSettings();
         if (!$DB->tableExists('glpi_plugin_ticketmailer_configs')) {
             return $settings;
         }
@@ -70,6 +70,41 @@ class PluginTicketmailerConfig
         $settings['notificationtemplates_id'] = (int) ($entity['notificationtemplates_id'] ?? 0);
         $settings['signature_html'] = (string) (($entity ?: $global)['signature_html'] ?? '');
         return $settings;
+    }
+
+    /** UI switches are global and stored in GLPI's plugin configuration namespace. */
+    public static function interfaceOptions(): array
+    {
+        return [
+            'show_action_reply' => __('Show Answer button', 'ticketmailer'),
+            'show_action_task' => __('Show Task button', 'ticketmailer'),
+            'show_action_solution' => __('Show Solution button', 'ticketmailer'),
+            'show_action_document' => __('Show Document button', 'ticketmailer'),
+            'show_action_internal_note' => __('Show Internal note button', 'ticketmailer'),
+            'show_answer_templates' => __('Show answer templates', 'ticketmailer'),
+            'show_solution_templates' => __('Show solution templates', 'ticketmailer'),
+            'show_followup_source' => __('Show followup source', 'ticketmailer'),
+        ];
+    }
+
+    public static function interfaceSettings(): array
+    {
+        $stored = method_exists(Config::class, 'getConfigurationValues')
+            ? Config::getConfigurationValues('plugin:ticketmailer', array_keys(self::interfaceOptions())) : [];
+        $settings = [];
+        foreach (self::interfaceOptions() as $key => $label) {
+            $settings[$key] = !array_key_exists($key, $stored) || (bool) $stored[$key];
+        }
+        return $settings;
+    }
+
+    public static function saveInterfaceSettings(array $input): void
+    {
+        $values = [];
+        foreach (self::interfaceOptions() as $key => $label) {
+            $values[$key] = empty($input[$key]) ? 0 : 1;
+        }
+        Config::setConfigurationValues('plugin:ticketmailer', $values);
     }
 
     public static function saveEntity(

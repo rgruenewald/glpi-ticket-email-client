@@ -387,6 +387,11 @@
 			};
 		var validation = form.ticketmailerRecipientValidation;
 		var suggestionList = document.createElement("ul");
+        suggestionList.id = input.id + "-suggestions";
+        input.setAttribute("role", "combobox");
+        input.setAttribute("aria-autocomplete", "list");
+        input.setAttribute("aria-controls", suggestionList.id);
+        input.setAttribute("aria-expanded", "false");
 		suggestionList.className = "ticketmailer-recipient-suggestions";
 		suggestionList.setAttribute("role", "listbox");
 		suggestionList.hidden = true;
@@ -429,6 +434,7 @@
 					data.append("_glpi_csrf_token", token);
 					var xhr = new XMLHttpRequest();
 					xhr.open("POST", url);
+					xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
 					if (token) {
 						xhr.setRequestHeader("X-Glpi-Csrf-Token", token);
 					}
@@ -504,6 +510,7 @@
 			suggestionList.replaceChildren();
 			suggestionList.hidden = true;
 			input.setAttribute("aria-expanded", "false");
+            input.removeAttribute("aria-activedescendant");
 		}
 
 		function selectSuggestion(suggestion) {
@@ -529,7 +536,8 @@
 				var email = document.createElement("span");
 				button.type = "button";
 				button.className = "ticketmailer-recipient-suggestion";
-				button.setAttribute("role", "option");
+				button.id = suggestionList.id + "-" + index;
+                button.setAttribute("role", "option");
 				button.setAttribute("aria-selected", "false");
 				label.textContent = suggestion.label;
 				email.className = "ticketmailer-recipient-suggestion-email";
@@ -560,6 +568,7 @@
 				suggestionList.querySelectorAll("button"),
 				(button, buttonIndex) => {
 					var active = buttonIndex === activeSuggestion;
+                    if (active) input.setAttribute("aria-activedescendant", button.id);
 					button.classList.toggle("is-active", active);
 					button.setAttribute("aria-selected", active ? "true" : "false");
 				},
@@ -586,7 +595,7 @@
                 data.append("_glpi_csrf_token", token);
 				var xhr = new XMLHttpRequest();
 				xhr.open("POST", url);
-				if (token) {
+				xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");				if (token) {
 					xhr.setRequestHeader("X-Glpi-Csrf-Token", token);
 				}
 				xhr.onload = () => {
@@ -609,7 +618,7 @@
 							hideSuggestions();
 						}
 					} catch (err) {
-						hideSuggestions();
+                        if (currentRequest === requestId) hideSuggestions();
 					}
 					resolve();
 				};
@@ -645,6 +654,8 @@
 			input.focus();
 		});
 		input.addEventListener("input", () => {
+            ++requestId;
+            hideSuggestions();
 			++requestId;
 			if (requestTimer) {
 				window.clearTimeout(requestTimer);
@@ -737,6 +748,7 @@
 			fd.append("file", file);
 			var xhr = new XMLHttpRequest();
 			xhr.open("POST", uploadUrl);
+			xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
 			if (token) {
 				xhr.setRequestHeader("X-Glpi-Csrf-Token", token);
 			}
@@ -1156,7 +1168,19 @@
 					return;
 				}
 				delivery.dataset.ticketmailerInitialized = "true";
-				var inputs = delivery.querySelectorAll("[data-delivery-mode]");
+				// Apply UI switches only to the private form mounted in our modal.
+                [['showAnswerTemplates', 'itilfollowuptemplates_id'], ['showFollowupSource', 'requesttypes_id']].forEach(([setting, name]) => {
+                    if (delivery.dataset[setting] === "0") {
+                        delivery.querySelector('[data-ticketmailer-panel="internal_note"] [name="' + name + '"]')
+                            ?.closest('.form-field')?.remove();
+                    }
+                });
+                var inputs = delivery.querySelectorAll("[data-delivery-mode]");
+                if (delivery.dataset.initialMode) {
+                    inputs.forEach((input) => {
+                        input.checked = input.value === delivery.dataset.initialMode;
+                    });
+                }
 				function selectMode() {
 					var selected = delivery.querySelector("[data-delivery-mode]:checked");
 					var selectedMode = selected ? selected.value : "email";
@@ -1204,6 +1228,10 @@
 								optionsColumn.classList.add("ticketmailer-note-options");
 								nativeLayout.prepend(optionsColumn);
 								var optionsRow = optionsColumn.querySelector(":scope > .row");
+								var solutionField = notePanel.querySelector(".ticketmailer-note-solution-template");
+								if (optionsRow && solutionField) {
+									optionsRow.append(solutionField);
+								}
 								var templateField = optionsRow
 									?.querySelector('[name="itilfollowuptemplates_id"]')
 									?.closest(".form-field");
@@ -1574,10 +1602,16 @@
 	$(document).on(
 		"change",
 		'.ticketmailer-compose [name="itilfollowuptemplates_id"], ' +
-			'.ticketmailer-compose [name="solutiontemplates_id"]',
+			'.ticketmailer-compose [name="solutiontemplates_id"], ' +
+			'.ticketmailer-note-solution-template [name="solutiontemplates_id"]',
 		function () {
+			// Both modes copy template text using the same ticket-scoped endpoint.
+			var form = this.form;
+			if (typeof this.closest === "function" && this.closest(".ticketmailer-note-solution-template")) {
+				form = this.closest("[data-ticketmailer-delivery]").querySelector(".ticketmailer-compose");
+			}
 			applyTemplate(
-				this.form,
+				form,
 				this.value,
 				this.name === "solutiontemplates_id" ? "solution" : "answer",
 			);

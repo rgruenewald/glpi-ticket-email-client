@@ -26,7 +26,7 @@ if (!empty($_POST['compose_token'])) {
         exit;
     }
     $tickets_id = 0;
-} elseif ($tickets_id <= 0 || !$ticket->getFromDB($tickets_id) || !($ticket->canUpdateItem() || $ticket->canAddFollowups())) {
+} elseif ($tickets_id <= 0 || !$ticket->getFromDB($tickets_id) || !Session::haveAccessToEntity((int) $ticket->getField('entities_id')) || !$ticket->can($tickets_id, READ) || !($ticket->canUpdateItem() || $ticket->canAddFollowups())) {
     Html::displayRightError();
 }
 $web = Plugin::getWebDir('ticketmailer');

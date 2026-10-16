@@ -3,7 +3,6 @@ vendor/
 
 # --- npm (frontend, if any) ---
 node_modules/
-package-lock.json
 
 # --- secrets ---
 .env
@@ -28,3 +27,5 @@ test-results/
 .DS_Store
 .agent/
 .pi-subagents/
+
+playwright-report/
