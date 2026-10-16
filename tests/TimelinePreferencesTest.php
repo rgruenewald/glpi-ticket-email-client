@@ -211,6 +211,8 @@ final class TimelinePreferencesTest extends TestCase
         self::assertStringNotContainsString('btn-outline-primary', $html);
         self::assertStringContainsString('>Answer</button>', $html);
         self::assertStringContainsString('>Task</button>', $html);
+        preg_match_all('/ticketmailer-action-(reply|solution|internal_note|task|document)"/', $html, $matches);
+        self::assertSame(['reply', 'solution', 'internal_note', 'task', 'document'], $matches[1]);
     }
 
     #[Test]

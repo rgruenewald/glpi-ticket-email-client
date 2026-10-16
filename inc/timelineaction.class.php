@@ -81,10 +81,10 @@ class PluginTicketmailerTimelineAction
         $native = self::nativeActions($ticket);
         $buttons = [
             'reply' => [__('Answer', 'ticketmailer'), 'ti ti-mail', 'email'],
-            'task' => [__('Task', 'ticketmailer'), 'ti ti-checkbox', null],
             'solution' => [__('Solution', 'ticketmailer'), 'ti ti-check', 'solution'],
-            'document' => [__('Document', 'ticketmailer'), 'ti ti-paperclip', null],
             'internal_note' => [__('Internal note', 'ticketmailer'), 'ti ti-note', 'internal_note'],
+            'task' => [__('Task', 'ticketmailer'), 'ti ti-checkbox', null],
+            'document' => [__('Document', 'ticketmailer'), 'ti ti-paperclip', null],
         ];
         $html = '';
         foreach ($buttons as $key => [$label, $icon, $mode]) {

@@ -709,3 +709,7 @@ body.ticketmailer-compose-active .ticketmailer-timeline-action {
         flex-wrap: wrap;
     }
 }
+
+.ticketmailer-timeline-action > .btn + .btn {
+    border-inline-start: 1px solid var(--tblr-border-color, #d9dce1);
+}
