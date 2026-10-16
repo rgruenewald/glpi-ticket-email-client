@@ -26,12 +26,20 @@ class PluginTicketmailerHistory
 
         $documents = [];
         foreach ($item_ids as $itemtype => $ids) {
+            if ($ids === []) {
+                continue;
+            }
+            $links_by_item = [];
+            foreach ($DB->request('glpi_documents_items', [
+                'itemtype' => $itemtype,
+                'items_id' => $ids,
+            ]) as $link) {
+                $links_by_item[(int) $link['items_id']][] = (int) $link['documents_id'];
+            }
+            // Keep source order, including ties in the final filename sort.
             foreach ($ids as $items_id) {
-                foreach ($DB->request('glpi_documents_items', [
-                    'itemtype' => $itemtype,
-                    'items_id' => $items_id,
-                ]) as $link) {
-                    $documents[(int) $link['documents_id']] = true;
+                foreach ($links_by_item[$items_id] ?? [] as $documents_id) {
+                    $documents[$documents_id] = true;
                 }
             }
         }
