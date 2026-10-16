@@ -175,3 +175,24 @@ All new user-facing labels, error text, policy labels, and incomplete-send state
 - No production implementation starts from this contract until the GLPI 11 action/policy integration is source- or runtime-proven.
 - No compatibility shim retains ASSIGN→CC defaults.
 - No custom mail transport, editor library, or unrequested background job is added.
+
+
+## Approved extension: configurable ticket actions
+
+The grouped plugin action bar has independently selectable Answer, Task, Solution,
+Document and Internal note buttons. Task/Document open native GLPI forms. Solution
+opens the plugin email modal with solved=true and waiting=false; Internal note
+opens the same modal with private-note mode selected. Native rights still apply.
+Enabled, permitted replacements suppress their native equivalents automatically
+through timeline descriptor overrides. Disabled replacements leave native actions
+available. No DOM/CSS native-action suppression is used.
+
+Answer templates, solution templates and followup source can be disabled separately
+in global settings. Private-note template/source controls follow the same switches.
+To/CC/BCC autocomplete searches active GLPI users by login, first/last name and
+email within active entity visibility, preserving recursive assignments. Arbitrary
+email input remains supported. Each modal open restores its button-specific mode.
+
+Action labels are short and translated consistently (Answer, Task, Solution,
+Document, Internal note). The connected group uses native solid primary buttons.
+Settings group action switches, email-dialog controls and behavior separately.

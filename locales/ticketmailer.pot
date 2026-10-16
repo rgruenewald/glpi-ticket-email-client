@@ -444,3 +444,72 @@ msgstr ""
 #: templates/compose.html.twig
 msgid "Set ticket status to solved after sending."
 msgstr ""
+
+msgid "Show Answer button"
+msgstr ""
+
+msgid "Show Task button"
+msgstr ""
+
+msgid "Show Solution button"
+msgstr ""
+
+msgid "Show Document button"
+msgstr ""
+
+msgid "Show Internal note button"
+msgstr ""
+
+msgid "Show answer templates"
+msgstr ""
+
+msgid "Show solution templates"
+msgstr ""
+
+msgid "Show followup source"
+msgstr ""
+
+msgid "Hide replaced native actions."
+msgstr ""
+
+msgid "Create a task"
+msgstr ""
+
+msgid "Solution"
+msgstr ""
+
+msgid "Document"
+msgstr ""
+
+msgid "Ticket actions"
+msgstr ""
+
+msgid "Answer"
+msgstr ""
+
+msgid "Task"
+msgstr ""
+
+msgid "Email dialog"
+msgstr ""
+
+msgid "Behavior"
+msgstr ""
+
+msgid "Enabled actions replace their native equivalents. Disabled actions remain available in the native menu."
+msgstr ""
+
+msgid "Choose the available email and internal-note controls."
+msgstr ""
+
+msgid "Default ticket status and timeline order."
+msgstr ""
+
+msgid "Followup source"
+msgstr ""
+
+msgid "Preselect waiting status"
+msgstr ""
+
+msgid "Newest timeline entries first"
+msgstr ""

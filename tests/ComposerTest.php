@@ -44,6 +44,13 @@ if (!class_exists('Ticket')) {
 if (!class_exists('Config')) {
     class Config
     {
+        public static array $configuration = [];
+        public static function getConfigurationValues(string $context, array $keys): array {
+            return array_intersect_key(self::$configuration[$context] ?? [], array_flip($keys));
+        }
+        public static function setConfigurationValues(string $context, array $values): void {
+            self::$configuration[$context] = $values + (self::$configuration[$context] ?? []);
+        }
         public static ?int $requestedEntity = null;
         public static array $sender = [
             'email' => 'entity-sender@example.test',

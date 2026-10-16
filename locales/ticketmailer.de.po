@@ -444,3 +444,72 @@ msgstr "Ticketstatus nach dem Senden auf wartend setzen."
 #: templates/compose.html.twig
 msgid "Set ticket status to solved after sending."
 msgstr "Ticketstatus nach dem Senden auf gelöst setzen."
+
+msgid "Show Answer button"
+msgstr "Schaltfläche Antworten anzeigen"
+
+msgid "Show Task button"
+msgstr "Schaltfläche Aufgabe anzeigen"
+
+msgid "Show Solution button"
+msgstr "Schaltfläche Lösung anzeigen"
+
+msgid "Show Document button"
+msgstr "Schaltfläche Dokument anzeigen"
+
+msgid "Show Internal note button"
+msgstr "Schaltfläche Interne Notiz anzeigen"
+
+msgid "Show answer templates"
+msgstr "Antwortvorlagen anzeigen"
+
+msgid "Show solution templates"
+msgstr "Lösungsvorlagen anzeigen"
+
+msgid "Show followup source"
+msgstr "Quelle der Rückmeldung anzeigen"
+
+msgid "Hide replaced native actions."
+msgstr "Ersetzte native Aktionen ausblenden."
+
+msgid "Create a task"
+msgstr "Eine Aufgabe erstellen"
+
+msgid "Solution"
+msgstr "Lösung"
+
+msgid "Document"
+msgstr "Dokument"
+
+msgid "Ticket actions"
+msgstr "Ticketaktionen"
+
+msgid "Answer"
+msgstr "Antworten"
+
+msgid "Task"
+msgstr "Aufgabe"
+
+msgid "Email dialog"
+msgstr "E-Mail-Dialog"
+
+msgid "Behavior"
+msgstr "Verhalten"
+
+msgid "Enabled actions replace their native equivalents. Disabled actions remain available in the native menu."
+msgstr "Aktivierte Aktionen ersetzen ihre nativen Entsprechungen. Deaktivierte Aktionen bleiben im nativen Menü verfügbar."
+
+msgid "Choose the available email and internal-note controls."
+msgstr "Verfügbare Felder für E-Mails und interne Notizen auswählen."
+
+msgid "Default ticket status and timeline order."
+msgstr "Vorgaben für Ticketstatus und Reihenfolge des Verlaufs."
+
+msgid "Followup source"
+msgstr "Quelle der Rückmeldung"
+
+msgid "Preselect waiting status"
+msgstr "Wartestatus vorauswählen"
+
+msgid "Newest timeline entries first"
+msgstr "Neueste Verlaufseinträge zuerst"

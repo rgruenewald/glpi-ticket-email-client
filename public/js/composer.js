@@ -387,6 +387,11 @@
 			};
 		var validation = form.ticketmailerRecipientValidation;
 		var suggestionList = document.createElement("ul");
+        suggestionList.id = input.id + "-suggestions";
+        input.setAttribute("role", "combobox");
+        input.setAttribute("aria-autocomplete", "list");
+        input.setAttribute("aria-controls", suggestionList.id);
+        input.setAttribute("aria-expanded", "false");
 		suggestionList.className = "ticketmailer-recipient-suggestions";
 		suggestionList.setAttribute("role", "listbox");
 		suggestionList.hidden = true;
@@ -505,6 +510,7 @@
 			suggestionList.replaceChildren();
 			suggestionList.hidden = true;
 			input.setAttribute("aria-expanded", "false");
+            input.removeAttribute("aria-activedescendant");
 		}
 
 		function selectSuggestion(suggestion) {
@@ -530,7 +536,8 @@
 				var email = document.createElement("span");
 				button.type = "button";
 				button.className = "ticketmailer-recipient-suggestion";
-				button.setAttribute("role", "option");
+				button.id = suggestionList.id + "-" + index;
+                button.setAttribute("role", "option");
 				button.setAttribute("aria-selected", "false");
 				label.textContent = suggestion.label;
 				email.className = "ticketmailer-recipient-suggestion-email";
@@ -561,6 +568,7 @@
 				suggestionList.querySelectorAll("button"),
 				(button, buttonIndex) => {
 					var active = buttonIndex === activeSuggestion;
+                    if (active) input.setAttribute("aria-activedescendant", button.id);
 					button.classList.toggle("is-active", active);
 					button.setAttribute("aria-selected", active ? "true" : "false");
 				},
@@ -608,7 +616,7 @@
 							hideSuggestions();
 						}
 					} catch (err) {
-						hideSuggestions();
+                        if (currentRequest === requestId) hideSuggestions();
 					}
 					resolve();
 				};
@@ -644,6 +652,8 @@
 			input.focus();
 		});
 		input.addEventListener("input", () => {
+            ++requestId;
+            hideSuggestions();
 			++requestId;
 			if (requestTimer) {
 				window.clearTimeout(requestTimer);
@@ -1084,7 +1094,19 @@
 					return;
 				}
 				delivery.dataset.ticketmailerInitialized = "true";
-				var inputs = delivery.querySelectorAll("[data-delivery-mode]");
+				// Apply UI switches only to the private form mounted in our modal.
+                [['showAnswerTemplates', 'itilfollowuptemplates_id'], ['showFollowupSource', 'requesttypes_id']].forEach(([setting, name]) => {
+                    if (delivery.dataset[setting] === "0") {
+                        delivery.querySelector('[data-ticketmailer-panel="internal_note"] [name="' + name + '"]')
+                            ?.closest('.form-field')?.remove();
+                    }
+                });
+                var inputs = delivery.querySelectorAll("[data-delivery-mode]");
+                if (delivery.dataset.initialMode) {
+                    inputs.forEach((input) => {
+                        input.checked = input.value === delivery.dataset.initialMode;
+                    });
+                }
 				function selectMode() {
 					var selected = delivery.querySelector("[data-delivery-mode]:checked");
 					var selectedMode = selected ? selected.value : "email";

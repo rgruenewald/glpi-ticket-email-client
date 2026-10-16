@@ -21,6 +21,7 @@ function plugin_ticketmailer_install(): bool
 
 function plugin_ticketmailer_uninstall(): bool
 {
+    Config::deleteConfigurationValues('plugin:ticketmailer', array_keys(PluginTicketmailerConfig::interfaceOptions()));
     $sql_file = __DIR__ . '/sql/uninstall.sql';
     if (is_file($sql_file)) {
         PluginTicketmailerHook::runSqlScript((string) file_get_contents($sql_file));

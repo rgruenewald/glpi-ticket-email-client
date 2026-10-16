@@ -18,6 +18,9 @@
 {% set selected_history_attachments = selected_history_attachments|default([]) %}
 {% set native_followup_form = native_followup_form|default('') %}
 <div data-ticketmailer-delivery
+     data-initial-mode="{{ initial_mode|default('email') }}"
+     data-show-answer-templates="{{ (show_answer_templates ?? true) ? 1 : 0 }}"
+     data-show-followup-source="{{ (show_followup_source ?? true) ? 1 : 0 }}"
      data-email-title="{{ __('E-Mail antworten', 'ticketmailer') }}"
      data-note-title="{{ __('Internal note', 'ticketmailer') }}"
      data-cancel-label="{{ __('Cancel', 'ticketmailer') }}"

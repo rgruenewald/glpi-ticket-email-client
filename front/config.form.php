@@ -31,8 +31,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             (int) $settings['notificationtemplates_id'],
             !empty($_POST['set_waiting']),
             !empty($_POST['timeline_newest_first']),
-            !empty($_POST['hide_native_answer']),
+            (bool) $settings['hide_native_answer'],
         );
+        PluginTicketmailerConfig::saveInterfaceSettings($_POST);
     }
     Html::redirect($config_url . '?entities_id=' . $entities_id);
 }
@@ -42,22 +43,39 @@ Html::header(__('Outbound email', 'ticketmailer'), $config_url, 'config', 'plugi
 echo '<form method="post" action="' . htmlspecialchars($config_url, ENT_QUOTES, 'UTF-8') . '">';
 echo Html::hidden('_glpi_csrf_token', ['value' => Session::getNewCSRFToken()]);
 echo Html::hidden('entities_id', ['value' => $entities_id]);
-echo '<div class="card mb-3"><div class="card-header"><h3 class="card-title">'
-    . __('Global settings', 'ticketmailer') . '</h3></div><div class="card-body"><div class="row g-3">';
-echo '<div class="col-12 form-check"><input class="form-check-input" id="ticketmailer-set-waiting" type="checkbox" name="set_waiting" value="1"'
-    . ($settings['set_waiting'] ? ' checked' : '') . '>';
-echo '<label class="form-check-label" for="ticketmailer-set-waiting">'
-    . __('Preselect "Set ticket status to waiting" in the e-mail form.', 'ticketmailer') . '</label></div>';
-echo '<div class="col-12 form-check"><input class="form-check-input" id="ticketmailer-timeline-newest-first" type="checkbox" name="timeline_newest_first" value="1"'
-    . ($settings['timeline_newest_first'] ? ' checked' : '') . '>';
-echo '<label class="form-check-label" for="ticketmailer-timeline-newest-first">'
-    . __('Show newest timeline entries first.', 'ticketmailer') . '</label></div>';
-echo '<div class="col-12 form-check"><input class="form-check-input" id="ticketmailer-hide-native-answer" type="checkbox" name="hide_native_answer" value="1"'
-    . ($settings['hide_native_answer'] ? ' checked' : '') . '>';
-echo '<label class="form-check-label" for="ticketmailer-hide-native-answer">'
-    . __('Hide GLPI native Answer action.', 'ticketmailer') . '</label></div>';
-echo '<div class="col-12"><button type="submit" class="btn btn-primary">' . __('Save') . '</button></div>';
-echo '</div></div></div></form>';
+$groups = [
+    [__('Ticket actions', 'ticketmailer'), __('Enabled actions replace their native equivalents. Disabled actions remain available in the native menu.', 'ticketmailer'), [
+        'show_action_reply' => __('Answer', 'ticketmailer'),
+        'show_action_task' => __('Task', 'ticketmailer'),
+        'show_action_solution' => __('Solution', 'ticketmailer'),
+        'show_action_document' => __('Document', 'ticketmailer'),
+        'show_action_internal_note' => __('Internal note', 'ticketmailer'),
+    ]],
+    [__('Email dialog', 'ticketmailer'), __('Choose the available email and internal-note controls.', 'ticketmailer'), [
+        'show_answer_templates' => __('Answer templates', 'ticketmailer'),
+        'show_solution_templates' => __('Solution templates', 'ticketmailer'),
+        'show_followup_source' => __('Followup source', 'ticketmailer'),
+    ]],
+    [__('Behavior', 'ticketmailer'), __('Default ticket status and timeline order.', 'ticketmailer'), [
+        'set_waiting' => __('Preselect waiting status', 'ticketmailer'),
+        'timeline_newest_first' => __('Newest timeline entries first', 'ticketmailer'),
+    ]],
+];
+echo '<h2 class="mb-3">' . __('Global settings', 'ticketmailer') . '</h2><div class="row g-3 mb-3">';
+foreach ($groups as [$title, $description, $options]) {
+    echo '<div class="col-12 col-xl-4"><div class="card h-100"><div class="card-header">'
+        . '<h3 class="card-title">' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8')
+        . '</h3></div><div class="card-body"><p class="text-secondary">'
+        . htmlspecialchars($description, ENT_QUOTES, 'UTF-8') . '</p>';
+    foreach ($options as $key => $label) {
+        echo '<label class="form-check form-switch mb-3" for="ticketmailer-' . $key . '">'
+            . '<input class="form-check-input" role="switch" type="checkbox" id="ticketmailer-' . $key
+            . '" name="' . $key . '" value="1"' . ($settings[$key] ? ' checked' : '') . '>'
+            . '<span class="form-check-label">' . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '</span></label>';
+    }
+    echo '</div></div></div>';
+}
+echo '</div><button type="submit" class="btn btn-primary mb-3">' . __('Save') . '</button></form>';
 
 global $DB;
 $active_entities = array_values(array_unique(array_map('intval', Session::getActiveEntities())));

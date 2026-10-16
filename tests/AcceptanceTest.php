@@ -460,9 +460,9 @@ final class AcceptanceTest extends TestCase
         $this->assertStringContainsString("'emptylabel' => __('Answer templates', 'ticketmailer')", $action);
         $this->assertStringContainsString("'emptylabel' => __('Solution templates', 'ticketmailer')", $action);
         $this->assertStringContainsString("'modal_class' => 'modal-xl'", $action);
-        $this->assertStringContainsString("\$modal . '.show();'", $action);
+        $this->assertStringContainsString("self::modalName(\$ticket, \$mode)", $action);
         $this->assertStringContainsString('PluginTicketmailerTimelineAction::modal', $timeline);
-        $this->assertSame(1, substr_count($timeline . $action, 'echo self::modal($ticket)')
+        $this->assertSame(3, substr_count($timeline . $action, 'echo self::modal($ticket)')
             + substr_count($timeline, 'PluginTicketmailerTimelineAction::modal'));
         $this->assertStringContainsString('$(document).on(', $js);
         $this->assertStringContainsString('applyTemplate', $js);
@@ -576,7 +576,7 @@ final class AcceptanceTest extends TestCase
         $this->assertStringContainsString('Notification::getMailingSignature', $action);
         $this->assertStringContainsString('native_template_selected', $action);
         $this->assertStringNotContainsString('data-ticketmailer-auto-open', $action);
-        $this->assertStringContainsString("'user_autocomplete_show_email' => true", $action);
+        $this->assertStringContainsString("'user_autocomplete_show_email' => false", $action);
         $this->assertStringNotContainsString("\$settings['subject_prefix']", $config);
         $this->assertStringContainsString("preg_match('/[\\x00\\r\\n]/'", $send);
         $entrypoint = (string) file_get_contents(self::REPO_ROOT . '/docker/glpi/docker-entrypoint.sh');
