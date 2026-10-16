@@ -9,11 +9,18 @@ Session::checkLoginUser();
 header('Content-Type: application/json; charset=utf-8');
 
 $tickets_id = (int) ($_POST['tickets_id'] ?? 0);
+$context = PluginTicketmailerProactive::context((string) ($_POST['compose_token'] ?? ''), (int) Session::getLoginUserID());
+if ($context !== null && PluginTicketmailerProactive::canUse((int) $context['entities_id'])) {
+    $entities_id = (int) $context['entities_id'];
+} else {
 $ticket = new Ticket();
 if ($tickets_id <= 0 || !$ticket->getFromDB($tickets_id) || !PluginTicketmailerTimelineAction::canUse($ticket)) {
     http_response_code(403);
     echo json_encode(['error' => 'forbidden']);
     exit;
+}
+
+$entities_id = (int) $ticket->getField('entities_id');
 }
 
 $query = trim((string) ($_POST['query'] ?? ''));

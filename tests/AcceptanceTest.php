@@ -491,7 +491,7 @@ final class AcceptanceTest extends TestCase
     #[Test]
     public function v2_send_returns_incomplete_outcomes_to_the_audit_detail(): void
     {
-        $send = (string) file_get_contents(self::REPO_ROOT . '/front/send.php');
+        $send = (string) file_get_contents(self::REPO_ROOT . '/front/send.php') . (string) file_get_contents(self::REPO_ROOT . '/inc/sendservice.class.php');
         $this->assertMatchesRegularExpression(
             '/timeline_recorded.*log_entry\.php/s',
             $send,
@@ -500,7 +500,7 @@ final class AcceptanceTest extends TestCase
     #[Test]
     public function dual_status_flags_are_rejected_and_cleared_before_audit_intent(): void
     {
-        $send = (string) file_get_contents(self::REPO_ROOT . '/front/send.php');
+        $send = (string) file_get_contents(self::REPO_ROOT . '/front/send.php') . (string) file_get_contents(self::REPO_ROOT . '/inc/sendservice.class.php');
         $validation = strpos($send, '$set_waiting && $set_solved');
         $audit = strpos($send, 'PluginTicketmailerAudit::createIntent');
 
@@ -557,7 +557,7 @@ final class AcceptanceTest extends TestCase
         $config = (string) file_get_contents(self::REPO_ROOT . '/inc/config.class.php');
         $reply = (string) file_get_contents(self::REPO_ROOT . '/templates/compose.html.twig');
         $action = (string) file_get_contents(self::REPO_ROOT . '/inc/timelineaction.class.php');
-        $send = (string) file_get_contents(self::REPO_ROOT . '/front/send.php');
+        $send = (string) file_get_contents(self::REPO_ROOT . '/front/send.php') . (string) file_get_contents(self::REPO_ROOT . '/inc/sendservice.class.php');
         $js = (string) file_get_contents(self::REPO_ROOT . '/public/js/composer.js');
         $this->assertStringContainsString('glpi_plugin_ticketmailer_configs', $config);
         $this->assertStringContainsString('notificationtemplates_id', $config);
@@ -587,7 +587,7 @@ final class AcceptanceTest extends TestCase
     public function v2_timeline_actions_and_post_controllers_rely_on_glpi_bootstrap_csrf(): void
     {
         $config = (string) file_get_contents(self::REPO_ROOT . '/front/config.form.php');
-        $send = (string) file_get_contents(self::REPO_ROOT . '/front/send.php');
+        $send = (string) file_get_contents(self::REPO_ROOT . '/front/send.php') . (string) file_get_contents(self::REPO_ROOT . '/inc/sendservice.class.php');
         $reply = self::REPO_ROOT . '/inc/timelinereply.class.php';
         $this->assertStringContainsString("Html::hidden('_glpi_csrf_token'", $config);
         $this->assertStringNotContainsString('Session::checkCSRF($_POST)', $config);
@@ -672,7 +672,7 @@ final class AcceptanceTest extends TestCase
     {
         $action = (string) file_get_contents(self::REPO_ROOT . '/inc/timelineaction.class.php');
         $compose = (string) file_get_contents(self::REPO_ROOT . '/templates/compose.html.twig');
-        $send = (string) file_get_contents(self::REPO_ROOT . '/front/send.php');
+        $send = (string) file_get_contents(self::REPO_ROOT . '/front/send.php') . (string) file_get_contents(self::REPO_ROOT . '/inc/sendservice.class.php');
         $setup = (string) file_get_contents(self::REPO_ROOT . '/setup.php');
         $hooks = (string) file_get_contents(self::REPO_ROOT . '/hook.php');
 

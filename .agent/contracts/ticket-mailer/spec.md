@@ -36,7 +36,7 @@ hook.php                               # install/uninstall/check_config
 composer.json                          # name, type, license, require (PHP, glpi)
 README.md                              # install/usage
 .gitignore                             # vendor/, _files/, _cache/, _log/, .env, …
-docker-compose.yml                     # GLPI 10 + mailpit
+docker-compose.yml                     # GLPI 11 + mailpit
 docker/glpi/Dockerfile                 # GLPI image with plugin mounted
 docker/mailpit/Dockerfile              # mailpit capture server
 inc/
@@ -108,7 +108,7 @@ glpi_plugin_ticketmailer_logs
 ```php
 // in setup.php
 define('PLUGIN_TICKETMAILER_VERSION', '1.0.0');
-define('PLUGIN_TICKETMAILER_MIN_GLPI', '10.0.0');
+define('PLUGIN_TICKETMAILER_MIN_GLPI', '11.0.0');
 define('PLUGIN_TICKETMAILER_MAX_GLPI', '10.99.99');
 ```
 
@@ -201,7 +201,7 @@ A13. Purging a ticket cascades and removes all rows from
      (`item_purge_ticket` hook).
 
 A14. `docker-compose.yml` brings up:
-     - `glpi`: GLPI 10.x with the plugin mounted at
+     - `glpi`: GLPI 11.x with the plugin mounted at
        `plugins/ticketmailer`.
      - `db`: MariaDB.
      - `mailpit`: local SMTP/IMAP capture with a web UI on
@@ -267,11 +267,11 @@ A16. i18n (English default, German complete):
 
 ## Assumptions
 
-- **GLPI 10.0+** with PHP 8.1+ is the target. Earlier versions are
+- **GLPI 11.0+** with PHP 8.1+ is the target. Earlier versions are
   out of scope.
 - A single plugin install covers the whole instance; multi-tenant
   concerns are out of scope.
-- **TinyMCE** (bundled with GLPI 10) is the rich text editor.
+- **TinyMCE** (bundled with GLPI 11) is the rich text editor.
   Confirmed by product owner (→ OQ5, Resolved). No alternate
   editor library is used; the implementation uses GLPI's
   `tinyMCE` JS API directly. HTML→text extraction is a server-side

@@ -185,6 +185,9 @@ Copyright © Ronny Gruenewald.
 
 Licensed under the [GNU General Public License, version 3 or later](LICENSE).
 
+### New email
+
+In **Assistance → New email**, write a proactive message without first creating a ticket. **Send** creates the ticket in the entity selected in Sender, then sends and records the message. To recipients become requesters; CC recipients become observers. BCC recipients are visible to ticket readers but do not become observers. Sender lists authorized entities with their configured email address; its selection determines the ticket entity and signature without changing the active GLPI entity. This action requires ticket creation and update rights in the central interface. The entity signature is appended at send time. Cancelling creates no ticket. Ticket-template mandatory fields and business rules still apply; if creation or post-create authorization fails, no email is sent. Failed or uncertain delivery must be checked on the existing ticket before any manual retry. Incoming replies require a configured GLPI mail collector and reply routing; the ticket marker alone does not retrieve mail.
 ### Configurable ticket actions
 
 Global settings select the buttons in Ticketmailer's grouped action bar: Answer,

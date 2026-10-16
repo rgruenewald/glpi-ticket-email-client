@@ -6,7 +6,7 @@ Feature / v2 cutover.
 
 ## Goal
 
-Turn `ticketmailer` into a ticket-context email reply client for GLPI 10. A permitted user composes an outbound email from a ticket using GLPI’s rich-text editor, To/CC/BCC, subject, and attachments. The send is SMTP-delivered once, durably audited, and represented as a normal GLPI timeline followup.
+Turn `ticketmailer` into a ticket-context email reply client for GLPI 11. A permitted user composes an outbound email from a ticket using GLPI’s rich-text editor, To/CC/BCC, subject, and attachments. The send is SMTP-delivered once, durably audited, and represented as a normal GLPI timeline followup.
 
 ## Supersedes v1
 
@@ -176,6 +176,17 @@ All new user-facing labels, error text, policy labels, and incomplete-send state
 - No compatibility shim retains ASSIGN→CC defaults.
 - No custom mail transport, editor library, or unrequested background job is added.
 
+## A14: Proactive new email (GLPI 11)
+
+- Assistance exposes New email to central-interface users with ticket CREATE and UPDATE rights in the active entity.
+- Opening/cancelling creates no ticket. Sending requires To, subject, body, valid recipients, authorized entity and valid temporary uploads.
+- Ticket title is the human subject, description stays empty, no provenance message or duplicated email body is added.
+- To maps to requesters, CC to observers, BCC to delivery only. Unique active users are reused by email; unknown/ambiguous addresses remain email actors without account creation.
+- Native ticket-creation notifications are disabled; normal business rules and required fields remain enforced. Reloading and authorizing the created ticket precedes delivery.
+- Send uses the shared audit intent / one SMTP attempt / public followup pipeline. Ticket marker uses the newly assigned ID; entity signature is expanded after creation.
+- A durable per-action lock/state prevents duplicate creation or resend on repeated POST. Crashes fail closed, including unknown ticket-creation outcome. No automatic retries.
+- SMTP failure retains ticket and audit. Timeline failure never triggers another send. BCC visibility remains unchanged.
+- Upload contexts are user/session-bound and expire after 24 hours; abandoned uploads are cleaned on subsequent new-email visits. No email drafts are stored.
 
 ## Approved extension: configurable ticket actions
 
@@ -196,3 +207,5 @@ email input remains supported. Each modal open restores its button-specific mode
 Action labels are short and translated consistently (Answer, Task, Solution,
 Document, Internal note). The connected group uses native solid primary buttons.
 Settings group action switches, email-dialog controls and behavior separately.
+
+- New email exposes a Sender entity selector above To, listing entities authorized for the current agent profile with their configured email address. Selection determines ticket entity, sender and signature; the global active entity is unchanged. Informational creation/recipient/entity banners are omitted.
