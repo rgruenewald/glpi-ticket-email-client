@@ -242,7 +242,9 @@ assert.notEqual(
 	secondDeliveryModeRoot.radioName,
 	"compose roots use distinct radio groups",
 );
-const deliveryModeRoots = [deliveryModeRoot, secondDeliveryModeRoot];
+const initialNoteRoot = makeDeliveryModeRoot();
+initialNoteRoot.dataset.initialMode = "internal_note";
+const deliveryModeRoots = [deliveryModeRoot, secondDeliveryModeRoot, initialNoteRoot];
 const deliveryModeInputs = deliveryModeRoot.inputs;
 const deliveryModePanels = deliveryModeRoot.panels;
 let templateChangeHandler;
@@ -329,6 +331,8 @@ assert.equal(
 	true,
 	"Internal note mode is hidden by default",
 );
+assert.equal(initialNoteRoot.inputs[1].checked, true, "note button selects private mode");
+assert.equal(initialNoteRoot.panels.internal_note.hidden, false, "note panel initially visible");
 const mountedEmailPanel = deliveryModePanels.email;
 const mountedNotePanel = deliveryModePanels.internal_note;
 deliveryModeInputs[0].checked = false;
@@ -394,6 +398,7 @@ function recipientDomNode(tagName) {
 		setAttribute(name, value) {
 			this.attributes[name] = value;
 		},
+        removeAttribute(name) { delete this.attributes[name]; },
 		classList: {
 			toggle() {},
 		},
@@ -704,7 +709,7 @@ const validationSource = require("node:fs").readFileSync(
 );
 assert.equal(
 	(autocompleteSource.match(/Session::getNewCSRFToken\(true\)/g) || []).length,
-	2,
+	3,
 );
 assert.match(
 	validationSource,

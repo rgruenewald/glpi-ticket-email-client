@@ -33,6 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             !empty($_POST['timeline_newest_first']),
             !empty($_POST['hide_native_answer']),
         );
+        PluginTicketmailerConfig::saveInterfaceSettings($_POST);
     }
     Html::redirect($config_url . '?entities_id=' . $entities_id);
 }
@@ -55,7 +56,13 @@ echo '<label class="form-check-label" for="ticketmailer-timeline-newest-first">'
 echo '<div class="col-12 form-check"><input class="form-check-input" id="ticketmailer-hide-native-answer" type="checkbox" name="hide_native_answer" value="1"'
     . ($settings['hide_native_answer'] ? ' checked' : '') . '>';
 echo '<label class="form-check-label" for="ticketmailer-hide-native-answer">'
-    . __('Hide GLPI native Answer action.', 'ticketmailer') . '</label></div>';
+    . __('Hide replaced native actions.', 'ticketmailer') . '</label></div>';
+foreach (PluginTicketmailerConfig::interfaceOptions() as $key => $label) {
+    echo '<div class="col-12 form-check"><input class="form-check-input" type="checkbox" id="ticketmailer-' . $key
+        . '" name="' . $key . '" value="1"' . ($settings[$key] ? ' checked' : '') . '>';
+    echo '<label class="form-check-label" for="ticketmailer-' . $key . '">'
+        . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '</label></div>';
+}
 echo '<div class="col-12"><button type="submit" class="btn btn-primary">' . __('Save') . '</button></div>';
 echo '</div></div></div></form>';
 

@@ -189,3 +189,24 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for development and contribution rules. S
 Copyright © Ronny Gruenewald.
 
 Licensed under the [GNU General Public License, version 3 or later](LICENSE).
+
+### Configurable ticket actions
+
+Global settings select the buttons in Ticketmailer's grouped action bar: Answer,
+Task, Solution, Document and Internal note. Task and Document open GLPI's native
+forms. Solution opens the email modal with Solved enabled and Waiting disabled;
+Internal note opens the same modal in private-note mode. Existing GLPI permissions
+still apply. All buttons default to enabled. Hiding replaced native actions is
+optional: GLPI's supported timeline descriptor hook hides only actions with an
+enabled, permitted replacement. Disabled replacement buttons leave native actions
+available. Other plugins and approval actions are not suppressed.
+
+Answer templates, solution templates and followup source are independent global
+UI switches. These affect only Ticketmailer's modal, not standalone GLPI forms.
+The private-note form also follows the answer-template and followup-source switches.
+Switches are stored in GLPI's plugin configuration namespace, without a schema migration.
+
+To, CC and BCC suggest active GLPI users by login, first name, last name or default
+email address after two characters. Results respect active entity visibility,
+including recursive profile assignments; free email addresses remain supported.
+Suggestions show the user name and email; selected chips show the user name.

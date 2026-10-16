@@ -24,8 +24,13 @@ if (mb_strlen($query) < 2) {
 
 global $DB;
 $results = [];
-$needle = '%' . $DB->escape($query) . '%';
-$entities = getSonsOf('glpi_entities', (int) $ticket->getField('entities_id'));
+// GLPI escapes request values; escape LIKE wildcards, not SQL literals.
+$needle = '%' . addcslashes(mb_substr($query, 0, 100), '%_\\') . '%';
+$entities = array_values(array_map('intval', $_SESSION['glpiactiveentities'] ?? []));
+if ($entities === []) {
+    echo json_encode(['results' => [], 'csrf' => Session::getNewCSRFToken(true)]);
+    exit;
+}
 $userSearch = $DB->request([
     'SELECT' => ['glpi_users.name', 'glpi_users.realname', 'glpi_users.firstname', 'glpi_useremails.email'],
     'DISTINCT' => true,
@@ -42,7 +47,7 @@ $userSearch = $DB->request([
     'WHERE' => [
         'glpi_users.is_active' => 1,
         'glpi_users.is_deleted' => 0,
-        'glpi_profiles_users.entities_id' => $entities,
+        'AND' => [getEntitiesRestrictCriteria('glpi_profiles_users', '', $entities, true)],
         'OR' => [
             ['glpi_users.name' => ['LIKE', $needle]],
             ['glpi_users.realname' => ['LIKE', $needle]],
@@ -50,6 +55,7 @@ $userSearch = $DB->request([
             ['glpi_useremails.email' => ['LIKE', $needle]],
         ],
     ],
+    'ORDERBY' => ['glpi_users.realname', 'glpi_users.firstname', 'glpi_users.name', 'glpi_useremails.email'],
     'LIMIT' => 10,
 ]);
 foreach ($userSearch as $row) {

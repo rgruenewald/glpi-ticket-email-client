@@ -681,3 +681,14 @@ body.ticketmailer-compose-active .ticketmailer-timeline-action {
 		text-align: left;
 	}
 }
+
+/* Let the grouped actions scroll as a unit on narrow ticket footers. */
+.ticketmailer-timeline-action {
+    max-width: 100%;
+    overflow-x: auto;
+    vertical-align: middle;
+}
+.ticketmailer-timeline-action > .btn {
+    flex: 0 0 auto;
+    white-space: nowrap;
+}

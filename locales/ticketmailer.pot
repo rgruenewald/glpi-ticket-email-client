@@ -444,3 +444,42 @@ msgstr ""
 #: templates/compose.html.twig
 msgid "Set ticket status to solved after sending."
 msgstr ""
+
+msgid "Show Answer button"
+msgstr ""
+
+msgid "Show Task button"
+msgstr ""
+
+msgid "Show Solution button"
+msgstr ""
+
+msgid "Show Document button"
+msgstr ""
+
+msgid "Show Internal note button"
+msgstr ""
+
+msgid "Show answer templates"
+msgstr ""
+
+msgid "Show solution templates"
+msgstr ""
+
+msgid "Show followup source"
+msgstr ""
+
+msgid "Hide replaced native actions."
+msgstr ""
+
+msgid "Create a task"
+msgstr ""
+
+msgid "Solution"
+msgstr ""
+
+msgid "Document"
+msgstr ""
+
+msgid "Ticket actions"
+msgstr ""
