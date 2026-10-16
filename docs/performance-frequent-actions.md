@@ -45,3 +45,7 @@ Regression tests enforce three metadata queries with public followups, two witho
 - Before product changes: 86 existing tests / 342 assertions passed; first three new regression tests also passed against the baseline.
 - After changes: 90 tests / 356 assertions passed, PHP syntax checks passed, both JavaScript test files passed, v2 structural gate passed (0 FAIL; PASS count varies with scanned files).
 - Independent fresh native Pi review found a misleading query-count label; fixed by explicitly reporting metadata queries and document loads separately. No product-code findings. The configured combo/review route did not provide independently confirmed backend-family identity; cross-family independence is therefore not claimed.
+
+## Main integration verification
+
+Merged origin/main at `a6b34f6` into the performance branch without conflicts. On the integrated tree, PHPUnit passed with 105 tests / 433 assertions; the structural gate passed with 115 PASS / 0 FAIL. PHP syntax checks passed and the benchmark still reports three attachment metadata queries in both sizes. A fresh independent native Pi integration review found no findings and additionally verified randomized PHPUnit order (seed 375), all four JavaScript test files, and array/IN handling in the local GLPI image source. No live GLPI/database, browser or SMTP test was run.
