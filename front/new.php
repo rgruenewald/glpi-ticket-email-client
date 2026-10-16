@@ -16,7 +16,7 @@ $editor = ob_get_clean();
 Html::header(__('New email', 'ticketmailer'), $_SERVER['PHP_SELF'], 'helpdesk', 'PluginTicketmailerProactive');
 echo '<h1>' . htmlescape(__('New email', 'ticketmailer')) . '</h1>';
 echo TemplateRenderer::getInstance()->render('@ticketmailer/compose.html.twig', [
-    'proactive'=>true, 'compose_token'=>$context['token'], 'entity_name'=>Dropdown::getDropdownName('glpi_entities', $entity),
+    'proactive'=>true, 'compose_token'=>$context['token'], 'sender_options'=>PluginTicketmailerProactive::senderOptions(), 'sender_entity'=>$entity,
     'subject'=>'', 'new_conversation'=>true, 'body_editor'=>$editor, 'editor_id'=>$editor_id,
     'csrf_token'=>Session::getNewCSRFToken(), 'ajax_csrf'=>Session::getNewCSRFToken(true),
     'send_url'=>$web . '/front/send.php', 'upload_url'=>$web . '/ajax/upload.php',

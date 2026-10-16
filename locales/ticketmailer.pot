@@ -559,3 +559,6 @@ msgstr ""
 
 msgid "Newest timeline entries first"
 msgstr ""
+
+msgid "Sender"
+msgstr ""

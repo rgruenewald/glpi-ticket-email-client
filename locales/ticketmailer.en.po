@@ -560,3 +560,6 @@ msgstr "Preselect waiting status"
 
 msgid "Newest timeline entries first"
 msgstr "Newest timeline entries first"
+
+msgid "Sender"
+msgstr "Sender"

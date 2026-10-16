@@ -20,6 +20,12 @@ if (!empty($_POST['compose_token'])) {
     }
     $proactive_lock = PluginTicketmailerProactive::lock($proactive_context);
     $proactive_state = PluginTicketmailerProactive::state($proactive_context);
+    if ($proactive_state['phase'] === 'open') {
+        $entity = filter_var($_POST['sender_entity'] ?? $proactive_context['entities_id'], FILTER_VALIDATE_INT);
+        if ($entity === false || !PluginTicketmailerProactive::canUse($entity)) { Html::displayRightError(); }
+        $proactive_context = PluginTicketmailerProactive::selectEntity($proactive_context, $entity);
+        PluginTicketmailerProactive::enterEntity($proactive_context);
+    }
     if ($proactive_state['phase'] !== 'open') {
         Session::addMessageAfterRedirect(__('This message has already been submitted. Check the ticket before sending again.', 'ticketmailer'), true, WARNING);
         Html::redirect($proactive_state['tickets_id'] > 0 ? Ticket::getFormURLWithID((int) $proactive_state['tickets_id']) : Ticket::getSearchURL());
@@ -157,7 +163,7 @@ if ($errors !== [] && $proactive_context !== null) {
     echo TemplateRenderer::getInstance()->render('@ticketmailer/compose.html.twig', [
         'proactive'=>true, 'compose_token'=>$proactive_context['token'],
         'uploaded_attachments'=>$uploaded_attachments, 'uploaded_images'=>$uploaded_images,
-        'entity_name'=>Dropdown::getDropdownName('glpi_entities', (int) $proactive_context['entities_id']),
+        'sender_options'=>PluginTicketmailerProactive::senderOptions(), 'sender_entity'=>(int) $proactive_context['entities_id'],
         'subject'=>$human_subject, 'new_conversation'=>true, 'body_editor'=>$body_editor, 'editor_id'=>$editor_id,
         'recipients_to_raw'=>$recipients_to_raw, 'recipients_cc_raw'=>$recipients_cc_raw, 'recipients_bcc_raw'=>$recipients_bcc_raw,
         'csrf_token'=>Session::getNewCSRFToken(), 'ajax_csrf'=>Session::getNewCSRFToken(true),

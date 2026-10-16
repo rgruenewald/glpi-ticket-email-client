@@ -560,3 +560,6 @@ msgstr "Wartestatus vorauswählen"
 
 msgid "Newest timeline entries first"
 msgstr "Neueste Verlaufseinträge zuerst"
+
+msgid "Sender"
+msgstr "Absender"

@@ -10,7 +10,47 @@ class PluginTicketmailerProactive
             && Session::haveRight('ticket', CREATE)
             && Session::haveRight('ticket', UPDATE)
             && (Session::haveRight('ticket', Ticket::READMY) || Session::haveRight('ticket', Ticket::READALL))
-            && Session::haveAccessToEntity($entity);
+            && in_array($entity, self::authorizedEntities(), true);
+    }
+
+    public static function authorizedEntities(): array
+    {
+        return array_values(array_map('intval', Profile_User::getEntitiesForProfileByUser(
+            (int) Session::getLoginUserID(), (int) ($_SESSION['glpiactiveprofile']['id'] ?? 0), true,
+        )));
+    }
+
+    /** Scope GLPI checks to a selected authorized entity for this request only. */
+    public static function enterEntity(array $context): void
+    {
+        $entity = (int) $context['entities_id'];
+        if (!self::canUse($entity)) { throw new RuntimeException('Unauthorized sender entity.'); }
+        $before = $_SESSION['glpiactiveentities'] ?? [];
+        $_SESSION['glpiactiveentities'] = [$entity];
+        register_shutdown_function(static function () use ($before): void {
+            $_SESSION['glpiactiveentities'] = $before;
+        });
+    }
+
+    public static function senderOptions(): array
+    {
+        $options = [];
+        foreach (self::authorizedEntities() as $entity) {
+            if (!self::canUse($entity)) { continue; }
+            $sender = Config::getEmailSender($entity);
+            if (!filter_var($sender['email'] ?? '', FILTER_VALIDATE_EMAIL)) { continue; }
+            $options[] = ['id'=>$entity, 'label'=>Dropdown::getDropdownName('glpi_entities', $entity) . ' <' . $sender['email'] . '>'];
+        }
+        return $options;
+    }
+
+    public static function selectEntity(array $context, int $entity): array
+    {
+        if (!self::canUse($entity)) { throw new RuntimeException('Unauthorized sender entity.'); }
+        if (self::state($context)['phase'] !== 'open') { return $context; }
+        $context['entities_id'] = $entity;
+        $_SESSION['ticketmailer_proactive'][$context['token']] = $context;
+        return $context;
     }
 
     public static function getMenuContent(): array

@@ -76,9 +76,6 @@
     <input type="hidden" name="tickets_id" value="{{ tickets_id }}">
     {% if proactive %}
       <input type="hidden" name="compose_token" value="{{ compose_token }}">
-      <div class="alert alert-info">{{ __('Sending creates a new ticket.', 'ticketmailer') }}</div>
-      <p>{{ __('Entity') }}: {{ entity_name }}</p><p class="text-muted">{{ __('Change the active GLPI entity before opening a new email.', 'ticketmailer') }}</p>
-      <p class="text-muted">{{ __('To recipients become requesters; CC recipients become observers.', 'ticketmailer') }}</p><p class="text-muted">{{ __('BCC recipients are visible to ticket readers but do not become ticket observers.', 'ticketmailer') }}</p>
     {% endif %}
 
     {% if proactive %}
@@ -96,6 +93,16 @@
             </div>
         {% endif %}
 
+        {% if proactive %}
+        <div class="ticketmailer-mail-row">
+            <label class="ticketmailer-mail-label" for="{{ form_id }}-sender">{{ __('Sender', 'ticketmailer') }}</label>
+            <div class="ticketmailer-mail-field">
+                <select class="form-select" id="{{ form_id }}-sender" name="sender_entity">
+                    {% for option in sender_options %}<option value="{{ option.id }}" {% if option.id == sender_entity %}selected{% endif %}>{{ option.label }}</option>{% endfor %}
+                </select>
+            </div>
+        </div>
+        {% endif %}
         <div class="ticketmailer-mail-row">
             <label class="ticketmailer-mail-label" for="{{ form_id }}-recipients_to-input">{{ __('To', 'ticketmailer') }}</label>
             <div class="ticketmailer-mail-field ticketmailer-recipient-control" data-recipient-control>
