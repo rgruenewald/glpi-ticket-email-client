@@ -580,8 +580,10 @@
 				var token = getAjaxCsrf(form);
 				var ticket = form.querySelector('input[name="tickets_id"]');
 				data.append("query", query);
-				data.append("tickets_id", ticket ? ticket.value : "");
-				data.append("_glpi_csrf_token", token);
+                data.append("tickets_id", ticket ? ticket.value : "");
+                var composeToken = form.querySelector('[name="compose_token"]');
+                if (composeToken) data.append("compose_token", composeToken.value);
+                data.append("_glpi_csrf_token", token);
 				var xhr = new XMLHttpRequest();
 				xhr.open("POST", url);
 				if (token) {
@@ -729,6 +731,8 @@
 			var fd = new FormData();
 			var token = getAjaxCsrf(form);
 			fd.append("tickets_id", ticketId);
+            var composeToken = form.querySelector('[name="compose_token"]');
+            if (composeToken) fd.append("compose_token", composeToken.value);
 			fd.append("_glpi_csrf_token", token);
 			fd.append("file", file);
 			var xhr = new XMLHttpRequest();
@@ -1015,11 +1019,81 @@
 		}
 	}
 
+    function initProactiveImages(form) {
+        if (!form.dataset.proactive) return;
+        var pendingImages = 0;
+        var updateSendButtons = function () {
+            form.querySelectorAll('button[type="submit"]').forEach(function (button) {
+                button.disabled = pendingImages > 0 || form.dataset.ticketmailerSending === "true";
+            });
+        };
+        // Enter-key and programmatic submissions obey the same upload barrier.
+        form.addEventListener("submit", function (event) {
+            var editor = window.tinymce && window.tinymce.get(form.dataset.editorId);
+            var hasLocalImages = editor && editor.getBody().querySelector('img[src^="blob:"], img[src^="data:"]');
+            if (pendingImages > 0 || hasLocalImages) {
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                if (hasLocalImages) editor.uploadImages().catch(function () {
+                    window.alert(form.dataset.i18nUploadFailed);
+                });
+            }
+        }, true);
+        var bind = function () {
+            var editor = window.tinymce && window.tinymce.get(form.dataset.editorId);
+            if (!editor) return false;
+            if (editor.ticketmailerProactiveImages) return true;
+            editor.ticketmailerProactiveImages = true;
+            editor.options.set("automatic_uploads", true);
+            editor.options.set("images_upload_handler", function (blobInfo) {
+                pendingImages++;
+                updateSendButtons();
+                return queueAjax(form, function (resolve, reject) {
+                    var data = new FormData();
+                    data.append("compose_token", form.querySelector('[name="compose_token"]').value);
+                    data.append("_glpi_csrf_token", form.dataset.ajaxCsrf);
+                    data.append("image", blobInfo.blob(), blobInfo.filename());
+                    fetch(form.dataset.imageUrl, {method: "POST", body: data})
+                        .then(function (response) {
+                            if (!response.ok) throw new Error(form.dataset.i18nUploadFailed);
+                            return response.json();
+                        }).then(function (image) {
+                            setAjaxCsrf(form, image.csrf);
+                            var index = form.querySelectorAll('input').length;
+                            var marker = document.createElement("input");
+                            marker.type = "hidden";
+                            marker.setAttribute("data-ticketmailer-inline-image", "true");
+                            marker.name = "inline_images[" + index + "][id]";
+                            marker.value = image.id;
+                            form.appendChild(marker);
+                            ["stored", "path", "cid", "mime"].forEach(function (key) {
+                                var field = document.createElement("input");
+                                field.type = "hidden";
+                                field.name = "inline_images[" + index + "][" + key + "]";
+                                field.value = image[key] || "";
+                                form.appendChild(field);
+                            });
+                            resolve("cid:" + image.cid);
+                        }).catch(reject).finally(function () {
+                            pendingImages--;
+                            updateSendButtons();
+                        });
+                });
+            });
+            return true;
+        };
+        if (!bind()) {
+            var observer = new MutationObserver(function () { if (bind()) observer.disconnect(); });
+            observer.observe(form, {childList: true, subtree: true});
+        }
+    }
+
 	function initForm(form) {
 		if (form.dataset.ticketmailerInitialized) {
 			return;
 		}
 		form.dataset.ticketmailerInitialized = "true";
+        initProactiveImages(form);
 		try {
 			form.ticketmailerMailboxMatches = JSON.parse(
 				form.dataset.mailboxMatches || "[]",

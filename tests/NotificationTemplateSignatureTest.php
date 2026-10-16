@@ -69,6 +69,11 @@ if (!class_exists('Ticket')) {
 if (!class_exists('User')) {
     class User
     {
+        public static function getUsersIdByEmails(string $email, array $conditions): array
+        {
+            return $email === 'known@example.test' ? [12] : [];
+        }
+
         public function getFromDB(int $id): bool
         {
             return true;

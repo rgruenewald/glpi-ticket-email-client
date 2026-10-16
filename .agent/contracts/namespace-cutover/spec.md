@@ -108,7 +108,7 @@ Before copying, moving, deleting, or dropping anything:
 
 ## GLPI registry transition
 
-GLPI 10.0.7 source establishes that plugin directory drives `plugin_version_<directory>` discovery and `plugin_<directory>_install()` invocation. Thus `ticketmailer` is a new registry identity.
+GLPI 11.0.7 source establishes that plugin directory drives `plugin_version_<directory>` discovery and `plugin_<directory>_install()` invocation. Thus `ticketmailer` is a new registry identity.
 
 Deployment procedure:
 

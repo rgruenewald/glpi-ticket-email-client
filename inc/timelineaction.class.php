@@ -2,7 +2,7 @@
 /**
  * Ticket-timeline action for composing email inline.
  *
- * GLPI 10 renders TIMELINE_ANSWER_ACTIONS in the same collapsible answer
+ * GLPI 11 renders TIMELINE_ANSWER_ACTIONS in the same collapsible answer
  * region as its native form. TIMELINE_ACTIONS supplies an always-visible
  * button beside the native Answer control.
  */

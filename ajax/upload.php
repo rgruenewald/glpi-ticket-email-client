@@ -8,16 +8,27 @@ Session::checkLoginUser();
 header('Content-Type: application/json; charset=utf-8');
 
 $tickets_id = (int) ($_POST['tickets_id'] ?? $_GET['tickets_id'] ?? 0);
-if ($tickets_id <= 0) {
-    http_response_code(400);
-    echo json_encode(['error' => __('A ticket is required.', 'ticketmailer')]);
-    exit;
-}
-$ticket = new Ticket();
-if (!$ticket->getFromDB($tickets_id) || !( $ticket->canUpdateItem() || (method_exists($ticket, 'canAddFollowups') && $ticket->canAddFollowups()) )) {
-    http_response_code(403);
-    echo json_encode(['error' => __('You are not allowed to add attachments to this ticket.', 'ticketmailer')]);
-    exit;
+$context = null;
+if (!empty($_POST['compose_token'])) {
+    $context = PluginTicketmailerProactive::context((string) $_POST['compose_token'], (int) Session::getLoginUserID());
+    if ($context === null || !PluginTicketmailerProactive::canUse((int) $context['entities_id'])) {
+        http_response_code(403);
+        echo json_encode(['error' => __('Not allowed.', 'ticketmailer')]);
+        exit;
+    }
+    $context_lock = PluginTicketmailerProactive::lock($context);
+    if (PluginTicketmailerProactive::state($context)['phase'] !== 'open') {
+        http_response_code(409);
+        echo json_encode(['error' => __('This message has already been submitted.', 'ticketmailer')]);
+        exit;
+    }
+} else {
+    $ticket = new Ticket();
+    if ($tickets_id <= 0 || !$ticket->getFromDB($tickets_id) || !($ticket->canUpdateItem() || $ticket->canAddFollowups())) {
+        http_response_code(403);
+        echo json_encode(['error' => __('Not allowed.', 'ticketmailer')]);
+        exit;
+    }
 }
 
 if (empty($_FILES['file']) || (int) $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
@@ -33,7 +44,7 @@ if ((int) $_FILES['file']['size'] > $max) {
     exit;
 }
 
-$dest_dir = GLPI_PLUGIN_DOC_DIR . '/ticketmailer/' . $tickets_id;
+$dest_dir = $context !== null ? PluginTicketmailerProactive::directory($context) . '/uploads' : GLPI_PLUGIN_DOC_DIR . '/ticketmailer/' . $tickets_id;
 if (!is_dir($dest_dir)) {
     mkdir($dest_dir, 0o755, true);
 }

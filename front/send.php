@@ -12,7 +12,21 @@ Session::checkLoginUser();
 
 $tickets_id = (int) ($_POST['tickets_id'] ?? 0);
 $ticket = new Ticket();
-if ($tickets_id <= 0 || !$ticket->getFromDB($tickets_id) || !( $ticket->canUpdateItem() || (method_exists($ticket, 'canAddFollowups') && $ticket->canAddFollowups()) )) {
+$proactive_context = null;
+if (!empty($_POST['compose_token'])) {
+    $proactive_context = PluginTicketmailerProactive::context((string) $_POST['compose_token'], (int) Session::getLoginUserID());
+    if ($proactive_context === null || !PluginTicketmailerProactive::canUse((int) $proactive_context['entities_id'])) {
+        Html::displayRightError();
+    }
+    $proactive_lock = PluginTicketmailerProactive::lock($proactive_context);
+    $proactive_state = PluginTicketmailerProactive::state($proactive_context);
+    if ($proactive_state['phase'] !== 'open') {
+        Session::addMessageAfterRedirect(__('This message has already been submitted. Check the ticket before sending again.', 'ticketmailer'), true, WARNING);
+        Html::redirect($proactive_state['tickets_id'] > 0 ? Ticket::getFormURLWithID((int) $proactive_state['tickets_id']) : Ticket::getSearchURL());
+        exit;
+    }
+    $tickets_id = 0;
+} elseif ($tickets_id <= 0 || !$ticket->getFromDB($tickets_id) || !($ticket->canUpdateItem() || $ticket->canAddFollowups())) {
     Html::displayRightError();
 }
 $web = Plugin::getWebDir('ticketmailer');
@@ -23,15 +37,15 @@ if ($delivery_mode !== 'email') {
     throw $error;
 }
 $human_subject = trim((string) ($_POST['subject'] ?? ''));
-$new_conversation = !empty($_POST['new_conversation']);
+$new_conversation = $proactive_context === null && !empty($_POST['new_conversation']);
 $subject_has_unsafe_header_characters = preg_match('/[\x00\r\n]/', $human_subject) === 1;
 $normalized_human_subject = PluginTicketmailerConfig::assembleSubject($human_subject, $tickets_id, true);
 $subject = PluginTicketmailerConfig::assembleSubject($human_subject, $tickets_id, $new_conversation);
 $body_html = (string) ($_POST['body_html'] ?? '');
 $body_text = (string) ($_POST['body_text'] ?? '');
-$include_history = !empty($_POST['include_history']);
-$set_waiting = !empty($_POST['set_waiting']);
-$set_solved = !empty($_POST['set_solved']);
+$include_history = $proactive_context === null && !empty($_POST['include_history']);
+$set_waiting = $proactive_context === null && !empty($_POST['set_waiting']);
+$set_solved = $proactive_context === null && !empty($_POST['set_solved']);
 $selected_history_attachments = array_values(array_filter(
     (array) ($_POST['history_attachments'] ?? []),
     static fn (mixed $attachment): bool => is_scalar($attachment),
@@ -73,7 +87,9 @@ if ($normalized_human_subject === '') {
 if (trim(strip_tags($body_html)) === '') {
     $errors[] = __('Body is required.', 'ticketmailer');
 }
-if (!PluginTicketmailerRecipients::hasAny($recipients_to, $recipients_cc, $recipients_bcc)) {
+if ($proactive_context !== null && $recipients_to === []) {
+    $errors[] = __('At least one To recipient is required.', 'ticketmailer');
+} elseif (!PluginTicketmailerRecipients::hasAny($recipients_to, $recipients_cc, $recipients_bcc)) {
     $errors[] = __('At least one recipient is required (To, CC, or BCC).', 'ticketmailer');
 }
 foreach ([
@@ -104,7 +120,7 @@ if ($mailbox_matches !== [] && !$mailbox_override) {
     );
 }
 
-if ($selected_history_attachments !== []) {
+if ($proactive_context === null && $selected_history_attachments !== []) {
     try {
         PluginTicketmailerHistory::validateSelectedAttachments($ticket, $selected_history_attachments);
     } catch (InvalidArgumentException) {
@@ -112,6 +128,48 @@ if ($selected_history_attachments !== []) {
     }
 }
 
+$uploaded_attachments = [];
+$uploaded_images = [];
+if ($proactive_context !== null) {
+    $sender = Config::getEmailSender((int) $proactive_context['entities_id']);
+    if (!filter_var($sender['email'] ?? '', FILTER_VALIDATE_EMAIL)) {
+        $errors[] = __('No valid sender is configured for the ticket entity.', 'ticketmailer');
+    }
+    foreach (['attachments'=>'uploaded_attachments', 'inline_images'=>'uploaded_images'] as $field=>$variable) {
+        foreach ((array) ($_POST[$field] ?? []) as $raw) {
+            $file = is_array($raw) ? $raw : null;
+            $stored = is_array($file) ? (string) ($file['stored'] ?? '') : '';
+            $path = PluginTicketmailerHook::safeResolveUnder(PluginTicketmailerProactive::directory($proactive_context) . '/uploads', $stored);
+            if ($stored === '' || $path === null || !is_file($path) || is_link($path)) {
+                $errors[] = __('An uploaded file is unavailable. Please attach it again.', 'ticketmailer');
+                continue;
+            }
+            $$variable[] = $file;
+        }
+    }
+}
+
+if ($errors !== [] && $proactive_context !== null) {
+    $editor_id = 'ticketmailer-new-body';
+    $body_editor = Html::textarea(['name'=>'body_html', 'value'=>$body_html, 'editor_id'=>$editor_id,
+        'enable_richtext'=>true, 'enable_images'=>true, 'enable_fileupload'=>false, 'rows'=>14, 'display'=>false]);
+    Html::header(__('New email', 'ticketmailer'), $_SERVER['PHP_SELF'], 'helpdesk', 'PluginTicketmailerProactive');
+    echo TemplateRenderer::getInstance()->render('@ticketmailer/compose.html.twig', [
+        'proactive'=>true, 'compose_token'=>$proactive_context['token'],
+        'uploaded_attachments'=>$uploaded_attachments, 'uploaded_images'=>$uploaded_images,
+        'entity_name'=>Dropdown::getDropdownName('glpi_entities', (int) $proactive_context['entities_id']),
+        'subject'=>$human_subject, 'new_conversation'=>true, 'body_editor'=>$body_editor, 'editor_id'=>$editor_id,
+        'recipients_to_raw'=>$recipients_to_raw, 'recipients_cc_raw'=>$recipients_cc_raw, 'recipients_bcc_raw'=>$recipients_bcc_raw,
+        'csrf_token'=>Session::getNewCSRFToken(), 'ajax_csrf'=>Session::getNewCSRFToken(true),
+        'errors'=>$errors, 'mailbox_matches'=>$mailbox_matches, 'mailbox_override'=>$mailbox_override,
+        'send_url'=>$web . '/front/send.php', 'upload_url'=>$web . '/ajax/upload.php', 'image_url'=>$web . '/ajax/upload_image.php',
+        'validate_url'=>$web . '/ajax/validate_recipients.php', 'user_autocomplete_url'=>$web . '/ajax/autocomplete_users.php',
+        'user_autocomplete_show_email'=>false,
+        'upload_max_size_label'=>PluginTicketmailerConfig::uploadMaxSizeLabel(),
+    ]);
+    Html::footer();
+    exit;
+}
 if ($errors !== []) {
     Html::header(
         __('E-Mail antworten', 'ticketmailer'),
@@ -175,6 +233,33 @@ if ($errors !== []) {
     exit;
 }
 
+// The durable "creating" state prevents a repeated POST from creating another ticket after a crash.
+if ($proactive_context !== null) {
+    PluginTicketmailerProactive::saveState($proactive_context, ['phase'=>'creating', 'tickets_id'=>0]);
+    $tickets_id = (int) $ticket->add(PluginTicketmailerProactive::ticketInput(
+        (int) $proactive_context['entities_id'], $normalized_human_subject, $parsed_to['valid'], $parsed_cc['valid'],
+    ));
+    if ($tickets_id <= 0) {
+        PluginTicketmailerProactive::saveState($proactive_context, ['phase'=>'open', 'tickets_id'=>0]);
+        Session::addMessageAfterRedirect(__('Could not create the ticket. No email was sent.', 'ticketmailer'), true, ERROR);
+        Html::redirect($web . '/front/new.php');
+        exit;
+    }
+    PluginTicketmailerProactive::saveState($proactive_context, ['phase'=>'created', 'tickets_id'=>$tickets_id]);
+    if (!$ticket->getFromDB($tickets_id) || !$ticket->canViewItem() || !$ticket->canUpdateItem()
+        || (int) $ticket->getField('entities_id') !== (int) $proactive_context['entities_id']) {
+        Session::addMessageAfterRedirect(__('Ticket created, but its entity or permissions changed. No email was sent.', 'ticketmailer'), true, ERROR);
+        Html::redirect(Ticket::getSearchURL());
+        exit;
+    }
+    PluginTicketmailerProactive::adoptUploads($proactive_context, $tickets_id);
+    $subject = PluginTicketmailerConfig::assembleSubject($human_subject, $tickets_id, false);
+    $signature = PluginTicketmailerConfig::contentForTicket($ticket)['signature'];
+    if ($signature !== '') {
+        $body_html .= '<div class="ticketmailer-signature">' . $signature . '</div>';
+    }
+}
+
 $attachments = [];
 $inline_images = [];
 $files_root = GLPI_PLUGIN_DOC_DIR . '/ticketmailer/' . $tickets_id;
@@ -223,7 +308,7 @@ if ($include_history) {
         PluginTicketmailerHistory::render($ticket),
     );
 }
-if ($selected_history_attachments !== []) {
+if ($proactive_context === null && $selected_history_attachments !== []) {
     $attachments = array_merge(
         $attachments,
         PluginTicketmailerHistory::copySelectedAttachments($ticket, $selected_history_attachments),
@@ -268,76 +353,10 @@ try {
     exit;
 }
 
-$log_id = PluginTicketmailerAudit::createIntent(
-    $tickets_id,
-    (int) Session::getLoginUserID(),
-    $subject,
-    $payload['body_html'],
-    $payload['body_text'],
-    $recipients_to,
-    $recipients_cc,
-    $recipients_bcc,
-    $audit_attachments,
-    $audit_inline,
-    $mailbox_override && $mailbox_matches !== [],
-    $mailbox_matches,
-    $new_conversation,
-);
-
-$result = PluginTicketmailerMailer::send($payload);
-PluginTicketmailerAudit::markSmtpResult(
-    $log_id,
-    $result['status'],
-    $result['error'],
-    $result['msg_id'],
-);
-
-$timeline_recorded = false;
-$followups_id = 0;
-if ($result['status'] === 'sent') {
-    $timeline = PluginTicketmailerTimeline::recordOutbound([
-        'tickets_id'     => $tickets_id,
-        'users_id'       => (int) Session::getLoginUserID(),
-        'subject'        => $subject,
-        'body_html'      => (string) $payload['body_html'],
-        'body_text'      => (string) $payload['body_text'],
-        'recipients_to'  => $recipients_to,
-        'recipients_cc'  => $recipients_cc,
-        'recipients_bcc' => $recipients_bcc,
-        'attachments'    => $audit_attachments,
-        'log_id'         => $log_id,
-        'sent_at'        => date('Y-m-d H:i:s'),
-        'from'           => (string) ($payload['from'] ?? ''),
-        'requesttypes_id' => $requesttypes_id,
-        'new_conversation' => $new_conversation,
-    ]);
-    if ($timeline['ok']) {
-        PluginTicketmailerAudit::markTimelineResult(
-            $log_id,
-            'recorded',
-            $timeline['followups_id'],
-            null,
-        );
-        $timeline_recorded = true;
-        $followups_id = (int) $timeline['followups_id'];
-        if ($set_waiting || $set_solved) {
-            $ticket->update([
-                'id'            => $tickets_id,
-                'status'        => $set_solved ? Ticket::SOLVED : Ticket::WAITING,
-                '_disablenotif' => 1,
-            ]);
-        }
-    } else {
-        PluginTicketmailerAudit::markTimelineResult(
-            $log_id,
-            'failed',
-            null,
-            $timeline['error'],
-        );
-    }
-} else {
-    // A7: SMTP failed — no successful-send followup; timeline_status stays pending.
-}
+$delivery = PluginTicketmailerSendservice::deliver($ticket, $payload, $audit_attachments, $audit_inline,
+    $mailbox_override, $mailbox_matches, $new_conversation, $requesttypes_id, $set_waiting, $set_solved, $proactive_context);
+$log_id = $delivery['log_id'];
+$timeline_recorded = $delivery['timeline_recorded'];
 
 Html::redirect(
     $timeline_recorded

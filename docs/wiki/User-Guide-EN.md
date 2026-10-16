@@ -180,3 +180,7 @@ Sometimes the email was sent but could not be saved in the ticket. GLPI then sho
 | Send failed | Open **Sent emails** and contact your GLPI administrator. |
 | Email was sent but is missing from the ticket | Do not send it again. Open **Sent emails** and contact your GLPI administrator. |
 | Attachment does not open | Check your sign-in and ticket access. |
+
+### New email
+
+In **Assistance → New email**, write a proactive message without first creating a ticket. **Send** creates the ticket in the entity active when the form was opened, then sends and records the message. To recipients become requesters; CC recipients become observers. BCC recipients are visible to ticket readers but do not become observers. Change GLPI's active entity before opening the form. This action requires ticket creation and update rights in the central interface. The entity signature is appended at send time. Cancelling creates no ticket. Ticket-template mandatory fields and business rules still apply; if creation or post-create authorization fails, no email is sent. Failed or uncertain delivery must be checked on the existing ticket before any manual retry. Incoming replies require a configured GLPI mail collector and reply routing; the ticket marker alone does not retrieve mail.

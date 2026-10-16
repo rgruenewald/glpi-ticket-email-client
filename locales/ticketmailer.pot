@@ -444,3 +444,51 @@ msgstr ""
 #: templates/compose.html.twig
 msgid "Set ticket status to solved after sending."
 msgstr ""
+
+#: front/new.php inc/proactive.class.php front/send.php
+msgid "New email"
+msgstr ""
+
+#: front/new.php inc/proactive.class.php front/send.php
+msgid "Sending creates a new ticket."
+msgstr ""
+
+#: front/new.php inc/proactive.class.php front/send.php
+msgid "Change the active GLPI entity before opening a new email."
+msgstr ""
+
+#: front/new.php inc/proactive.class.php front/send.php
+msgid "To recipients become requesters; CC recipients become observers."
+msgstr ""
+
+#: front/new.php inc/proactive.class.php front/send.php
+msgid "BCC recipients are visible to ticket readers but do not become ticket observers."
+msgstr ""
+
+#: front/new.php inc/proactive.class.php front/send.php
+msgid "Not allowed."
+msgstr ""
+
+#: front/new.php inc/proactive.class.php front/send.php
+msgid "This message has already been submitted."
+msgstr ""
+
+#: front/new.php inc/proactive.class.php front/send.php
+msgid "This message has already been submitted. Check the ticket before sending again."
+msgstr ""
+
+#: front/new.php inc/proactive.class.php front/send.php
+msgid "Could not create the ticket. No email was sent."
+msgstr ""
+
+#: front/new.php inc/proactive.class.php front/send.php
+msgid "Ticket created, but its entity or permissions changed. No email was sent."
+msgstr ""
+
+#: front/new.php inc/proactive.class.php front/send.php
+msgid "An uploaded file is unavailable. Please attach it again."
+msgstr ""
+
+#: front/send.php
+msgid "At least one To recipient is required."
+msgstr ""

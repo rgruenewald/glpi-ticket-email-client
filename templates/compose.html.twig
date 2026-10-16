@@ -1,5 +1,6 @@
 {# templates/compose.html.twig — v2 compose form, mail-client layout. #}
 {% set tickets_id = tickets_id|default(0) %}
+{% set proactive = proactive|default(false) %}
 {% set subject = subject|default('') %}
 {% set errors = errors|default([]) %}
 {% set recipients_to_raw = recipients_to_raw|default(recipients_to|default([])|join(', ')) %}
@@ -29,9 +30,9 @@
      data-choose-files-label="{{ __('Choose files', 'ticketmailer') }}"
      data-drop-files-label="{{ __('Drag & drop your file here, or choose files.', 'ticketmailer') }}"
      data-private-label="{{ __('Private') }}"
-     data-waiting-label="{{ __('Set ticket status to waiting after sending.', 'ticketmailer') }}"
-     data-solved-label="{{ __('Set ticket status to solved after sending.', 'ticketmailer') }}">
-    <fieldset class="ticketmailer-delivery-mode d-flex gap-3 mb-3">
+     {% if not proactive %}data-waiting-label="{{ __('Set ticket status to waiting after sending.', 'ticketmailer') }}"
+     data-solved-label="{{ __('Set ticket status to solved after sending.', 'ticketmailer') }}"{% endif %}>
+    {% if not proactive %}<fieldset class="ticketmailer-delivery-mode d-flex gap-3 mb-3">
         <legend class="visually-hidden">{{ __('Reply mode', 'ticketmailer') }}</legend>
         <label>
             <input type="radio" name="delivery_mode_{{ form_id }}" data-delivery-mode value="email" checked>
@@ -43,12 +44,13 @@
             {{ __('Internal note', 'ticketmailer') }}
         </label>
         {% endif %}
-    </fieldset>
+    </fieldset>{% endif %}
 <div data-ticketmailer-panel="email">
 <form method="post"
       action="{{ send_url }}"
       enctype="multipart/form-data"
       class="ticketmailer-compose"
+      {% if proactive %}data-proactive="1"{% endif %}
       id="{{ form_id }}"
   data-upload-url="{{ upload_url }}"
   data-image-url="{{ image_url }}"
@@ -69,7 +71,17 @@
     <input type="hidden" name="_glpi_csrf_token" value="{{ csrf_token }}">
     <input type="hidden" name="delivery_mode" value="email">
     <input type="hidden" name="tickets_id" value="{{ tickets_id }}">
+    {% if proactive %}
+      <input type="hidden" name="compose_token" value="{{ compose_token }}">
+      <div class="alert alert-info">{{ __('Sending creates a new ticket.', 'ticketmailer') }}</div>
+      <p>{{ __('Entity') }}: {{ entity_name }}</p><p class="text-muted">{{ __('Change the active GLPI entity before opening a new email.', 'ticketmailer') }}</p>
+      <p class="text-muted">{{ __('To recipients become requesters; CC recipients become observers.', 'ticketmailer') }}</p><p class="text-muted">{{ __('BCC recipients are visible to ticket readers but do not become ticket observers.', 'ticketmailer') }}</p>
+    {% endif %}
 
+    {% if proactive %}
+    {% for attachment in uploaded_attachments|default([]) %}{% for key, value in attachment %}<input type="hidden" name="attachments[{{ loop.parent.loop.index0 }}][{{ key }}]" value="{{ value }}">{% endfor %}{% endfor %}
+    {% for image in uploaded_images|default([]) %}{% for key, value in image %}<input type="hidden" name="inline_images[{{ loop.parent.loop.index0 }}][{{ key }}]" value="{{ value }}">{% endfor %}{% endfor %}
+    {% endif %}
     <div class="ticketmailer-mail-panel">
         {% if errors %}
             <div class="ticketmailer-errors" role="alert">
@@ -126,7 +138,7 @@
             <span class="ticketmailer-subject-marker" data-ticketmailer-subject-marker {% if new_conversation %}hidden{% endif %}>[GLPI #{{ tickets_id }}]</span>
             <input type="text" class="ticketmailer-mail-field" id="{{ form_id }}-subject" name="subject" value="{{ subject }}" required>
         </div>
-        <div class="ticketmailer-mail-row">
+        {% if not proactive %}<div class="ticketmailer-mail-row">
             <span class="ticketmailer-mail-label"></span>
             <label class="form-check">
                 <input type="checkbox" class="form-check-input" name="new_conversation" value="1"
@@ -136,6 +148,7 @@
             </label>
         </div>
 
+        {% endif %}
         {% if followup_template_dropdown or solution_template_dropdown or followup_source_dropdown %}
             <div class="ticketmailer-mail-row ticketmailer-mail-row--followup-meta">
                 {% if followup_template_dropdown %}
@@ -171,11 +184,11 @@
 
         <div class="ticketmailer-mail-row">
             <div class="ticketmailer-mail-field">
-                <label>
+                {% if not proactive %}<label>
                     <input type="checkbox" name="include_history" value="1"
                            {% if include_history %}checked{% endif %}>
                     {{ __('Attach public ticket history', 'ticketmailer') }}
-                </label>
+                </label>{% endif %}
             </div>
         </div>
 
@@ -185,7 +198,7 @@
                 <button type="button" class="btn btn-secondary ticketmailer-choose-files">
                     {{ __('Choose files', 'ticketmailer') }}
                 </button>
-                <div data-history-attachments>
+                {% if not proactive %}<div data-history-attachments>
                     {% if history_attachments is empty %}
                         <p class="ticketmailer-help">
                             {{ __('No public ticket attachments are available.', 'ticketmailer') }}
@@ -211,7 +224,7 @@
                         </ul>
                     {% endif %}
                 </div>
-                <ul id="{{ form_id }}-attachments" class="ticketmailer-attachments"></ul>
+                {% endif %}<ul id="{{ form_id }}-attachments" class="ticketmailer-attachments"></ul>
                 <p class="ticketmailer-help">
                     {{ __('Drag & drop your file here, or choose files.', 'ticketmailer') }}
                 </p>
@@ -244,12 +257,12 @@
                 {{ __('Cancel', 'ticketmailer') }}
             </button>
         {% else %}
-            <a href="{{ path('front/ticket.form.php?id=' ~ tickets_id) }}"
+            <a href="{{ proactive ? path('front/ticket.php') : path('front/ticket.form.php?id=' ~ tickets_id) }}"
                class="btn btn-secondary" data-bs-dismiss="modal">
                 {{ __('Cancel', 'ticketmailer') }}
             </a>
         {% endif %}
-        <label class="form-check form-switch d-inline-flex align-items-center mb-0 px-2"
+        {% if not proactive %}<label class="form-check form-switch d-inline-flex align-items-center mb-0 px-2"
                title="{{ __('Set ticket status to waiting after sending.', 'ticketmailer') }}">
             <i class="ti ti-player-pause me-2" aria-hidden="true"></i>
             <input type="checkbox" class="form-check-input m-0"
@@ -269,7 +282,7 @@
                 {{ __('Set ticket status to solved after sending.', 'ticketmailer') }}
             </span>
         </label>
-        <button type="submit" class="btn btn-primary"
+        {% endif %}<button type="submit" class="btn btn-primary"
                 {% if mailbox_matches and not mailbox_override %}disabled{% endif %}>
             {{ __('Send', 'ticketmailer') }}
         </button>

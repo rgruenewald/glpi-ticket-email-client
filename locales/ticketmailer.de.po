@@ -444,3 +444,51 @@ msgstr "Ticketstatus nach dem Senden auf wartend setzen."
 #: templates/compose.html.twig
 msgid "Set ticket status to solved after sending."
 msgstr "Ticketstatus nach dem Senden auf gelöst setzen."
+
+#: front/new.php inc/proactive.class.php front/send.php
+msgid "New email"
+msgstr "Neue E-Mail"
+
+#: front/new.php inc/proactive.class.php front/send.php
+msgid "Sending creates a new ticket."
+msgstr "Beim Senden wird ein neues Ticket erstellt."
+
+#: front/new.php inc/proactive.class.php front/send.php
+msgid "Change the active GLPI entity before opening a new email."
+msgstr "Wechseln Sie die aktive GLPI-Einheit, bevor Sie eine neue E-Mail öffnen."
+
+#: front/new.php inc/proactive.class.php front/send.php
+msgid "To recipients become requesters; CC recipients become observers."
+msgstr "An-Empfänger werden Anforderer, CC-Empfänger werden Beobachter."
+
+#: front/new.php inc/proactive.class.php front/send.php
+msgid "BCC recipients are visible to ticket readers but do not become ticket observers."
+msgstr "BCC-Empfänger sind für Ticketleser sichtbar, werden aber nicht als Beobachter übernommen."
+
+#: front/new.php inc/proactive.class.php front/send.php
+msgid "Not allowed."
+msgstr "Nicht erlaubt."
+
+#: front/new.php inc/proactive.class.php front/send.php
+msgid "This message has already been submitted."
+msgstr "Diese Nachricht wurde bereits abgesendet."
+
+#: front/new.php inc/proactive.class.php front/send.php
+msgid "This message has already been submitted. Check the ticket before sending again."
+msgstr "Diese Nachricht wurde bereits abgesendet. Prüfen Sie das Ticket vor einem erneuten Versand."
+
+#: front/new.php inc/proactive.class.php front/send.php
+msgid "Could not create the ticket. No email was sent."
+msgstr "Das Ticket konnte nicht erstellt werden. Es wurde keine E-Mail versendet."
+
+#: front/new.php inc/proactive.class.php front/send.php
+msgid "Ticket created, but its entity or permissions changed. No email was sent."
+msgstr "Das Ticket wurde erstellt, aber seine Einheit oder Berechtigungen haben sich geändert. Es wurde keine E-Mail versendet."
+
+#: front/new.php inc/proactive.class.php front/send.php
+msgid "An uploaded file is unavailable. Please attach it again."
+msgstr "Eine hochgeladene Datei ist nicht verfügbar. Bitte fügen Sie sie erneut hinzu."
+
+#: front/send.php
+msgid "At least one To recipient is required."
+msgstr "Mindestens ein An-Empfänger ist erforderlich."
