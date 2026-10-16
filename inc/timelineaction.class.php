@@ -53,16 +53,14 @@ class PluginTicketmailerTimelineAction
             'ticketmailer_email_reply' => self::action(),
         ];
         $preferences = PluginTicketmailerConfig::forEntity(0);
-        if ($preferences['hide_native_answer']) {
-            if ($preferences['show_action_reply']) {
-                $actions['answer'] = self::nativeAnswerAction($ticket);
-            }
-            $native = self::nativeActions($ticket);
-            foreach (['task', 'solution', 'document'] as $key) {
-                if ($preferences['show_action_' . $key] && isset($native[$key]) && empty($native[$key]['hide_in_menu'])) {
-                    $actions[$key] = $native[$key];
-                    $actions[$key]['hide_in_menu'] = true;
-                }
+        if ($preferences['show_action_reply']) {
+            $actions['answer'] = self::nativeAnswerAction($ticket);
+        }
+        $native = self::nativeActions($ticket);
+        foreach (['task', 'solution', 'document'] as $key) {
+            if ($preferences['show_action_' . $key] && isset($native[$key]) && empty($native[$key]['hide_in_menu'])) {
+                $actions[$key] = $native[$key];
+                $actions[$key]['hide_in_menu'] = true;
             }
         }
         return $actions;
@@ -82,8 +80,8 @@ class PluginTicketmailerTimelineAction
         $preferences = PluginTicketmailerConfig::forEntity((int) $ticket->getField('entities_id'));
         $native = self::nativeActions($ticket);
         $buttons = [
-            'reply' => [self::label(), 'ti ti-mail', 'email'],
-            'task' => [__('Create a task', 'ticketmailer'), 'ti ti-checkbox', null],
+            'reply' => [__('Answer', 'ticketmailer'), 'ti ti-mail', 'email'],
+            'task' => [__('Task', 'ticketmailer'), 'ti ti-checkbox', null],
             'solution' => [__('Solution', 'ticketmailer'), 'ti ti-check', 'solution'],
             'document' => [__('Document', 'ticketmailer'), 'ti ti-paperclip', null],
             'internal_note' => [__('Internal note', 'ticketmailer'), 'ti ti-note', 'internal_note'],
@@ -102,7 +100,7 @@ class PluginTicketmailerTimelineAction
                 $attrs = ' data-bs-toggle="collapse" data-bs-target="#new-'
                     . htmlspecialchars($native[$key]['class'], ENT_QUOTES, 'UTF-8') . '-block"';
             }
-            $html .= '<button type="button" class="btn btn-outline-primary ticketmailer-action-' . $key . '"'
+            $html .= '<button type="button" class="btn btn-primary ticketmailer-action-' . $key . '"'
                 . $attrs . '><i class="' . $icon . ' me-1" aria-hidden="true"></i>'
                 . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '</button>';
         }

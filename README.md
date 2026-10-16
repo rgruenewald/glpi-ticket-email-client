@@ -210,3 +210,8 @@ To, CC and BCC suggest active GLPI users by login, first name, last name or defa
 email address after two characters. Results respect active entity visibility,
 including recursive profile assignments; free email addresses remain supported.
 Suggestions show the user name and email; selected chips show the user name.
+
+The action bar uses short localized labels and native solid GLPI buttons.
+Enabled replacements automatically remove duplicate native menu entries through
+GLPI descriptors; disabled replacements keep their native entries. Settings are
+grouped into Ticket actions, Email dialog and Behavior using native switches.

@@ -483,3 +483,33 @@ msgstr "Dokument"
 
 msgid "Ticket actions"
 msgstr "Ticketaktionen"
+
+msgid "Answer"
+msgstr "Antworten"
+
+msgid "Task"
+msgstr "Aufgabe"
+
+msgid "Email dialog"
+msgstr "E-Mail-Dialog"
+
+msgid "Behavior"
+msgstr "Verhalten"
+
+msgid "Enabled actions replace their native equivalents. Disabled actions remain available in the native menu."
+msgstr "Aktivierte Aktionen ersetzen ihre nativen Entsprechungen. Deaktivierte Aktionen bleiben im nativen Menü verfügbar."
+
+msgid "Choose the available email and internal-note controls."
+msgstr "Verfügbare Felder für E-Mails und interne Notizen auswählen."
+
+msgid "Default ticket status and timeline order."
+msgstr "Vorgaben für Ticketstatus und Reihenfolge des Verlaufs."
+
+msgid "Followup source"
+msgstr "Quelle der Rückmeldung"
+
+msgid "Preselect waiting status"
+msgstr "Wartestatus vorauswählen"
+
+msgid "Newest timeline entries first"
+msgstr "Neueste Verlaufseinträge zuerst"

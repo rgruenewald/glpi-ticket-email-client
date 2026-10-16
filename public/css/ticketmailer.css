@@ -692,3 +692,20 @@ body.ticketmailer-compose-active .ticketmailer-timeline-action {
     flex: 0 0 auto;
     white-space: nowrap;
 }
+
+/* Keep the plugin group clear of GLPI's fixed save/navigation controls. */
+@media (max-width: 1600px) {
+    .timeline-buttons:has(.ticketmailer-timeline-action) {
+        flex-wrap: wrap;
+        row-gap: .5rem;
+        min-width: 0;
+    }
+    .timeline-buttons > .legacy-timeline-actions:has(.ticketmailer-timeline-action) {
+        flex-basis: 100%;
+        margin: 0;
+        padding: 0;
+    }
+    .ticketmailer-timeline-action {
+        flex-wrap: wrap;
+    }
+}

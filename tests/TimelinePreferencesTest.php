@@ -202,6 +202,18 @@ final class TimelinePreferencesTest extends TestCase
     }
 
     #[Test]
+    public function action_group_uses_short_native_primary_buttons(): void
+    {
+        ob_start();
+        PluginTicketmailerTimelineAction::displayActions(['item' => new TimelineActionTicket()]);
+        $html = ob_get_clean();
+        self::assertStringContainsString('btn btn-primary ticketmailer-action-reply', $html);
+        self::assertStringNotContainsString('btn-outline-primary', $html);
+        self::assertStringContainsString('>Answer</button>', $html);
+        self::assertStringContainsString('>Task</button>', $html);
+    }
+
+    #[Test]
     public function global_setting_persists_checked_and_unchecked_without_resetting_other_fields(): void
     {
         $this->database->rows[0] = [
@@ -226,11 +238,9 @@ final class TimelinePreferencesTest extends TestCase
     public function answer_hook_replaces_enabled_native_actions_when_enabled(): void
     {
         $ticket = new TimelineActionTicket();
-        self::assertSame(
-            ['ticketmailer_email_reply'],
-            array_keys(PluginTicketmailerTimelineAction::getAnswerActions(['item' => $ticket])),
-            'disabled setting leaves native answer unchanged',
-        );
+        $defaults = PluginTicketmailerTimelineAction::getAnswerActions(['item' => $ticket]);
+        self::assertTrue($defaults['answer']['hide_in_menu']);
+        self::assertTrue($defaults['task']['hide_in_menu']);
 
         $this->database->rows[0] = [
             'set_waiting' => 1,
