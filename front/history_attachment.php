@@ -14,7 +14,7 @@ if ($tickets_id <= 0 || $documents_id <= 0) {
 }
 
 $ticket = new Ticket();
-if (!$ticket->getFromDB($tickets_id) || !$ticket->canViewItem()) {
+if (!$ticket->getFromDB($tickets_id) || (!Session::haveAccessToEntity((int) $ticket->getField('entities_id')) || !$ticket->canViewItem())) {
     Html::displayRightError();
 }
 

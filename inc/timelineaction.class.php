@@ -123,7 +123,7 @@ class PluginTicketmailerTimelineAction
 
     public static function canUse(Ticket $ticket): bool
     {
-        if (!$ticket->canViewItem()
+        if ((!Session::haveAccessToEntity((int) $ticket->getField('entities_id')) || !$ticket->canViewItem())
             || !($ticket->canUpdateItem()
                 || (method_exists($ticket, 'canAddFollowups') && $ticket->canAddFollowups()))
         ) {
@@ -225,6 +225,7 @@ class PluginTicketmailerTimelineAction
             'editor_id' => $editor_id,
             'followup_template_dropdown' => $preferences['show_answer_templates'] ? self::followupTemplateDropdown() : '',
             'solution_template_dropdown' => $preferences['show_solution_templates'] ? self::solutionTemplateDropdown() : '',
+            'note_solution_template_dropdown' => $preferences['show_solution_templates'] ? self::solutionTemplateDropdown() : '',
             'followup_source_dropdown' => $preferences['show_followup_source'] ? self::followupSourceDropdown() : '',
             'followup_template_url' => self::followupTemplateUrl(),
             'solution_template_url' => self::solutionTemplateUrl(),

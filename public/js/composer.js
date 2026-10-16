@@ -434,6 +434,7 @@
 					data.append("_glpi_csrf_token", token);
 					var xhr = new XMLHttpRequest();
 					xhr.open("POST", url);
+					xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
 					if (token) {
 						xhr.setRequestHeader("X-Glpi-Csrf-Token", token);
 					}
@@ -592,7 +593,7 @@
 				data.append("_glpi_csrf_token", token);
 				var xhr = new XMLHttpRequest();
 				xhr.open("POST", url);
-				if (token) {
+				xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");				if (token) {
 					xhr.setRequestHeader("X-Glpi-Csrf-Token", token);
 				}
 				xhr.onload = () => {
@@ -743,6 +744,7 @@
 			fd.append("file", file);
 			var xhr = new XMLHttpRequest();
 			xhr.open("POST", uploadUrl);
+			xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
 			if (token) {
 				xhr.setRequestHeader("X-Glpi-Csrf-Token", token);
 			}
@@ -1152,6 +1154,10 @@
 								optionsColumn.classList.add("ticketmailer-note-options");
 								nativeLayout.prepend(optionsColumn);
 								var optionsRow = optionsColumn.querySelector(":scope > .row");
+								var solutionField = notePanel.querySelector(".ticketmailer-note-solution-template");
+								if (optionsRow && solutionField) {
+									optionsRow.append(solutionField);
+								}
 								var templateField = optionsRow
 									?.querySelector('[name="itilfollowuptemplates_id"]')
 									?.closest(".form-field");
@@ -1522,10 +1528,16 @@
 	$(document).on(
 		"change",
 		'.ticketmailer-compose [name="itilfollowuptemplates_id"], ' +
-			'.ticketmailer-compose [name="solutiontemplates_id"]',
+			'.ticketmailer-compose [name="solutiontemplates_id"], ' +
+			'.ticketmailer-note-solution-template [name="solutiontemplates_id"]',
 		function () {
+			// Both modes copy template text using the same ticket-scoped endpoint.
+			var form = this.form;
+			if (typeof this.closest === "function" && this.closest(".ticketmailer-note-solution-template")) {
+				form = this.closest("[data-ticketmailer-delivery]").querySelector(".ticketmailer-compose");
+			}
 			applyTemplate(
-				this.form,
+				form,
 				this.value,
 				this.name === "solutiontemplates_id" ? "solution" : "answer",
 			);
