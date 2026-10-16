@@ -35,40 +35,47 @@ vendor/bin/phpunit
 
 If PHP/GLPI stubs are incomplete in a bare checkout, still keep score.sh green; note PHPUnit blockers honestly.
 
-## 3. Runtime smoke (docker)
+## 3. Real Docker / browser verification
+
+Use [the local E2E recipe](../../../docs/verification/docker-e2e.md).
+From the worktree to mount:
 
 ```bash
-docker compose up -d --build
-# GLPI: http://localhost:8080  (glpi / glpi)
-# SMTP: real test server configured through the ignored .env
+scripts/dev up
+scripts/dev test
+scripts/dev e2e
 ```
 
-Manual checks (README M1–M8, aligned with v2 where noted):
+The helper selects the rootless Docker context explicitly. GLPI and Mailpit bind
+only to loopback. No external SMTP credentials are needed. Use synthetic data;
+never point this suite at a real SMTP server. The SMTP-outage test stops and
+restarts Mailpit, clearing captured mail. Run serially against the shared stack.
 
-| Id | Check |
-| --- | --- |
-| M1 | compose stack healthy |
-| M2 | login technician |
-| M3 | compose+send → audit row `sent` |
-| M4 | exactly one message at the test receiver (To/CC/BCC/body) |
-| M5 | forward subject/body shape |
-| M6 | purge ticket cascades audit rows |
-| M7 | SMTP fail → audit `failed` + UI error |
-| M8 | de/en UI strings, no raw `__()` keys |
+The browser suite covers login, ticket composition, To/CC/BCC, attachment
+upload/download, one captured delivery, audit and timeline, denied access and
+SMTP failure, public-history privacy, CID images, mailbox override, entity
+boundaries and entity/profile policy precedence. See the recipe for remaining coverage limits. PHPUnit and JS
+checks are separate from browser tests; report each result explicitly.
 
-Also verify v2-specific paths when touched: timeline followup present, `_disablenotif` behavior (no second notification mail), mailbox warning/override, secure download ACL.
+## Compose dialog and layout checks
 
-## What “green” means
+For changes to the ticket reply UI, verify the ticket-button entry rather than
+using front/compose.php alone. The direct URL is a fallback and does not prove
+modal behavior.
 
-| Change type | Minimum bar |
-| --- | --- |
-| Structural / rename / new surface | v2 `score.sh` |
-| Logic in `inc/` or send path | score.sh + PHPUnit (or targeted test) |
-| End-to-end mail behavior | Docker smoke against the configured SMTP test receiver |
-| Locales only | score.sh locale checks + spot UI language switch |
+Use the isolated local test instance and synthetic fixtures. Open a ticket, click
+.ticketmailer-timeline-action, and verify that the compose modal opens without
+page navigation. Switch to Internal note and exercise the changed control there.
+For solution templates, verify clipboard output, unchanged editor content and
+status switches on selection, repeated Email/Internal note switching, native
+note submission with its marker visible in the ticket, and reopening/closing.
 
-## Do not
+For side-by-side controls, assert both horizontal order and the same vertical
+row. For stacked mobile controls, assert vertical order. A CSS-source assertion
+or increasing X coordinates alone does not prove the rendered layout.
 
-- Invent a second CI system in-repo without need
-- Report success if SMTP sent but timeline followup failed (incomplete send)
-- Use v1 score.sh as the sole gate for v2 surfaces
+Before/after screenshots must use the same entry path, mode, language, viewport,
+and comparable synthetic fixture. Record the source revision for each image.
+Capture the changed dialog state, not the fallback page, when the normal user
+path is modal. State the GLPI version and distinguish actual browser checks from
+static checks or previously recorded evidence.

@@ -1,3 +1,4 @@
+const { test } = require('node:test');
 const assert = require("node:assert/strict");
 
 const listeners = {};
@@ -242,7 +243,9 @@ assert.notEqual(
 	secondDeliveryModeRoot.radioName,
 	"compose roots use distinct radio groups",
 );
-const deliveryModeRoots = [deliveryModeRoot, secondDeliveryModeRoot];
+const initialNoteRoot = makeDeliveryModeRoot();
+initialNoteRoot.dataset.initialMode = "internal_note";
+const deliveryModeRoots = [deliveryModeRoot, secondDeliveryModeRoot, initialNoteRoot];
 const deliveryModeInputs = deliveryModeRoot.inputs;
 const deliveryModePanels = deliveryModeRoot.panels;
 let templateChangeHandler;
@@ -302,13 +305,15 @@ Object.defineProperty(global, "navigator", {
 global.glpi_toast_success = (message, caption, options) => {
 	templateToast = { message, caption, options };
 };
+let templateRequestBody;
 const templateRequestHeaders = {};
 global.XMLHttpRequest = class {
 	open() {}
 	setRequestHeader(name, value) {
 		templateRequestHeaders[name] = value;
 	}
-	send() {
+	send(body) {
+		templateRequestBody = body;
 		this.status = 200;
 		this.responseText = JSON.stringify({
 			content: "<p>Template</p>\n<p>Second template paragraph</p>",
@@ -329,6 +334,8 @@ assert.equal(
 	true,
 	"Internal note mode is hidden by default",
 );
+assert.equal(initialNoteRoot.inputs[1].checked, true, "note button selects private mode");
+assert.equal(initialNoteRoot.panels.internal_note.hidden, false, "note panel initially visible");
 const mountedEmailPanel = deliveryModePanels.email;
 const mountedNotePanel = deliveryModePanels.internal_note;
 deliveryModeInputs[0].checked = false;
@@ -394,6 +401,7 @@ function recipientDomNode(tagName) {
 		setAttribute(name, value) {
 			this.attributes[name] = value;
 		},
+        removeAttribute(name) { delete this.attributes[name]; },
 		classList: {
 			toggle() {},
 		},
@@ -541,6 +549,9 @@ const composerCss = require("node:fs").readFileSync(
 	require.resolve("../public/css/ticketmailer.css"),
 	"utf8",
 );
+assert.match(composerCss, /\.ticketmailer-note-solution-template \{\s*grid-column: 2;/, "solution templates appear immediately after answer templates on desktop");
+assert.match(composerCss, /\.ticketmailer-note-source \{\s*grid-column: 3;/, "source follows both template dropdowns on desktop");
+assert.match(composerCss, /\.ticketmailer-note-template,[\s\S]*?\.ticketmailer-note-solution-template,[\s\S]*?\.ticketmailer-note-source \{\s*grid-row: 1;/, "desktop template controls share one row despite native DOM order");
 const composeTemplate = require("node:fs").readFileSync(
 	require.resolve("../templates/compose.html.twig"),
 	"utf8",
@@ -704,7 +715,7 @@ const validationSource = require("node:fs").readFileSync(
 );
 assert.equal(
 	(autocompleteSource.match(/Session::getNewCSRFToken\(true\)/g) || []).length,
-	2,
+	3,
 );
 assert.match(
 	validationSource,
@@ -781,6 +792,7 @@ const templateForm = {
 	},
 };
 const templateSelect = {
+	closest() { return null; },
 	form: templateForm,
 	value: "7",
 	name: "itilfollowuptemplates_id",
@@ -797,6 +809,22 @@ assert.deepEqual(Object.keys(templateCopiedItems[0].items).sort(), [
 	"text/plain",
 ]);
 const copiedTemplateItems = templateCopiedItems;
+templateForm.dataset.solutionTemplateUrl = "/ajax/solution.php";
+const nativeNoteForm = { dataset: {} };
+templateChangeHandler.call({
+	form: nativeNoteForm,
+	value: "9",
+	name: "solutiontemplates_id",
+	closest(selector) {
+		return selector === ".ticketmailer-note-solution-template"
+			? {}
+			: { querySelector() { return templateForm; } };
+	},
+});
+assert.equal(new URLSearchParams(templateRequestBody).get("solutiontemplates_id"), "9");
+assert.equal(new URLSearchParams(templateRequestBody).get("items_id"), "42");
+assert.equal(templateEditor.content, "<p>Signature</p>", "note solution templates only copy text");
+assert.deepEqual(Object.keys(templateCopiedItems[0].items).sort(), ["text/html", "text/plain"]);
 assert.deepEqual(templateToast, {
 	message: "Text copied",
 	caption: undefined,
@@ -1429,4 +1457,15 @@ setImmediate(() => {
 				throw error;
 			});
 		});
+});
+
+test('attachment upload identifies itself as AJAX so GLPI preserves the header CSRF token', () => {
+  assert.match(composerSource, /xhr\.open\("POST", uploadUrl\);\s*xhr\.setRequestHeader\("X-Requested-With", "XMLHttpRequest"\)/);
+});
+
+test('every composer POST XHR preserves the shared AJAX CSRF token', () => {
+  const posts = composerSource.match(/xhr\.open\("POST", [^)]+\);/g) || [];
+  const ajaxPosts = composerSource.match(/xhr\.open\("POST", [^)]+\);\s*xhr\.setRequestHeader\("X-Requested-With", "XMLHttpRequest"\)/g) || [];
+  assert.equal(posts.length, 4);
+  assert.equal(ajaxPosts.length, posts.length);
 });

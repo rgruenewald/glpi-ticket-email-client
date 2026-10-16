@@ -10,7 +10,7 @@
 
 ## One-liner
 
-Ticket-context reply client: **Email** (default) sends once via GLPI’s configured direct mail transport, stores durable plugin audit, and records a public `ITILFollowup`; **Internal note** mounts GLPI’s native private `ITILFollowup` form/lifecycle without Ticketmailer audit/SMTP.
+Ticket-context reply client with a proactive **New email** action: **Email** (default) sends once via GLPI’s configured direct mail transport, stores durable plugin audit, and records a public `ITILFollowup`; **Internal note** mounts GLPI’s native private `ITILFollowup` form/lifecycle without Ticketmailer audit/SMTP.
 
 ## Vocabulary
 
@@ -82,3 +82,7 @@ ROOT=. bash .agent/contracts/glpi-ticket-email-client-v2/score.sh
 # optional: composer install && vendor/bin/phpunit
 # optional: docker compose up -d --build → README smoke checks
 ```
+
+## Proactive email
+
+Central-interface users with ticket CREATE and UPDATE in the active entity can open **New email** under Assistance. Opening or cancelling creates no ticket. On send, To becomes requesters and CC becomes observers; BCC is delivery-only but remains visible in the audit and timeline. Existing unique active users are linked by email; otherwise GLPI email actors are used without creating accounts. The active entity is frozen when the form opens. GLPI business rules and mandatory ticket-template fields remain effective; an entity change or missing post-create permission blocks delivery. The ticket description is empty and the sent email is the first message followup. Creation notifications are suppressed. A durable per-action state and filesystem lock prevent repeat ticket creation and SMTP retries. Interrupted creation is fail-closed and needs manual inspection. Temporary uploads expire after 24 hours and are cleaned on the next new-email visit; no draft body is stored. Replies and proactive messages share Sendservice. Only GLPI 11 is supported.

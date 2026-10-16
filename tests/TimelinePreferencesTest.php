@@ -58,6 +58,13 @@ if (!class_exists('Ticket')) {
 
 class TimelineActionTicket extends Ticket
 {
+    public function getTimelineItemtypes(): array {
+        return [
+            'task' => ['class' => 'TicketTask', 'hide_in_menu' => false],
+            'solution' => ['class' => 'ITILSolution', 'hide_in_menu' => false],
+            'document' => ['class' => 'Document_Item', 'hide_in_menu' => false],
+        ];
+    }
     public static bool $authorized = true;
     /** @var array<string, mixed> */
     public array $fields = ['id' => 42];
@@ -155,8 +162,21 @@ final class TimelinePreferencesTest extends TestCase
         $_SERVER['SCRIPT_NAME'] = '/front/ticket.form.php';
         $_GET = ['id' => 42];
         $_SESSION = [];
+        Config::$configuration = [];
+        Session::$canAccessEntity = true;
         Ticket::$entityId = 7;
         TimelineActionTicket::$authorized = true;
+    }
+
+    #[Test]
+    public function foreign_entity_never_exposes_reply_action_even_with_global_followup_rights(): void
+    {
+        Session::$canAccessEntity = false;
+        try {
+            self::assertFalse(PluginTicketmailerTimelineAction::canUse(new TimelineActionTicket()));
+        } finally {
+            Session::$canAccessEntity = true;
+        }
     }
 
     #[Test]
@@ -168,11 +188,43 @@ final class TimelinePreferencesTest extends TestCase
             'set_waiting' => true,
             'timeline_newest_first' => true,
             'hide_native_answer' => false,
-        ], PluginTicketmailerConfig::forEntity(7));
+        ] + PluginTicketmailerConfig::interfaceSettings(), PluginTicketmailerConfig::forEntity(7));
 
         PluginTicketmailerConfig::applyTimelineOrderForCurrentTicket();
         self::assertSame(CommonITILObject::TIMELINE_ORDER_REVERSE, $_SESSION['glpitimeline_order']);
         self::assertSame(CommonITILObject::TIMELINE_ORDER_REVERSE, $GLOBALS['CFG_GLPI']['timeline_order']);
+    }
+
+    #[Test]
+    public function interface_switches_round_trip_and_disabled_replacements_leave_native_actions(): void
+    {
+        PluginTicketmailerConfig::saveInterfaceSettings(['show_action_task' => 1]);
+        $settings = PluginTicketmailerConfig::forEntity(7);
+        self::assertTrue($settings['show_action_task']);
+        self::assertFalse($settings['show_action_reply']);
+        self::assertFalse($settings['show_solution_templates']);
+        $this->database->rows[0] = ['set_waiting'=>1, 'hide_native_answer'=>1];
+        $actions = PluginTicketmailerTimelineAction::getAnswerActions(['item'=>new TimelineActionTicket()]);
+        self::assertArrayNotHasKey('answer', $actions);
+        self::assertArrayNotHasKey('solution', $actions);
+        self::assertArrayNotHasKey('document', $actions);
+        self::assertTrue($actions['task']['hide_in_menu']);
+        PluginTicketmailerConfig::saveInterfaceSettings(array_fill_keys(array_keys(PluginTicketmailerConfig::interfaceOptions()), 1));
+        foreach (PluginTicketmailerConfig::interfaceSettings() as $value) self::assertTrue($value);
+    }
+
+    #[Test]
+    public function action_group_uses_short_native_primary_buttons(): void
+    {
+        ob_start();
+        PluginTicketmailerTimelineAction::displayActions(['item' => new TimelineActionTicket()]);
+        $html = ob_get_clean();
+        self::assertStringContainsString('btn btn-primary ticketmailer-action-reply', $html);
+        self::assertStringNotContainsString('btn-outline-primary', $html);
+        self::assertStringContainsString('>Answer</button>', $html);
+        self::assertStringContainsString('>Task</button>', $html);
+        preg_match_all('/ticketmailer-action-(reply|solution|internal_note|task|document)"/', $html, $matches);
+        self::assertSame(['reply', 'solution', 'internal_note', 'task', 'document'], $matches[1]);
     }
 
     #[Test]
@@ -197,14 +249,12 @@ final class TimelinePreferencesTest extends TestCase
     }
 
     #[Test]
-    public function answer_hook_replaces_only_native_answer_when_enabled(): void
+    public function answer_hook_replaces_enabled_native_actions_when_enabled(): void
     {
         $ticket = new TimelineActionTicket();
-        self::assertSame(
-            ['ticketmailer_email_reply'],
-            array_keys(PluginTicketmailerTimelineAction::getAnswerActions(['item' => $ticket])),
-            'disabled setting leaves native answer unchanged',
-        );
+        $defaults = PluginTicketmailerTimelineAction::getAnswerActions(['item' => $ticket]);
+        self::assertTrue($defaults['answer']['hide_in_menu']);
+        self::assertTrue($defaults['task']['hide_in_menu']);
 
         $this->database->rows[0] = [
             'set_waiting' => 1,
@@ -212,7 +262,7 @@ final class TimelinePreferencesTest extends TestCase
             'hide_native_answer' => 1,
         ];
         $enabled = PluginTicketmailerTimelineAction::getAnswerActions(['item' => $ticket]);
-        self::assertSame(['ticketmailer_email_reply', 'answer'], array_keys($enabled));
+        self::assertSame(['ticketmailer_email_reply', 'answer', 'task', 'solution', 'document'], array_keys($enabled));
         self::assertSame(ITILFollowup::class, $enabled['answer']['type']);
         self::assertSame(ITILFollowup::class, $enabled['answer']['class']);
         self::assertSame(ITILFollowup::getIcon(), $enabled['answer']['icon']);
