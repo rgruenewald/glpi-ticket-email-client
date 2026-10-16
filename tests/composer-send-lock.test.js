@@ -303,13 +303,15 @@ Object.defineProperty(global, "navigator", {
 global.glpi_toast_success = (message, caption, options) => {
 	templateToast = { message, caption, options };
 };
+let templateRequestBody;
 const templateRequestHeaders = {};
 global.XMLHttpRequest = class {
 	open() {}
 	setRequestHeader(name, value) {
 		templateRequestHeaders[name] = value;
 	}
-	send() {
+	send(body) {
+		templateRequestBody = body;
 		this.status = 200;
 		this.responseText = JSON.stringify({
 			content: "<p>Template</p>\n<p>Second template paragraph</p>",
@@ -542,6 +544,9 @@ const composerCss = require("node:fs").readFileSync(
 	require.resolve("../public/css/ticketmailer.css"),
 	"utf8",
 );
+assert.match(composerCss, /\.ticketmailer-note-solution-template \{\s*grid-column: 2;/, "solution templates appear immediately after answer templates on desktop");
+assert.match(composerCss, /\.ticketmailer-note-source \{\s*grid-column: 3;/, "source follows both template dropdowns on desktop");
+assert.match(composerCss, /\.ticketmailer-note-template,[\s\S]*?\.ticketmailer-note-solution-template,[\s\S]*?\.ticketmailer-note-source \{\s*grid-row: 1;/, "desktop template controls share one row despite native DOM order");
 const composeTemplate = require("node:fs").readFileSync(
 	require.resolve("../templates/compose.html.twig"),
 	"utf8",
@@ -782,6 +787,7 @@ const templateForm = {
 	},
 };
 const templateSelect = {
+	closest() { return null; },
 	form: templateForm,
 	value: "7",
 	name: "itilfollowuptemplates_id",
@@ -798,6 +804,22 @@ assert.deepEqual(Object.keys(templateCopiedItems[0].items).sort(), [
 	"text/plain",
 ]);
 const copiedTemplateItems = templateCopiedItems;
+templateForm.dataset.solutionTemplateUrl = "/ajax/solution.php";
+const nativeNoteForm = { dataset: {} };
+templateChangeHandler.call({
+	form: nativeNoteForm,
+	value: "9",
+	name: "solutiontemplates_id",
+	closest(selector) {
+		return selector === ".ticketmailer-note-solution-template"
+			? {}
+			: { querySelector() { return templateForm; } };
+	},
+});
+assert.equal(new URLSearchParams(templateRequestBody).get("solutiontemplates_id"), "9");
+assert.equal(new URLSearchParams(templateRequestBody).get("items_id"), "42");
+assert.equal(templateEditor.content, "<p>Signature</p>", "note solution templates only copy text");
+assert.deepEqual(Object.keys(templateCopiedItems[0].items).sort(), ["text/html", "text/plain"]);
 assert.deepEqual(templateToast, {
 	message: "Text copied",
 	caption: undefined,
