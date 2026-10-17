@@ -43,7 +43,7 @@ function summarize(values) {
       const record = (name, value) => (samples[name] ||= []).push(value);
       const emailReady = '!!document.querySelector(".modal.show [data-ticketmailer-delivery][data-ticketmailer-initialized] .ticketmailer-compose:not([hidden])") && [...document.querySelectorAll(".modal.show .ticketmailer-compose textarea")].some(e => window.tinymce?.get(e.id)?.initialized && window.tinymce.get(e.id).getBody()?.isConnected && window.tinymce.get(e.id).getElement() === e)';
       for(let i=0;i<runs;i++) {
-        record(i === 0 ? 'first_open_editor' : 'reopen_editor', await measure(page,'.ticketmailer-timeline-action',emailReady));
+        record(i === 0 ? 'first_open_editor' : 'reopen_editor', await measure(page,'.ticketmailer-action-reply',emailReady));
         record('internal_note', await measure(page,'.modal.show [data-delivery-mode][value=internal_note]',
           '!!document.querySelector(".modal.show [data-ticketmailer-panel=internal_note]:not([hidden]) form") && [...document.querySelectorAll(".modal.show [data-ticketmailer-panel=internal_note] textarea")].some(e => window.tinymce?.get(e.id)?.initialized)'));
         record('email_mode', await measure(page,'.modal.show [data-delivery-mode][value=email]',emailReady));

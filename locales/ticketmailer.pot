@@ -444,3 +444,121 @@ msgstr ""
 #: templates/compose.html.twig
 msgid "Set ticket status to solved after sending."
 msgstr ""
+
+#: front/new.php inc/proactive.class.php front/send.php
+msgid "New email"
+msgstr ""
+
+#: front/new.php inc/proactive.class.php front/send.php
+msgid "Sending creates a new ticket."
+msgstr ""
+
+#: front/new.php inc/proactive.class.php front/send.php
+msgid "Change the active GLPI entity before opening a new email."
+msgstr ""
+
+#: front/new.php inc/proactive.class.php front/send.php
+msgid "To recipients become requesters; CC recipients become observers."
+msgstr ""
+
+#: front/new.php inc/proactive.class.php front/send.php
+msgid "BCC recipients are visible to ticket readers but do not become ticket observers."
+msgstr ""
+
+#: front/new.php inc/proactive.class.php front/send.php
+msgid "Not allowed."
+msgstr ""
+
+#: front/new.php inc/proactive.class.php front/send.php
+msgid "This message has already been submitted."
+msgstr ""
+
+#: front/new.php inc/proactive.class.php front/send.php
+msgid "This message has already been submitted. Check the ticket before sending again."
+msgstr ""
+
+#: front/new.php inc/proactive.class.php front/send.php
+msgid "Could not create the ticket. No email was sent."
+msgstr ""
+
+#: front/new.php inc/proactive.class.php front/send.php
+msgid "Ticket created, but its entity or permissions changed. No email was sent."
+msgstr ""
+
+#: front/new.php inc/proactive.class.php front/send.php
+msgid "An uploaded file is unavailable. Please attach it again."
+msgstr ""
+
+#: front/send.php
+msgid "At least one To recipient is required."
+msgid "Show Answer button"
+msgstr ""
+
+msgid "Show Task button"
+msgstr ""
+
+msgid "Show Solution button"
+msgstr ""
+
+msgid "Show Document button"
+msgstr ""
+
+msgid "Show Internal note button"
+msgstr ""
+
+msgid "Show answer templates"
+msgstr ""
+
+msgid "Show solution templates"
+msgstr ""
+
+msgid "Show followup source"
+msgstr ""
+
+msgid "Hide replaced native actions."
+msgstr ""
+
+msgid "Create a task"
+msgstr ""
+
+msgid "Solution"
+msgstr ""
+
+msgid "Document"
+msgstr ""
+
+msgid "Ticket actions"
+msgstr ""
+
+msgid "Answer"
+msgstr ""
+
+msgid "Task"
+msgstr ""
+
+msgid "Email dialog"
+msgstr ""
+
+msgid "Behavior"
+msgstr ""
+
+msgid "Enabled actions replace their native equivalents. Disabled actions remain available in the native menu."
+msgstr ""
+
+msgid "Choose the available email and internal-note controls."
+msgstr ""
+
+msgid "Default ticket status and timeline order."
+msgstr ""
+
+msgid "Followup source"
+msgstr ""
+
+msgid "Preselect waiting status"
+msgstr ""
+
+msgid "Newest timeline entries first"
+msgstr ""
+
+msgid "Sender"
+msgstr ""

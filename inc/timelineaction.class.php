@@ -2,7 +2,7 @@
 /**
  * Ticket-timeline action for composing email inline.
  *
- * GLPI 10 renders TIMELINE_ANSWER_ACTIONS in the same collapsible answer
+ * GLPI 11 renders TIMELINE_ANSWER_ACTIONS in the same collapsible answer
  * region as its native form. TIMELINE_ACTIONS supplies an always-visible
  * button beside the native Answer control.
  */
@@ -12,6 +12,7 @@ use Glpi\Application\View\TemplateRenderer;
 class PluginTicketmailerTimelineAction
 {
     private const REPLY = 'reply';
+    private static bool $readingNativeActions = false;
 
     public function __construct()
     {
@@ -22,14 +23,14 @@ class PluginTicketmailerTimelineAction
         return (new self())->renderForm($ticket, $inline);
     }
 
-    public static function modal(Ticket $ticket): string
+    public static function modal(Ticket $ticket, string $mode = 'email'): string
     {
-        $name = self::modalName($ticket);
+        $name = self::modalName($ticket, $mode);
         return TemplateRenderer::getInstance()->render('@ticketmailer/compose_modal.html.twig', [
             'modal_name' => $name,
             'title' => self::label(),
             'url' => Plugin::getWebDir('ticketmailer') . '/front/compose.php?tickets_id='
-                . (int) $ticket->getField('id'),
+                . (int) $ticket->getField('id') . '&initial_mode=' . rawurlencode($mode),
         ]);
     }
 
@@ -40,15 +41,23 @@ class PluginTicketmailerTimelineAction
     public static function getAnswerActions(array $params): array
     {
         $ticket = $params['item'] ?? null;
-        if (!$ticket instanceof Ticket || !self::canUse($ticket)) {
+        if (self::$readingNativeActions || !$ticket instanceof Ticket || !self::canUse($ticket)) {
             return [];
         }
 
         $actions = [
             'ticketmailer_email_reply' => self::action(),
         ];
-        if (PluginTicketmailerConfig::forEntity(0)['hide_native_answer']) {
+        $preferences = PluginTicketmailerConfig::forEntity(0);
+        if ($preferences['show_action_reply']) {
             $actions['answer'] = self::nativeAnswerAction($ticket);
+        }
+        $native = self::nativeActions($ticket);
+        foreach (['task', 'solution', 'document'] as $key) {
+            if ($preferences['show_action_' . $key] && isset($native[$key]) && empty($native[$key]['hide_in_menu'])) {
+                $actions[$key] = $native[$key];
+                $actions[$key]['hide_in_menu'] = true;
+            }
         }
         return $actions;
     }
@@ -64,14 +73,48 @@ class PluginTicketmailerTimelineAction
         }
 
         $label = self::label();
-        $modal = self::modalName($ticket);
+        $preferences = PluginTicketmailerConfig::forEntity((int) $ticket->getField('entities_id'));
+        $native = self::nativeActions($ticket);
+        $buttons = [
+            'reply' => [__('Answer', 'ticketmailer'), 'ti ti-mail', 'email'],
+            'solution' => [__('Solution', 'ticketmailer'), 'ti ti-check', 'solution'],
+            'internal_note' => [__('Internal note', 'ticketmailer'), 'ti ti-note', 'internal_note'],
+            'task' => [__('Task', 'ticketmailer'), 'ti ti-checkbox', null],
+            'document' => [__('Document', 'ticketmailer'), 'ti ti-paperclip', null],
+        ];
+        $html = '';
+        foreach ($buttons as $key => [$label, $icon, $mode]) {
+            if (!$preferences['show_action_' . $key]
+                || (in_array($key, ['task', 'solution', 'document'], true)
+                    && (!isset($native[$key]) || !empty($native[$key]['hide_in_menu'])))) {
+                continue;
+            }
+            if ($mode !== null) {
+                $attrs = ' data-ticketmailer-compose-target="'
+                    . htmlspecialchars(self::modalName($ticket, $mode), ENT_QUOTES, 'UTF-8') . '"';
+            } else {
+                $attrs = ' data-bs-toggle="collapse" data-bs-target="#new-'
+                    . htmlspecialchars($native[$key]['class'], ENT_QUOTES, 'UTF-8') . '-block"';
+            }
+            $html .= '<button type="button" class="btn btn-primary ticketmailer-action-' . $key . '"'
+                . $attrs . '><i class="' . $icon . ' me-1" aria-hidden="true"></i>'
+                . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '</button>';
+        }
+        if ($html !== '') {
+            echo '<div class="btn-group ticketmailer-timeline-action me-2" role="group" aria-label="'
+                . htmlspecialchars(__('Ticket actions', 'ticketmailer'), ENT_QUOTES, 'UTF-8') . '">' . $html . '</div>';
+        }
+    }
 
-        echo '<li><button type="button" class="btn btn-primary mb-2 ticketmailer-timeline-action"'
-            . ' aria-label="' . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '" title="'
-            . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '"'
-            . ' data-ticketmailer-compose-target="' . $modal . '"><i class="ti ti-mail"></i><span>'
-            . htmlspecialchars(__('Reply', 'ticketmailer'), ENT_QUOTES, 'UTF-8')
-            . '</span></button></li>';
+    /** Query native descriptors and ACL without recursively invoking our hook. */
+    public static function nativeActions(Ticket $ticket): array
+    {
+        self::$readingNativeActions = true;
+        try {
+            return $ticket->getTimelineItemtypes();
+        } finally {
+            self::$readingNativeActions = false;
+        }
     }
 
     public static function canUse(Ticket $ticket): bool
@@ -151,8 +194,17 @@ class PluginTicketmailerTimelineAction
         $recipients_cc = self::actorEmails($ticket, CommonITILActor::OBSERVER);
         $tickets_id = (int) $ticket->getField('id');
         $web = Plugin::getWebDir('ticketmailer');
-        $editor_id = 'ticketmailer-body-html-' . self::REPLY . '-' . $tickets_id . '-' . ($inline ? 'inline' : 'modal');
+        $editor_id = 'ticketmailer-body-html-' . self::REPLY . '-' . $tickets_id . '-' . ($inline ? 'inline' : 'modal') . '-' . bin2hex(random_bytes(4));
         $content = PluginTicketmailerConfig::contentForTicket($ticket);
+        $preferences = PluginTicketmailerConfig::forEntity((int) $ticket->getField('entities_id'));
+        $initial_mode = (string) ($_POST['initial_mode'] ?? $_GET['initial_mode'] ?? 'email');
+        if (!in_array($initial_mode, ['email', 'solution', 'internal_note'], true)) {
+            $initial_mode = 'email';
+        }
+        $solution = self::nativeActions($ticket)['solution'] ?? [];
+        if ($initial_mode === 'solution' && ($solution === [] || !empty($solution['hide_in_menu']))) {
+            $initial_mode = 'email';
+        }
         $native_followup_form = self::nativeFollowupForm($ticket);
 
         return TemplateRenderer::getInstance()->render('@ticketmailer/compose.html.twig', [
@@ -167,9 +219,10 @@ class PluginTicketmailerTimelineAction
             'subject' => $content['subject'],
             'body_editor' => $this->editor(self::entitySignature($ticket, $content), $editor_id, 14),
             'editor_id' => $editor_id,
-            'followup_template_dropdown' => self::followupTemplateDropdown(),
-            'solution_template_dropdown' => self::solutionTemplateDropdown(),
-            'followup_source_dropdown' => self::followupSourceDropdown(),
+            'followup_template_dropdown' => $preferences['show_answer_templates'] ? self::followupTemplateDropdown() : '',
+            'solution_template_dropdown' => $preferences['show_solution_templates'] ? self::solutionTemplateDropdown() : '',
+            'note_solution_template_dropdown' => $preferences['show_solution_templates'] ? self::solutionTemplateDropdown() : '',
+            'followup_source_dropdown' => $preferences['show_followup_source'] ? self::followupSourceDropdown() : '',
             'followup_template_url' => self::followupTemplateUrl(),
             'solution_template_url' => self::solutionTemplateUrl(),
             'csrf_token' => Session::getNewCSRFToken(),
@@ -179,8 +232,12 @@ class PluginTicketmailerTimelineAction
             'image_url' => $web . '/ajax/upload_image.php',
             'validate_url' => $web . '/ajax/validate_recipients.php',
             'user_autocomplete_url' => $web . '/ajax/autocomplete_users.php',
-            'user_autocomplete_show_email' => true,
-            'set_waiting' => PluginTicketmailerConfig::setWaitingAfterSend($ticket),
+            'user_autocomplete_show_email' => false,
+            'set_waiting' => $initial_mode !== 'solution' && PluginTicketmailerConfig::setWaitingAfterSend($ticket),
+            'set_solved' => $initial_mode === 'solution',
+            'initial_mode' => $initial_mode === 'internal_note' ? 'internal_note' : 'email',
+            'show_answer_templates' => $preferences['show_answer_templates'],
+            'show_followup_source' => $preferences['show_followup_source'],
             'attachment_max' => PluginTicketmailerConfig::uploadMaxSizeLabel(),
             'mailbox_override' => false,
             'mailbox_matches' => [],
@@ -189,7 +246,7 @@ class PluginTicketmailerTimelineAction
             'include_history' => false,
             'selected_history_attachments' => [],
             'inline' => $inline,
-            'form_id' => 'ticketmailer-email-reply-' . $tickets_id . '-' . ($inline ? 'inline' : 'modal'),
+            'form_id' => $editor_id . '-form',
             'native_followup_form' => $native_followup_form,
             'close_target' => $inline ? self::collapseTarget() : '',
         ]);
@@ -357,9 +414,9 @@ class PluginTicketmailerTimelineAction
         return '<div class="ticketmailer-signature">' . $html . '</div>';
     }
 
-    private static function modalName(Ticket $ticket): string
+    private static function modalName(Ticket $ticket, string $mode = 'email'): string
     {
-        return 'ticketmailerEmailReply' . (int) $ticket->getField('id');
+        return 'ticketmailerEmailReply' . (int) $ticket->getField('id') . '_' . $mode;
     }
 
     private static function actionClass(): string

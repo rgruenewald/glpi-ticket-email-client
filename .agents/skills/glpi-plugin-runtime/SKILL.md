@@ -1,6 +1,6 @@
 ---
 name: glpi-plugin-runtime
-description: GLPI 10 plugin bootstrap, hooks, install/migrate, class map, and docker mount for ticketmailer.
+description: GLPI 11 plugin bootstrap, hooks, install/migrate, class map, and docker mount for ticketmailer.
 ---
 
 # Skill: glpi-plugin-runtime

@@ -31,7 +31,7 @@ and full i18n for English (default) and German.
 
 - **Repo layout**: bare + worktree per global `AGENTS.md` convention;
   plugin source lives in `glpi-plugin-email/main/` worktree.
-- **GLPI target**: GLPI ≥ 10.0, PHP ≥ 8.1.
+- **GLPI target**: GLPI ≥ 11.0, PHP ≥ 8.2.
 - **Mail transport**: must reuse GLPI's existing SMTP configuration
   (`$CFG_GLPI['smtp_*']` / `Config::getConfigurationValue('core', …)`)
   — no separate mailer config in the plugin.

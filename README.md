@@ -184,3 +184,32 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for development and contribution rules. S
 Copyright © Ronny Gruenewald.
 
 Licensed under the [GNU General Public License, version 3 or later](LICENSE).
+
+### New email
+
+In **Assistance → New email**, write a proactive message without first creating a ticket. **Send** creates the ticket in the entity selected in Sender, then sends and records the message. To recipients become requesters; CC recipients become observers. BCC recipients are visible to ticket readers but do not become observers. Sender lists authorized entities with their configured email address; its selection determines the ticket entity and signature without changing the active GLPI entity. This action requires ticket creation and update rights in the central interface. The entity signature is appended at send time. Cancelling creates no ticket. Ticket-template mandatory fields and business rules still apply; if creation or post-create authorization fails, no email is sent. Failed or uncertain delivery must be checked on the existing ticket before any manual retry. Incoming replies require a configured GLPI mail collector and reply routing; the ticket marker alone does not retrieve mail.
+### Configurable ticket actions
+
+Global settings select the buttons in Ticketmailer's grouped action bar: Answer,
+Task, Solution, Document and Internal note. Task and Document open GLPI's native
+forms. Solution opens the email modal with Solved enabled and Waiting disabled;
+Internal note opens the same modal in private-note mode. Existing GLPI permissions
+still apply. All buttons default to enabled. Hiding replaced native actions is
+optional: GLPI's supported timeline descriptor hook hides only actions with an
+enabled, permitted replacement. Disabled replacement buttons leave native actions
+available. Other plugins and approval actions are not suppressed.
+
+Answer templates, solution templates and followup source are independent global
+UI switches. These affect only Ticketmailer's modal, not standalone GLPI forms.
+The private-note form also follows the answer-template and followup-source switches.
+Switches are stored in GLPI's plugin configuration namespace, without a schema migration.
+
+To, CC and BCC suggest active GLPI users by login, first name, last name or default
+email address after two characters. Results respect active entity visibility,
+including recursive profile assignments; free email addresses remain supported.
+Suggestions show the user name and email; selected chips show the user name.
+
+The action bar uses short localized labels and native solid GLPI buttons.
+Enabled replacements automatically remove duplicate native menu entries through
+GLPI descriptors; disabled replacements keep their native entries. Settings are
+grouped into Ticket actions, Email dialog and Behavior using native switches.
