@@ -1,0 +1,127 @@
+{
+  "source_base": "2e41f2a plus existing perf/ui-rendering changes",
+  "method": "Five fresh browser runs, one first open per viewport; existing local infrastructure and caches; no throttling",
+  "first_open": [
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "ms": 260.9
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "ms": 266.1
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "ms": 266.4
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "ms": 241.5
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "ms": 285.1
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "ms": 258.6
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "ms": 270.3
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "ms": 254.9
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "ms": 274.7
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "ms": 280
+    }
+  ],
+  "profile_events": [
+    {
+      "name": "click",
+      "ms": 0
+    },
+    {
+      "name": "modal-shown",
+      "ms": 7.3
+    },
+    {
+      "name": "resource",
+      "ms": 80.7,
+      "data": {
+        "name": "http://127.0.0.1:8080/plugins/ticketmailer/front/compose.php",
+        "duration": 43.69999999925494,
+        "start": 2.5,
+        "responseStart": 45.59999999962747,
+        "responseEnd": 46.19999999925494
+      }
+    },
+    {
+      "name": "tinymce.init",
+      "ms": 101.9,
+      "data": "#ticketmailer-body-html-reply-137-modal"
+    },
+    {
+      "name": "AddEditor",
+      "ms": 103,
+      "data": "ticketmailer-body-html-reply-137-modal"
+    },
+    {
+      "name": "tinymce.init",
+      "ms": 121.3,
+      "data": "#solution_content_1458243143"
+    },
+    {
+      "name": "AddEditor",
+      "ms": 122.2,
+      "data": "solution_content_1458243143"
+    },
+    {
+      "name": "editor-init",
+      "ms": 207.5,
+      "data": "ticketmailer-body-html-reply-137-modal"
+    },
+    {
+      "name": "editor-init",
+      "ms": 249.6,
+      "data": "solution_content_1458243143"
+    }
+  ]
+}

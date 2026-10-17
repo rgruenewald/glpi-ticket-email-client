@@ -459,8 +459,9 @@ final class AcceptanceTest extends TestCase
         $this->assertStringContainsString('solutiontemplates_id', $action);
         $this->assertStringContainsString("'emptylabel' => __('Answer templates', 'ticketmailer')", $action);
         $this->assertStringContainsString("'emptylabel' => __('Solution templates', 'ticketmailer')", $action);
-        $this->assertStringContainsString("'modal_class' => 'modal-xl'", $action);
-        $this->assertStringContainsString("\$modal . '.show();'", $action);
+        $modal = (string) file_get_contents(self::REPO_ROOT . '/templates/compose_modal.html.twig');
+        $this->assertStringContainsString('modal-dialog modal-xl', $modal);
+        $this->assertStringContainsString('data-ticketmailer-compose-target', $action);
         $this->assertStringContainsString('PluginTicketmailerTimelineAction::modal', $timeline);
         $this->assertSame(1, substr_count($timeline . $action, 'echo self::modal($ticket)')
             + substr_count($timeline, 'PluginTicketmailerTimelineAction::modal'));

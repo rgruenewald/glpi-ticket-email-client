@@ -205,6 +205,9 @@ function makeDeliveryModeRoot() {
 			},
 		},
 		internal_note: {
+            preparationScans: 0,
+            querySelector() { return null; },
+            querySelectorAll() { this.preparationScans += 1; return []; },
 			hidden: true,
 			attributes: {},
 			setAttribute(name, value) {
@@ -330,11 +333,14 @@ assert.equal(
 	true,
 	"Internal note mode is hidden by default",
 );
+const initialPreparationScans = deliveryModePanels.internal_note.preparationScans;
+assert.ok(initialPreparationScans > 0, "Native note controls are prepared");
 const mountedEmailPanel = deliveryModePanels.email;
 const mountedNotePanel = deliveryModePanels.internal_note;
 deliveryModeInputs[0].checked = false;
 deliveryModeInputs[1].checked = true;
 deliveryModeInputs[1].changeHandler();
+assert.equal(deliveryModePanels.internal_note.preparationScans, initialPreparationScans, "Mode switching does not prepare native controls twice");
 assert.equal(
 	deliveryModePanels.email.hidden,
 	true,

@@ -1114,7 +1114,9 @@
 					var notePanel = delivery.querySelector(
 						'[data-ticketmailer-panel="internal_note"]',
 					);
-					if (notePanel && typeof notePanel.querySelectorAll === "function") {
+					if (notePanel && !notePanel.ticketmailerPrepared &&
+						typeof notePanel.querySelectorAll === "function") {
+						notePanel.ticketmailerPrepared = true;
 						notePanel
 							.querySelectorAll('[id^="pending-reasons-setup-"]')
 							.forEach((setup) => {
@@ -1176,11 +1178,11 @@
 													".select2-selection__rendered",
 												);
 												if (
-													currentEmptyTemplate?.textContent !== templateText
+													currentEmptyTemplate && currentEmptyTemplate.textContent !== templateText
 												) {
 													currentEmptyTemplate.textContent = templateText;
 												}
-												if (renderedTemplate?.textContent !== templateText) {
+												if (renderedTemplate && renderedTemplate.textContent !== templateText) {
 													renderedTemplate.textContent = templateText;
 													renderedTemplate.title = templateText;
 												}

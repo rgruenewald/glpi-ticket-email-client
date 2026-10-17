@@ -25,16 +25,12 @@ class PluginTicketmailerTimelineAction
     public static function modal(Ticket $ticket): string
     {
         $name = self::modalName($ticket);
-        return (string) Ajax::createModalWindow(
-            $name,
-            Plugin::getWebDir('ticketmailer') . '/front/compose.php',
-            [
-                'display' => false,
-                'title' => self::label(),
-                'modal_class' => 'modal-xl',
-                'extraparams' => ['tickets_id' => (int) $ticket->getField('id')],
-            ],
-        );
+        return TemplateRenderer::getInstance()->render('@ticketmailer/compose_modal.html.twig', [
+            'modal_name' => $name,
+            'title' => self::label(),
+            'url' => Plugin::getWebDir('ticketmailer') . '/front/compose.php?tickets_id='
+                . (int) $ticket->getField('id'),
+        ]);
     }
 
     /**
@@ -69,12 +65,11 @@ class PluginTicketmailerTimelineAction
 
         $label = self::label();
         $modal = self::modalName($ticket);
-        $open = $modal . '.show();';
-        $ready = 'window.' . $modal . ' ? 1 : 0';
+
         echo '<li><button type="button" class="btn btn-primary mb-2 ticketmailer-timeline-action"'
             . ' aria-label="' . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '" title="'
-            . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '" onclick="' . $open . '"'
-            . ' data-ticketmailer-modal-ready="' . $ready . '"><i class="ti ti-mail"></i><span>'
+            . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '"'
+            . ' data-ticketmailer-compose-target="' . $modal . '"><i class="ti ti-mail"></i><span>'
             . htmlspecialchars(__('Reply', 'ticketmailer'), ENT_QUOTES, 'UTF-8')
             . '</span></button></li>';
     }
