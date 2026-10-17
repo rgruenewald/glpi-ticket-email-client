@@ -26,16 +26,12 @@ class PluginTicketmailerTimelineAction
     public static function modal(Ticket $ticket, string $mode = 'email'): string
     {
         $name = self::modalName($ticket, $mode);
-        return (string) Ajax::createModalWindow(
-            $name,
-            Plugin::getWebDir('ticketmailer') . '/front/compose.php',
-            [
-                'display' => false,
-                'title' => self::label(),
-                'modal_class' => 'modal-xl',
-                'extraparams' => ['tickets_id' => (int) $ticket->getField('id'), 'initial_mode' => $mode],
-            ],
-        );
+        return TemplateRenderer::getInstance()->render('@ticketmailer/compose_modal.html.twig', [
+            'modal_name' => $name,
+            'title' => self::label(),
+            'url' => Plugin::getWebDir('ticketmailer') . '/front/compose.php?tickets_id='
+                . (int) $ticket->getField('id') . '&initial_mode=' . rawurlencode($mode),
+        ]);
     }
 
     /**
@@ -94,8 +90,8 @@ class PluginTicketmailerTimelineAction
                 continue;
             }
             if ($mode !== null) {
-                $onclick = self::modalName($ticket, $mode) . '.show(); return false;';
-                $attrs = ' onclick="' . htmlspecialchars($onclick, ENT_QUOTES, 'UTF-8') . '"';
+                $attrs = ' data-ticketmailer-compose-target="'
+                    . htmlspecialchars(self::modalName($ticket, $mode), ENT_QUOTES, 'UTF-8') . '"';
             } else {
                 $attrs = ' data-bs-toggle="collapse" data-bs-target="#new-'
                     . htmlspecialchars($native[$key]['class'], ENT_QUOTES, 'UTF-8') . '-block"';

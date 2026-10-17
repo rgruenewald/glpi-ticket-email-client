@@ -205,6 +205,9 @@ function makeDeliveryModeRoot() {
 			},
 		},
 		internal_note: {
+            queryCount: 0,
+            querySelector() { return null; },
+            querySelectorAll() { this.queryCount += 1; return []; },
 			hidden: true,
 			attributes: {},
 			setAttribute(name, value) {
@@ -336,11 +339,14 @@ assert.equal(
 );
 assert.equal(initialNoteRoot.inputs[1].checked, true, "note button selects private mode");
 assert.equal(initialNoteRoot.panels.internal_note.hidden, false, "note panel initially visible");
+const initialPreparationScans = deliveryModePanels.internal_note.queryCount;
+assert.ok(initialPreparationScans > 0, "Native note controls are prepared");
 const mountedEmailPanel = deliveryModePanels.email;
 const mountedNotePanel = deliveryModePanels.internal_note;
 deliveryModeInputs[0].checked = false;
 deliveryModeInputs[1].checked = true;
 deliveryModeInputs[1].changeHandler();
+assert.equal(deliveryModePanels.internal_note.queryCount, initialPreparationScans, "Mode switching does not prepare native controls twice");
 assert.equal(
 	deliveryModePanels.email.hidden,
 	true,

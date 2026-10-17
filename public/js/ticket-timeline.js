@@ -1,5 +1,6 @@
 (() => {
     let classObserver;
+    let syncPending = false;
 
     const COMPOSE_SELECTOR = '.ticketmailer-compose';
     const NATIVE_FORM_SELECTOR = '#new-itilobject-form > .collapse';
@@ -49,13 +50,18 @@
     };
 
     const scheduleSyncBurst = () => {
-        syncComposeActions();
+        // Coalesce editor and dropdown mutation batches into one frame.
+        if (syncPending) return;
+        syncPending = true;
+        const flush = () => {
+            syncPending = false;
+            syncComposeActions();
+        };
         if (typeof requestAnimationFrame === 'function') {
-            requestAnimationFrame(syncComposeActions);
+            requestAnimationFrame(flush);
+        } else {
+            setTimeout(flush, 0);
         }
-        [50, 150, 350, 600].forEach((delay) => {
-            setTimeout(syncComposeActions, delay);
-        });
     };
 
 
@@ -69,6 +75,8 @@
     const onCollapseHidden = () => {
         syncComposeActions();
     };
+    document.addEventListener('shown.bs.modal', syncComposeActions);
+    document.addEventListener('hidden.bs.modal', syncComposeActions);
     document.addEventListener('show.bs.collapse', syncComposeActions);
     document.addEventListener('shown.bs.collapse', syncComposeActions);
     document.addEventListener('hide.bs.collapse', syncComposeActions);

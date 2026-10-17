@@ -46,6 +46,7 @@ function plugin_init_ticketmailer(): void
     $PLUGIN_HOOKS['add_javascript']['ticketmailer'] = [
         'public/js/composer.js',
         'public/js/ticket-timeline.js',
+        'public/js/compose-modal.js',
     ];
 
     PluginTicketmailerConfig::applyTimelineOrderForCurrentTicket();
