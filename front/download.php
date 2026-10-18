@@ -20,7 +20,7 @@ if ($entry === null) {
 }
 
 $ticket = new Ticket();
-if (!$ticket->getFromDB((int) $entry['tickets_id']) || !$ticket->canViewItem()) {
+if (!$ticket->getFromDB((int) $entry['tickets_id']) || (!Session::haveAccessToEntity((int) $ticket->getField('entities_id')) || !$ticket->canViewItem())) {
     Html::displayRightError();
 }
 

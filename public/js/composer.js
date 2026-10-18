@@ -387,6 +387,11 @@
 			};
 		var validation = form.ticketmailerRecipientValidation;
 		var suggestionList = document.createElement("ul");
+        suggestionList.id = input.id + "-suggestions";
+        input.setAttribute("role", "combobox");
+        input.setAttribute("aria-autocomplete", "list");
+        input.setAttribute("aria-controls", suggestionList.id);
+        input.setAttribute("aria-expanded", "false");
 		suggestionList.className = "ticketmailer-recipient-suggestions";
 		suggestionList.setAttribute("role", "listbox");
 		suggestionList.hidden = true;
@@ -429,6 +434,7 @@
 					data.append("_glpi_csrf_token", token);
 					var xhr = new XMLHttpRequest();
 					xhr.open("POST", url);
+					xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
 					if (token) {
 						xhr.setRequestHeader("X-Glpi-Csrf-Token", token);
 					}
@@ -504,6 +510,7 @@
 			suggestionList.replaceChildren();
 			suggestionList.hidden = true;
 			input.setAttribute("aria-expanded", "false");
+            input.removeAttribute("aria-activedescendant");
 		}
 
 		function selectSuggestion(suggestion) {
@@ -529,7 +536,8 @@
 				var email = document.createElement("span");
 				button.type = "button";
 				button.className = "ticketmailer-recipient-suggestion";
-				button.setAttribute("role", "option");
+				button.id = suggestionList.id + "-" + index;
+                button.setAttribute("role", "option");
 				button.setAttribute("aria-selected", "false");
 				label.textContent = suggestion.label;
 				email.className = "ticketmailer-recipient-suggestion-email";
@@ -560,6 +568,7 @@
 				suggestionList.querySelectorAll("button"),
 				(button, buttonIndex) => {
 					var active = buttonIndex === activeSuggestion;
+                    if (active) input.setAttribute("aria-activedescendant", button.id);
 					button.classList.toggle("is-active", active);
 					button.setAttribute("aria-selected", active ? "true" : "false");
 				},
@@ -580,11 +589,13 @@
 				var token = getAjaxCsrf(form);
 				var ticket = form.querySelector('input[name="tickets_id"]');
 				data.append("query", query);
-				data.append("tickets_id", ticket ? ticket.value : "");
-				data.append("_glpi_csrf_token", token);
+                data.append("tickets_id", ticket ? ticket.value : "");
+                var composeToken = form.querySelector('[name="compose_token"]');
+                if (composeToken) data.append("compose_token", composeToken.value);
+                data.append("_glpi_csrf_token", token);
 				var xhr = new XMLHttpRequest();
 				xhr.open("POST", url);
-				if (token) {
+				xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");				if (token) {
 					xhr.setRequestHeader("X-Glpi-Csrf-Token", token);
 				}
 				xhr.onload = () => {
@@ -607,7 +618,7 @@
 							hideSuggestions();
 						}
 					} catch (err) {
-						hideSuggestions();
+                        if (currentRequest === requestId) hideSuggestions();
 					}
 					resolve();
 				};
@@ -643,6 +654,8 @@
 			input.focus();
 		});
 		input.addEventListener("input", () => {
+            ++requestId;
+            hideSuggestions();
 			++requestId;
 			if (requestTimer) {
 				window.clearTimeout(requestTimer);
@@ -729,10 +742,13 @@
 			var fd = new FormData();
 			var token = getAjaxCsrf(form);
 			fd.append("tickets_id", ticketId);
+            var composeToken = form.querySelector('[name="compose_token"]');
+            if (composeToken) fd.append("compose_token", composeToken.value);
 			fd.append("_glpi_csrf_token", token);
 			fd.append("file", file);
 			var xhr = new XMLHttpRequest();
 			xhr.open("POST", uploadUrl);
+			xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
 			if (token) {
 				xhr.setRequestHeader("X-Glpi-Csrf-Token", token);
 			}
@@ -1015,11 +1031,81 @@
 		}
 	}
 
+    function initProactiveImages(form) {
+        if (!form.dataset.proactive) return;
+        var pendingImages = 0;
+        var updateSendButtons = function () {
+            form.querySelectorAll('button[type="submit"]').forEach(function (button) {
+                button.disabled = pendingImages > 0 || form.dataset.ticketmailerSending === "true";
+            });
+        };
+        // Enter-key and programmatic submissions obey the same upload barrier.
+        form.addEventListener("submit", function (event) {
+            var editor = window.tinymce && window.tinymce.get(form.dataset.editorId);
+            var hasLocalImages = editor && editor.getBody().querySelector('img[src^="blob:"], img[src^="data:"]');
+            if (pendingImages > 0 || hasLocalImages) {
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                if (hasLocalImages) editor.uploadImages().catch(function () {
+                    window.alert(form.dataset.i18nUploadFailed);
+                });
+            }
+        }, true);
+        var bind = function () {
+            var editor = window.tinymce && window.tinymce.get(form.dataset.editorId);
+            if (!editor) return false;
+            if (editor.ticketmailerProactiveImages) return true;
+            editor.ticketmailerProactiveImages = true;
+            editor.options.set("automatic_uploads", true);
+            editor.options.set("images_upload_handler", function (blobInfo) {
+                pendingImages++;
+                updateSendButtons();
+                return queueAjax(form, function (resolve, reject) {
+                    var data = new FormData();
+                    data.append("compose_token", form.querySelector('[name="compose_token"]').value);
+                    data.append("_glpi_csrf_token", form.dataset.ajaxCsrf);
+                    data.append("image", blobInfo.blob(), blobInfo.filename());
+                    fetch(form.dataset.imageUrl, {method: "POST", body: data})
+                        .then(function (response) {
+                            if (!response.ok) throw new Error(form.dataset.i18nUploadFailed);
+                            return response.json();
+                        }).then(function (image) {
+                            setAjaxCsrf(form, image.csrf);
+                            var index = form.querySelectorAll('input').length;
+                            var marker = document.createElement("input");
+                            marker.type = "hidden";
+                            marker.setAttribute("data-ticketmailer-inline-image", "true");
+                            marker.name = "inline_images[" + index + "][id]";
+                            marker.value = image.id;
+                            form.appendChild(marker);
+                            ["stored", "path", "cid", "mime"].forEach(function (key) {
+                                var field = document.createElement("input");
+                                field.type = "hidden";
+                                field.name = "inline_images[" + index + "][" + key + "]";
+                                field.value = image[key] || "";
+                                form.appendChild(field);
+                            });
+                            resolve("cid:" + image.cid);
+                        }).catch(reject).finally(function () {
+                            pendingImages--;
+                            updateSendButtons();
+                        });
+                });
+            });
+            return true;
+        };
+        if (!bind()) {
+            var observer = new MutationObserver(function () { if (bind()) observer.disconnect(); });
+            observer.observe(form, {childList: true, subtree: true});
+        }
+    }
+
 	function initForm(form) {
 		if (form.dataset.ticketmailerInitialized) {
 			return;
 		}
 		form.dataset.ticketmailerInitialized = "true";
+        initProactiveImages(form);
 		try {
 			form.ticketmailerMailboxMatches = JSON.parse(
 				form.dataset.mailboxMatches || "[]",
@@ -1082,7 +1168,19 @@
 					return;
 				}
 				delivery.dataset.ticketmailerInitialized = "true";
-				var inputs = delivery.querySelectorAll("[data-delivery-mode]");
+				// Apply UI switches only to the private form mounted in our modal.
+                [['showAnswerTemplates', 'itilfollowuptemplates_id'], ['showFollowupSource', 'requesttypes_id']].forEach(([setting, name]) => {
+                    if (delivery.dataset[setting] === "0") {
+                        delivery.querySelector('[data-ticketmailer-panel="internal_note"] [name="' + name + '"]')
+                            ?.closest('.form-field')?.remove();
+                    }
+                });
+                var inputs = delivery.querySelectorAll("[data-delivery-mode]");
+                if (delivery.dataset.initialMode) {
+                    inputs.forEach((input) => {
+                        input.checked = input.value === delivery.dataset.initialMode;
+                    });
+                }
 				function selectMode() {
 					var selected = delivery.querySelector("[data-delivery-mode]:checked");
 					var selectedMode = selected ? selected.value : "email";
@@ -1112,7 +1210,9 @@
 					var notePanel = delivery.querySelector(
 						'[data-ticketmailer-panel="internal_note"]',
 					);
-					if (notePanel && typeof notePanel.querySelectorAll === "function") {
+					if (notePanel && !notePanel.ticketmailerPrepared &&
+						typeof notePanel.querySelectorAll === "function") {
+						notePanel.ticketmailerPrepared = true;
 						notePanel
 							.querySelectorAll('[id^="pending-reasons-setup-"]')
 							.forEach((setup) => {
@@ -1130,6 +1230,10 @@
 								optionsColumn.classList.add("ticketmailer-note-options");
 								nativeLayout.prepend(optionsColumn);
 								var optionsRow = optionsColumn.querySelector(":scope > .row");
+								var solutionField = notePanel.querySelector(".ticketmailer-note-solution-template");
+								if (optionsRow && solutionField) {
+									optionsRow.append(solutionField);
+								}
 								var templateField = optionsRow
 									?.querySelector('[name="itilfollowuptemplates_id"]')
 									?.closest(".form-field");
@@ -1174,11 +1278,11 @@
 													".select2-selection__rendered",
 												);
 												if (
-													currentEmptyTemplate?.textContent !== templateText
+													currentEmptyTemplate && currentEmptyTemplate.textContent !== templateText
 												) {
 													currentEmptyTemplate.textContent = templateText;
 												}
-												if (renderedTemplate?.textContent !== templateText) {
+												if (renderedTemplate && renderedTemplate.textContent !== templateText) {
 													renderedTemplate.textContent = templateText;
 													renderedTemplate.title = templateText;
 												}
@@ -1500,10 +1604,16 @@
 	$(document).on(
 		"change",
 		'.ticketmailer-compose [name="itilfollowuptemplates_id"], ' +
-			'.ticketmailer-compose [name="solutiontemplates_id"]',
+			'.ticketmailer-compose [name="solutiontemplates_id"], ' +
+			'.ticketmailer-note-solution-template [name="solutiontemplates_id"]',
 		function () {
+			// Both modes copy template text using the same ticket-scoped endpoint.
+			var form = this.form;
+			if (typeof this.closest === "function" && this.closest(".ticketmailer-note-solution-template")) {
+				form = this.closest("[data-ticketmailer-delivery]").querySelector(".ticketmailer-compose");
+			}
 			applyTemplate(
-				this.form,
+				form,
 				this.value,
 				this.name === "solutiontemplates_id" ? "solution" : "answer",
 			);

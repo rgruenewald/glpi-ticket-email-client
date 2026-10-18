@@ -27,3 +27,5 @@ test-results/
 .DS_Store
 .agent/
 .pi-subagents/
+
+playwright-report/

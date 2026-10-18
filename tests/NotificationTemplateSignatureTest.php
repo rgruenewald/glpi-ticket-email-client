@@ -69,6 +69,11 @@ if (!class_exists('Ticket')) {
 if (!class_exists('User')) {
     class User
     {
+        public static function getUsersIdByEmails(string $email, array $conditions): array
+        {
+            return $email === 'known@example.test' ? [12] : [];
+        }
+
         public function getFromDB(int $id): bool
         {
             return true;
@@ -84,6 +89,12 @@ if (!class_exists('Session')) {
     class Session
     {
         public static bool $canReadCosts = false;
+        public static bool $canAccessEntity = true;
+
+        public static function haveAccessToEntity(int $entity): bool
+        {
+            return self::$canAccessEntity;
+        }
 
         public static function haveRight(string $right, int $access): bool
         {

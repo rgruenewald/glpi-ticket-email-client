@@ -33,7 +33,7 @@ for file in \
   setup.php hook.php \
   inc/replypolicy.class.php inc/recipients.class.php inc/mailboxguard.class.php \
   inc/audit.class.php inc/timeline.class.php inc/timelineaction.class.php inc/timelinereply.class.php inc/history.class.php inc/mailer.class.php \
-  front/compose.php front/config.form.php front/send.php front/download.php front/history_attachment.php front/log_entry.php \
+  inc/proactive.class.php inc/sendservice.class.php front/new.php front/compose.php front/config.form.php front/send.php front/download.php front/history_attachment.php front/log_entry.php \
   ajax/validate_recipients.php ajax/upload.php ajax/upload_image.php \
   templates/compose.html.twig templates/timeline_action.html.twig templates/log_entry.html.twig \
   public/js/composer.js sql/install.sql sql/update-1.1.0.sql sql/uninstall.sql \
@@ -104,8 +104,8 @@ require_re "ITILFollowup" inc/timeline.class.php "timeline integration uses ITIL
 require_re "_disablenotif" inc/timeline.class.php "timeline followup suppresses native notifications"
 require_re "followups_id" inc/audit.class.php "audit persists followup ID"
 require_re "timeline_status" inc/audit.class.php "audit persists timeline status"
-require_re "timeline_status" front/send.php "send handles timeline completion state"
-forbid_re "NotificationEvent::raiseEvent|Notification::raiseEvent|NotificationMailing::send" front/send.php "send does not invoke GLPI notification delivery"
+require_re "timeline_status" inc/sendservice.class.php "send handles timeline completion state"
+forbid_re "NotificationEvent::raiseEvent|Notification::raiseEvent|NotificationMailing::send" inc/sendservice.class.php "send does not invoke GLPI notification delivery"
 forbid_re "NotificationEvent::raiseEvent|Notification::raiseEvent|NotificationMailing::send" inc/timeline.class.php "timeline integration does not invoke GLPI notification delivery"
 
 # 6. BCC policy and secure attachment delivery.
@@ -137,7 +137,7 @@ if have php; then
   parse_failed=0
   for file in inc/replypolicy.class.php inc/recipients.class.php inc/mailboxguard.class.php \
               inc/audit.class.php inc/mailer.class.php inc/timeline.class.php inc/timelineaction.class.php inc/timelinereply.class.php inc/timelineforward.class.php \
-              front/compose.php front/config.form.php front/send.php \
+              inc/proactive.class.php inc/sendservice.class.php front/new.php front/compose.php front/config.form.php front/send.php \
               front/download.php ajax/validate_recipients.php; do
     if [ -f "$file" ] && ! php -l "$file" >/dev/null 2>&1; then
       fail "php syntax: $file"

@@ -221,7 +221,7 @@
 
 [data-ticketmailer-panel="internal_note"] .ticketmailer-note-options > .row {
 	display: grid;
-	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) max-content;
+	grid-template-columns: repeat(3, minmax(0, 1fr)) max-content;
 	align-items: center;
 	gap: 0.5rem;
 	margin: 0 0 0.75rem;
@@ -247,11 +247,19 @@
 	display: block;
 	order: 1;
 }
+[data-ticketmailer-panel="internal_note"] .ticketmailer-note-template,
+[data-ticketmailer-panel="internal_note"] .ticketmailer-note-solution-template,
+[data-ticketmailer-panel="internal_note"] .ticketmailer-note-source {
+	grid-row: 1;
+}
 [data-ticketmailer-panel="internal_note"] .ticketmailer-note-template {
 	grid-column: 1;
 }
-[data-ticketmailer-panel="internal_note"] .ticketmailer-note-source {
+[data-ticketmailer-panel="internal_note"] .ticketmailer-note-solution-template {
 	grid-column: 2;
+}
+[data-ticketmailer-panel="internal_note"] .ticketmailer-note-source {
+	grid-column: 3;
 }
 
 [data-ticketmailer-panel="internal_note"] .ticketmailer-note-meta > label {
@@ -666,6 +674,30 @@ body.ticketmailer-compose-active .ticketmailer-timeline-action {
 
 /* ── Responsive ─────────────────────────────────────────── */
 @media (max-width: 640px) {
+	[data-ticketmailer-panel="internal_note"] form > .row.mx-n3 {
+		margin-left: 0 !important;
+		margin-right: 0 !important;
+	}
+
+	[data-ticketmailer-panel="internal_note"] .ticketmailer-note-options > .row {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	[data-ticketmailer-panel="internal_note"] .ticketmailer-note-template,
+	[data-ticketmailer-panel="internal_note"] .ticketmailer-note-solution-template,
+	[data-ticketmailer-panel="internal_note"] .ticketmailer-note-source {
+		grid-column: 1;
+		grid-row: auto;
+	}
+
+	[data-ticketmailer-panel="internal_note"] .ticketmailer-note-options .ticketmailer-note-source {
+		order: 2;
+	}
+
+	[data-ticketmailer-panel="internal_note"] .ticketmailer-note-knowledge {
+		order: 3;
+	}
+
 	.ticketmailer-mail-row:not(.ticketmailer-mail-row--followup-meta) {
 		flex-direction: column;
 		align-items: stretch;
@@ -677,4 +709,36 @@ body.ticketmailer-compose-active .ticketmailer-timeline-action {
 		flex: none;
 		text-align: left;
 	}
+}
+
+/* Let the grouped actions scroll as a unit on narrow ticket footers. */
+.ticketmailer-timeline-action {
+    max-width: 100%;
+    overflow-x: auto;
+    vertical-align: middle;
+}
+.ticketmailer-timeline-action > .btn {
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+
+/* Keep the plugin group clear of GLPI's fixed save/navigation controls. */
+@media (max-width: 1600px) {
+    .timeline-buttons:has(.ticketmailer-timeline-action) {
+        flex-wrap: wrap;
+        row-gap: .5rem;
+        min-width: 0;
+    }
+    .timeline-buttons > .legacy-timeline-actions:has(.ticketmailer-timeline-action) {
+        flex-basis: 100%;
+        margin: 0;
+        padding: 0;
+    }
+    .ticketmailer-timeline-action {
+        flex-wrap: wrap;
+    }
+}
+
+.ticketmailer-timeline-action > .btn + .btn {
+    border-inline-start: 1px solid var(--tblr-border-color, #d9dce1);
 }

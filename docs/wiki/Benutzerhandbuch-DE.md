@@ -180,3 +180,9 @@ Manchmal wurde die E-Mail versendet, konnte aber nicht im Ticket gespeichert wer
 | Versand ist fehlgeschlagen | Öffnen Sie **Gesendete E-Mails** und wenden Sie sich an Ihre GLPI-Administration. |
 | E-Mail wurde versendet, fehlt aber im Ticket | Senden Sie nicht erneut. Öffnen Sie **Gesendete E-Mails** und wenden Sie sich an Ihre GLPI-Administration. |
 | Anhang lässt sich nicht öffnen | Prüfen Sie Anmeldung und Ticket-Leserecht. |
+
+### Neue E-Mail
+
+Unter **Support → Neue E-Mail** können Sie eine Nachricht schreiben, ohne vorher ein Ticket anzulegen. **Senden** erstellt das Ticket in der beim Öffnen aktiven Einheit und versendet die Nachricht. An-Empfänger werden Anforderer, CC-Empfänger werden Beobachter. BCC-Empfänger sind für Ticketleser sichtbar, werden aber nicht Beobachter. Wechseln Sie bei Bedarf vor dem Öffnen die aktive GLPI-Einheit. Die Funktion benötigt Erstell- und Änderungsrechte für Tickets in der Standardoberfläche. Die Signatur der Einheit wird beim Versand angefügt. Abbrechen erstellt kein Ticket. Pflichtfelder aus Ticketvorlagen und Geschäftsregeln gelten weiterhin. Schlägt die Anlage oder die anschließende Berechtigungsprüfung fehl, wird keine E-Mail versendet. Prüfen Sie bei fehlgeschlagenem oder unklarem Versand zuerst das bereits angelegte Ticket. Eingehende Antworten setzen einen eingerichteten GLPI-Mailcollector und die passende Antwortzuordnung voraus.
+
+Bei **Neue E-Mail** bestimmt die Zeile **Absender** die Einheit des neuen Tickets, die konfigurierte Absenderadresse und die Signatur. Die Auswahl umfasst die Einheiten des aktuell verwendeten Profils. Die globale GLPI-Einheit bleibt unverändert.

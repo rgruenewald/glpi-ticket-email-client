@@ -459,10 +459,11 @@ final class AcceptanceTest extends TestCase
         $this->assertStringContainsString('solutiontemplates_id', $action);
         $this->assertStringContainsString("'emptylabel' => __('Answer templates', 'ticketmailer')", $action);
         $this->assertStringContainsString("'emptylabel' => __('Solution templates', 'ticketmailer')", $action);
-        $this->assertStringContainsString("'modal_class' => 'modal-xl'", $action);
-        $this->assertStringContainsString("\$modal . '.show();'", $action);
+        $modal = (string) file_get_contents(self::REPO_ROOT . '/templates/compose_modal.html.twig');
+        $this->assertStringContainsString('modal-dialog modal-xl', $modal);
+        $this->assertStringContainsString('data-ticketmailer-compose-target', $action);
         $this->assertStringContainsString('PluginTicketmailerTimelineAction::modal', $timeline);
-        $this->assertSame(1, substr_count($timeline . $action, 'echo self::modal($ticket)')
+        $this->assertSame(3, substr_count($timeline . $action, 'echo self::modal($ticket)')
             + substr_count($timeline, 'PluginTicketmailerTimelineAction::modal'));
         $this->assertStringContainsString('$(document).on(', $js);
         $this->assertStringContainsString('applyTemplate', $js);
@@ -491,7 +492,7 @@ final class AcceptanceTest extends TestCase
     #[Test]
     public function v2_send_returns_incomplete_outcomes_to_the_audit_detail(): void
     {
-        $send = (string) file_get_contents(self::REPO_ROOT . '/front/send.php');
+        $send = (string) file_get_contents(self::REPO_ROOT . '/front/send.php') . (string) file_get_contents(self::REPO_ROOT . '/inc/sendservice.class.php');
         $this->assertMatchesRegularExpression(
             '/timeline_recorded.*log_entry\.php/s',
             $send,
@@ -500,7 +501,7 @@ final class AcceptanceTest extends TestCase
     #[Test]
     public function dual_status_flags_are_rejected_and_cleared_before_audit_intent(): void
     {
-        $send = (string) file_get_contents(self::REPO_ROOT . '/front/send.php');
+        $send = (string) file_get_contents(self::REPO_ROOT . '/front/send.php') . (string) file_get_contents(self::REPO_ROOT . '/inc/sendservice.class.php');
         $validation = strpos($send, '$set_waiting && $set_solved');
         $audit = strpos($send, 'PluginTicketmailerAudit::createIntent');
 
@@ -557,7 +558,7 @@ final class AcceptanceTest extends TestCase
         $config = (string) file_get_contents(self::REPO_ROOT . '/inc/config.class.php');
         $reply = (string) file_get_contents(self::REPO_ROOT . '/templates/compose.html.twig');
         $action = (string) file_get_contents(self::REPO_ROOT . '/inc/timelineaction.class.php');
-        $send = (string) file_get_contents(self::REPO_ROOT . '/front/send.php');
+        $send = (string) file_get_contents(self::REPO_ROOT . '/front/send.php') . (string) file_get_contents(self::REPO_ROOT . '/inc/sendservice.class.php');
         $js = (string) file_get_contents(self::REPO_ROOT . '/public/js/composer.js');
         $this->assertStringContainsString('glpi_plugin_ticketmailer_configs', $config);
         $this->assertStringContainsString('notificationtemplates_id', $config);
@@ -576,7 +577,7 @@ final class AcceptanceTest extends TestCase
         $this->assertStringContainsString('Notification::getMailingSignature', $action);
         $this->assertStringContainsString('native_template_selected', $action);
         $this->assertStringNotContainsString('data-ticketmailer-auto-open', $action);
-        $this->assertStringContainsString("'user_autocomplete_show_email' => true", $action);
+        $this->assertStringContainsString("'user_autocomplete_show_email' => false", $action);
         $this->assertStringNotContainsString("\$settings['subject_prefix']", $config);
         $this->assertStringContainsString("preg_match('/[\\x00\\r\\n]/'", $send);
         $entrypoint = (string) file_get_contents(self::REPO_ROOT . '/docker/glpi/docker-entrypoint.sh');
@@ -587,7 +588,7 @@ final class AcceptanceTest extends TestCase
     public function v2_timeline_actions_and_post_controllers_rely_on_glpi_bootstrap_csrf(): void
     {
         $config = (string) file_get_contents(self::REPO_ROOT . '/front/config.form.php');
-        $send = (string) file_get_contents(self::REPO_ROOT . '/front/send.php');
+        $send = (string) file_get_contents(self::REPO_ROOT . '/front/send.php') . (string) file_get_contents(self::REPO_ROOT . '/inc/sendservice.class.php');
         $reply = self::REPO_ROOT . '/inc/timelinereply.class.php';
         $this->assertStringContainsString("Html::hidden('_glpi_csrf_token'", $config);
         $this->assertStringNotContainsString('Session::checkCSRF($_POST)', $config);
@@ -633,20 +634,26 @@ final class AcceptanceTest extends TestCase
         $this->assertStringNotContainsString("__('Action')", $config);
     }
 
-    // ---- Local Docker stack: reproducible build + external SMTP -----------
+    // ---- Local Docker stack: isolated SMTP capture -----------
 
     #[Test]
-    public function local_docker_stack_uses_external_smtp_without_mailpit(): void
+    public function local_docker_stack_captures_smtp_locally(): void
     {
         $compose = (string) file_get_contents(self::REPO_ROOT . '/docker-compose.yml');
         $dockerfile = (string) file_get_contents(self::REPO_ROOT . '/docker/glpi/Dockerfile');
         $setup = (string) file_get_contents(self::REPO_ROOT . '/docker/glpi/setup-glpi.sh');
         $entrypoint = (string) file_get_contents(self::REPO_ROOT . '/docker/glpi/docker-entrypoint.sh');
 
-        $this->assertStringNotContainsString('mailpit', strtolower($compose));
+        $this->assertStringContainsString('GLPI_SMTP_HOST: mailpit', $compose);
+        $this->assertStringContainsString('127.0.0.1:8080:80', $compose);
+        $this->assertStringContainsString('127.0.0.1:8025:8025', $compose);
+        $this->assertStringNotContainsString('1025:1025', $compose);
+        $this->assertStringContainsString('./inc:/var/www/html/plugins/ticketmailer/inc:ro', $compose);
+        $this->assertStringNotContainsString('- .:/var/www/html/plugins/ticketmailer', $compose);
+        $this->assertStringNotContainsString('find /var/www/html/plugins -type', $entrypoint);
         $this->assertDirectoryDoesNotExist(self::REPO_ROOT . '/docker/mailpit');
         $this->assertStringNotContainsString('docker-php-ext-install -j', $dockerfile);
-        foreach (['GLPI_SMTP_HOST', 'GLPI_SMTP_PORT', 'GLPI_SMTP_MODE', 'GLPI_SMTP_USERNAME', 'GLPI_SMTP_PASSWORD'] as $name) {
+        foreach (['GLPI_SMTP_HOST', 'GLPI_SMTP_PORT', 'GLPI_SMTP_MODE'] as $name) {
             $this->assertStringContainsString($name, $compose);
         }
         $this->assertStringNotContainsString('smtp_passwd ""', $setup);
@@ -666,7 +673,7 @@ final class AcceptanceTest extends TestCase
     {
         $action = (string) file_get_contents(self::REPO_ROOT . '/inc/timelineaction.class.php');
         $compose = (string) file_get_contents(self::REPO_ROOT . '/templates/compose.html.twig');
-        $send = (string) file_get_contents(self::REPO_ROOT . '/front/send.php');
+        $send = (string) file_get_contents(self::REPO_ROOT . '/front/send.php') . (string) file_get_contents(self::REPO_ROOT . '/inc/sendservice.class.php');
         $setup = (string) file_get_contents(self::REPO_ROOT . '/setup.php');
         $hooks = (string) file_get_contents(self::REPO_ROOT . '/hook.php');
 
