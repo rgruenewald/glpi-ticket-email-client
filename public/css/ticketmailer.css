@@ -40,9 +40,9 @@
 /* Editor / attach rows: no label, content fills row */
 .ticketmailer-mail-row--editor {
 	align-items: stretch;
-	padding: 0.25rem 0.75rem;
 }
 
+.ticketmailer-mail-row--editor,
 .ticketmailer-mail-row--attach {
 	padding: 0.25rem 0.75rem;
 }
@@ -494,6 +494,7 @@
 }
 /* ── Recipient control ──────────────────────────────────── */
 .ticketmailer-recipient-control {
+	position: relative;
 	display: flex;
 	flex-wrap: wrap;
 	gap: 0.3rem;
@@ -560,10 +561,6 @@
 	padding: 0.15rem;
 	border: 0;
 	box-shadow: none;
-}
-
-.ticketmailer-recipient-control {
-	position: relative;
 }
 
 .ticketmailer-recipient-suggestions {

@@ -12,11 +12,13 @@ const timelineActions = [{ hidden: false }, { hidden: false }];
 const bodyClasses = new Set();
 const nowMs = 1000;
 const timers = [];
+let frame = null;
+let queryCount = 0;
 
 global.Date.now = () => nowMs;
 
 global.requestAnimationFrame = (fn) => {
-	fn();
+	frame = fn;
 	return 1;
 };
 global.setTimeout = (fn, delay) => {
@@ -25,6 +27,7 @@ global.setTimeout = (fn, delay) => {
 };
 
 const flushTimers = () => {
+    while (frame) { const fn = frame; frame = null; fn(); }
 	while (timers.length) {
 		timers.shift().fn();
 	}
@@ -76,6 +79,7 @@ global.document = {
 		}
 	},
 	querySelectorAll(selector) {
+        queryCount++;
 		if (selector === ".ticketmailer-compose") {
 			return composeForms;
 		}
@@ -101,7 +105,7 @@ global.MutationObserver = class {
 		}
 	}
 
-	observe() {}
+	takeRecords() { return []; } observe() {}
 
 	disconnect() {}
 };
@@ -109,7 +113,7 @@ global.MutationObserver.observers = [];
 
 const jqueryCollapseEvents = {};
 global.$ = () => {
-	const chainable = {
+	const chainable = { toggle() {},
 		on(events, handler) {
 			jqueryCollapseEvents[events] = handler;
 			return chainable;
@@ -131,6 +135,7 @@ require("../public/js/ticket-timeline.js");
 
 nativeForms = [makeCollapse("show")];
 domReady();
+flushTimers();
 assert.equal(
 	composeForms.length,
 	0,
@@ -144,6 +149,7 @@ assert.deepEqual(
 
 nativeForms = [];
 collapseEvents["hidden.bs.collapse"]({ target: makeCollapse("") });
+flushTimers();
 assert.deepEqual(
 	timelineActions.map((action) => action.hidden),
 	[false, false],
@@ -152,6 +158,7 @@ assert.deepEqual(
 
 nativeForms = [makeCollapse("collapsing")];
 collapseEvents["show.bs.collapse"]({ target: nativeForms[0] });
+flushTimers();
 assert.equal(
 	timelineActions[0].hidden,
 	true,
@@ -160,8 +167,10 @@ assert.equal(
 
 nativeForms = [makeCollapse("show"), makeCollapse("show")];
 collapseEvents["shown.bs.collapse"]({ target: nativeForms[1] });
+flushTimers();
 nativeForms = [makeCollapse("show")];
 collapseEvents["hidden.bs.collapse"]({ target: makeCollapse("") });
+flushTimers();
 assert.equal(
 	timelineActions[0].hidden,
 	true,
@@ -169,7 +178,7 @@ assert.equal(
 );
 
 nativeForms = [makeCollapse("show", true)];
-classMutation();
+classMutation([{ type: "attributes", target: { nodeType: 1, id: "new-itilobject-form", classList: { contains: () => false } } }]);
 flushTimers();
 assert.equal(
 	timelineActions[0].hidden,
@@ -179,13 +188,14 @@ assert.equal(
 
 nativeForms = [makeCollapse("show")];
 ajaxComplete();
+flushTimers();
 assert.equal(
 	timelineActions[0].hidden,
 	true,
 	"AJAX replacement resynchronizes native form visibility",
 );
 nativeForms = [];
-classMutation();
+classMutation([{ type: "attributes", target: { nodeType: 1, id: "new-itilobject-form", classList: { contains: () => false } } }]);
 flushTimers();
 assert.equal(
 	timelineActions[0].hidden,
@@ -201,6 +211,7 @@ assert.equal(
 // Close the reply form via hidden event
 composeForms = [makeForm(false)];
 jqueryCollapseEvents["hidden.bs.collapse"]();
+flushTimers();
 assert.equal(
 	document.body.classList.contains("ticketmailer-compose-active"),
 	false,
@@ -211,6 +222,7 @@ assert.equal(
 forwardPanelOpen = true;
 composeForms = [makeForm(true)];
 jqueryCollapseEvents["shown.bs.collapse"]();
+flushTimers();
 assert.equal(
 	document.body.classList.contains("ticketmailer-compose-active"),
 	true,
@@ -221,6 +233,7 @@ assert.equal(
 forwardPanelOpen = false;
 composeForms = [makeForm(false)];
 jqueryCollapseEvents["hidden.bs.collapse"]();
+flushTimers();
 assert.equal(
 	document.body.classList.contains("ticketmailer-compose-active"),
 	false,
@@ -231,10 +244,27 @@ assert.equal(
 forwardPanelOpen = false;
 composeForms = [makeForm(false)];
 jqueryCollapseEvents["hidden.bs.collapse"]();
+flushTimers();
 ajaxComplete();
+flushTimers();
 flushTimers();
 assert.equal(
 	document.body.classList.contains("ticketmailer-compose-active"),
 	false,
 	"timeline actions remain available after the compose form is closed",
 );
+
+const queriesBefore = queryCount;
+for (let i = 0; i < 20; i++) ajaxComplete();
+assert.equal(queryCount, queriesBefore, "events defer DOM reads until the next frame");
+flushTimers();
+assert.equal(queryCount - queriesBefore, 3, "event bursts share one synchronization");
+classMutation([{type:"attributes",target:{nodeType:1,id:"noise",classList:{contains:()=>false},getElementsByClassName:()=>[]}}]);
+assert.equal(frame, null, "unrelated classes schedule no work");
+
+classMutation([{type:"attributes", attributeName:"class", oldValue:"collapse show", target:{nodeType:1,id:"native",parentElement:{id:"new-itilobject-form"},classList:{contains:()=>false},getElementsByClassName:()=>[]}}]);
+assert.notEqual(frame, null, "removing the native collapse class schedules a synchronization");
+flushTimers();
+classMutation([{type:"attributes", attributeName:"class", oldValue:"ticketmailer-compose", target:{nodeType:1,id:"renamed",classList:{contains:()=>false},getElementsByClassName:()=>[]}}]);
+assert.notEqual(frame, null, "removing compose ownership schedules a synchronization");
+flushTimers();

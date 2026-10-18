@@ -1,9 +1,14 @@
 {
   "private": true,
   "scripts": {
+    "test:ui": "node tests/ticket-timeline.test.js && node tests/composer-send-lock.test.js && node --test tests/performance/budgets.test.cjs",
+    "test:performance": "node tests/performance/run.cjs",
     "test:e2e": "playwright test"
   },
   "devDependencies": {
+    "playwright": "1.64.1",
+    "jquery": "3.7.1",
+    "pngjs": "7.0.0",
     "@playwright/test": "1.64.1"
   }
 }

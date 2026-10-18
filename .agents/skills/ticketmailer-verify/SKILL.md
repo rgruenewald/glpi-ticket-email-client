@@ -79,3 +79,18 @@ and comparable synthetic fixture. Record the source revision for each image.
 Capture the changed dialog state, not the fallback page, when the normal user
 path is modal. State the GLPI version and distinguish actual browser checks from
 static checks or previously recorded evidence.
+
+## UI performance regression gate
+
+For UI/JavaScript/CSS changes also run:
+
+~~~sh
+npm ci
+npx playwright install chromium
+npm run test:ui
+npm run test:performance
+~~~
+
+See docs/performance/regression-tests.md for fixed JS/CSS references, timing tolerances,
+negative-case evidence and scope limits. CI runs .github/workflows/ui-performance.yml.
+Do not automatically refresh references or increase budgets after a failure.

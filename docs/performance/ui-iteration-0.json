@@ -1,0 +1,171 @@
+{
+  "root": "/home/ronny/ws/github.com/rgruenewald/glpi-ticket-email-client/main",
+  "activeSamples": [
+    {
+      "queries": 1295,
+      "toggles": 259,
+      "scriptMs": 22.099,
+      "layoutMs": 1.9100000000000001,
+      "styleMs": 2.986,
+      "taskMs": 91.7
+    },
+    {
+      "queries": 1295,
+      "toggles": 259,
+      "scriptMs": 21.425,
+      "layoutMs": 1.8109999999999997,
+      "styleMs": 2.8659999999999997,
+      "taskMs": 79.13199999999999
+    },
+    {
+      "queries": 1295,
+      "toggles": 259,
+      "scriptMs": 21.916,
+      "layoutMs": 1.8800000000000001,
+      "styleMs": 2.991,
+      "taskMs": 85.693
+    },
+    {
+      "queries": 1295,
+      "toggles": 259,
+      "scriptMs": 21.016,
+      "layoutMs": 1.788,
+      "styleMs": 2.858,
+      "taskMs": 77.138
+    },
+    {
+      "queries": 1295,
+      "toggles": 259,
+      "scriptMs": 21.211000000000002,
+      "layoutMs": 1.716,
+      "styleMs": 2.84,
+      "taskMs": 82.257
+    },
+    {
+      "queries": 1295,
+      "toggles": 259,
+      "scriptMs": 21.425,
+      "layoutMs": 1.7399999999999998,
+      "styleMs": 2.742,
+      "taskMs": 77.11500000000001
+    },
+    {
+      "queries": 1295,
+      "toggles": 259,
+      "scriptMs": 21.652,
+      "layoutMs": 1.7969999999999995,
+      "styleMs": 2.88,
+      "taskMs": 83.849
+    },
+    {
+      "queries": 1295,
+      "toggles": 259,
+      "scriptMs": 21.069000000000003,
+      "layoutMs": 1.7070000000000003,
+      "styleMs": 2.9939999999999998,
+      "taskMs": 77.99000000000001
+    },
+    {
+      "queries": 1295,
+      "toggles": 259,
+      "scriptMs": 21.555999999999997,
+      "layoutMs": 1.7649999999999997,
+      "styleMs": 2.9960000000000004,
+      "taskMs": 84.367
+    }
+  ],
+  "activeMedian": {
+    "queries": 1295,
+    "toggles": 259,
+    "scriptMs": 21.425,
+    "layoutMs": 1.788,
+    "styleMs": 2.88,
+    "taskMs": 82.257
+  },
+  "chromium": "156.0.8078.4",
+  "scenario": "30 unrelated class mutations over 30 frames; 1500 timeline nodes; 400ms settle; no CPU throttle",
+  "repetitions": 9,
+  "samples": [
+    {
+      "queries": 845,
+      "toggles": 169,
+      "scriptMs": 19.800000000000004,
+      "layoutMs": 0,
+      "styleMs": 0,
+      "taskMs": 25.291000000000007
+    },
+    {
+      "queries": 845,
+      "toggles": 169,
+      "scriptMs": 18.208000000000002,
+      "layoutMs": 0,
+      "styleMs": 0,
+      "taskMs": 23.603000000000005
+    },
+    {
+      "queries": 845,
+      "toggles": 169,
+      "scriptMs": 19.058000000000003,
+      "layoutMs": 0,
+      "styleMs": 0,
+      "taskMs": 24.531
+    },
+    {
+      "queries": 845,
+      "toggles": 169,
+      "scriptMs": 19.022000000000002,
+      "layoutMs": 0,
+      "styleMs": 0,
+      "taskMs": 25.191
+    },
+    {
+      "queries": 845,
+      "toggles": 169,
+      "scriptMs": 19,
+      "layoutMs": 0,
+      "styleMs": 0,
+      "taskMs": 24.909000000000006
+    },
+    {
+      "queries": 845,
+      "toggles": 169,
+      "scriptMs": 18.373,
+      "layoutMs": 0,
+      "styleMs": 0,
+      "taskMs": 23.622000000000003
+    },
+    {
+      "queries": 845,
+      "toggles": 169,
+      "scriptMs": 18.671,
+      "layoutMs": 0,
+      "styleMs": 0,
+      "taskMs": 24.018000000000004
+    },
+    {
+      "queries": 845,
+      "toggles": 169,
+      "scriptMs": 18.518,
+      "layoutMs": 0,
+      "styleMs": 0,
+      "taskMs": 24.501
+    },
+    {
+      "queries": 845,
+      "toggles": 169,
+      "scriptMs": 18.627,
+      "layoutMs": 0,
+      "styleMs": 0,
+      "taskMs": 24.133000000000003
+    }
+  ],
+  "median": {
+    "queries": 845,
+    "toggles": 169,
+    "scriptMs": 18.671,
+    "layoutMs": 0,
+    "styleMs": 0,
+    "taskMs": 24.501
+  },
+  "functionalChecks": "passed"
+}
