@@ -1,0 +1,78 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  unit:
+    name: PHP ${{ matrix.php }}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.2', '8.3', '8.4', '8.5']
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mysqli, mbstring, intl, gd, zip, xml
+          coverage: none
+          tools: composer:v2
+      - run: composer validate --strict
+      - run: composer install --no-interaction --prefer-dist --no-progress
+      - name: PHP syntax
+        run: find inc front ajax tests -name '*.php' -print0 | xargs -0 -n1 php -l && php -l setup.php && php -l hook.php
+      - run: vendor/bin/phpunit --fail-on-warning
+
+  package:
+    name: Package and contracts
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22.18.0'
+      - run: python3 -m unittest discover -s tests/release -v
+      - run: python3 scripts/release/release.py build
+      - run: python3 scripts/release/release.py verify
+      - run: node --test tests/*.test.js
+      - run: ROOT=. bash .agent/contracts/glpi-ticket-email-client-v2/score.sh
+
+  integration:
+    name: Packaged GLPI integration
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22.18.0'
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.11'
+      - run: python3 scripts/release/release.py build
+      - run: npm ci --ignore-scripts && npx playwright install --with-deps chromium
+      - run: bash scripts/release/integration.sh
+
+  required:
+    name: Required checks
+    if: always()
+    needs: [unit, package, integration]
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Require every gate
+        env:
+          UNIT: ${{ needs.unit.result }}
+          INTEGRATION: ${{ needs.integration.result }}
+          PACKAGE: ${{ needs.package.result }}
+        run: test "$UNIT" = success && test "$PACKAGE" = success && test "$INTEGRATION" = success

@@ -39,3 +39,19 @@ Global harness skills (TDD, review, guardrails, herdr, etc.) stay global. Projec
 - PHP classes: `PluginTicketmailer…` in `inc/*.class.php` (GLPI plugin naming).
 - Front controllers under `front/`; AJAX under `ajax/`; Twig under `templates/`.
 - SQL migrations: one file per version bump; keep `install.sql` equivalent to latest greenfield schema.
+
+## Releases
+
+- Use ticketmailer-release for release PRs, versioning and package checks.
+- Use ticketmailer-marketplace for catalog preparation and submission.
+- Process and GitHub setup: docs/RELEASING.md. Never bypass failed gates.
+
+## Pull requests and optional media
+
+- Use ticketmailer-pr for normal PR descriptions and evidence; keep the global
+  pr-description skill for generic drafting and Git inspection.
+- Generated release PRs use ticketmailer-release, not a replacement PR body.
+- Use ticketmailer-release-media for UI evidence and optional change videos.
+  HyperFrames is not integrated; verify a pilot before introducing renderer APIs.
+- Standards: .github/pull_request_template.md, docs/RELEASING.md and
+  docs/RELEASE-MEDIA.md. Media is never a mandatory release gate.

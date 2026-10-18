@@ -48,3 +48,24 @@ Keep English and German translations complete and do not introduce raw untransla
 ## Pull requests
 
 Use a focused branch and describe the problem, behavior change, verification performed, and any manual GLPI/SMTP checks. Keep documentation in English and update the README when installation, configuration, security, or user-visible behavior changes.
+
+## Releases
+
+Use Conventional Commit PR titles and squash merges. Release Please maintains a
+reviewable release PR; merging it explicitly authorizes that version. See
+[Release management](docs/RELEASING.md) for required gates and GitHub setup.
+
+## Change pull requests
+
+Use [.github/pull_request_template.md](.github/pull_request_template.md) for normal
+PRs. Explain the user problem, approach, actual test results and limitations.
+Assess delivery/duplicate-send behavior, permissions, privacy, database migrations
+and GLPI/PHP compatibility. State why an area is unaffected when appropriate.
+For visible UI changes supply relevant before/after screenshots or explain missing
+evidence. Use synthetic data only. Videos are optional; see
+[Release media](docs/RELEASE-MEDIA.md).
+
+Agents use the local ticketmailer-pr skill, supplementing the global pr-description
+skill. Generated release PRs instead follow ticketmailer-release and the release
+checklist, preserving Release Please's managed body. Templates and skills guide
+review; they do not automatically validate the truth of PR claims.

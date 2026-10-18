@@ -1,0 +1,80 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# No PR code runs with a write token. Release Please uses an installation token
+# so that its PRs trigger normal required CI checks (GITHUB_TOKEN would not).
+permissions:
+  contents: read
+
+concurrency:
+  group: release-main
+  cancel-in-progress: false
+
+jobs:
+  checks:
+    uses: ./.github/workflows/ci.yml
+
+  release:
+    needs: checks
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Create scoped release bot token
+        id: app
+        uses: actions/create-github-app-token@d72941d797fd3113feb6b93fd0dec494b13a2547 # v2
+        with:
+          app-id: ${{ vars.RELEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+          permission-issues: write
+      - name: Maintain release PR or create draft release
+        id: please
+        uses: googleapis/release-please-action@5c625bfb5d1ff62eadeeb3772007f7f66fdcf071 # v4
+        with:
+          token: ${{ steps.app.outputs.token }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+          target-branch: main
+      - name: Check out exact release commit
+        if: steps.please.outputs.release_created == 'true'
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ steps.please.outputs.sha }}
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Set up Python
+        if: steps.please.outputs.release_created == 'true'
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.11'
+      - name: Build and verify release assets
+        if: steps.please.outputs.release_created == 'true'
+        env:
+          TAG: ${{ steps.please.outputs.tag_name }}
+        run: |
+          python3 scripts/release/release.py build --tag "$TAG"
+          python3 scripts/release/release.py verify --tag "$TAG"
+      - name: Set up Node for package integration
+        if: steps.please.outputs.release_created == 'true'
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22.18.0'
+      - name: Install browser dependencies
+        if: steps.please.outputs.release_created == 'true'
+        run: npm ci --ignore-scripts && npx playwright install --with-deps chromium
+      - name: Installation, migration and SMTP gate on packaged code
+        if: steps.please.outputs.release_created == 'true'
+        run: bash scripts/release/integration.sh
+      - name: Upload assets and publish only after successful checks
+        if: steps.please.outputs.release_created == 'true'
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ steps.please.outputs.tag_name }}
+        run: |
+          gh release upload "$TAG" dist/ticketmailer-*.tar.gz dist/ticketmailer.xml dist/SHA256SUMS
+          gh release edit "$TAG" --draft=false
