@@ -21,7 +21,7 @@ async function composeMail(page, ticket, subject, recipient = 'recipient@example
   await page.locator('[name=subject]').fill(subject);
   await page.frameLocator('iframe[id^=ticketmailer-body-html]').locator('body').fill('Ticketmailer browser E2E content');
 }
-test('browser compose delivers once and creates audit and timeline; anonymous access denied', async ({ page, request, browser }) => {
+test('browser compose delivers once and creates audit and timeline; anonymous access denied', async ({ page, request, browser, baseURL }) => {
   const fixture = JSON.parse(compose('exec', '-T', '--user', 'www-data', 'glpi', 'php', '/usr/local/bin/e2e-fixture.php'));
   const subject = 'E2E-' + Date.now();
   await login(page);
