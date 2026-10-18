@@ -94,3 +94,10 @@ npm run test:performance
 See docs/performance/regression-tests.md for fixed JS/CSS references, timing tolerances,
 negative-case evidence and scope limits. CI runs .github/workflows/ui-performance.yml.
 Do not automatically refresh references or increase budgets after a failure.
+
+## Release surfaces
+
+For release tooling also load ../ticketmailer-release/SKILL.md and run the offline
+Python contract tests, package build/verify and disposable packaged integration
+documented in ../../../docs/RELEASING.md. Source-tree smoke tests do not replace
+the packaged-code gate.

@@ -2,7 +2,7 @@ const { test, expect } = require('@playwright/test');
 const { execFileSync } = require('node:child_process');
 const path = require('node:path');
 const root = path.resolve(__dirname, '../..');
-const compose = (...args) => execFileSync('docker', ['--context', 'rootless', 'compose', ...args], { cwd: root, encoding: 'utf8' });
+const compose = (...args) => execFileSync('docker', ['--context', process.env.TICKETMAILER_DOCKER_CONTEXT || 'rootless', 'compose', ...args], { cwd: root, encoding: 'utf8' });
 function sql(query) {
   return compose('exec', '-T', 'db', 'mariadb', '-uglpi', '-pglpi', '--batch', '--skip-column-names', 'glpi', '-e', query).trim();
 }
@@ -15,9 +15,9 @@ async function login(page, user = 'glpi', password = 'glpi') {
 }
 async function composeMail(page, ticket, subject, recipient = 'recipient@example.test') {
   await page.goto('/plugins/ticketmailer/front/compose.php?tickets_id=' + ticket);
-  await page.getByRole('textbox', { name: 'To', exact: true }).fill(recipient);
-  await page.getByRole('textbox', { name: 'CC', exact: true }).fill('copy@example.test');
-  await page.getByRole('textbox', { name: 'BCC', exact: true }).fill('blind@example.test');
+  await page.getByRole('combobox', { name: 'To', exact: true }).fill(recipient);
+  await page.getByRole('combobox', { name: 'CC', exact: true }).fill('copy@example.test');
+  await page.getByRole('combobox', { name: 'BCC', exact: true }).fill('blind@example.test');
   await page.locator('[name=subject]').fill(subject);
   await page.frameLocator('iframe[id^=ticketmailer-body-html]').locator('body').fill('Ticketmailer browser E2E content');
 }
@@ -36,10 +36,10 @@ test('browser compose delivers once and creates audit and timeline; anonymous ac
   const audit = sql('SELECT id,followups_id FROM glpi_plugin_ticketmailer_logs WHERE tickets_id=' + fixture.ticket).split('\t');
   expect(Number(audit[1])).toBeGreaterThan(0);
   expect(sql('SELECT content FROM glpi_itilfollowups WHERE id=' + Number(audit[1]))).toContain('Ticketmailer browser E2E content');
-  const response = await request.get('http://127.0.0.1:8025/api/v1/search?query=' + encodeURIComponent('subject:' + subject));
+  const response = await request.get((process.env.TICKETMAILER_MAIL_URL || 'http://127.0.0.1:8025') + '/api/v1/search?query=' + encodeURIComponent('subject:' + subject));
   const messages = await response.json();
   expect(messages.messages).toHaveLength(1);
-  const detail = await (await request.get('http://127.0.0.1:8025/api/v1/message/' + messages.messages[0].ID)).json();
+  const detail = await (await request.get((process.env.TICKETMAILER_MAIL_URL || 'http://127.0.0.1:8025') + '/api/v1/message/' + messages.messages[0].ID)).json();
   expect(detail.HTML).toContain('Ticketmailer browser E2E content');
   expect(detail.To[0].Address).toBe('recipient@example.test');
   expect(detail.Cc[0].Address).toBe('copy@example.test');
@@ -77,9 +77,9 @@ test('SMTP outage records failure without a followup and recovers for subsequent
     compose('start', 'mailpit');
   }
   await expect.poll(async () => {
-    try { return (await request.get('http://127.0.0.1:8025/api/v1/info')).ok(); } catch { return false; }
+    try { return (await request.get((process.env.TICKETMAILER_MAIL_URL || 'http://127.0.0.1:8025') + '/api/v1/info')).ok(); } catch { return false; }
   }).toBe(true);
-  const found = await (await request.get('http://127.0.0.1:8025/api/v1/search?query=' + encodeURIComponent('subject:' + subject))).json();
+  const found = await (await request.get((process.env.TICKETMAILER_MAIL_URL || 'http://127.0.0.1:8025') + '/api/v1/search?query=' + encodeURIComponent('subject:' + subject))).json();
   expect(found.messages).toHaveLength(0);
 });
 
@@ -108,10 +108,10 @@ async function post(page, url, fields = {}, files = {}) {
 async function captured(request, subject) {
   let found;
   await expect.poll(async () => {
-    found = await (await request.get('http://127.0.0.1:8025/api/v1/search?query=' + encodeURIComponent('subject:' + subject))).json();
+    found = await (await request.get((process.env.TICKETMAILER_MAIL_URL || 'http://127.0.0.1:8025') + '/api/v1/search?query=' + encodeURIComponent('subject:' + subject))).json();
     return found.messages.length;
   }).toBe(1);
-  return (await request.get('http://127.0.0.1:8025/api/v1/message/' + found.messages[0].ID)).json();
+  return (await request.get((process.env.TICKETMAILER_MAIL_URL || 'http://127.0.0.1:8025') + '/api/v1/message/' + found.messages[0].ID)).json();
 }
 
 test('public history and selected attachment forward without private or unselected data', async ({ page, request }) => {
@@ -137,7 +137,7 @@ test('public history and selected attachment forward without private or unselect
   expect(mail.HTML).not.toContain('E2E_PRIVATE_FILE');
   expect(mail.Attachments.map(a => a.FileName)).toEqual(['E2E_SELECTED_FILE.txt']);
   expect(sql('SELECT new_conversation FROM glpi_plugin_ticketmailer_logs WHERE tickets_id=' + f.ticket)).toBe('1');
-  const bytes = await request.get('http://127.0.0.1:8025/api/v1/message/' + mail.ID + '/part/' + mail.Attachments[0].PartID);
+  const bytes = await request.get((process.env.TICKETMAILER_MAIL_URL || 'http://127.0.0.1:8025') + '/api/v1/message/' + mail.ID + '/part/' + mail.Attachments[0].PartID);
   expect(await bytes.text()).toBe('E2E_SELECTED_FILE');
   const audit = sql('SELECT body_html FROM glpi_plugin_ticketmailer_logs WHERE tickets_id=' + f.ticket);
   expect(audit).toContain('E2E_PUBLIC_CONTEXT');
@@ -162,7 +162,7 @@ test('history endpoints and send reject private and foreign document IDs', async
     await expect(page).toHaveURL(/front\/send.php/);
     await expect(page.locator('form.ticketmailer-compose')).toBeVisible();
     expect(sql('SELECT COUNT(*) FROM glpi_plugin_ticketmailer_logs WHERE tickets_id=' + f.ticket)).toBe('0');
-    const found = await (await request.get('http://127.0.0.1:8025/api/v1/search?query=' + encodeURIComponent('subject:' + subject))).json();
+    const found = await (await request.get((process.env.TICKETMAILER_MAIL_URL || 'http://127.0.0.1:8025') + '/api/v1/search?query=' + encodeURIComponent('subject:' + subject))).json();
     expect(found.messages).toHaveLength(0);
   }
 });
@@ -197,7 +197,7 @@ test('inline image upload produces a matching CID MIME part and rejects non-imag
   const part = [...mail.Inline, ...mail.Attachments].find(p => p.ContentID === image.cid || p.ContentID === '<' + image.cid + '>');
   expect(part).toBeTruthy();
   expect(part.ContentType).toBe('image/png');
-  const bytes = await request.get('http://127.0.0.1:8025/api/v1/message/' + mail.ID + '/part/' + part.PartID);
+  const bytes = await request.get((process.env.TICKETMAILER_MAIL_URL || 'http://127.0.0.1:8025') + '/api/v1/message/' + mail.ID + '/part/' + part.PartID);
   expect(await bytes.body()).toEqual(png);
   const anonymous = await request.get('/plugins/ticketmailer/front/download.php?log_id=' + sql('SELECT id FROM glpi_plugin_ticketmailer_logs WHERE tickets_id=' + f.ticket) + '&attachment_id=' + image.id);
   expect(await anonymous.body()).not.toEqual(png);
@@ -209,7 +209,7 @@ test('mailbox warning is enforced at send and explicit override is audited', asy
   try {
     await login(page);
     await composeMail(page, f.ticket, subject, f.mailbox.toUpperCase());
-    await page.getByRole('textbox', { name: 'To', exact: true }).press('Tab');
+    await page.getByRole('combobox', { name: 'To', exact: true }).press('Tab');
     await expect(page.locator('.ticketmailer-mailbox')).toBeVisible();
     await expect(page.getByRole('button', { name: 'Send', exact: true })).toBeDisabled();
     const form = await page.locator('form.ticketmailer-compose').evaluate(form => Object.fromEntries([...new FormData(form)].filter(([,value]) => typeof value === 'string')));

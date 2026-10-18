@@ -1,0 +1,18 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "bootstrap-sha": "3c940f2db6c710dd556a6871eb08439366634187",
+  "packages": {
+    ".": {
+      "release-type": "simple",
+      "include-component-in-tag": false,
+      "include-v-in-tag": true,
+      "draft": true,
+      "force-tag-creation": true,
+      "extra-files": [
+        "setup.php",
+        "README.md",
+        "CONTEXT.md"
+      ]
+    }
+  }
+}

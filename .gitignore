@@ -29,3 +29,7 @@ test-results/
 .pi-subagents/
 
 playwright-report/
+
+/dist/
+__pycache__/
+*.pyc
