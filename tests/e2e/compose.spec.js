@@ -54,10 +54,10 @@ test('browser compose delivers once and creates audit and timeline; anonymous ac
   expect(await download.text()).toBe('Synthetic E2E attachment');
   await page.goto('/front/ticket.form.php?id=' + fixture.ticket);
   await expect(page.locator('body')).toContainText('Ticketmailer browser E2E content');
-  const anonymous = await browser.newContext();
-  const denied = await anonymous.request.get('http://127.0.0.1:8080/plugins/ticketmailer/front/compose.php?tickets_id=' + fixture.ticket);
+  const anonymous = await browser.newContext({ baseURL });
+  const denied = await anonymous.request.get('/plugins/ticketmailer/front/compose.php?tickets_id=' + fixture.ticket);
   expect(await denied.text()).not.toContain('data-ticketmailer-form');
-  const deniedDownload = await anonymous.request.get('http://127.0.0.1:8080' + downloadPath);
+  const deniedDownload = await anonymous.request.get(downloadPath);
   expect(await deniedDownload.text()).not.toBe('Synthetic E2E attachment');
   await anonymous.close();
 });
