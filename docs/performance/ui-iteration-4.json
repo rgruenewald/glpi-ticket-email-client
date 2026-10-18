@@ -1,0 +1,171 @@
+{
+  "root": "/tmp/ticketmailer-ui-bench/variant-4",
+  "activeSamples": [
+    {
+      "queries": 150,
+      "toggles": 45,
+      "scriptMs": 7.5,
+      "layoutMs": 2.0030000000000006,
+      "styleMs": 3.1390000000000002,
+      "taskMs": 72.956
+    },
+    {
+      "queries": 150,
+      "toggles": 45,
+      "scriptMs": 6.462,
+      "layoutMs": 1.9239999999999995,
+      "styleMs": 2.782,
+      "taskMs": 60.574999999999996
+    },
+    {
+      "queries": 150,
+      "toggles": 45,
+      "scriptMs": 6.358,
+      "layoutMs": 1.7699999999999994,
+      "styleMs": 2.8430000000000004,
+      "taskMs": 62.648999999999994
+    },
+    {
+      "queries": 150,
+      "toggles": 45,
+      "scriptMs": 6.544000000000001,
+      "layoutMs": 1.8849999999999996,
+      "styleMs": 2.862,
+      "taskMs": 60.575
+    },
+    {
+      "queries": 150,
+      "toggles": 45,
+      "scriptMs": 6.8260000000000005,
+      "layoutMs": 1.905,
+      "styleMs": 2.9920000000000004,
+      "taskMs": 66.074
+    },
+    {
+      "queries": 150,
+      "toggles": 45,
+      "scriptMs": 7.1339999999999995,
+      "layoutMs": 1.8840000000000003,
+      "styleMs": 2.875,
+      "taskMs": 59.50299999999999
+    },
+    {
+      "queries": 150,
+      "toggles": 45,
+      "scriptMs": 6.648000000000001,
+      "layoutMs": 1.8259999999999998,
+      "styleMs": 2.8560000000000003,
+      "taskMs": 63.005
+    },
+    {
+      "queries": 150,
+      "toggles": 45,
+      "scriptMs": 6.499,
+      "layoutMs": 1.8149999999999997,
+      "styleMs": 2.9090000000000003,
+      "taskMs": 59.249
+    },
+    {
+      "queries": 150,
+      "toggles": 45,
+      "scriptMs": 6.5120000000000005,
+      "layoutMs": 1.8319999999999999,
+      "styleMs": 2.9240000000000004,
+      "taskMs": 64.22500000000001
+    }
+  ],
+  "activeMedian": {
+    "queries": 150,
+    "toggles": 45,
+    "scriptMs": 6.544000000000001,
+    "layoutMs": 1.8840000000000003,
+    "styleMs": 2.875,
+    "taskMs": 62.648999999999994
+  },
+  "chromium": "156.0.8078.4",
+  "scenario": "30 unrelated class mutations over 30 frames; 1500 timeline nodes; 400ms settle; no CPU throttle",
+  "repetitions": 9,
+  "samples": [
+    {
+      "queries": 0,
+      "toggles": 0,
+      "scriptMs": 0.867999999999999,
+      "layoutMs": 0,
+      "styleMs": 0,
+      "taskMs": 5.13799999999999
+    },
+    {
+      "queries": 0,
+      "toggles": 0,
+      "scriptMs": 0.6350000000000001,
+      "layoutMs": 0,
+      "styleMs": 0,
+      "taskMs": 5.4409999999999945
+    },
+    {
+      "queries": 0,
+      "toggles": 0,
+      "scriptMs": 0.722,
+      "layoutMs": 0,
+      "styleMs": 0,
+      "taskMs": 5.920000000000002
+    },
+    {
+      "queries": 0,
+      "toggles": 0,
+      "scriptMs": 0.6239999999999998,
+      "layoutMs": 0,
+      "styleMs": 0,
+      "taskMs": 5.207000000000003
+    },
+    {
+      "queries": 0,
+      "toggles": 0,
+      "scriptMs": 0.6179999999999997,
+      "layoutMs": 0,
+      "styleMs": 0,
+      "taskMs": 5.106
+    },
+    {
+      "queries": 0,
+      "toggles": 0,
+      "scriptMs": 0.6840000000000002,
+      "layoutMs": 0,
+      "styleMs": 0,
+      "taskMs": 5.519000000000003
+    },
+    {
+      "queries": 0,
+      "toggles": 0,
+      "scriptMs": 0.6069999999999999,
+      "layoutMs": 0,
+      "styleMs": 0,
+      "taskMs": 4.935999999999996
+    },
+    {
+      "queries": 0,
+      "toggles": 0,
+      "scriptMs": 0.621,
+      "layoutMs": 0,
+      "styleMs": 0,
+      "taskMs": 5.209999999999999
+    },
+    {
+      "queries": 0,
+      "toggles": 0,
+      "scriptMs": 0.6879999999999998,
+      "layoutMs": 0,
+      "styleMs": 0,
+      "taskMs": 5.738
+    }
+  ],
+  "median": {
+    "queries": 0,
+    "toggles": 0,
+    "scriptMs": 0.6350000000000001,
+    "layoutMs": 0,
+    "styleMs": 0,
+    "taskMs": 5.209999999999999
+  },
+  "functionalChecks": "passed"
+}
