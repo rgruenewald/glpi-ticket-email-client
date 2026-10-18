@@ -3,7 +3,6 @@ vendor/
 
 # --- npm (frontend, if any) ---
 node_modules/
-package-lock.json
 
 # --- secrets ---
 .env

@@ -72,3 +72,18 @@ Also verify v2-specific paths when touched: timeline followup present, `_disable
 - Invent a second CI system in-repo without need
 - Report success if SMTP sent but timeline followup failed (incomplete send)
 - Use v1 score.sh as the sole gate for v2 surfaces
+
+## UI performance regression gate
+
+For UI/JavaScript/CSS changes also run:
+
+~~~sh
+npm ci
+npx playwright install chromium
+npm run test:ui
+npm run test:performance
+~~~
+
+See docs/performance/regression-tests.md for fixed JS/CSS references, timing tolerances,
+negative-case evidence and scope limits. CI runs .github/workflows/ui-performance.yml.
+Do not automatically refresh references or increase budgets after a failure.
