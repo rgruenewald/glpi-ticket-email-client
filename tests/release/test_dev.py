@@ -14,7 +14,7 @@ class DevTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             docker = root / "docker"
-            docker.write_text("#!/bin/sh\necho \"$*\" >> \"$CALLS\"\ncase \"$*\" in\n  *build*) exit 1;;\nesac\n" )
+
             # Test the lifecycle separately from host-specific ACL preparation.
             source = (ROOT / "scripts/dev").read_text()
             source = source.replace("    compose build glpi test", "    :")
@@ -27,15 +27,23 @@ class DevTest(unittest.TestCase):
             docker.write_text("#!/bin/sh\necho \"$*\" >> \"$CALLS\"\ncase \"$*\" in\n  *--follow*) exec sleep 30;;\nesac\n")
             docker.chmod(0o755)
             script.chmod(0o755)
-            env = dict(os.environ, PATH=tmp + os.pathsep + os.environ["PATH"], CALLS=str(root / "calls"))
+            # The launcher lock lives under HOME, even with a fake Docker.
+            # Never contend with a real interactive session or touch host state.
+            env = dict(os.environ, HOME=tmp,
+                       PATH=tmp + os.pathsep + os.environ["PATH"], CALLS=str(root / "calls"))
             proc = subprocess.Popen([str(script), "interactive"], env=env, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
             try:
                 for _ in range(100):
                     if (root / "calls").exists() and "--follow" in (root / "calls").read_text():
                         break
+                    if proc.poll() is not None:
+                        _, err = proc.communicate()
+                        self.fail("Launcher exited before log follower started: " + err.decode())
                     time.sleep(0.02)
                 else:
-                    self.fail("Log follower did not start")
+                    proc.kill()
+                    _, err = proc.communicate()
+                    self.fail("Log follower did not start: " + err.decode())
                 proc.send_signal(signal.SIGTERM)
                 _, err = proc.communicate(timeout=10)
                 self.assertEqual(proc.returncode, 143, err.decode())
@@ -43,7 +51,8 @@ class DevTest(unittest.TestCase):
                 self.assertIn("stop glpi db mailpit", calls)
                 self.assertNotIn("down", calls)
                 self.assertIn("compose.interactive.yml", calls)
+                self.assertTrue((root / ".local/state/ticketmailer-schema/interactive.lock").is_file())
             finally:
                 if proc.poll() is None:
                     proc.kill()
-                    proc.communicate()
+                proc.communicate()

@@ -7,7 +7,7 @@
 
 define('PLUGIN_TICKETMAILER_VERSION', '2.4.0'); // x-release-please-version
 define('PLUGIN_TICKETMAILER_MIN_GLPI', '11.0.0');
-define('PLUGIN_TICKETMAILER_MAX_GLPI', '11.99.99');
+define('PLUGIN_TICKETMAILER_MAX_GLPI', '11.0.99');
 
 /**
  * Plugin version. Required by GLPI's plugin loader.

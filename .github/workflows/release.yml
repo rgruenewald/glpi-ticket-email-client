@@ -20,6 +20,8 @@ jobs:
 
   release:
     needs: checks
+    outputs:
+      published: ${{ steps.publish.outputs.published }}
     runs-on: ubuntu-24.04
     steps:
       - name: Create scoped release bot token
@@ -70,6 +72,7 @@ jobs:
         if: steps.please.outputs.release_created == 'true'
         run: bash scripts/release/integration.sh
       - name: Upload assets and publish only after successful checks
+        id: publish
         if: steps.please.outputs.release_created == 'true'
         env:
           GH_TOKEN: ${{ steps.app.outputs.token }}
@@ -78,3 +81,10 @@ jobs:
         run: |
           gh release upload "$TAG" dist/ticketmailer-*.tar.gz dist/ticketmailer.xml dist/SHA256SUMS
           gh release edit "$TAG" --draft=false
+          echo "published=true" >> "$GITHUB_OUTPUT"
+
+  catalog:
+    needs: release
+    if: needs.release.outputs.published == 'true'
+    uses: ./.github/workflows/catalog.yml
+    secrets: inherit
