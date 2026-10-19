@@ -1,5 +1,21 @@
 # Changelog
 
+## [2.5.0](https://github.com/rgruenewald/glpi-ticket-email-client/compare/v2.4.0...v2.5.0) (2026-10-19)
+
+
+### Features
+
+* prepare verified GLPI directory catalog updates ([20df4fa](https://github.com/rgruenewald/glpi-ticket-email-client/commit/20df4fa4f8efb563ad80a06977a1e145934f92a4))
+* prepare verified GLPI directory catalog updates ([11f4678](https://github.com/rgruenewald/glpi-ticket-email-client/commit/11f467812200f3ee722baedc315fdd6266ebc1ce))
+
+
+### Bug Fixes
+
+* align email and internal note compose toolbars ([e99cb3d](https://github.com/rgruenewald/glpi-ticket-email-client/commit/e99cb3d626cab1b0137fab674011c8756c9b8096))
+* align email and internal note compose toolbars ([de5ba99](https://github.com/rgruenewald/glpi-ticket-email-client/commit/de5ba99836776cbfd34bdd1e120e533bd39f3221))
+* prevent stretched ticket timeline action buttons ([4a73eaa](https://github.com/rgruenewald/glpi-ticket-email-client/commit/4a73eaa0fe3ee23be77ec62ce839922a7a1c6dde))
+* prevent stretched ticket timeline action buttons ([358a911](https://github.com/rgruenewald/glpi-ticket-email-client/commit/358a9111465d467e5599316b75ae4576b6ea9f63))
+
 ## [2.4.0](https://github.com/rgruenewald/glpi-ticket-email-client/compare/v2.3.2...v2.4.0) (2026-10-19)
 
 
