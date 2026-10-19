@@ -26,7 +26,7 @@ final class PluginIdentityTest extends TestCase
     #[Test]
     public function durable_documentation_reports_the_canonical_plugin_version(): void
     {
-        foreach (['CONTEXT.md', 'README.md'] as $path) {
+        foreach (['CONTEXT.md', 'docs/INSTALLATION.md'] as $path) {
             $documentation = (string) file_get_contents(self::REPO_ROOT . '/' . $path);
 
             $this->assertStringContainsString(trim(file_get_contents(self::REPO_ROOT . '/VERSION')), $documentation, $path);
