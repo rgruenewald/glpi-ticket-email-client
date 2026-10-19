@@ -113,3 +113,42 @@ scripts/dev up
 
 This affects only the local Compose project on the rootless daemon. Never use a
 global Docker prune to reset this environment.
+
+## Interactive development
+
+Run `make dev` in the worktree you want to test. It builds and prepares the
+shared stack, prints the worktree path, streams logs and stays in the foreground.
+Ctrl-C, SIGTERM and terminal hangup stop GLPI, MariaDB and Mailpit; named volumes
+and test data are retained. SIGKILL, machine failure and forcibly killing only
+Make cannot guarantee cleanup. Use `make stop` for recovery. The interactive
+override disables automatic container restarts.
+
+Use another terminal for `make test` or `make e2e`. Keep `make dev` running
+until browser tests finish; stopping its database interrupts those tests.
+Existing `scripts/dev up` remains detached for automation. Release integration
+uses its own disposable stack and ports; no CI workflow is changed.
+Do not start another worktree against the shared stack during the session.
+Code is bind-mounted. Before GLPI starts, interactive mode reads the persisted
+plugin version and blocks downgrades. Required installations/updates first back up
+the database and config/files under ~/.local/state/ticketmailer-backups (outside
+Git), then run the GLPI installation/update command and activate the plugin.
+READY is printed only after the mounted version is installed and active.
+Schema-relevant changes (SQL files, hook.php and inc/hook.class.php) are hashed.
+A new or changed fingerprint triggers backup and a forced run of the existing
+GLPI install/migration hook, even at the same product version. Only successful
+application and activation record the fingerprint under
+~/.local/state/ticketmailer-schema, keyed to the DB volume and plugin-table
+creation identity rather than the worktree. Missing state causes safe reapplication.
+No tracked version file is modified. This is not a schema downgrade mechanism;
+older same-version branches may need a matching database backup or fresh database.
+Previously recorded update-*.sql files may not be edited or removed; startup
+rejects this because column guards can skip edits to an already applied migration.
+Add a new guarded migration instead. On first adoption there is no historical
+ledger, so existing migrations are assumed immutable; restore/reset the database
+if their old application cannot be trusted.
+Hooks must remain idempotent; new SQL migrations must be wired into migrateSchema.
+Restart make dev after changing schema files while a session is running.
+Concurrent interactive sessions are blocked; detached dev up is not covered by
+this lock and must not be used against the shared instance at the same time.
+Update failures stop services; backups remain for manual recovery.
+Keep this backup directory outside synchronization and review retention manually.
