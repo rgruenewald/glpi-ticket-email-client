@@ -608,6 +608,13 @@
 
 /* ── Email action buttons ───────────────────────────────── */
 
+/* Do not stretch actions to the height of the stacked timeline tools.
+   Keep the native button sizing, matching the Save button. */
+.timeline-buttons,
+.timeline-buttons ul.legacy-timeline-actions {
+	align-items: flex-start;
+}
+
 /* Keep GLPI's native Answer/dropdown split as one seamless button group.
    Without this, GLPI's palette can insert a gap between the "Answer"
    button and its dropdown toggle. Target the split group directly (no
