@@ -14,7 +14,8 @@ spec.loader.exec_module(catalog)
 
 class CatalogTest(unittest.TestCase):
     def setUp(self):
-        self.releases = [dict(tag_name="v2.4.0", draft=False, prerelease=False),
+        self.releases = [dict(tag_name="v2.5.0", draft=False, prerelease=False),
+                         dict(tag_name="v2.4.0", draft=False, prerelease=False),
                          dict(tag_name="v2.3.2", draft=False, prerelease=False)]
         self.bodies = {}
         for release in self.releases:
@@ -24,6 +25,9 @@ class CatalogTest(unittest.TestCase):
             versions = root.find("versions")
             entry = copy.deepcopy(versions[0])
             entry.find("num").text = version
+            # Published compatibility is fixture data, not the current catalog head.
+            entry.find("compatibility/min").text = "11.0.0"
+            entry.find("compatibility/max").text = "11.0.99" if version == "2.5.0" else "11.99.99"
             entry.find("download_url").text = catalog.BASE + "/releases/download/" + tag + "/ticketmailer-" + version + ".tar.gz"
             versions.clear()
             versions.append(entry)
@@ -42,14 +46,15 @@ class CatalogTest(unittest.TestCase):
     def test_history_is_sorted_and_preserves_published_compatibility(self):
         self.releases.reverse()
         versions = ET.fromstring(self.build()).findall("versions/version")
-        self.assertEqual([v.findtext("num") for v in versions], ["2.4.0", "2.3.2"])
-        self.assertEqual(versions[0].findtext("compatibility/max"), "11.99.99")
+        self.assertEqual([v.findtext("num") for v in versions], ["2.5.0", "2.4.0", "2.3.2"])
+        self.assertEqual([v.findtext("compatibility/max") for v in versions],
+                         ["11.0.99", "11.99.99", "11.99.99"])
 
     def test_drafts_prereleases_and_nonstable_tags_are_not_downloaded(self):
         self.releases += [dict(tag_name="v9.0.0", draft=True, prerelease=False),
                           dict(tag_name="v8.0.0", draft=False, prerelease=True),
                           dict(tag_name="v7.0.0-rc1", draft=False, prerelease=False)]
-        self.assertEqual(len(ET.fromstring(self.build()).findall("versions/version")), 2)
+        self.assertEqual(len(ET.fromstring(self.build()).findall("versions/version")), 3)
 
     def test_tampered_xml_and_archive_are_rejected(self):
         for name in ("ticketmailer.xml", "ticketmailer-2.4.0.tar.gz"):
@@ -73,11 +78,12 @@ class CatalogTest(unittest.TestCase):
                     self.build()
 
     def test_missing_assets_duplicate_versions_and_empty_history_fail(self):
-        self.bodies["v2.4.0"].pop("ticketmailer-2.4.0.tar.gz")
+        original = self.bodies["v2.4.0"].pop("ticketmailer-2.4.0.tar.gz")
         with self.assertRaises(KeyError):
             self.build()
         with self.assertRaises(ValueError):
             catalog.assemble([], self.bodies.__getitem__)
+        self.bodies["v2.4.0"]["ticketmailer-2.4.0.tar.gz"] = original
         self.releases = [self.releases[1], self.releases[1]]
         with self.assertRaises(ValueError):
             self.build()
