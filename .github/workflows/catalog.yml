@@ -1,0 +1,55 @@
+name: GLPI catalog
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: glpi-catalog
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Create scoped catalog bot token
+        id: app
+        uses: actions/create-github-app-token@d72941d797fd3113feb6b93fd0dec494b13a2547 # v2
+        with:
+          app-id: ${{ vars.RELEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: main
+          token: ${{ steps.app.outputs.token }}
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.11'
+      - name: Refresh catalog and propose verified metadata
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          python3 scripts/release/catalog.py
+          if git diff --quiet -- ticketmailer.xml && git ls-files --error-unmatch ticketmailer.xml >/dev/null 2>&1; then
+            echo "Catalog is already current"
+            exit 0
+          fi
+          branch=automation/glpi-catalog
+          git checkout -B "$branch"
+          git add ticketmailer.xml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore: update published GLPI catalog"
+          # Never overwrite a different concurrent catalog update.
+          git push origin "HEAD:refs/heads/$branch"
+          if ! gh pr list --head "$branch" --base main --json number --jq '.[0].number' | grep -q '[0-9]'; then
+            gh pr create --head "$branch" --base main --title "chore: update published GLPI catalog" --body "Updates ticketmailer.xml exclusively from public stable release assets with verified SHA256SUMS. Review compatibility and merge after required checks."
+          fi
+

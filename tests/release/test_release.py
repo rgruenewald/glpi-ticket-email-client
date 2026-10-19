@@ -42,6 +42,7 @@ class ReleaseTest(unittest.TestCase):
         meta = release.check(self.root)
         self.assertEqual(meta["version"], (ROOT / "VERSION").read_text().strip())
         self.assertEqual(meta["min_glpi"], "11.0.0")
+        self.assertEqual(meta["max_glpi"], "11.0.99")
 
     def test_rejects_version_drift_and_wrong_tag(self):
         (self.root / "VERSION").write_text("9.9.9\n")
@@ -99,7 +100,7 @@ class ReleaseTest(unittest.TestCase):
         self.assertEqual(version.findtext("num"), release.check(ROOT)["version"])
         self.assertTrue(version.findtext("download_url").endswith("/v" + release.check(ROOT)["version"] + "/ticketmailer-" + release.check(ROOT)["version"] + ".tar.gz"))
         self.assertEqual(version.findtext("compatibility/min"), "11.0.0")
-        self.assertEqual(version.findtext("compatibility/max"), "11.99.99")
+        self.assertEqual(version.findtext("compatibility/max"), "11.0.99")
 
     def test_workflows_pin_actions_and_do_not_publish_on_pr(self):
         import re

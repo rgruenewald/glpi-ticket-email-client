@@ -133,13 +133,46 @@ and VERSION as the archive. Every XML points to that version's immutable GitHub
 asset URL. It follows the official example structure, but is not claimed to have
 passed catalog moderation or a server-side schema validator.
 
-After the first successful published release, submit the plugin through
-https://plugins.glpi-project.org/ and establish the directory's metadata URL/update
-procedure. A candidate is the version-specific GitHub release asset ticketmailer.xml.
-Do not use latest/download until the directory confirms that redirect/update model.
-The generated XML currently describes one release, not a historical compatibility
-catalog. Preserve older release entries if required by the directory before upload.
-No catalog registration, acceptance or automatic marketplace update is implied.
+### Stable catalog and history
+
+`dist/ticketmailer.xml` describes the individual release. Root `ticketmailer.xml`
+is the historical directory catalog. Once merged into main, its stable source is:
+https://raw.githubusercontent.com/rgruenewald/glpi-ticket-email-client/main/ticketmailer.xml
+
+Regenerate with `python3 scripts/release/catalog.py` (authenticated GitHub CLI).
+The script reads public stable releases only, downloads their XML and packages,
+and checks both against published SHA256SUMS. Invalid or missing assets fail the
+whole refresh without replacing the catalog. Historical compatibility is copied
+from the published assets, not current development constants. Existing 2.3.2 and
+2.4.0 entries therefore retain 11.0.0 through 11.99.99; the narrower 11.0.x range
+applies to the next release. Review this historical range before submission.
+
+After successful publication, release.yml calls catalog.yml on main. This opens
+a normal PR from automation/glpi-catalog, using the existing release GitHub App
+credentials. It never pushes directly to protected main. Review the metadata and
+merge after required checks. A conflicting automation branch fails rather than
+force-pushing; resolve or delete an obsolete branch before rerunning GLPI catalog
+on main. A no-change refresh creates no PR. The catalog PR may cause Release
+Please to maintain a later release PR, but creates no endless catalog update loop.
+
+### Registration and refresh notification
+
+Register through https://plugins.glpi-project.org/ and confirm that the directory
+accepts the stable XML URL and historical entries. Registration and moderation
+require a human account. The API workflow follows pluginsGLPI/fields, formcreator
+and tag, but remains disabled until the listing is registered:
+
+1. Store the directory-issued API key as repository secret GLPI_CATALOG_TOKEN.
+   Never commit the token or include it in shell command arguments.
+2. Set repository variable GLPI_CATALOG_ENABLED=true.
+3. Run Notify GLPI catalog on main for an initial refresh. Subsequent changes to
+   ticketmailer.xml on main trigger it automatically, after the catalog is public.
+
+The POST to /api/plugin/update has a timeout and fails on HTTP errors. It is not
+automatically retried, because a timed-out request may have reached the server.
+Check directory status before manually rerunning. HTTP success does not prove
+moderation approval or Marketplace availability. Local catalog generation does
+not register a plugin, provision secrets, call that API or modify a listing.
 
 References:
 - https://github.com/googleapis/release-please-action

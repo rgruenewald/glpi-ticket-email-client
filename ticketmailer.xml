@@ -1,0 +1,41 @@
+<?xml version='1.0' encoding='utf-8'?>
+<root>
+  <name>GLPI Ticket Email Client</name>
+  <key>ticketmailer</key>
+  <state>stable</state>
+  <description>
+    <short lang="en">Compose and send ticket emails through GLPI SMTP.</short>
+    <long lang="en">Ticket email composer with recipients, attachments, an audit trail and timeline integration. Uses the existing GLPI SMTP configuration.</long>
+  </description>
+  <langs>
+    <lang>en_GB</lang>
+    <lang>de_DE</lang>
+  </langs>
+  <homepage>https://github.com/rgruenewald/glpi-ticket-email-client</homepage>
+  <download>https://github.com/rgruenewald/glpi-ticket-email-client/releases</download>
+  <issues>https://github.com/rgruenewald/glpi-ticket-email-client/issues</issues>
+  <readme>https://raw.githubusercontent.com/rgruenewald/glpi-ticket-email-client/main/README.md</readme>
+  <authors>
+    <author>Ronny Gruenewald</author>
+  </authors>
+  <versions>
+    <version>
+      <num>2.4.0</num>
+      <compatibility>
+        <min>11.0.0</min>
+        <max>11.99.99</max>
+      </compatibility>
+      <download_url>https://github.com/rgruenewald/glpi-ticket-email-client/releases/download/v2.4.0/ticketmailer-2.4.0.tar.gz</download_url>
+      <license>GPL v3+</license>
+    </version>
+    <version>
+      <num>2.3.2</num>
+      <compatibility>
+        <min>11.0.0</min>
+        <max>11.99.99</max>
+      </compatibility>
+      <download_url>https://github.com/rgruenewald/glpi-ticket-email-client/releases/download/v2.3.2/ticketmailer-2.3.2.tar.gz</download_url>
+      <license>GPL v3+</license>
+    </version>
+  </versions>
+</root>
