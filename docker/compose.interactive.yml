@@ -1,0 +1,7 @@
+services:
+  glpi:
+    restart: "no"
+  db:
+    restart: "no"
+  mailpit:
+    restart: "no"

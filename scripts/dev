@@ -16,6 +16,42 @@ case "${1:-help}" in
     done
     setfacl -m "u:$mapped_uid:r" setup.php hook.php docker/glpi/e2e-fixture.php
     ;;
+  interactive)
+    compose() { docker --context rootless compose -f docker-compose.yml -f docker/compose.interactive.yml "$@"; }
+    cleanup() {
+      result=$?
+      trap - EXIT INT TERM HUP
+      if [ -n "${logs_pid:-}" ]; then
+        kill "$logs_pid" 2>/dev/null || true
+        wait "$logs_pid" 2>/dev/null || true
+      fi
+      compose stop glpi db mailpit || result=1
+      exit "$result"
+    }
+    # Serialize interactive owners of the one shared instance across worktrees.
+    mkdir -p "$HOME/.local/state/ticketmailer-schema"
+    chmod 700 "$HOME/.local/state/ticketmailer-schema"
+    exec 9>"$HOME/.local/state/ticketmailer-schema/interactive.lock"
+    flock -n 9 || { echo "Another interactive session owns the shared instance." >&2; exit 1; }
+    compose build glpi test
+    "$0" prepare
+    trap cleanup EXIT
+    trap 'exit 130' INT
+    trap 'exit 143' TERM
+    trap 'exit 129' HUP
+    echo "Interactive worktree: $PWD"
+    echo 'Ctrl-C stops GLPI, database and Mailpit; volumes are retained.'
+    # Inspect persisted version before GLPI discovery can rewrite it.
+    compose stop glpi
+    compose up -d --wait --wait-timeout 240 db
+    source scripts/dev-plugin.sh
+    plugin_preflight
+    compose up -d --wait --wait-timeout 240 glpi mailpit
+    plugin_apply
+    docker --context rootless compose -f docker-compose.yml -f docker/compose.interactive.yml logs --follow --tail 100 glpi db mailpit &
+    logs_pid=$!
+    wait "$logs_pid"
+    ;;
   up)
     compose build glpi test
     "$0" prepare
@@ -34,5 +70,5 @@ case "${1:-help}" in
   stop) compose stop glpi db mailpit ;;
   logs) compose logs --tail 100 glpi db mailpit ;;
   status) compose ps ;;
-  *) echo 'Usage: scripts/dev {up|prepare|test|e2e|stop|logs|status}' ;;
+  *) echo 'Usage: scripts/dev {interactive|up|prepare|test|e2e|stop|logs|status}' ;;
 esac
