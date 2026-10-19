@@ -1,19 +1,25 @@
 <!-- markdownlint-disable MD013 -->
 
-# Ticket Email Client Wiki
+# Ticket Email Client documentation
 
-> User documentation for the `ticketmailer` GLPI plugin, illustrated with the local GLPI 11 test instance.
+Send ticket-context email, add a native private note, or start a new ticket by email directly in GLPI.
 
-## Languages / Sprachen
+## User guides / Benutzerhandbücher
 
-- [Deutsch](Benutzerhandbuch-DE)
-- [English](User-Guide-EN)
+- **[English user guide](User-Guide-EN.md):** ticket replies, recipients, attachments, public history, internal notes, status options, send outcomes, and New email.
+- **[Deutsches Benutzerhandbuch](Benutzerhandbuch-DE.md):** Ticketantworten, Empfänger, Anhänge, öffentlicher Verlauf, interne Notizen, Statusoptionen, Versandergebnisse und Neue E-Mail.
 
-## Scope
+Both guides include current English/German screenshots and a short real UI video of switching modes. / Beide Handbücher enthalten aktuelle englische/deutsche Bilder und ein kurzes echtes UI-Video zum Moduswechsel.
 
-Current: end-user usage of the plugin.  
-Planned: [Administrator guide structure](Administrator-Guide-Planning) covering installation and configuration.
+## Installation and administration
 
-## Compatibility
+- [Installation, upgrades, configuration, and development](../INSTALLATION.md) (English).
+- [Installation, Updates, Konfiguration und Entwicklung](../INSTALLATION-DE.md) (Deutsch).
+- [Local GLPI and Mailpit verification](../verification/docker-e2e.md).
+- [Project overview](../../README.md) · [Security policy](../../SECURITY.md).
 
-GLPI 11.0.x · PHP 8.2+ · verified against GLPI 11.0.8.
+## Scope and compatibility
+
+Documentation: Ticketmailer **2.4.0**, verified with **GLPI 11.0.8**. Supported runtime: GLPI **11.0.x**, PHP **8.2+**. No GLPI 10 compatibility claim.
+
+Screenshots and video use synthetic local test data. Permissions, language and administrator settings determine which controls are visible. A private note follows native GLPI notification settings; it must not be confused with Ticketmailer's directly sent email.

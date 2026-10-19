@@ -1,186 +1,158 @@
 <!-- markdownlint-disable MD013 -->
 
-# User Guide (English)
+# User guide: GLPI Ticket Email Client
 
-[Wiki home](Home) · [Deutsch](Benutzerhandbuch-DE)
+[Documentation home](Home.md) · [Deutsch](Benutzerhandbuch-DE.md) · [Installation and administration](../INSTALLATION.md)
 
-## 1. Send an email from a ticket
+Write an email from a ticket, start a new conversation, or add an internal note without leaving GLPI. This guide describes Ticketmailer 2.4.0, verified with GLPI 11.0.8. Supported runtime: GLPI 11.0.x and PHP 8.2 or later.
 
-1. Open the ticket.
-2. Select **Email reply**.
-3. The reply form opens inside the ticket.
-4. Choose **Email** or **Internal note**. **Email** is already selected.
+The screenshots below show the current local test instance with synthetic tickets and example.test recipients. Available actions and fields depend on your permissions and the administrator's configuration. Button names may differ with the GLPI language; the email reply action may also be labelled **Answer**.
 
-Use **Email** to write to people outside the ticket. An **Internal note** is only for staff who can view the ticket. Internal notes have no email recipients or email signature.
+## Quick start
 
-![Email form open in a ticket](images/email-compose-form.png)
+1. Open a ticket and choose **Email reply** or the configured **Answer** action.
+2. Leave **Email** selected. Check To, CC, and BCC.
+3. Write a subject and message, and add the files the recipient needs.
+4. Review the status switches and any recipient warning.
+5. Choose **Send** once. Check the ticket timeline and send log for the outcome.
 
-Is **Email reply** missing? Contact your GLPI administrator.
+> **BCC is not private inside GLPI.** Every ticket reader can see the full BCC list in the ticket followup and audit detail. BCC recipients are excluded from the email's visible To/CC headers.
 
-## 2. Write an internal note and use the knowledge base
+## 1. Reply from a ticket
 
-1. Choose **Internal note** at the top.
-2. Write your note in the message box.
-3. Add files if needed.
-4. Check the **Waiting** and **Solved** switches.
-5. Save the note.
+The reply action opens a dialog over the ticket. **Email** is the default mode. It offers recipients, a subject, GLPI's rich-text editor, and attachments.
 
-The note is always internal. Only people with access to the ticket can see it. No email is sent.
+![Current email reply dialog with recipients, ticket routing marker, editor, attachment area, and status switches](images/current/compose-en.png)
 
-Use **Answer templates** to add prepared text to the note. Choose a template, then check the added text. You can change the text afterward.
+Is the action missing? Ask your administrator to check your ticket permissions and the reply policy. Composing requires permission to update the ticket or add a followup. Reading a ticket alone does not permit sending.
 
-### Find text in the knowledge base
+### Choose recipients
 
-1. Choose **Knowledge base** in the form.
-2. Search for a suitable article.
-3. Check the article.
-4. Add the article to the note.
-5. Change the added text if needed.
+- **To:** ticket requesters are filled in by default.
+- **CC:** ticket observers are filled in by default.
+- Assignees are not automatically added.
+- **BCC:** add recipients when they must not appear in the email's visible headers. Remember that ticket readers can still see them.
 
-Adding an article replaces the text in the message box. Copy any text you still need before adding the article.
+Use addresses separated by commas, semicolons, or line breaks. For GLPI users, type at least two characters of a login, name, or default email address, then choose a suggestion. Suggestions respect entity visibility. External email addresses are also supported.
 
-## 3. Choose recipients
+Check the recipient chips before sending. Use a chip's **×** to remove an address, or the field's clear button to empty the field. At least one valid recipient across To, CC, or BCC is required; a BCC-only message is allowed. Invalid non-empty address tokens cause an error rather than being silently removed.
 
-The form provides **To**, **CC**, and **BCC**.
+### Subject and conversation routing
 
-These recipients are often filled in:
+Write the subject text beside the fixed **[GLPI #ticket-id]** marker. The marker is normally included in the outgoing subject so GLPI can associate replies with the ticket.
 
-- Requesters → **To**
-- Observers → **CC**
+Only enable **Start a new conversation** when you deliberately want to omit that marker. **Replies may create a new ticket.** This option does not itself create another ticket when replying from an existing ticket.
 
-You can add more recipients:
+A subject and non-empty message are required. Depending on the entity configuration, a ticket template may supply subject text and an editable signature. Check both before sending.
 
-- Type a name, then choose the right person from the list.
-- You can also enter an email address.
-- Separate several addresses with a comma, semicolon, or Enter.
+### Templates and knowledge base
 
-You must enter at least one valid address. GLPI marks an incorrect address. You can also send an email using only **BCC**.
+Use the available **Answer templates**, **Solution templates**, source selector, and **Knowledge base** action to prepare the message. Administrators can hide individual controls.
 
-### BCC is visible in the ticket
+Check inserted content before sending. **Adding a knowledge-base article can replace the editor text.** Copy any text you need to keep before inserting an article. A template selection is not the same as changing the ticket status; review the status switches separately.
 
-Email recipients do not see BCC addresses.
+## 2. Files, inline images, and public history
 
-Everyone who can read the ticket can see the BCC addresses in the ticket.
+### Upload a new file
 
-Do not use BCC to hide addresses from those people.
+Choose **Choose files** or drag files into the attachment area. Check the displayed selection before sending. GLPI's configured upload limits apply; oversized or rejected files must be corrected before sending.
 
-## 4. Write the subject and message
+For inline images, use the editor's image controls, paste a copied image, or drag an image into the message body. Check its appearance before sending.
 
-- Fill in **Subject** and **Message**.
-- GLPI adds the ticket number to the subject. This sends a reply back to the same ticket.
-- Choose **Start a new conversation** only when the reply should no longer belong to this ticket. A reply may then create a new ticket.
-- You can format the text.
-- You can change the subject, message, and signature.
-- Email recipients from a template are not used.
-- You only see information you are allowed to view.
+### Reuse ticket attachments
 
-### Use answer and solution templates
+If the ticket or its public followups have attachments, select the individual files you want to include. Open a file's link in a separate tab to check it first. Files from private followups are never offered or sent through this selection.
 
-**Answer templates** copy prepared text to the clipboard.
+### Include public ticket history
 
-1. Choose a template under **Answer templates**.
-2. Wait for the **Text copied** confirmation.
-3. Paste the text where needed.
+**Attach public ticket history** is off by default. Enable it to append the ticket's public history to the message body. Despite the label, it does not automatically select existing files. Public history and individual attachment selection are independent.
 
-The template contains HTML and plain text. Selecting it does not change the current message or email signature.
+Private followups and their documents are excluded. Review the public history too: public ticket content may still contain information you do not want to share with these recipients.
 
-**Solution templates** work in the same way. Selecting one does not change the message or ticket status.
+## 3. Internal notes and switching modes
 
-## 5. Add files and images
+Choose **Internal note** to use GLPI's native private-followup form. It has no Ticketmailer email recipient fields or generated email signature. Write the note, add files if needed, check the status options, and use the native **Add** action.
 
-### New files
+![Current internal-note dialog using GLPI's private-followup editor and native Add action](images/current/internal-note-en.png)
 
-Select **Choose files**. You can also drag files into the attachment area.
+The note is private under GLPI's native permissions and visibility rules. **It does not enter Ticketmailer's SMTP or audit pipeline. GLPI's configured native followup notifications still apply**, so do not assume that adding a private note can never trigger an email notification.
 
-Check the files before sending. If a file is too large, GLPI shows a message.
+Switching between Email and Internal note keeps each form's entered text and attachments while the current dialog remains mounted. These are not saved drafts: do not rely on recovery after reloading, leaving the ticket, or ending the session.
 
-### Images in the message
+[Watch: switch Email → Internal note → Email](videos/switch-modes.mp4) (about 7 seconds, English UI, silent).
 
-Drag an image into the message box. You can also paste a copied image there.
+*The real UI clip shows the recipient fields disappearing in note mode and the email text returning after switching back. It is trimmed at the start and end, plays at original speed, and does not show a send.*
 
-### Files from the ticket
+## 4. Choose the ticket status
 
-You can choose existing files from the ticket. These include files attached to the ticket and files from public replies. Use the link beside a file to check it before sending.
+The form's bottom action bar offers two mutually exclusive switches:
 
-Choosing files and **Attach public ticket history** are separate options. Files from internal notes are not shown.
-
-## 6. Attach public ticket history
-
-Choose **Attach public ticket history** when the recipients should see earlier public replies.
-
-This option is off at first. Internal notes are never included.
-
-## 7. Choose the ticket status
-
-There are two switches at the bottom of the form:
-
-- The pause symbol means **Waiting**.
-- The check mark means **Solved**.
-
-You can turn on only one switch. Turning on one switch turns off the other.
-
-### For an email
-
-**Set ticket status to waiting after sending.** is normally already on. Do not want to change the status? Turn **Waiting** off. You can turn on **Solved** instead.
-
-The status changes only after the email was sent successfully and added to the ticket.
-
-### For an internal note
-
-Turn on **Waiting** or **Solved** only when you also want to change the ticket status. The status changes after the note is saved.
-
-## 8. Warning about a recipient address
-
-GLPI warns you when an address may send the email back to GLPI. This could create many unwanted emails.
-
-1. Check the address.
-2. Remove or correct it if needed.
-3. Is the address correct? Confirm the warning.
-4. Choose **Send** again.
-
-GLPI cannot find every possible forwarding address. Check the address carefully.
-
-## 9. Send the email
-
-1. Check recipients, subject, and message.
-2. Check files and status options.
-3. Select **Send** once.
-
-Do not choose **Send** again while sending is in progress. If an error occurs, the plugin does not send the email again by itself.
-
-## 10. Check the send
-
-After a successful send, the email appears in the ticket history.
-
-![Successful email entries in the ticket timeline](images/ticket-email-timeline.png)
-
-You can see the message, recipients, and attachments there. Everyone with access to the ticket can see this information.
-
-More details are available in the **Sent emails** tab.
-
-![Sent email list](images/sent-email-log.png)
-
-![Sent email detail](images/sent-email-detail.png)
-
-## 11. Email sent but not visible in the ticket
-
-Sometimes the email was sent but could not be saved in the ticket. GLPI then shows **Incomplete send (timeline failed)**.
-
-**Do not send the email again.** The recipients may already have it. Open **Sent emails**, then contact your GLPI administrator.
-
-## 12. Troubleshooting
-
-| Problem | Solution |
+| Icon | Meaning |
 | --- | --- |
-| **Email reply** is missing | Contact your GLPI administrator. |
-| Address is invalid | Correct or remove the address. |
-| No recipient | Add at least one address. |
-| File is too large | Choose a smaller file. |
-| Mailbox warning appears | Check the address. Confirm only when intended. |
-| Send failed | Open **Sent emails** and contact your GLPI administrator. |
-| Email was sent but is missing from the ticket | Do not send it again. Open **Sent emails** and contact your GLPI administrator. |
-| Attachment does not open | Check your sign-in and ticket access. |
+| Pause | Set the ticket to waiting after the action. |
+| Circled check | Set the ticket to solved after the action. |
 
-### New email
+For email, waiting is on by default unless the administrator changes the setting. Turn it off to leave the status unchanged, or enable solved instead. The status changes only after SMTP succeeds and the ticket followup is recorded.
 
-In **Assistance → New email**, write a proactive message without first creating a ticket. **Send** creates the ticket in the entity selected in Sender, then sends and records the message. To recipients become requesters; CC recipients become observers. BCC recipients are visible to ticket readers but do not become observers. Sender lists authorized entities with their configured email address; its selection determines the ticket entity and signature without changing the active GLPI entity. This action requires ticket creation and update rights in the central interface. The entity signature is appended at send time. Cancelling creates no ticket. Ticket-template mandatory fields and business rules still apply; if creation or post-create authorization fails, no email is sent. Failed or uncertain delivery must be checked on the existing ticket before any manual retry. Incoming replies require a configured GLPI mail collector and reply routing; the ticket marker alone does not retrieve mail.
+For internal notes, the switches use GLPI's native private-followup lifecycle. The status is applied when the note is saved, subject to GLPI's rules. The displayed controls can differ with permissions and configuration.
+
+## 5. Mail collector warning
+
+A recipient matching an active GLPI mail collector's email login triggers a warning. Sending to a collector can feed mail back into GLPI.
+
+1. Check the address and remove or correct it when appropriate.
+2. If it is intentional, explicitly confirm the mailbox override.
+3. Submit again only after reviewing the warning.
+
+The server rechecks the address and confirmation before sending. **The guard is best effort:** it compares exact normalized email logins, not aliases, forwarding rules, or non-email collector logins. No warning does not prove that an address is safe.
+
+## 6. Send and check the result
+
+Choose **Send** once after reviewing recipients, subject, body, files, history, and status options. Ticketmailer makes one SMTP attempt through GLPI's existing mail settings; there is no automatic retry or delivery queue.
+
+| Outcome | What it means | What to do |
+| --- | --- | --- |
+| Sent and recorded | SMTP succeeded and the email was added as a ticket followup. | Check the timeline or sent-email detail. SMTP success is not proof that the recipient read the message or that it reached their inbox. |
+| Failed | The SMTP attempt failed. | Open the secure send detail and ask your administrator to investigate. There is no automatic resend. |
+| Incomplete | SMTP succeeded but the ticket followup could not be recorded. | **Do not resend.** The email has already been sent. Ask your administrator to resolve the missing ticket record. |
+
+If the page times out or the result is unclear, check **Sent emails** before taking any further action. Do not assume that a missing timeline entry means the email was not sent.
+
+### Ticket timeline and send log
+
+A complete email send creates a normal public ticket followup containing the sender, time, To/CC/BCC, subject, message, and secure attachment links. That email followup does not trigger a second GLPI-generated notification email.
+
+Open the ticket's **Sent emails** tab, then select a subject to see the audit detail, delivery information, and linked files. Only ticket readers can view message details or open stored outbound attachments. This includes the complete BCC list.
+
+![Current sent-email detail showing the full BCC list, message, and stored attachment](images/current/sent-detail-en.png)
+
+Private notes remain native GLPI followups and do not appear as Ticketmailer email audit entries.
+
+## 7. Start a new email without an existing ticket
+
+Choose **Assistance → New email**. In German GLPI installations the menu may be named **Helpdesk**. This is different from **Start a new conversation** in a ticket reply.
+
+![Current New email page with Sender entity selection, recipient fields, editor, and Send action](images/current/new-email-en.png)
+
+1. Choose **Sender**: the list contains authorized entities with a configured sender email address.
+2. Add recipients, a subject, a message, and optional files.
+3. Check the selected entity and signature.
+4. Choose **Send** once.
+
+Sending creates the ticket in the selected sender entity, then sends and records the email. To recipients become requesters and CC recipients become observers. BCC recipients do not become observers, but remain visible to ticket readers in the sent record.
+
+Changing Sender determines the ticket entity and signature without switching your active GLPI entity. The action requires ticket create, update, and read rights for an authorized entity. If no valid sender is available, ask an administrator to check the entity email configuration and your rights.
+
+If a failure happens after ticket creation, check the created ticket and send log before trying anything again. Do not create duplicate tickets or resend an email whose SMTP attempt already succeeded.
+
+## 8. Limits and troubleshooting
+
+- Ticketmailer is an outbound composer, not an inbox. It does not fetch mail or synchronize IMAP.
+- It does not save persistent drafts, queue sends, or retry automatically.
+- Email transport is configured in GLPI, not in Ticketmailer.
+- Buttons, templates, source controls, status defaults, and timeline ordering can be configured by an administrator.
+- A stored file requires ticket-read access even if you know its download URL.
+
+For a problem report, provide the ticket ID, time, displayed outcome, and redacted error text. Never include SMTP credentials, real recipient lists, or private ticket content in a public issue.
+
+[Installation and administration](../INSTALLATION.md) · [Security policy](../../SECURITY.md) · [Back to documentation home](Home.md)
