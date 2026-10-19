@@ -16,6 +16,13 @@ spec.loader.exec_module(release)
 
 
 class ReleaseTest(unittest.TestCase):
+    def test_release_please_updates_canonical_version_file(self):
+        config = json.loads((ROOT / "release-please-config.json").read_text())
+        package = config["packages"]["."]
+        self.assertEqual(package["release-type"], "simple")
+        self.assertEqual(package.get("version-file", "version.txt"), "VERSION")
+        self.assertTrue((ROOT / package["version-file"]).is_file())
+
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.root = Path(self.tmp.name) / "source"

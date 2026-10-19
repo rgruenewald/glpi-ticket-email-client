@@ -12,7 +12,8 @@
         "setup.php",
         "README.md",
         "CONTEXT.md"
-      ]
+      ],
+      "version-file": "VERSION"
     }
   }
 }
