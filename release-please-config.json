@@ -11,6 +11,7 @@
       "extra-files": [
         "setup.php",
         "README.md",
+        "docs/INSTALLATION.md",
         "CONTEXT.md"
       ],
       "version-file": "VERSION"
