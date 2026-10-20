@@ -73,7 +73,7 @@ OBSERVER_CHECKS=1 node scripts/benchmark-ui.cjs . /tmp/ui-after.json
 node scripts/compare-ui-screenshots.cjs /tmp/ui-before.json /tmp/ui-after.json
 node tests/ticket-timeline.test.js
 node tests/composer-send-lock.test.js
-ROOT=. bash .agent/contracts/glpi-ticket-email-client-v2/score.sh
+ROOT=. bash scripts/verify/score.sh
 ~~~
 
 CHROMIUM ist optional, wenn der im Skript hinterlegte lokale Cachepfad existiert. REPETITIONS steuert die Anzahl, Standard 9. Rohdaten und Screenshots liegen neben diesem Bericht. Zwischenstände der Timeline-Datei liegen in variants/iteration-N.js; für Nachmessungen diese Datei in eine private Fixture-Wurzel unter public/js/ticket-timeline.js legen und das unveränderte Baseline-CSS unter public/css/ticketmailer.css bereitstellen; Runde 4 verwendet das vereinfachte CSS. Varianten sind Messartefakte, keine Laufzeitdateien. Runden 5 und 6 sind Korrektheitskorrekturen auf Basis des finalen Codes.

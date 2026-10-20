@@ -1,35 +1,56 @@
-# --- composer (PHP deps) ---
-vendor/
+# Dependencies (keep composer.lock and package-lock.json tracked)
+/vendor/
+/node_modules/
 
-# --- npm (frontend, if any) ---
-node_modules/
-
-# --- secrets ---
+# Local configuration and secrets; allow sanitized templates
 .env
 .env.*
+!.env.example
+!.env.*.example
+auth.json
+/docker-compose.override.yml
+/compose.override.yml
 
-# --- GLPI runtime artifacts (mirrored under plugins/ticketmailer/) ---
-_files/
-_cache/
-_log/
-_sessions/
+# GLPI runtime data, never source
+/_files/
+/_cache/
+/_log/
+/_sessions/
 
-# --- phpunit ---
+# Test, coverage and browser artifacts
 .phpunit.cache/
 .phpunit.result.cache
 .phpunit-watcher.yml
-test-results/
+/test-results/
+/playwright-report/
+/blob-report/
+/coverage/
+/.nyc_output/
 
-# --- editor / OS ---
-.idea/
-.vscode/
-*.swp
-.DS_Store
-.agent/
-.pi-subagents/
-
-playwright-report/
-
+# Generated release packages and local caches
 /dist/
 __pycache__/
-*.pyc
+*.py[cod]
+/.cache/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Local agent state; maintained contracts live under docs/specifications/
+/.agent/
+/.pi-subagents/
+
+# Editor, OS and temporary files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+Desktop.ini
+*~
+*.swp
+*.swo
+*.tmp
+*.bak
+*.orig
+*.rej

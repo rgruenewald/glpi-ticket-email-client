@@ -10,7 +10,7 @@ Turn `ticketmailer` into a ticket-context email reply client for GLPI 11. A perm
 
 ## Supersedes v1
 
-This contract supersedes conflicting parts of `.agent/contracts/ticket-mailer/spec.md`:
+This contract supersedes conflicting parts of `docs/archive/contracts/ticket-mailer/spec.md`:
 
 - The v1 exclusion of core ticket-history/followup integration is removed. A v2 successful send creates an `ITILFollowup`.
 - The v1 **ASSIGN → CC** default is replaced by **OBSERVER → CC**.

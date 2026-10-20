@@ -2,8 +2,8 @@
 
 - **Status:** Accepted
 - **Date:** 2026-07 (codified from planning T04–T06 + v2 contract)
-- **Contract:** `.agent/contracts/glpi-ticket-email-client-v2/spec.md`
-- **Planning:** `.agent/planning/glpi-ticket-email-client/` (T04, T05, T06, T08, T09)
+- **Contract:** `docs/specifications/glpi-ticket-email-client-v2/spec.md`
+- **Planning provenance:** local T04, T05, T06, T08 and T09 research informed this decision; it is not a versioned project dependency.
 
 ## Context
 

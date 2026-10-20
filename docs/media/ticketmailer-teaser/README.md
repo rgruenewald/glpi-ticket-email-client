@@ -36,4 +36,18 @@ npx --no-install hyperframes lint
 npx --no-install hyperframes render . --output ticketmailer-teaser.mp4 --fps 24
 ```
 
-The source composition is seekable via the HyperFrames GSAP timeline contract. The README links the MP4 rather than relying on unsupported GitHub HTML video embedding. Local preview can play it; GitHub playback/download behavior depends on its renderer. No public upload or release publication performed.
+The source composition is seekable via the HyperFrames GSAP timeline contract. The README embeds an animated WebP derived from the MP4 so the overview is visible directly on the GitHub repository homepage. A separate MP4 link preserves the original video. This does not rely on unsupported HTML video embedding, promise autoplay of a video player, or require an external upload. No public upload or release publication performed.
+
+## README hero preview
+
+Convert the existing MP4 locally with FFmpeg (verified with 8.0.1):
+
+```bash
+ffmpeg -hide_banner -loglevel error \
+  -i assets/readme/ticketmailer-teaser.mp4 \
+  -vf "fps=12,scale=960:-1:flags=lanczos" \
+  -c:v libwebp_anim -lossless 0 -quality 70 -loop 0 -an \
+  assets/readme/ticketmailer-teaser.webp
+```
+
+The preview preserves the full 16-second composition at 960 × 540 and 12 fps, loops without sound, and is about 281 KiB. It is a presentation asset, not new runtime or delivery evidence. To pause the animation, use browser image controls if available or open the MP4 separately.
