@@ -84,7 +84,10 @@ def catalog(meta):
     add(compatibility, "min", meta["min_glpi"])
     add(compatibility, "max", meta["max_glpi"])
     add(version, "download_url", REPOSITORY + "/releases/download/v" + meta["version"] + "/ticketmailer-" + meta["version"] + ".tar.gz")
-    add(version, "license", "GPL v3+")
+    add(root, "license", "GPL v3+")
+    tags = ET.SubElement(ET.SubElement(root, "tags"), "en")
+    for tag in ("email", "ticket", "SMTP"):
+        add(tags, "tag", tag)
     ET.indent(root)
     return ET.tostring(root, encoding="utf-8", xml_declaration=True) + b"\n"
 

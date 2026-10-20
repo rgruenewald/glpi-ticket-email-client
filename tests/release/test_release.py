@@ -100,7 +100,11 @@ class ReleaseTest(unittest.TestCase):
             node = catalog.find("description/" + field)
             self.assertTrue(node.findtext("en"))
             self.assertNotIn("lang", node.attrib)
+        self.assertEqual(catalog.findtext("license"), "GPL v3+")
+        self.assertTrue(catalog.findall("tags/en/tag"))
         version = catalog.find("versions/version")
+        self.assertEqual([child.tag for child in version],
+                         ["num", "compatibility", "download_url"])
         self.assertEqual(version.findtext("num"), release.check(ROOT)["version"])
         self.assertTrue(version.findtext("download_url").endswith("/v" + release.check(ROOT)["version"] + "/ticketmailer-" + release.check(ROOT)["version"] + ".tar.gz"))
         self.assertEqual(version.findtext("compatibility/min"), "11.0.0")

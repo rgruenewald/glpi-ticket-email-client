@@ -30,7 +30,6 @@
         <max>11.0.99</max>
       </compatibility>
       <download_url>https://github.com/rgruenewald/glpi-ticket-email-client/releases/download/v2.5.0/ticketmailer-2.5.0.tar.gz</download_url>
-      <license>GPL v3+</license>
     </version>
     <version>
       <num>2.4.0</num>
@@ -39,7 +38,6 @@
         <max>11.99.99</max>
       </compatibility>
       <download_url>https://github.com/rgruenewald/glpi-ticket-email-client/releases/download/v2.4.0/ticketmailer-2.4.0.tar.gz</download_url>
-      <license>GPL v3+</license>
     </version>
     <version>
       <num>2.3.2</num>
@@ -48,7 +46,14 @@
         <max>11.99.99</max>
       </compatibility>
       <download_url>https://github.com/rgruenewald/glpi-ticket-email-client/releases/download/v2.3.2/ticketmailer-2.3.2.tar.gz</download_url>
-      <license>GPL v3+</license>
     </version>
   </versions>
+  <license>GPL v3+</license>
+  <tags>
+    <en>
+      <tag>email</tag>
+      <tag>ticket</tag>
+      <tag>SMTP</tag>
+    </en>
+  </tags>
 </root>

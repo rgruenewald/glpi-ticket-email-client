@@ -48,12 +48,21 @@ def assemble(releases, assets):
         bounds = [entry.findtext("compatibility/" + key, "") for key in ("min", "max")]
         if not all(re.fullmatch(SEMVER, value) for value in bounds) or tuple(map(int, bounds[0].split("."))) > tuple(map(int, bounds[1].split("."))):
             raise ValueError("Invalid release compatibility: " + tag)
-        if not entry.findtext("license") or version in entries:
+        license_text = root.findtext("license") or entry.findtext("license")
+        if not license_text or version in entries:
             raise ValueError("Missing license or duplicate version: " + tag)
         entries[version] = copy.deepcopy(entry)
+        for license_node in entries[version].findall("license"):
+            entries[version].remove(license_node)
         # GitHub returns newest releases first. Preserve their published plugin metadata.
         if catalog is None:
             catalog = copy.deepcopy(root)
+            if catalog.find("license") is None:
+                ET.SubElement(catalog, "license").text = license_text
+            if catalog.find("tags") is None:
+                tags = ET.SubElement(ET.SubElement(catalog, "tags"), "en")
+                for tag_text in ("email", "ticket", "SMTP"):
+                    ET.SubElement(tags, "tag").text = tag_text
     if catalog is None:
         raise ValueError("No published stable releases")
     # Older immutable releases used a language attribute. The Directory expects
