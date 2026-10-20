@@ -69,6 +69,26 @@ class CatalogTest(unittest.TestCase):
                         self.assertEqual(node.findtext("de"), "Deutsche Beschreibung")
                 self.assertEqual(self.bodies, original)
 
+    def test_directory_license_and_required_tags(self):
+        for legacy in (True, False):
+            with self.subTest(legacy=legacy):
+                for tag, bodies in self.bodies.items():
+                    root = ET.fromstring(bodies["ticketmailer.xml"])
+                    for node in root.findall("license"):
+                        root.remove(node)
+                    entry = root.find("versions/version")
+                    for node in entry.findall("license"):
+                        entry.remove(node)
+                    ET.SubElement(entry if legacy else root, "license").text = "GPL v3+"
+                    bodies["ticketmailer.xml"] = ET.tostring(root)
+                    self.rehash(tag)
+                result = ET.fromstring(self.build())
+                self.assertEqual(result.findtext("license"), "GPL v3+")
+                self.assertTrue(result.findall("tags/en/tag"))
+                for entry in result.findall("versions/version"):
+                    self.assertEqual([node.tag for node in entry],
+                                     ["num", "compatibility", "download_url"])
+
     def test_history_is_sorted_and_preserves_published_compatibility(self):
         self.releases.reverse()
         versions = ET.fromstring(self.build()).findall("versions/version")
