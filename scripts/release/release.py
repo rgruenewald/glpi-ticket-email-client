@@ -70,8 +70,8 @@ def catalog(meta):
     add(root, "key", "ticketmailer")
     add(root, "state", "stable")
     desc = ET.SubElement(root, "description")
-    add(desc, "short", "Compose and send ticket emails through GLPI SMTP.", lang="en")
-    add(desc, "long", "Ticket email composer with recipients, attachments, an audit trail and timeline integration. Uses the existing GLPI SMTP configuration.", lang="en")
+    add(ET.SubElement(desc, "short"), "en", "Compose and send ticket emails through GLPI SMTP.")
+    add(ET.SubElement(desc, "long"), "en", "Ticket email composer with recipients, attachments, an audit trail and timeline integration. Uses the existing GLPI SMTP configuration.")
     langs = ET.SubElement(root, "langs")
     for lang in ("en_GB", "de_DE"):
         add(langs, "lang", lang)

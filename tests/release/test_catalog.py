@@ -43,6 +43,32 @@ class CatalogTest(unittest.TestCase):
     def build(self):
         return catalog.assemble(self.releases, self.bodies.__getitem__)
 
+    def test_directory_descriptions_accept_legacy_and_language_children(self):
+        for legacy in (True, False):
+            with self.subTest(legacy=legacy):
+                for tag, bodies in self.bodies.items():
+                    root = ET.fromstring(bodies["ticketmailer.xml"])
+                    for field in ("short", "long"):
+                        node = root.find("description/" + field)
+                        node.clear()
+                        if legacy:
+                            node.set("lang", "en")
+                            node.text = field + " description"
+                        else:
+                            ET.SubElement(node, "en").text = field + " description"
+                            ET.SubElement(node, "de").text = "Deutsche Beschreibung"
+                    bodies["ticketmailer.xml"] = ET.tostring(root)
+                    self.rehash(tag)
+                original = copy.deepcopy(self.bodies)
+                result = ET.fromstring(self.build())
+                for field in ("short", "long"):
+                    node = result.find("description/" + field)
+                    self.assertEqual(node.findtext("en"), field + " description")
+                    self.assertNotIn("lang", node.attrib)
+                    if not legacy:
+                        self.assertEqual(node.findtext("de"), "Deutsche Beschreibung")
+                self.assertEqual(self.bodies, original)
+
     def test_history_is_sorted_and_preserves_published_compatibility(self):
         self.releases.reverse()
         versions = ET.fromstring(self.build()).findall("versions/version")
