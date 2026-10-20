@@ -4,11 +4,11 @@ Project operating rules for agents. Product facts live in `CONTEXT.md` and the v
 
 ## Source of truth
 
-1. **Behavior / ACs:** `.agent/contracts/glpi-ticket-email-client-v2/spec.md`
+1. **Behavior / ACs:** `docs/specifications/glpi-ticket-email-client-v2/spec.md`
 2. **Kernel facts:** `CONTEXT.md`
 3. **Locked product decisions:** `docs/adr/0001-v2-locked-product-decisions.md`
-4. **v1 contract** (`.agent/contracts/ticket-mailer/`): historical only; ignore when it conflicts with v2
-5. **`.agent/planning/`:** research history, not live rules, unless the task explicitly revisits a ticket
+4. **v1 contract** (`docs/archive/contracts/ticket-mailer/`): historical only; ignore when it conflicts with v2
+5. **Local `.agent/` state:** unversioned working material, not a source of project rules
 
 ## Before changing behavior
 
@@ -28,7 +28,7 @@ Project operating rules for agents. Product facts live in `CONTEXT.md` and the v
 
 - Run the verify skill: `.agents/skills/ticketmailer-verify/SKILL.md`
 - Structural gate: v2 `score.sh` must stay green for touched surfaces.
-- Do not commit secrets, `_files/`, vendor, or `.agent/forge_state.json`.
+- Do not commit secrets, `_files/`, vendor, or any local `.agent/` state.
 
 ## Global vs project
 

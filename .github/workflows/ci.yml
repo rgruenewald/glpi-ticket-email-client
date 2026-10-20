@@ -47,7 +47,7 @@ jobs:
       - run: python3 scripts/release/release.py build
       - run: python3 scripts/release/release.py verify
       - run: node --test tests/*.test.js
-      - run: ROOT=. bash .agent/contracts/glpi-ticket-email-client-v2/score.sh
+      - run: ROOT=. bash scripts/verify/score.sh
 
   integration:
     name: Packaged GLPI integration

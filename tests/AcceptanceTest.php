@@ -3,7 +3,7 @@
  * Acceptance test suite for the ticketmailer plugin.
  *
  * Each test method maps to a single acceptance criterion from
- * `.agent/contracts/ticket-mailer/spec.md` (A1, A2, …) and to
+ * `docs/archive/contracts/ticket-mailer/spec.md` (A1, A2, …) and to
  * the matching structural check encoded in `score.sh`. Tests
  * are deliberately focused on observable, file-system-level
  * behaviour so they survive internal refactors.

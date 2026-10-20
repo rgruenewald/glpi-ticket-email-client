@@ -1,11 +1,11 @@
 # Implementation Prompt
 
-Copy-paste the block below into `/forge .agent/contracts/ticket-mailer/`
+Copy-paste the block below into `/forge docs/archive/contracts/ticket-mailer/`
 or a fresh task. The contract is the source of truth — this prompt
 just makes the harness re-load it.
 
 ```text
-Contract:       .agent/contracts/ticket-mailer/
+Contract:       docs/archive/contracts/ticket-mailer/
 Type:           Feature
 Goal:           Build a GLPI plugin (`ticketmailer`) that adds an
                 integrated email-compose UI inside a ticket with
@@ -17,13 +17,13 @@ Goal:           Build a GLPI plugin (`ticketmailer`) that adds an
                 and must NOT use GLPI's notification engine.
 
 Locked files (DO NOT EDIT):
-  - .agent/contracts/ticket-mailer/feature-request.md
-  - .agent/contracts/ticket-mailer/spec.md
-  - .agent/contracts/ticket-mailer/score.sh
-  - .agent/contracts/ticket-mailer/allowed-files.txt
-  - .agent/contracts/ticket-mailer/IMPLEMENTATION_PROMPT.md
+  - docs/archive/contracts/ticket-mailer/feature-request.md
+  - docs/archive/contracts/ticket-mailer/spec.md
+  - docs/archive/contracts/ticket-mailer/score.sh
+  - docs/archive/contracts/ticket-mailer/allowed-files.txt
+  - docs/archive/contracts/ticket-mailer/IMPLEMENTATION_PROMPT.md
 
-Verifier entrypoint: .agent/contracts/ticket-mailer/score.sh
+Verifier entrypoint: docs/archive/contracts/ticket-mailer/score.sh
 Success criterion:  ./score.sh prints "PASS: N, FAIL: 0" and exits 0.
 
 Allowed files (implementation): see allowed-files.txt.

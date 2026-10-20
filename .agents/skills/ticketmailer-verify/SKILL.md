@@ -14,13 +14,13 @@ After any non-trivial code, SQL, template, locale, or contract-surface change. B
 From plugin root (this worktree):
 
 ```bash
-ROOT=. bash .agent/contracts/glpi-ticket-email-client-v2/score.sh
+ROOT=. bash scripts/verify/score.sh
 ```
 
 Expect `PASS: N, FAIL: 0` and exit 0.
 
 - Covers required files, key patterns, and forbidden notification-delivery greps.
-- **v1** `.agent/contracts/ticket-mailer/score.sh` is **legacy** — do not treat as gate when it conflicts with v2.
+- **v1** `docs/archive/contracts/ticket-mailer/score.sh` is **legacy** — do not treat as gate when it conflicts with v2.
 
 ## 2. PHPUnit
 

@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # score.sh — deterministic structural verifier for GLPI Ticket Email Client v2.
-# Run: ROOT=. bash .agent/contracts/glpi-ticket-email-client-v2/score.sh
-# Runtime GLPI/Mailpit checks live in spec.md.
+# Run: ROOT=. bash scripts/verify/score.sh
+# Runtime GLPI/Mailpit checks live in docs/specifications/glpi-ticket-email-client-v2/spec.md.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-ROOT="${ROOT:-$(cd "$SCRIPT_DIR/../../.." && pwd)}"
+ROOT="${ROOT:-$(cd "$SCRIPT_DIR/../.." && pwd)}"
 cd "$ROOT"
 
 PASS=0

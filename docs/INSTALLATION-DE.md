@@ -128,6 +128,6 @@ scripts/dev stop
 6. Zwischen E-Mail und interner Notiz wechseln. Rechte, Status und Benachrichtigungskonfiguration des nativen Formulars prüfen.
 7. Neue E-Mail mit einer berechtigten Absendereinheit prüfen. Ticketeinheit und Antragsteller-/Beobachterzuordnung kontrollieren.
 
-Die vollständigen automatisierten und manuellen Abnahmekriterien stehen im [v2-Vertrag](../.agent/contracts/glpi-ticket-email-client-v2/spec.md). Diese Dokumentationsänderung ersetzt keine vollständige Releaseprüfung.
+Die vollständigen automatisierten und manuellen Abnahmekriterien stehen im [v2-Vertrag](specifications/glpi-ticket-email-client-v2/spec.md). Diese Dokumentationsänderung ersetzt keine vollständige Releaseprüfung.
 
 [Benutzerhandbuch](wiki/Benutzerhandbuch-DE.md) · [English administration guide](INSTALLATION.md)

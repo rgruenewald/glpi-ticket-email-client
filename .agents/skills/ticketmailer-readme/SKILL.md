@@ -19,7 +19,7 @@ Before proposing changes, read:
 
 1. `README.md`
 2. `CONTEXT.md`
-3. `.agent/contracts/glpi-ticket-email-client-v2/spec.md` for affected claims
+3. `docs/specifications/glpi-ticket-email-client-v2/spec.md` for affected claims
 4. `docs/adr/0001-v2-locked-product-decisions.md` when product boundaries matter
 5. Existing proof under `docs/wiki/images/`
 

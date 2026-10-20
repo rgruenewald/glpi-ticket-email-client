@@ -308,7 +308,7 @@ implementer must not re-open them without surfacing a new conflict.
 ## Verification contract
 
 The single source of truth for pass/fail is
-`.agent/contracts/ticket-mailer/score.sh`. It runs deterministic
+`docs/archive/contracts/ticket-mailer/score.sh`. It runs deterministic
 local checks only — no Docker, no real GLPI, no network. It exits
 non-zero on any failed check.
 

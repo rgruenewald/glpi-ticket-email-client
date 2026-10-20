@@ -23,7 +23,7 @@ The development-only login and required SMTP environment variables are documente
 Run the contract verifier from the repository root:
 
 ```bash
-ROOT=. bash .agent/contracts/glpi-ticket-email-client-v2/score.sh
+ROOT=. bash scripts/verify/score.sh
 ```
 
 When dependencies are available, also run:

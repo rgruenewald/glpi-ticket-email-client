@@ -12,7 +12,7 @@ description: ticketmailer compose/send pipeline, recipients, audit intent, SMTP 
 - Forward ticket action
 - Anything touching ACs A1–A9-ish in the v2 contract
 
-Canonical detail: `.agent/contracts/glpi-ticket-email-client-v2/spec.md`.
+Canonical detail: `docs/specifications/glpi-ticket-email-client-v2/spec.md`.
 
 ## Entry surfaces
 

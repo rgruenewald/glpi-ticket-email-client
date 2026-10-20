@@ -52,9 +52,9 @@ docker/ + compose        GLPI 11 + MariaDB; external SMTP via GLPI core config
 tests/                   PHPUnit acceptance
 ```
 
-**Canonical product contract:** `.agent/contracts/glpi-ticket-email-client-v2/spec.md`
-**Historical (superseded on conflict):** `.agent/contracts/ticket-mailer/`
-**Planning history (not live rules):** `.agent/planning/glpi-ticket-email-client/`
+**Canonical product contract:** `docs/specifications/glpi-ticket-email-client-v2/spec.md`
+**Historical (superseded on conflict):** `docs/archive/contracts/ticket-mailer/`
+**Local planning state:** `.agent/` is ignored and is not required to build or verify the project.
 **Locked decisions ADR:** `docs/adr/0001-v2-locked-product-decisions.md`
 
 ## Schema
@@ -78,7 +78,7 @@ IMAP/inbound parse · drafts · queue/retry daemon · SMTP server/UI · core GLP
 ## Verify (quick)
 
 ```bash
-ROOT=. bash .agent/contracts/glpi-ticket-email-client-v2/score.sh
+ROOT=. bash scripts/verify/score.sh
 # optional: composer install && vendor/bin/phpunit
 # optional: docker compose up -d --build → README smoke checks
 ```

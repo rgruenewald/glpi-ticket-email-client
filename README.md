@@ -4,9 +4,13 @@
 
 Give your GLPI support team a ticket-based email composer with **To, CC, BCC, rich text, and attachments**. Send through your existing GLPI SMTP settings and keep the outbound message in the ticket timeline and a durable send log.
 
-[Install the plugin](docs/INSTALLATION.md#installation) · [User guide](docs/wiki/User-Guide-EN.md) · [Deutsches Handbuch](docs/wiki/Benutzerhandbuch-DE.md) · [Releases](https://github.com/rgruenewald/glpi-ticket-email-client/releases)
+<p align="center">
+  <img src="assets/readme/ticketmailer-teaser.webp" width="960" alt="Animated Ticketmailer overview showing the GLPI email composer, ticket context, and audit workflow">
+</p>
 
-[Watch the 16-second product teaser](assets/readme/ticketmailer-teaser.mp4) · Animated overview using the current interface and synthetic data, not a continuous send recording.
+*16-second animated overview using the current interface and synthetic data, not a continuous send recording. [Watch or download the MP4](assets/readme/ticketmailer-teaser.mp4).*
+
+[Install the plugin](docs/INSTALLATION.md#installation) · [User guide](docs/wiki/User-Guide-EN.md) · [Deutsches Handbuch](docs/wiki/Benutzerhandbuch-DE.md) · [Releases](https://github.com/rgruenewald/glpi-ticket-email-client/releases)
 
 ## Why Ticketmailer?
 
