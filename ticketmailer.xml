@@ -4,8 +4,12 @@
   <key>ticketmailer</key>
   <state>stable</state>
   <description>
-    <short lang="en">Compose and send ticket emails through GLPI SMTP.</short>
-    <long lang="en">Ticket email composer with recipients, attachments, an audit trail and timeline integration. Uses the existing GLPI SMTP configuration.</long>
+    <short>
+      <en>Compose and send ticket emails through GLPI SMTP.</en>
+    </short>
+    <long>
+      <en>Ticket email composer with recipients, attachments, an audit trail and timeline integration. Uses the existing GLPI SMTP configuration.</en>
+    </long>
   </description>
   <langs>
     <lang>en_GB</lang>

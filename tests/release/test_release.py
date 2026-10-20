@@ -96,6 +96,10 @@ class ReleaseTest(unittest.TestCase):
         release.build(self.root, self.out, 1700000000)
         import xml.etree.ElementTree as ET
         catalog = ET.parse(self.out / "ticketmailer.xml").getroot()
+        for field in ("short", "long"):
+            node = catalog.find("description/" + field)
+            self.assertTrue(node.findtext("en"))
+            self.assertNotIn("lang", node.attrib)
         version = catalog.find("versions/version")
         self.assertEqual(version.findtext("num"), release.check(ROOT)["version"])
         self.assertTrue(version.findtext("download_url").endswith("/v" + release.check(ROOT)["version"] + "/ticketmailer-" + release.check(ROOT)["version"] + ".tar.gz"))

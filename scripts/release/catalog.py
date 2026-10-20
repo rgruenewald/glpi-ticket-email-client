@@ -56,6 +56,19 @@ def assemble(releases, assets):
             catalog = copy.deepcopy(root)
     if catalog is None:
         raise ValueError("No published stable releases")
+    # Older immutable releases used a language attribute. The Directory expects
+    # language child elements; normalize only the copied catalog presentation.
+    for field in ("short", "long"):
+        description = catalog.find("description/" + field)
+        if description is None:
+            raise ValueError("Missing catalog description: " + field)
+        if not list(description) and description.get("lang") and description.text:
+            language = description.attrib.pop("lang")
+            content = description.text
+            description.text = None
+            ET.SubElement(description, language).text = content
+        if not any(child.text and child.text.strip() for child in description):
+            raise ValueError("Missing translated catalog description: " + field)
     versions = catalog.find("versions")
     versions.clear()
     for version in sorted(entries, key=lambda v: tuple(map(int, v.split("."))), reverse=True):
