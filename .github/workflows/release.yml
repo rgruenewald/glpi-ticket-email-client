@@ -35,7 +35,7 @@ jobs:
           permission-issues: write
       - name: Maintain release PR or create draft release
         id: please
-        uses: googleapis/release-please-action@5c625bfb5d1ff62eadeeb3772007f7f66fdcf071 # v4
+        uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
         with:
           token: ${{ steps.app.outputs.token }}
           config-file: release-please-config.json
@@ -43,7 +43,7 @@ jobs:
           target-branch: main
       - name: Check out exact release commit
         if: steps.please.outputs.release_created == 'true'
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ steps.please.outputs.sha }}
           persist-credentials: false
@@ -62,7 +62,7 @@ jobs:
           python3 scripts/release/release.py verify --tag "$TAG"
       - name: Set up Node for package integration
         if: steps.please.outputs.release_created == 'true'
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '22.18.0'
       - name: Install browser dependencies
