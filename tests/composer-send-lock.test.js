@@ -749,13 +749,14 @@ assert.deepEqual(
 	]),
 	[{ label: "Ada Lovelace", email: "ada@example.test" }],
 );
-assert.deepEqual(
-	recipientForSuggestion(
-		{ label: "Ronny Grünewald", email: "ronny@example.test" },
-		false,
-	),
-	{ label: "Ronny Grünewald", email: "ronny@example.test" },
-);
+for (const label of ["Ronny Grünewald", "tech", "<Admin> & Support"]) {
+	assert.deepEqual(
+		recipientForSuggestion({ label, email: "ronny@example.test" }),
+		{ label: label + " <ronny@example.test>", email: "ronny@example.test" },
+	);
+}
+assert.ok(composerSource.includes("label.textContent = recipientForSuggestion(suggestion).label"));
+assert.doesNotMatch(composerSource, /userAutocompleteShowEmail/);
 
 let formSubmissionPrevented = false;
 form.submitHandler({

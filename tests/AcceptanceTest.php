@@ -577,7 +577,7 @@ final class AcceptanceTest extends TestCase
         $this->assertStringContainsString('Notification::getMailingSignature', $action);
         $this->assertStringContainsString('native_template_selected', $action);
         $this->assertStringNotContainsString('data-ticketmailer-auto-open', $action);
-        $this->assertStringContainsString("'user_autocomplete_show_email' => false", $action);
+        $this->assertStringNotContainsString('data-user-autocomplete-show-email', $reply);
         $this->assertStringNotContainsString("\$settings['subject_prefix']", $config);
         $this->assertStringContainsString("preg_match('/[\\x00\\r\\n]/'", $send);
         $entrypoint = (string) file_get_contents(self::REPO_ROOT . '/docker/glpi/docker-entrypoint.sh');

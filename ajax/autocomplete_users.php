@@ -70,7 +70,7 @@ foreach ($userSearch as $row) {
     if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
         continue;
     }
-    $label = trim((string) ($row['realname'] ?? '') . ' ' . (string) ($row['firstname'] ?? ''));
+    $label = trim((string) ($row['firstname'] ?? '') . ' ' . (string) ($row['realname'] ?? ''));
     $results[] = ['label' => $label !== '' ? $label : (string) $row['name'], 'email' => $email];
 }
 

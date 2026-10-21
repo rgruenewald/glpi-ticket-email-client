@@ -53,6 +53,26 @@ if (($argv[1] ?? '') === 'policy') {
 $ticket = addTicket();
 $result = ['ticket' => $ticket];
 $scenario = $argv[1] ?? 'basic';
+if ($scenario === 'recipients') {
+    $suffix = bin2hex(random_bytes(5));
+    $result['recipients'] = [];
+    foreach (['named', 'login'] as $kind) {
+        $login = 'e2e-recipient-' . $kind . '-' . $suffix;
+        $email = $login . '@example.test';
+        $user = (new User())->add([
+            'name' => $login,
+            'firstname' => $kind === 'named' ? 'Ada' : '',
+            'realname' => $kind === 'named' ? 'Lovelace' : '',
+            'is_active' => 1,
+        ]);
+        if (!$user) {
+            throw new RuntimeException('Could not create recipient fixture');
+        }
+        (new Profile_User())->add(['users_id' => $user, 'profiles_id' => 4, 'entities_id' => 0, 'is_recursive' => 1]);
+        $DB->insertOrDie('glpi_useremails', ['users_id' => $user, 'email' => $email, 'is_default' => 1]);
+        $result['recipients'][] = ['query' => $login, 'label' => $kind === 'named' ? 'Ada Lovelace' : $login, 'email' => $email];
+    }
+}
 if ($scenario === 'history') {
     $public = (new ITILFollowup())->add(['itemtype' => 'Ticket', 'items_id' => $ticket, 'content' => 'E2E_PUBLIC_CONTEXT', 'is_private' => 0, '_disablenotif' => true]);
     $private = (new ITILFollowup())->add(['itemtype' => 'Ticket', 'items_id' => $ticket, 'content' => 'E2E_PRIVATE_CONTEXT', 'is_private' => 1, '_disablenotif' => true]);
