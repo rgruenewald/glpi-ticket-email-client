@@ -21,6 +21,35 @@ async function composeMail(page, ticket, subject, recipient = 'recipient@example
   await page.locator('[name=subject]').fill(subject);
   await page.frameLocator('iframe[id^=ticketmailer-body-html]').locator('body').fill('Ticketmailer browser E2E content');
 }
+test('recipient lookup shows name or login and bracketed email in To, CC and BCC', async ({ page }) => {
+  const fixture = JSON.parse(compose('exec', '-T', '--user', 'www-data', 'glpi', 'php', '/usr/local/bin/e2e-fixture.php', 'recipients'));
+  await login(page);
+  await page.goto('/front/ticket.form.php?id=' + fixture.ticket);
+  await page.locator('.ticketmailer-action-reply').click();
+  const form = page.locator('form.ticketmailer-compose:visible');
+  await expect(form).toBeVisible();
+  for (const field of ['To', 'CC', 'BCC']) {
+    const input = form.getByRole('combobox', { name: field, exact: true });
+    const control = input.locator('..');
+    await control.locator('.ticketmailer-recipient-clear').click();
+    for (const [index, recipient] of fixture.recipients.entries()) {
+      const label = recipient.label + ' <' + recipient.email + '>';
+      await input.fill(recipient.query);
+      const suggestion = control.getByRole('option', { name: label, exact: true });
+      await expect(suggestion).toBeVisible();
+      if (index === 0) {
+        await input.press('ArrowDown');
+        await input.press('Enter');
+      } else {
+        await suggestion.click();
+      }
+      await expect(control.locator('.ticketmailer-recipient-chip').last()).toHaveText(label);
+    }
+    await expect(control.locator('input[type=hidden]')).toHaveValue(fixture.recipients.map(recipient => recipient.email).join(', '));
+  }
+  await page.screenshot({ path: 'test-results/recipient-lookup.png' });
+});
+
 test('browser compose delivers once and creates audit and timeline; anonymous access denied', async ({ page, request, browser, baseURL }) => {
   const fixture = JSON.parse(compose('exec', '-T', '--user', 'www-data', 'glpi', 'php', '/usr/local/bin/e2e-fixture.php'));
   const subject = 'E2E-' + Date.now();

@@ -232,7 +232,6 @@ class PluginTicketmailerTimelineAction
             'image_url' => $web . '/ajax/upload_image.php',
             'validate_url' => $web . '/ajax/validate_recipients.php',
             'user_autocomplete_url' => $web . '/ajax/autocomplete_users.php',
-            'user_autocomplete_show_email' => false,
             'set_waiting' => $initial_mode !== 'solution' && PluginTicketmailerConfig::setWaitingAfterSend($ticket),
             'set_solved' => $initial_mode === 'solution',
             'initial_mode' => $initial_mode === 'internal_note' ? 'internal_note' : 'email',

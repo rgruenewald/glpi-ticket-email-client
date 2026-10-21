@@ -54,10 +54,10 @@
 		);
 	}
 
-	function recipientForSuggestion(suggestion, showEmail) {
+	function recipientForSuggestion(suggestion) {
 		return {
 			email: suggestion.email,
-			label: showEmail ? suggestion.email : suggestion.label,
+			label: suggestion.label + " <" + suggestion.email + ">",
 		};
 	}
 
@@ -514,10 +514,7 @@
 		}
 
 		function selectSuggestion(suggestion) {
-			var recipient = recipientForSuggestion(
-				suggestion,
-				form.dataset.userAutocompleteShowEmail === "1",
-			);
+			var recipient = recipientForSuggestion(suggestion);
 			add(recipient.email, recipient.label);
 			input.value = "";
 			hideSuggestions();
@@ -533,19 +530,13 @@
 				var item = document.createElement("li");
 				var button = document.createElement("button");
 				var label = document.createElement("span");
-				var email = document.createElement("span");
 				button.type = "button";
 				button.className = "ticketmailer-recipient-suggestion";
 				button.id = suggestionList.id + "-" + index;
                 button.setAttribute("role", "option");
 				button.setAttribute("aria-selected", "false");
-				label.textContent = suggestion.label;
-				email.className = "ticketmailer-recipient-suggestion-email";
-				email.textContent = suggestion.email;
+				label.textContent = recipientForSuggestion(suggestion).label;
 				button.appendChild(label);
-				if (form.dataset.userAutocompleteShowEmail === "1") {
-					button.appendChild(email);
-				}
 				button.addEventListener("mousedown", (event) => {
 					event.preventDefault();
 				});
