@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.6.0](https://github.com/rgruenewald/glpi-ticket-email-client/compare/v2.5.1...v2.6.0) (2026-10-21)
+
+
+### Features
+
+* **compose:** configure sender entity hierarchy labels ([871e198](https://github.com/rgruenewald/glpi-ticket-email-client/commit/871e198e1bf9a3a0d24056ff2221f50529450177))
+* **compose:** configure sender entity hierarchy labels ([fc1ea09](https://github.com/rgruenewald/glpi-ticket-email-client/commit/fc1ea099ad2fe94c6fada823fa05f189312403bf))
+
 ## [2.5.1](https://github.com/rgruenewald/glpi-ticket-email-client/compare/v2.5.0...v2.5.1) (2026-10-21)
 
 
