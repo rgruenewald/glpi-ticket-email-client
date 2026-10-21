@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.5.1](https://github.com/rgruenewald/glpi-ticket-email-client/compare/v2.5.0...v2.5.1) (2026-10-21)
+
+
+### Bug Fixes
+
+* align catalog license and tags with directory schema ([7cceecf](https://github.com/rgruenewald/glpi-ticket-email-client/commit/7cceecf280c38cc260af77043928e84284b85f6d))
+* align catalog license and tags with directory schema ([bf6475f](https://github.com/rgruenewald/glpi-ticket-email-client/commit/bf6475f0eccd627d459d308ad94d301778717906))
+* **compose:** show names and email addresses in recipient lookup ([c55734d](https://github.com/rgruenewald/glpi-ticket-email-client/commit/c55734d59bb4e16685df5f7dd3b8ad165e6c46e3))
+* **compose:** show names and email addresses in recipient lookup ([aa91eee](https://github.com/rgruenewald/glpi-ticket-email-client/commit/aa91eee51f74c14cf4c2cfb18b13659967b0af1a))
+* emit directory description language elements ([08743bc](https://github.com/rgruenewald/glpi-ticket-email-client/commit/08743bcab70288ed57c9275d5f149158d5cc904f))
+* emit directory description language elements ([0bf0d04](https://github.com/rgruenewald/glpi-ticket-email-client/commit/0bf0d0451b5d4c3fd4dc73f4bb881c4d0f43e34c))
+
 ## [2.5.0](https://github.com/rgruenewald/glpi-ticket-email-client/compare/v2.4.0...v2.5.0) (2026-10-19)
 
 
