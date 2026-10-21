@@ -562,3 +562,7 @@ msgstr ""
 
 msgid "Sender"
 msgstr ""
+
+#: inc/config.class.php
+msgid "Show full entity hierarchy in sender selection"
+msgstr ""
