@@ -563,3 +563,7 @@ msgstr "Neueste Verlaufseinträge zuerst"
 
 msgid "Sender"
 msgstr "Absender"
+
+#: inc/config.class.php
+msgid "Show full entity hierarchy in sender selection"
+msgstr "Vollständige Entitätenhierarchie in der Absenderauswahl anzeigen"

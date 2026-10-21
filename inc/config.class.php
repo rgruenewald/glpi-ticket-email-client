@@ -81,6 +81,7 @@ class PluginTicketmailerConfig
             'show_action_solution' => __('Show Solution button', 'ticketmailer'),
             'show_action_document' => __('Show Document button', 'ticketmailer'),
             'show_action_internal_note' => __('Show Internal note button', 'ticketmailer'),
+            'show_sender_entity_hierarchy' => __('Show full entity hierarchy in sender selection', 'ticketmailer'),
             'show_answer_templates' => __('Show answer templates', 'ticketmailer'),
             'show_solution_templates' => __('Show solution templates', 'ticketmailer'),
             'show_followup_source' => __('Show followup source', 'ticketmailer'),
