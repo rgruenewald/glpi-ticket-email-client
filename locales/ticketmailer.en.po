@@ -563,3 +563,7 @@ msgstr "Newest timeline entries first"
 
 msgid "Sender"
 msgstr "Sender"
+
+#: inc/config.class.php
+msgid "Show full entity hierarchy in sender selection"
+msgstr "Show full entity hierarchy in sender selection"

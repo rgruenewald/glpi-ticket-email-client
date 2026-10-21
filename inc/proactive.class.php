@@ -35,11 +35,19 @@ class PluginTicketmailerProactive
     public static function senderOptions(): array
     {
         $options = [];
+        $showHierarchy = PluginTicketmailerConfig::interfaceSettings()['show_sender_entity_hierarchy'];
         foreach (self::authorizedEntities() as $entity) {
             if (!self::canUse($entity)) { continue; }
             $sender = Config::getEmailSender($entity);
             if (!filter_var($sender['email'] ?? '', FILTER_VALIDATE_EMAIL)) { continue; }
-            $options[] = ['id'=>$entity, 'label'=>Dropdown::getDropdownName('glpi_entities', $entity) . ' <' . $sender['email'] . '>'];
+            $name = Dropdown::getDropdownName('glpi_entities', $entity);
+            if (!$showHierarchy) {
+                $item = new Entity();
+                if ($item->getFromDB($entity)) {
+                    $name = (string) $item->getField('name');
+                }
+            }
+            $options[] = ['id'=>$entity, 'label'=>$name . ' <' . $sender['email'] . '>'];
         }
         return $options;
     }
