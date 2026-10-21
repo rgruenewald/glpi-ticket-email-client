@@ -52,6 +52,7 @@ $groups = [
         'show_action_internal_note' => __('Internal note', 'ticketmailer'),
     ]],
     [__('Email dialog', 'ticketmailer'), __('Choose the available email and internal-note controls.', 'ticketmailer'), [
+        'show_sender_entity_hierarchy' => __('Show full entity hierarchy in sender selection', 'ticketmailer'),
         'show_answer_templates' => __('Answer templates', 'ticketmailer'),
         'show_solution_templates' => __('Solution templates', 'ticketmailer'),
         'show_followup_source' => __('Followup source', 'ticketmailer'),
