@@ -208,4 +208,4 @@ Action labels are short and translated consistently (Answer, Task, Solution,
 Document, Internal note). The connected group uses native solid primary buttons.
 Settings group action switches, email-dialog controls and behavior separately.
 
-- New email exposes a Sender entity selector above To, listing entities authorized for the current agent profile with their configured email address. Selection determines ticket entity, sender and signature; the global active entity is unchanged. Informational creation/recipient/entity banners are omitted.
+- New email exposes a Sender entity selector above To, listing entities authorized for the current agent profile with their configured email address. A global email-dialog setting selects whether entity labels show the full hierarchy (default) or only the entity’s own name; the configured email address remains visible in either mode. Selection determines ticket entity, sender and signature; the global active entity is unchanged. Informational creation/recipient/entity banners are omitted.
