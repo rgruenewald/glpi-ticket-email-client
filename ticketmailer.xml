@@ -24,6 +24,22 @@
   </authors>
   <versions>
     <version>
+      <num>2.6.0</num>
+      <compatibility>
+        <min>11.0.0</min>
+        <max>11.0.99</max>
+      </compatibility>
+      <download_url>https://github.com/rgruenewald/glpi-ticket-email-client/releases/download/v2.6.0/ticketmailer-2.6.0.tar.gz</download_url>
+    </version>
+    <version>
+      <num>2.5.1</num>
+      <compatibility>
+        <min>11.0.0</min>
+        <max>11.0.99</max>
+      </compatibility>
+      <download_url>https://github.com/rgruenewald/glpi-ticket-email-client/releases/download/v2.5.1/ticketmailer-2.5.1.tar.gz</download_url>
+    </version>
+    <version>
       <num>2.5.0</num>
       <compatibility>
         <min>11.0.0</min>
