@@ -19,6 +19,8 @@
 {% set selected_history_attachments = selected_history_attachments|default([]) %}
 {% set native_followup_form = native_followup_form|default('') %}
 <div data-ticketmailer-delivery
+     data-can-set-waiting="{{ can_set_waiting|default(false) ? 1 : 0 }}"
+     data-can-set-solved="{{ can_set_solved|default(false) ? 1 : 0 }}"
      data-initial-mode="{{ initial_mode|default('email') }}"
      data-show-answer-templates="{{ (show_answer_templates ?? true) ? 1 : 0 }}"
      data-show-followup-source="{{ (show_followup_source ?? true) ? 1 : 0 }}"
@@ -35,6 +37,9 @@
      data-private-label="{{ __('Private') }}"
      {% if not proactive %}data-waiting-label="{{ __('Set ticket status to waiting after sending.', 'ticketmailer') }}"
      data-solved-label="{{ __('Set ticket status to solved after sending.', 'ticketmailer') }}"{% endif %}>
+    {% if not proactive and ticket is defined and not ticket.isNotSolved() %}
+        <p class="alert alert-info" role="status">{{ __('This ticket is solved or closed. Replies and internal notes keep its status unchanged. Use GLPI to reopen it explicitly.', 'ticketmailer') }}</p>
+    {% endif %}
     {% if not proactive %}<fieldset class="ticketmailer-delivery-mode d-flex gap-3 mb-3">
         <legend class="visually-hidden">{{ __('Reply mode', 'ticketmailer') }}</legend>
         <label>
@@ -259,6 +264,7 @@
         </label>
     </div>
 
+    {% if not proactive %}<input type="hidden" name="expected_status" value="{{ expected_status }}">{% endif %}
     <div class="ticketmailer-actions">
         {% if not proactive %}
         {% if inline|default(false) %}
@@ -273,7 +279,7 @@
             </a>
         {% endif %}
         {% endif %}
-        {% if not proactive %}<label class="form-check form-switch d-inline-flex align-items-center mb-0 px-2"
+        {% if not proactive and can_set_waiting|default(false) %}<label class="form-check form-switch d-inline-flex align-items-center mb-0 px-2"
                title="{{ __('Set ticket status to waiting after sending.', 'ticketmailer') }}">
             <i class="ti ti-player-pause me-2" aria-hidden="true"></i>
             <input type="checkbox" class="form-check-input m-0"
@@ -283,7 +289,8 @@
                 {{ __('Set ticket status to waiting after sending.', 'ticketmailer') }}
             </span>
         </label>
-        <label class="form-check form-switch d-inline-flex align-items-center mb-0 px-2"
+        {% endif %}
+        {% if not proactive and can_set_solved|default(false) %}<label class="form-check form-switch d-inline-flex align-items-center mb-0 px-2"
                title="{{ __('Set ticket status to solved after sending.', 'ticketmailer') }}">
             <i class="ti ti-circle-check me-2" aria-hidden="true"></i>
             <input type="checkbox" class="form-check-input m-0"

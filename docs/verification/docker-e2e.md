@@ -80,6 +80,28 @@ service.
 - SMTP outage records failed audit without a followup or delivery; Mailpit
   restarts in a finally block. This intentionally clears its captured mail.
 
+### Ticket status and private notifications
+
+- Email and private notes preserve incoming, waiting and solved statuses, while
+  explicit waiting/solved actions still work. Stale forms and forged transitions
+  create no audit, followup or captured SMTP delivery as applicable.
+- Ticket UPDATE alone does not grant followup CREATE; profile lifecycle restrictions
+  apply to both displayed controls and submitted status actions.
+- Closed tickets are tested with and without native reopening permission. Permitted
+  communication preserves closed status. A requester replying to a solved ticket
+  does not implicitly reopen it.
+- A native template with mandatory location blocks solving until location is filled.
+- A CLI integration probe exercises the registered private-note hooks and native
+  notification queue against Mailpit. The public control reaches requester,
+  technician and observer; private content reaches only the technician with private
+  followup rights; disabling the fixture rule generates no messages. This is a
+  runtime integration test, not a browser notification-delivery test. Core notification
+  toggles are restored and the fixture rule disabled in a finally block.
+- Separate Sendservice unit probes simulate failed/no-op status updates and ticket
+  status/permission changes during SMTP. They require a sent/recorded audit, a warning,
+  no unauthorized overwrite and exactly one SMTP call, not a retry. They do not claim
+  atomicity between the final permission check and the database update.
+
 Each run adds synthetic tickets, users, profiles, entities and audits without
 deleting previous records. Temporary mail-collector rows are removed in finally
 blocks; only fixture-created profile grants and policies are changed. Fixture

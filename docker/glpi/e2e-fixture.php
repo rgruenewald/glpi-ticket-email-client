@@ -84,7 +84,7 @@ if ($scenario === 'history') {
     $result['private'] = addDocument((int) $private, 'ITILFollowup', 'E2E_PRIVATE_FILE');
     $result['foreign'] = addDocument(addTicket(), 'Ticket', 'E2E_FOREIGN_FILE');
 }
-if ($scenario === 'acl') {
+if (in_array($scenario, ['acl', 'status-required'], true)) {
     $suffix = bin2hex(random_bytes(5));
     $entity = (new Entity())->add(['name' => 'E2E own ' . $suffix, 'entities_id' => 0]);
     $foreign = (new Entity())->add(['name' => 'E2E foreign ' . $suffix, 'entities_id' => 0]);
@@ -118,6 +118,15 @@ if ($scenario === 'acl') {
         $result['users'][$role] = ['login' => $login, 'profile' => (int) $profile];
     }
     $DB->insertOrDie('glpi_plugin_ticketmailer_reply_policies', ['entities_id' => $entity, 'profiles_id' => null, 'mode' => 'available']);
+    if ($scenario === 'status-required') {
+        $template = (new TicketTemplate())->add(['name'=>'E2E required location '.$suffix, 'entities_id'=>$entity]);
+        $field = (new Ticket())->getSearchOptionIDByField('field', 'completename', 'glpi_locations');
+        if (!$template || !$field) throw new RuntimeException('Missing required-field fixture');
+        $result['location'] = (new Location())->add(['name'=>'E2E location '.$suffix, 'entities_id'=>$entity]);
+        if (!$result['location']) throw new RuntimeException('Missing location fixture');
+        $DB->insertOrDie('glpi_tickettemplatemandatoryfields', ['tickettemplates_id'=>$template, 'num'=>$field]);
+        $DB->updateOrDie('glpi_profiles', ['tickettemplates_id'=>$template], ['id'=>$result['users']['writer']['profile']]);
+    }
 }
 if ($scenario === 'mailbox') {
     $address = 'collector-' . bin2hex(random_bytes(8)) . '@example.test';

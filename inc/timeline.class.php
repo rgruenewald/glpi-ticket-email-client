@@ -6,6 +6,71 @@
  */
 class PluginTicketmailerTimeline
 {
+    /** Use GLPI's actual subitem ACL, not just the ticket's update permission. */
+    public static function canAddFollowup(Ticket $ticket): bool
+    {
+        if (!Session::haveAccessToEntity((int) $ticket->getField('entities_id')) || !$ticket->canViewItem()) {
+            return false;
+        }
+        $followup = new ITILFollowup();
+        $followup->getEmpty();
+        $followup->fields['itemtype'] = Ticket::class;
+        $followup->fields['items_id'] = (int) $ticket->getField('id');
+        $input = ['itemtype' => Ticket::class, 'items_id' => (int) $ticket->getField('id')];
+        return $followup->can(-1, CREATE, $input);
+    }
+
+    public static function canChangeStatus(Ticket $ticket, int $target): bool
+    {
+        if (!$ticket->isNotSolved() || (int) $ticket->getField('status') === $target
+            || !Ticket::isAllowedStatus($ticket->getField('status'), $target)) {
+            return false;
+        }
+        if ($target === Ticket::SOLVED) {
+            if (!Ticket::canUpdate() || !$ticket->canSolve() || !$ticket->checkRequiredFieldsFilled()) {
+                return false;
+            }
+            // GLPI skips template validation when category/entity/type are unchanged.
+            // Check the loaded template too, before offering an explicit solution.
+            $template = $ticket->getITILTemplateFromInput($ticket->fields);
+            foreach ($template?->mandatory ?? [] as $field => $number) {
+                if (array_key_exists($field, $ticket->fields)
+                    && (empty($ticket->fields[$field]) || $ticket->fields[$field] === 'NULL')) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return $target === Ticket::WAITING && $ticket->canUpdateItem();
+    }
+
+    /** Re-read immediately before irreversible work; a stale form must not reopen a ticket. */
+    public static function validateSubmission(Ticket $ticket, int $expected_status, bool $waiting, bool $solved): void
+    {
+        if (!$ticket->getFromDB((int) $ticket->getField('id')) || !self::canAddFollowup($ticket)) {
+            throw new InvalidArgumentException(__('GLPI does not allow adding a followup to this ticket.', 'ticketmailer'));
+        }
+        if ((int) $ticket->getField('status') !== $expected_status) {
+            throw new InvalidArgumentException(__('The ticket status has changed. Reopen the dialog and check the status before submitting.', 'ticketmailer'));
+        }
+        if (($waiting && $solved)
+            || ($waiting && !self::canChangeStatus($ticket, Ticket::WAITING))
+            || ($solved && !self::canChangeStatus($ticket, Ticket::SOLVED))) {
+            throw new InvalidArgumentException(__('GLPI does not allow the selected ticket status change.', 'ticketmailer'));
+        }
+    }
+
+    /** Never treat a followup itself as an instruction to reopen or close a ticket. */
+    public static function preserveStatus(array $input): array
+    {
+        foreach (['pending', '_status', '_reopen', '_close', 'add_reopen', 'add_close'] as $key) {
+            unset($input[$key]);
+        }
+        $input['_no_reopen'] = 1;
+        $input['_do_not_compute_status'] = 1;
+        return $input;
+    }
+
     /**
      * @param array{
      *   tickets_id:int,
@@ -37,6 +102,8 @@ class PluginTicketmailerTimeline
                 'content'         => $content,
                 'is_private'      => 0,
                 '_disablenotif'   => 1,
+                '_no_reopen'      => 1,
+                '_do_not_compute_status' => 1,
                 'requesttypes_id' => (int) ($payload['requesttypes_id'] ?? 0),
             ];
             $id = $followup->add($input);

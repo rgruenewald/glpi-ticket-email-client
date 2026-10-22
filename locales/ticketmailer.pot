@@ -566,3 +566,37 @@ msgstr ""
 #: inc/config.class.php
 msgid "Show full entity hierarchy in sender selection"
 msgstr ""
+
+#: inc/timeline.class.php inc/timelineaction.class.php hook.php templates/compose.html.twig
+msgid "Solved"
+msgstr ""
+
+#: inc/timeline.class.php inc/timelineaction.class.php hook.php templates/compose.html.twig
+msgid "This ticket is already solved."
+msgstr ""
+
+#: inc/timeline.class.php inc/timelineaction.class.php hook.php templates/compose.html.twig
+msgid "This ticket is solved or closed. Replies and internal notes keep its status unchanged. Use GLPI to reopen it explicitly."
+msgstr ""
+
+#: inc/timeline.class.php inc/timelineaction.class.php hook.php templates/compose.html.twig
+
+#: inc/timeline.class.php inc/timelineaction.class.php hook.php templates/compose.html.twig
+msgid "GLPI does not allow adding a followup to this ticket."
+msgstr ""
+
+#: inc/timeline.class.php inc/timelineaction.class.php hook.php templates/compose.html.twig
+msgid "The ticket status has changed. Reopen the dialog and check the status before submitting."
+msgstr ""
+
+#: inc/timeline.class.php inc/timelineaction.class.php hook.php templates/compose.html.twig
+msgid "GLPI does not allow the selected ticket status change."
+msgstr ""
+
+#: inc/timeline.class.php inc/timelineaction.class.php hook.php templates/compose.html.twig
+msgid "The email was sent, but the ticket status could not be changed. Check the current ticket status. Do not send the email again."
+msgstr ""
+
+#: inc/timeline.class.php inc/timelineaction.class.php hook.php templates/compose.html.twig
+msgid "The internal note was added, but the ticket status could not be changed. Check the current ticket status."
+msgstr ""

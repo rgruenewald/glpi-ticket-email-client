@@ -121,6 +121,10 @@ if (!class_exists('UserEmail')) {
 if (!class_exists('PluginTicketmailerTimeline')) {
     class PluginTicketmailerTimeline
     {
+        public static function canAddFollowup(Ticket $ticket): bool
+        {
+            return Session::haveAccessToEntity((int) $ticket->getField('entities_id')) && $ticket->canViewItem();
+        }
         public static function sanitizeHtml(string $html): string
         {
             return preg_replace('/<script\b[^>]*>.*?<\/script>/is', '', $html) ?? $html;
