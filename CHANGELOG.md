@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.6.1](https://github.com/rgruenewald/glpi-ticket-email-client/compare/v2.6.0...v2.6.1) (2026-10-22)
+
+
+### Bug Fixes
+
+* **timeline:** preserve ticket status during replies and notes ([#56](https://github.com/rgruenewald/glpi-ticket-email-client/issues/56)) ([106c22d](https://github.com/rgruenewald/glpi-ticket-email-client/commit/106c22da1db1c55060b0956f9e9d66681ac22c2a))
+
 ## [2.6.0](https://github.com/rgruenewald/glpi-ticket-email-client/compare/v2.5.1...v2.6.0) (2026-10-21)
 
 
