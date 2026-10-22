@@ -84,9 +84,18 @@ class PluginTicketmailerTimelineAction
         ];
         $html = '';
         foreach ($buttons as $key => [$label, $icon, $mode]) {
+            $already_solved = $key === 'solution' && in_array((int) $ticket->getField('status'), Ticket::getSolvedStatusArray(), true);
             if (!$preferences['show_action_' . $key]
-                || (in_array($key, ['task', 'solution', 'document'], true)
+                || (!$already_solved && in_array($key, ['task', 'solution', 'document'], true)
                     && (!isset($native[$key]) || !empty($native[$key]['hide_in_menu'])))) {
+                continue;
+            }
+            if ($already_solved) {
+                $tooltip = htmlspecialchars(__('This ticket is already solved.', 'ticketmailer'), ENT_QUOTES, 'UTF-8');
+                $html .= '<span class="btn-group" tabindex="0" data-bs-toggle="tooltip" data-bs-trigger="hover focus" title="' . $tooltip . '" aria-label="' . $tooltip . '">'
+                    . '<button type="button" class="btn btn-primary ticketmailer-action-solution" disabled aria-disabled="true">'
+                    . '<i class="ti ti-check me-1" aria-hidden="true"></i>'
+                    . htmlspecialchars(__('Solved', 'ticketmailer'), ENT_QUOTES, 'UTF-8') . '</button></span>';
                 continue;
             }
             if ($mode !== null) {
@@ -119,10 +128,7 @@ class PluginTicketmailerTimelineAction
 
     public static function canUse(Ticket $ticket): bool
     {
-        if ((!Session::haveAccessToEntity((int) $ticket->getField('entities_id')) || !$ticket->canViewItem())
-            || !($ticket->canUpdateItem()
-                || (method_exists($ticket, 'canAddFollowups') && $ticket->canAddFollowups()))
-        ) {
+        if (!PluginTicketmailerTimeline::canAddFollowup($ticket)) {
             return false;
         }
 
@@ -232,7 +238,10 @@ class PluginTicketmailerTimelineAction
             'image_url' => $web . '/ajax/upload_image.php',
             'validate_url' => $web . '/ajax/validate_recipients.php',
             'user_autocomplete_url' => $web . '/ajax/autocomplete_users.php',
-            'set_waiting' => $initial_mode !== 'solution' && PluginTicketmailerConfig::setWaitingAfterSend($ticket),
+            'expected_status' => (int) $ticket->getField('status'),
+            'can_set_waiting' => PluginTicketmailerTimeline::canChangeStatus($ticket, Ticket::WAITING),
+            'can_set_solved' => PluginTicketmailerTimeline::canChangeStatus($ticket, Ticket::SOLVED),
+            'set_waiting' => $initial_mode !== 'solution' && PluginTicketmailerTimeline::canChangeStatus($ticket, Ticket::WAITING) && PluginTicketmailerConfig::setWaitingAfterSend($ticket),
             'set_solved' => $initial_mode === 'solution',
             'initial_mode' => $initial_mode === 'internal_note' ? 'internal_note' : 'email',
             'show_answer_templates' => $preferences['show_answer_templates'],
@@ -262,6 +271,7 @@ class PluginTicketmailerTimelineAction
             ob_start();
             (new ITILFollowup())->showForm(0, ['parent' => $ticket]);
             $form = (string) ob_get_clean();
+            $form = preg_replace('/<input\b[^>]*\bname=["\']add_reopen["\'][^>]*>/i', '', $form);
             $form = preg_replace_callback(
                 '/<input\b[^>]*>/i',
                 static function (array $match): string {
@@ -286,7 +296,8 @@ class PluginTicketmailerTimelineAction
             );
             $form = preg_replace(
                 '/(<form\b[^>]*>)/',
-                '$1<input type="hidden" name="_ticketmailer_internal_note" value="1">',
+                '$1<input type="hidden" name="_ticketmailer_internal_note" value="1">'
+                    . '<input type="hidden" name="_ticketmailer_expected_status" value="' . (int) $ticket->getField('status') . '">',
                 (string) $form,
                 1,
                 $form_count,

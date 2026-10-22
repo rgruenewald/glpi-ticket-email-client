@@ -13,6 +13,7 @@ if (!function_exists('__')) {
 if (!class_exists('Ticket')) {
     class Ticket extends CommonGLPI
     {
+        public static function getSolvedStatusArray(): array { return [5]; }
         public static bool $loadable = true;
         public static int $entityId = 27;
 

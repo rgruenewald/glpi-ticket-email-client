@@ -32,7 +32,7 @@ if (!empty($_POST['compose_token'])) {
         exit;
     }
     $tickets_id = 0;
-} elseif ($tickets_id <= 0 || !$ticket->getFromDB($tickets_id) || !Session::haveAccessToEntity((int) $ticket->getField('entities_id')) || !$ticket->can($tickets_id, READ) || !($ticket->canUpdateItem() || $ticket->canAddFollowups())) {
+} elseif ($tickets_id <= 0 || !$ticket->getFromDB($tickets_id) || !Session::haveAccessToEntity((int) $ticket->getField('entities_id')) || !$ticket->can($tickets_id, READ) || !PluginTicketmailerTimelineAction::canUse($ticket)) {
     Html::displayRightError();
 }
 $web = Plugin::getWebDir('ticketmailer');
@@ -70,6 +70,14 @@ $recipients_cc  = $parsed_cc['valid'];
 $recipients_bcc = $parsed_bcc['valid'];
 
 $errors = [];
+$expected_status = filter_var($_POST['expected_status'] ?? null, FILTER_VALIDATE_INT);
+if ($proactive_context === null) {
+    try {
+        PluginTicketmailerTimeline::validateSubmission($ticket, $expected_status === false ? -1 : $expected_status, $set_waiting, $set_solved);
+    } catch (InvalidArgumentException $error) {
+        $errors[] = $error->getMessage();
+    }
+}
 if ($set_waiting && $set_solved) {
     $errors[] = __('Choose either waiting or solved, not both.', 'ticketmailer');
     $set_waiting = false;
@@ -229,8 +237,11 @@ if ($errors !== []) {
         'mailbox_override'   => $mailbox_override,
         'mailbox_matches'    => $mailbox_matches,
         'include_history'    => $include_history,
-        'set_waiting'        => $set_waiting,
-        'set_solved'         => $set_solved,
+        'expected_status'    => (int) $ticket->getField('status'),
+        'can_set_waiting'    => PluginTicketmailerTimeline::canChangeStatus($ticket, Ticket::WAITING),
+        'can_set_solved'     => PluginTicketmailerTimeline::canChangeStatus($ticket, Ticket::SOLVED),
+        'set_waiting'        => $set_waiting && PluginTicketmailerTimeline::canChangeStatus($ticket, Ticket::WAITING),
+        'set_solved'         => $set_solved && PluginTicketmailerTimeline::canChangeStatus($ticket, Ticket::SOLVED),
         'history_attachments' => PluginTicketmailerHistory::availableAttachments($ticket),
         'selected_history_attachments' => $selected_history_attachments,
         'native_followup_form' => PluginTicketmailerTimelineAction::nativeFollowupForm($ticket),
@@ -359,8 +370,15 @@ try {
     exit;
 }
 
-$delivery = PluginTicketmailerSendservice::deliver($ticket, $payload, $audit_attachments, $audit_inline,
-    $mailbox_override, $mailbox_matches, $new_conversation, $requesttypes_id, $set_waiting, $set_solved, $proactive_context);
+try {
+    $delivery = PluginTicketmailerSendservice::deliver($ticket, $payload, $audit_attachments, $audit_inline,
+        $mailbox_override, $mailbox_matches, $new_conversation, $requesttypes_id, $set_waiting, $set_solved, $proactive_context,
+        $proactive_context === null ? (int) $expected_status : null);
+} catch (InvalidArgumentException $error) {
+    Session::addMessageAfterRedirect($error->getMessage(), false, ERROR);
+    Html::redirect(Ticket::getFormURLWithID($tickets_id));
+    exit;
+}
 $log_id = $delivery['log_id'];
 $timeline_recorded = $delivery['timeline_recorded'];
 

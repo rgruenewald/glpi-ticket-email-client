@@ -198,6 +198,27 @@ Enabled, permitted replacements suppress their native equivalents automatically
 through timeline descriptor overrides. Disabled replacements leave native actions
 available. No DOM/CSS native-action suppression is used.
 
+### Approved status semantics
+
+- At the solution button's original position, solved tickets show a disabled
+  **Solved** button with **This ticket is already solved.** as a keyboard-accessible
+  tooltip. The configured solution-action visibility still applies.
+- Email and Internal note preserve the current status unless the user explicitly
+  selects a permitted status action. In particular, native pending=0, requester
+  followups and followup templates must not implicitly reopen a ticket.
+- The configured waiting default applies only to open tickets with a permitted
+  transition to waiting. Waiting tickets stay waiting without another action;
+  solved/closed tickets have no waiting/solved switches. Explicit reopening uses
+  GLPI's native workflow rather than an implicit communication side effect.
+- Before sending, check GLPI's actual followup CREATE permission, entity/read
+  access, current status, and any selected status transition. Repeat server-side
+  validation at the delivery boundary, before audit intent and SMTP. Invalid or
+  stale submissions send nothing. Native notes use equivalent pre-add guards.
+- Offer status actions only when GLPI permits them. Solving also requires native
+  solution rights and required ticket fields. Recheck after SMTP before applying
+  a selected status; report an incomplete status change without resending email.
+- Native private-followup notifications remain governed by GLPI configuration.
+
 Answer templates, solution templates and followup source can be disabled separately
 in global settings. Private-note template/source controls follow the same switches.
 To/CC/BCC autocomplete searches active GLPI users by login, first/last name and

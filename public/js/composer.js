@@ -1341,6 +1341,10 @@
 							});
 							footer.classList.add("ticketmailer-note-actions");
 							footer.prepend(cancel);
+							if (pendingControl && delivery.dataset.canSetWaiting !== "1") {
+								pendingControl.remove();
+								pendingControl = null;
+							}
 							var pendingLabel = null;
 							if (pendingControl) {
 								pendingLabel =
@@ -1367,51 +1371,53 @@
 								}
 								cancel.after(pendingControl);
 							}
-							var solvedLabel = document.createElement("label");
-							solvedLabel.className =
-								"form-check form-switch mb-0 ticketmailer-note-solved ticketmailer-status-toggle";
-							solvedLabel.title = delivery.dataset.solvedLabel;
-							var solvedIcon = document.createElement("i");
-							solvedIcon.className = "ti ti-circle-check";
-							solvedIcon.setAttribute("aria-hidden", "true");
-							var solvedInput = document.createElement("input");
-							solvedInput.type = "checkbox";
-							solvedInput.className = "form-check-input m-0";
-							solvedInput.name = "_ticketmailer_set_solved";
-							solvedInput.value = "1";
-							var solvedText = document.createElement("span");
-							solvedText.className = "visually-hidden";
-							solvedLabel.append(solvedIcon, solvedInput, solvedText);
-							solvedLabel.querySelector(".visually-hidden").textContent =
-								delivery.dataset.solvedLabel;
-							solvedLabel
-								.querySelector("input")
-								.addEventListener("change", function () {
-									if (this.checked && pendingLabel) {
-										var pending = pendingLabel.querySelector(
-											'input[name="pending"][type="checkbox"]',
-										);
-										if (pending && pending.checked) {
-											pending.checked = false;
-											pending.dispatchEvent(
-												new Event("change", { bubbles: true }),
+							if (delivery.dataset.canSetSolved === "1") {
+								var solvedLabel = document.createElement("label");
+								solvedLabel.className =
+									"form-check form-switch mb-0 ticketmailer-note-solved ticketmailer-status-toggle";
+								solvedLabel.title = delivery.dataset.solvedLabel;
+								var solvedIcon = document.createElement("i");
+								solvedIcon.className = "ti ti-circle-check";
+								solvedIcon.setAttribute("aria-hidden", "true");
+								var solvedInput = document.createElement("input");
+								solvedInput.type = "checkbox";
+								solvedInput.className = "form-check-input m-0";
+								solvedInput.name = "_ticketmailer_set_solved";
+								solvedInput.value = "1";
+								var solvedText = document.createElement("span");
+								solvedText.className = "visually-hidden";
+								solvedLabel.append(solvedIcon, solvedInput, solvedText);
+								solvedLabel.querySelector(".visually-hidden").textContent =
+									delivery.dataset.solvedLabel;
+								solvedLabel
+									.querySelector("input")
+									.addEventListener("change", function () {
+										if (this.checked && pendingLabel) {
+											var pending = pendingLabel.querySelector(
+												'input[name="pending"][type="checkbox"]',
 											);
-										}
-									}
-								});
-							if (pendingLabel) {
-								pendingLabel
-									.querySelector('input[name="pending"][type="checkbox"]')
-									?.addEventListener("change", function () {
-										if (this.checked) {
-											solvedLabel.querySelector("input").checked = false;
+											if (pending && pending.checked) {
+												pending.checked = false;
+												pending.dispatchEvent(
+													new Event("change", { bubbles: true }),
+												);
+											}
 										}
 									});
-							}
-							if (pendingControl) {
-								pendingControl.after(solvedLabel);
-							} else {
-								cancel.after(solvedLabel);
+								if (pendingLabel) {
+									pendingLabel
+										.querySelector('input[name="pending"][type="checkbox"]')
+										?.addEventListener("change", function () {
+											if (this.checked) {
+												solvedLabel.querySelector("input").checked = false;
+											}
+										});
+								}
+								if (pendingControl) {
+									pendingControl.after(solvedLabel);
+								} else {
+									cancel.after(solvedLabel);
+								}
 							}
 							footer.append(add);
 							footer

@@ -567,3 +567,37 @@ msgstr "Absender"
 #: inc/config.class.php
 msgid "Show full entity hierarchy in sender selection"
 msgstr "Vollständige Entitätenhierarchie in der Absenderauswahl anzeigen"
+
+#: inc/timeline.class.php inc/timelineaction.class.php hook.php templates/compose.html.twig
+msgid "Solved"
+msgstr "Gelöst"
+
+#: inc/timeline.class.php inc/timelineaction.class.php hook.php templates/compose.html.twig
+msgid "This ticket is already solved."
+msgstr "Dieses Ticket ist bereits gelöst."
+
+#: inc/timeline.class.php inc/timelineaction.class.php hook.php templates/compose.html.twig
+msgid "This ticket is solved or closed. Replies and internal notes keep its status unchanged. Use GLPI to reopen it explicitly."
+msgstr "Dieses Ticket ist gelöst oder geschlossen. Antworten und interne Notizen ändern den Status nicht. Verwenden Sie GLPI, um es ausdrücklich wieder zu öffnen."
+
+#: inc/timeline.class.php inc/timelineaction.class.php hook.php templates/compose.html.twig
+
+#: inc/timeline.class.php inc/timelineaction.class.php hook.php templates/compose.html.twig
+msgid "GLPI does not allow adding a followup to this ticket."
+msgstr "GLPI erlaubt keinen Folgeeintrag zu diesem Ticket."
+
+#: inc/timeline.class.php inc/timelineaction.class.php hook.php templates/compose.html.twig
+msgid "The ticket status has changed. Reopen the dialog and check the status before submitting."
+msgstr "Der Ticketstatus hat sich geändert. Öffnen Sie den Dialog erneut und prüfen Sie den Status vor dem Absenden."
+
+#: inc/timeline.class.php inc/timelineaction.class.php hook.php templates/compose.html.twig
+msgid "GLPI does not allow the selected ticket status change."
+msgstr "GLPI erlaubt die ausgewählte Statusänderung nicht."
+
+#: inc/timeline.class.php inc/timelineaction.class.php hook.php templates/compose.html.twig
+msgid "The email was sent, but the ticket status could not be changed. Check the current ticket status. Do not send the email again."
+msgstr "Die E-Mail wurde versendet, aber der Ticketstatus konnte nicht geändert werden. Prüfen Sie den aktuellen Ticketstatus. Versenden Sie die E-Mail nicht erneut."
+
+#: inc/timeline.class.php inc/timelineaction.class.php hook.php templates/compose.html.twig
+msgid "The internal note was added, but the ticket status could not be changed. Check the current ticket status."
+msgstr "Die interne Notiz wurde hinzugefügt, aber der Ticketstatus konnte nicht geändert werden. Prüfen Sie den aktuellen Ticketstatus."

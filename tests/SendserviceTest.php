@@ -27,6 +27,14 @@ final class SendserviceTest extends TestCase
         self::assertTrue($result['result']['timeline_recorded']);
     }
 
+    public function testDeniedFollowupStopsBeforeAuditAndSmtp(): void
+    {
+        $result = $this->probe('denied-followup');
+        self::assertSame(0, $result['attempts']);
+        self::assertSame([], $result['audit']);
+        self::assertSame([], $result['authors']);
+    }
+
     public function testNoSmtpWithoutDurableAudit(): void
     {
         $result = $this->probe('audit-failure');
@@ -41,6 +49,41 @@ final class SendserviceTest extends TestCase
         self::assertSame([], $result['authors']);
         self::assertFalse($result['result']['timeline_recorded']);
         self::assertSame(['sending','failed'], $result['phases']);
+    }
+
+    public function testFailedOrIneffectiveStatusUpdateWarnsWithoutResending(): void
+    {
+        foreach (['status-update-failure', 'status-update-noop'] as $scenario) {
+            $r = $this->probe($scenario);
+            self::assertSame(1, $r['attempts']);
+            self::assertSame('sent', $r['result']['status']);
+            self::assertTrue($r['result']['timeline_recorded']);
+            self::assertSame([7], $r['authors']);
+            self::assertSame([['intent',7], ['smtp','sent'], ['timeline','recorded']], $r['audit']);
+            self::assertCount(1, $r['updates']);
+            self::assertSame(1, $r['ticket_status']);
+            self::assertCount(1, $r['messages']);
+            self::assertStringContainsString('Do not send the email again.', $r['messages'][0]);
+        }
+    }
+
+    public function testChangesDuringSmtpPreventStatusOverwrite(): void
+    {
+        foreach (['status-changed-during-smtp'=>5, 'rights-changed-during-smtp'=>1] as $scenario=>$status) {
+            $r = $this->probe($scenario);
+            self::assertSame(1, $r['attempts']);
+            self::assertTrue($r['result']['timeline_recorded']);
+            self::assertSame('sent', $r['result']['status']);
+            self::assertSame([], $r['updates']);
+            self::assertSame($status, $r['ticket_status']);
+            self::assertCount(1, $r['messages']);
+            self::assertStringContainsString('Do not send the email again.', $r['messages'][0]);
+        }
+        $r = $this->probe('status-success');
+        self::assertSame(4, $r['ticket_status']);
+        self::assertCount(1, $r['updates']);
+        self::assertSame([], $r['messages']);
+        self::assertSame(1, $r['attempts']);
     }
 
     public function testTimelineFailureNeverRetriesSmtp(): void

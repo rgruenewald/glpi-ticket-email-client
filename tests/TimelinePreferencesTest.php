@@ -58,6 +58,7 @@ if (!class_exists('Ticket')) {
 
 class TimelineActionTicket extends Ticket
 {
+    public static function getSolvedStatusArray(): array { return [5]; }
     public function getTimelineItemtypes(): array {
         return [
             'task' => ['class' => 'TicketTask', 'hide_in_menu' => false],
@@ -225,6 +226,22 @@ final class TimelinePreferencesTest extends TestCase
         self::assertStringContainsString('>Task</button>', $html);
         preg_match_all('/ticketmailer-action-(reply|solution|internal_note|task|document)"/', $html, $matches);
         self::assertSame(['reply', 'solution', 'internal_note', 'task', 'document'], $matches[1]);
+    }
+
+    #[Test]
+    public function solved_button_stays_between_answer_and_note_without_an_action(): void
+    {
+        $ticket = new TimelineActionTicket();
+        $ticket->fields['status'] = 5;
+        ob_start();
+        PluginTicketmailerTimelineAction::displayActions(['item' => $ticket]);
+        $html = ob_get_clean();
+        self::assertStringContainsString('title="This ticket is already solved."', $html);
+        self::assertStringContainsString('disabled aria-disabled="true"', $html);
+        self::assertStringContainsString('>Solved</button>', $html);
+        self::assertStringNotContainsString('_solution"', $html);
+        self::assertLessThan(strpos($html, 'ticketmailer-action-solution'), strpos($html, 'ticketmailer-action-reply'));
+        self::assertLessThan(strpos($html, 'ticketmailer-action-internal_note'), strpos($html, 'ticketmailer-action-solution'));
     }
 
     #[Test]

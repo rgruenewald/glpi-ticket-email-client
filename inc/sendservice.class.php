@@ -4,9 +4,12 @@ class PluginTicketmailerSendservice
 {
     public static function deliver(Ticket $ticket, array $payload, array $audit_attachments, array $audit_inline,
         bool $mailbox_override, array $mailbox_matches, bool $new_conversation, int $requesttypes_id,
-        bool $set_waiting, bool $set_solved, ?array $proactive_context = null): array
+        bool $set_waiting, bool $set_solved, ?array $proactive_context = null, ?int $expected_status = null): array
     {
+        PluginTicketmailerTimeline::validateSubmission($ticket,
+            $expected_status ?? (int) $ticket->getField('status'), $set_waiting, $set_solved);
         $tickets_id = (int) $ticket->getField('id');
+        $original_status = (int) $ticket->getField('status');
         $subject = $payload['subject'];
         $recipients_to = $payload['to'];
         $recipients_cc = $payload['cc'];
@@ -72,11 +75,22 @@ class PluginTicketmailerSendservice
                 $timeline_recorded = true;
                 $followups_id = (int) $timeline['followups_id'];
                 if ($set_waiting || $set_solved) {
-                    $ticket->update([
-                        'id'            => $tickets_id,
-                        'status'        => $set_solved ? Ticket::SOLVED : Ticket::WAITING,
-                        '_disablenotif' => 1,
-                    ]);
+                    $target = $set_solved ? Ticket::SOLVED : Ticket::WAITING;
+                    // Recheck after SMTP too: a concurrent edit must not be overwritten.
+                    $status_updated = $ticket->getFromDB($tickets_id)
+                        && (int) $ticket->getField('status') === $original_status
+                        && PluginTicketmailerTimeline::canChangeStatus($ticket, $target)
+                        && $ticket->update([
+                            'id' => $tickets_id,
+                            'status' => $target,
+                            '_disablenotif' => 1,
+                        ]) && $ticket->getFromDB($tickets_id) && (int) $ticket->getField('status') === $target;
+                    if (!$status_updated) {
+                        Session::addMessageAfterRedirect(
+                            __('The email was sent, but the ticket status could not be changed. Check the current ticket status. Do not send the email again.', 'ticketmailer'),
+                            false, ERROR,
+                        );
+                    }
                 }
             } else {
                 PluginTicketmailerAudit::markTimelineResult(
