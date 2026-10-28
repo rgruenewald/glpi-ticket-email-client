@@ -15,6 +15,16 @@ release = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(release)
 
 
+class ReleaseAppWorkflowTest(unittest.TestCase):
+    def test_release_and_catalog_use_app_client_id(self):
+        for name in ("release.yml", "catalog.yml"):
+            with self.subTest(workflow=name):
+                workflow = (ROOT / ".github/workflows" / name).read_text()
+                self.assertIn("client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}", workflow)
+                self.assertNotIn("app-id:", workflow)
+                self.assertIn("private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}", workflow)
+
+
 class ReleaseTest(unittest.TestCase):
     def test_release_please_updates_canonical_version_file(self):
         config = json.loads((ROOT / "release-please-config.json").read_text())

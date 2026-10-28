@@ -23,7 +23,8 @@ before marketplace submission; changing compatibility is a separate product deci
 
 1. Install a dedicated GitHub App on this repository only, with Contents,
    Pull requests and Issues read/write. No administration, workflows or branch
-   bypass permission. Set repository variable RELEASE_APP_ID and Actions secret
+   bypass permission. Set repository variable RELEASE_APP_CLIENT_ID to the App client
+   ID (the `Iv...` identifier, not its numeric App ID) and Actions secret
    RELEASE_APP_PRIVATE_KEY. Enter the key in GitHub's secret UI or secure stdin,
    never chat, command-line arguments, source files or logs.
 2. The App token makes release PRs trigger normal CI. PRs created with the standard
