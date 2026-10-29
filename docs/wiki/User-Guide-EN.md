@@ -2,11 +2,11 @@
 
 # User guide: GLPI Ticket Email Client
 
-[Documentation home](Home.md) · [Deutsch](Benutzerhandbuch-DE.md) · [Installation and administration](../INSTALLATION.md)
+[Documentation home](https://github.com/rgruenewald/glpi-ticket-email-client/wiki/Home) · [Deutsch](https://github.com/rgruenewald/glpi-ticket-email-client/wiki/Benutzerhandbuch-DE) · [Installation and administration](https://github.com/rgruenewald/glpi-ticket-email-client/wiki/Installation-EN)
 
-Write an email from a ticket, start a new conversation, or add an internal note without leaving GLPI. This guide describes Ticketmailer 2.4.0, verified with GLPI 11.0.8. Supported runtime: GLPI 11.0.x and PHP 8.2 or later.
+Write an email from a ticket, start a new conversation, or add an internal note without leaving GLPI. This guide covers the current `main` code, including changes after release **2.6.1**. Supported runtime: GLPI 11.0.x and PHP 8.2 or later; the documented reference environment is GLPI 11.0.8. See [version notes](https://github.com/rgruenewald/glpi-ticket-email-client/wiki/Version-Notes-EN) for released and unreleased changes.
 
-The screenshots below show the current local test instance with synthetic tickets and example.test recipients. Available actions and fields depend on your permissions and the administrator's configuration. Button names may differ with the GLPI language; the email reply action may also be labelled **Answer**.
+The screenshots below are examples from the 2.4.0 test instance with synthetic tickets and example.test recipients. Available actions and fields depend on your permissions and the administrator's configuration. Button names may differ with the GLPI language; the email reply action may also be labelled **Answer**.
 
 ## Quick start
 
@@ -22,9 +22,9 @@ The screenshots below show the current local test instance with synthetic ticket
 
 The reply action opens a dialog over the ticket. **Email** is the default mode. It offers recipients, a subject, GLPI's rich-text editor, and attachments.
 
-![Current email reply dialog with recipients, ticket routing marker, editor, attachment area, and status switches](images/current/compose-en.png)
+![Current email reply dialog with recipients, ticket routing marker, editor, attachment area, and status switches](https://raw.githubusercontent.com/wiki/rgruenewald/glpi-ticket-email-client/images/current/compose-en.png)
 
-Is the action missing? Ask your administrator to check your ticket permissions and the reply policy. Composing requires permission to update the ticket or add a followup. Reading a ticket alone does not permit sending.
+Is the action missing? Ask your administrator to check your ticket permissions and the reply policy. Sending requires ticket access and GLPI’s native permission to add a followup to that ticket. Ticket update permission alone is not enough. Reading a ticket alone does not permit sending.
 
 ### Choose recipients
 
@@ -57,6 +57,8 @@ Check inserted content before sending. **Adding a knowledge-base article can rep
 
 Choose **Choose files** or drag files into the attachment area. Check the displayed selection before sending. GLPI's configured upload limits apply; oversized or rejected files must be corrected before sending.
 
+On current `main`, uploads from successfully sent emails are also stored as ticket documents and linked to the followup. They are selectable in later replies. Existing documents are not duplicated. This change is not included in release 2.6.1.
+
 For inline images, use the editor's image controls, paste a copied image, or drag an image into the message body. Check its appearance before sending.
 
 ### Reuse ticket attachments
@@ -73,28 +75,28 @@ Private followups and their documents are excluded. Review the public history to
 
 Choose **Internal note** to use GLPI's native private-followup form. It has no Ticketmailer email recipient fields or generated email signature. Write the note, add files if needed, check the status options, and use the native **Add** action.
 
-![Current internal-note dialog using GLPI's private-followup editor and native Add action](images/current/internal-note-en.png)
+![Current internal-note dialog using GLPI's private-followup editor and native Add action](https://raw.githubusercontent.com/wiki/rgruenewald/glpi-ticket-email-client/images/current/internal-note-en.png)
 
 The note is private under GLPI's native permissions and visibility rules. **It does not enter Ticketmailer's SMTP or audit pipeline. GLPI's configured native followup notifications still apply**, so do not assume that adding a private note can never trigger an email notification.
 
 Switching between Email and Internal note keeps each form's entered text and attachments while the current dialog remains mounted. These are not saved drafts: do not rely on recovery after reloading, leaving the ticket, or ending the session.
 
-[Watch: switch Email → Internal note → Email](videos/switch-modes.mp4) (about 7 seconds, English UI, silent).
+[Watch: switch Email → Internal note → Email](https://raw.githubusercontent.com/wiki/rgruenewald/glpi-ticket-email-client/videos/switch-modes.mp4) (about 7 seconds, English UI, silent).
 
 *The real UI clip shows the recipient fields disappearing in note mode and the email text returning after switching back. It is trimmed at the start and end, plays at original speed, and does not show a send.*
 
-## 4. Choose the ticket status
+## 4. Choose ticket status
 
-The form's bottom action bar offers two mutually exclusive switches:
+Without an explicit status change, replies and notes preserve the current status, including on solved or closed tickets where GLPI permits followups.
 
-| Icon | Meaning |
+| Switch | Effect |
 | --- | --- |
-| Pause | Set the ticket to waiting after the action. |
-| Circled check | Set the ticket to solved after the action. |
+| **Waiting** | Sets the ticket to Waiting after the action, where the transition is allowed. |
+| **Solved** | Requests solving after the action. It stays visible but is disabled when rights, required fields or the lifecycle prevent solving. |
 
-For email, waiting is on by default unless the administrator changes the setting. Turn it off to leave the status unchanged, or enable solved instead. The status changes only after SMTP succeeds and the ticket followup is recorded.
+For emails, Waiting is initially enabled if the entity or user preference requests it and the transition is allowed. Turn it off to keep the current status. A solution template alone does not solve a ticket. If both values are submitted, Solved takes precedence.
 
-For internal notes, the switches use GLPI's native private-followup lifecycle. The status is applied when the note is saved, subject to GLPI's rules. The displayed controls can differ with permissions and configuration.
+If the ticket status changed while the dialog was open, reload before sending. Status changes happen after successful delivery or note creation. An SMTP failure does not change the status. A status change that fails after delivery does not trigger another SMTP attempt.
 
 ## 5. Mail collector warning
 
@@ -114,7 +116,7 @@ Choose **Send** once after reviewing recipients, subject, body, files, history, 
 | --- | --- | --- |
 | Sent and recorded | SMTP succeeded and the email was added as a ticket followup. | Check the timeline or sent-email detail. SMTP success is not proof that the recipient read the message or that it reached their inbox. |
 | Failed | The SMTP attempt failed. | Open the secure send detail and ask your administrator to investigate. There is no automatic resend. |
-| Incomplete | SMTP succeeded but the ticket followup could not be recorded. | **Do not resend.** The email has already been sent. Ask your administrator to resolve the missing ticket record. |
+| Incomplete | SMTP succeeded, but a later GLPI step failed: followup creation, document linking or the requested status change. A followup may already exist. | **Do not resend.** The email has already been sent. Ask your administrator to resolve the missing ticket record. |
 
 If the page times out or the result is unclear, check **Sent emails** before taking any further action. Do not assume that a missing timeline entry means the email was not sent.
 
@@ -124,7 +126,7 @@ A complete email send creates a normal public ticket followup containing the sen
 
 Open the ticket's **Sent emails** tab, then select a subject to see the audit detail, delivery information, and linked files. Only ticket readers can view message details or open stored outbound attachments. This includes the complete BCC list.
 
-![Current sent-email detail showing the full BCC list, message, and stored attachment](images/current/sent-detail-en.png)
+![Current sent-email detail showing the full BCC list, message, and stored attachment](https://raw.githubusercontent.com/wiki/rgruenewald/glpi-ticket-email-client/images/current/sent-detail-en.png)
 
 Private notes remain native GLPI followups and do not appear as Ticketmailer email audit entries.
 
@@ -132,7 +134,7 @@ Private notes remain native GLPI followups and do not appear as Ticketmailer ema
 
 Choose **Assistance → New email**. In German GLPI installations the menu may be named **Helpdesk**. This is different from **Start a new conversation** in a ticket reply.
 
-![Current New email page with Sender entity selection, recipient fields, editor, and Send action](images/current/new-email-en.png)
+![Current New email page with Sender entity selection, recipient fields, editor, and Send action](https://raw.githubusercontent.com/wiki/rgruenewald/glpi-ticket-email-client/images/current/new-email-en.png)
 
 1. Choose **Sender**: the list contains authorized entities with a configured sender email address.
 2. Add recipients, a subject, a message, and optional files.
@@ -155,4 +157,11 @@ If a failure happens after ticket creation, check the created ticket and send lo
 
 For a problem report, provide the ticket ID, time, displayed outcome, and redacted error text. Never include SMTP credentials, real recipient lists, or private ticket content in a public issue.
 
-[Installation and administration](../INSTALLATION.md) · [Security policy](../../SECURITY.md) · [Back to documentation home](Home.md)
+[Installation and administration](https://github.com/rgruenewald/glpi-ticket-email-client/wiki/Installation-EN) · [Security policy](https://github.com/rgruenewald/glpi-ticket-email-client/blob/main/SECURITY.md) · [Back to documentation home](https://github.com/rgruenewald/glpi-ticket-email-client/wiki/Home)
+
+## More help
+
+- [Installation](https://github.com/rgruenewald/glpi-ticket-email-client/wiki/Installation-EN)
+- [Administrator guide](https://github.com/rgruenewald/glpi-ticket-email-client/wiki/Administrator-Guide-EN)
+- [Troubleshooting](https://github.com/rgruenewald/glpi-ticket-email-client/wiki/Troubleshooting-EN)
+- [Version notes](https://github.com/rgruenewald/glpi-ticket-email-client/wiki/Version-Notes-EN)
