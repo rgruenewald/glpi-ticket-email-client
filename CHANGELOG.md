@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.6.2](https://github.com/rgruenewald/glpi-ticket-email-client/compare/v2.6.1...v2.6.2) (2026-10-29)
+
+
+### Bug Fixes
+
+* **attachments:** persist sent files as ticket documents ([#63](https://github.com/rgruenewald/glpi-ticket-email-client/issues/63)) ([d674911](https://github.com/rgruenewald/glpi-ticket-email-client/commit/d67491126e5fe99b1b9944279de4420693098168))
+
 ## [2.6.1](https://github.com/rgruenewald/glpi-ticket-email-client/compare/v2.6.0...v2.6.1) (2026-10-22)
 
 
