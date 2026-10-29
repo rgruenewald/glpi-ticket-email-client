@@ -58,10 +58,13 @@ for (const status of [1,4,5]) {
   if(status!==1) await expect(modal.locator('[name=set_waiting]')).toHaveCount(0);
   if(status===5) await expect(modal.locator('[name=set_solved]')).toHaveCount(0);
   const form=await fillEmail(modal,'Status preserve '+Date.now());
+  await form.locator('input[type=file].ticketmailer-file').setInputFiles({name:'status.txt',mimeType:'text/plain',buffer:Buffer.from('Keep status '+status)});
+  await expect(form.locator('input[name$="[stored]"]')).toHaveCount(1);
   for(const name of ['set_waiting','set_solved']) if(await form.locator('[name='+name+']').count()) await form.locator('[name='+name+']').uncheck();
   await form.getByRole('button',{name:'Send',exact:true}).click();
   await expect(page).toHaveURL(new RegExp('/front/ticket[.]form[.]php[?]id='+f.ticket));
   expect(sql('SELECT status FROM glpi_tickets WHERE id='+f.ticket)).toBe(String(status));
+  expect(sql('SELECT COUNT(*) FROM glpi_documents_items WHERE itemtype="Ticket" AND items_id='+f.ticket)).toBe('1');
  });
  test('private note without status action preserves status ' + status, async ({page}) => {
   const f=await fixture(page,status); const modal=await open(page,'internal_note');

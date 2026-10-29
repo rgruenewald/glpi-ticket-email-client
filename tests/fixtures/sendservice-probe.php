@@ -24,13 +24,14 @@ class Session {
 }
 class PluginTicketmailerAudit {
     public static array $calls = [];
+    public static array $timelineIds = [];
     public static function createIntent(...$args): int {
         self::$calls[] = ['intent', $args[1]];
         if (($GLOBALS['argv'][1] ?? '') === 'audit-failure') { throw new RuntimeException('audit unavailable'); }
         return 8;
     }
     public static function markSmtpResult(...$args): bool { self::$calls[] = ['smtp', $args[1]]; return true; }
-    public static function markTimelineResult(...$args): bool { self::$calls[] = ['timeline', $args[1]]; return true; }
+    public static function markTimelineResult(...$args): bool { self::$calls[] = ['timeline', $args[1]]; self::$timelineIds[] = $args[2]; return true; }
 }
 class PluginTicketmailerMailer {
     public static int $attempts = 0;
@@ -49,7 +50,8 @@ class PluginTicketmailerTimeline {
     }
     public static function recordOutbound(array $payload): array {
         self::$authors[] = $payload['users_id'];
-        return ['ok'=>($GLOBALS['argv'][1] ?? '') !== 'timeline-failure', 'followups_id'=>9, 'error'=>'timeline unavailable'];
+        return ['ok'=>!in_array($GLOBALS['argv'][1], ['timeline-failure', 'document-failure'], true),
+            'followups_id'=>$GLOBALS['argv'][1] === 'timeline-failure' ? null : 9, 'error'=>'timeline unavailable'];
     }
 }
 class PluginTicketmailerProactive {
@@ -63,6 +65,6 @@ try {
     ], [], [], false, [], false, 0, str_contains($argv[1], 'status-') || str_contains($argv[1], 'during-smtp'), false, ['token'=>'synthetic']);
 } catch (RuntimeException | InvalidArgumentException $e) { $result = ['error'=>$e->getMessage()]; }
 echo json_encode(['result'=>$result, 'attempts'=>PluginTicketmailerMailer::$attempts,
-    'audit'=>PluginTicketmailerAudit::$calls, 'authors'=>PluginTicketmailerTimeline::$authors,
+    'audit'=>PluginTicketmailerAudit::$calls, 'timeline_ids'=>PluginTicketmailerAudit::$timelineIds, 'authors'=>PluginTicketmailerTimeline::$authors,
     'phases'=>PluginTicketmailerProactive::$phases, 'updates'=>Ticket::$updates,
     'ticket_status'=>Ticket::$status, 'messages'=>Session::$messages], JSON_THROW_ON_ERROR);

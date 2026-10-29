@@ -86,6 +86,16 @@ final class SendserviceTest extends TestCase
         self::assertSame(1, $r['attempts']);
     }
 
+    public function testDocumentFailureKeepsTheSentAuditAndExistingFollowupWithoutResending(): void
+    {
+        $r = $this->probe('document-failure');
+        self::assertSame(1, $r['attempts']);
+        self::assertSame('sent', $r['result']['status']);
+        self::assertFalse($r['result']['timeline_recorded']);
+        self::assertSame(['timeline', 'failed'], $r['audit'][2]);
+        self::assertSame([9], $r['timeline_ids']);
+    }
+
     public function testTimelineFailureNeverRetriesSmtp(): void
     {
         $result = $this->probe('timeline-failure');

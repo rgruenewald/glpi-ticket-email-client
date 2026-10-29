@@ -340,6 +340,7 @@ foreach ($attachments as $a) {
         'stored'   => $a['stored'],
         'filename' => $a['filename'],
         'mime'     => $a['mime'],
+        'source_documents_id' => $a['source_documents_id'] ?? null,
     ];
 }
 $audit_inline = [];

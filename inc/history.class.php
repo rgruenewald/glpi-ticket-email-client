@@ -96,7 +96,7 @@ class PluginTicketmailerHistory
 
     /**
      * @param list<int|string> $selected_ids
-     * @return list<array{id:string, stored:string, path:string, filename:string, mime:string}>
+     * @return list<array{id:string, stored:string, path:string, filename:string, mime:string, source_documents_id:int}>
      */
     public static function copySelectedAttachments(Ticket $ticket, array $selected_ids): array
     {
@@ -131,6 +131,7 @@ class PluginTicketmailerHistory
                     'path' => $destination,
                     'filename' => $attachment['filename'],
                     'mime' => $attachment['mime'],
+                    'source_documents_id' => $documents_id,
                 ];
             }
         } catch (Throwable $exception) {
@@ -141,6 +142,64 @@ class PluginTicketmailerHistory
         }
 
         return $attachments;
+    }
+
+    /**
+     * Register sent uploads as ordinary ticket documents, keeping audit copies intact.
+     * @param list<array{stored:string, filename:string, source_documents_id?:int|null}> $attachments
+     */
+    public static function attachOutboundDocuments(Ticket $ticket, array $attachments): void
+    {
+        foreach ($attachments as $attachment) {
+            // Selected public documents already exist. Never duplicate them on each reply.
+            if (!empty($attachment['source_documents_id'])) {
+                if (self::resolveAttachment($ticket, (int) $attachment['source_documents_id']) === null) {
+                    throw new RuntimeException('A selected history attachment is no longer available.');
+                }
+                continue;
+            }
+            $root = GLPI_PLUGIN_DOC_DIR . '/ticketmailer/' . (int) $ticket->getField('id');
+            $source = PluginTicketmailerHook::safeResolveUnder($root, (string) ($attachment['stored'] ?? ''));
+            if ($source === null || !is_file($source)) {
+                throw new RuntimeException('Sent attachment storage is unavailable.');
+            }
+            $filename = basename(str_replace('\\', '/', (string) $attachment['filename']));
+            $prefix = bin2hex(random_bytes(16)) . '_';
+            $temporary = GLPI_TMP_DIR . '/' . $prefix . $filename;
+            try {
+                if (!copy($source, $temporary)) {
+                    throw new RuntimeException('Unable to prepare a sent document.');
+                }
+                $document = new Document();
+                // Do not pass itemtype/items_id: Document::post_addItem would notify
+                // and change ticket status. Link explicitly with notifications disabled.
+                $documents_id = $document->add([
+                    'name' => $filename,
+                    'entities_id' => (int) $ticket->getField('entities_id'),
+                    'is_recursive' => 0,
+                    '_filename' => [$prefix . $filename],
+                    '_prefix_filename' => [$prefix],
+                    '_only_if_upload_succeed' => 1,
+                ]);
+                if (!$documents_id) {
+                    throw new RuntimeException('Unable to create a sent GLPI document.');
+                }
+                $link = new Document_Item();
+                if (!$link->add([
+                    'documents_id' => (int) $documents_id,
+                    'itemtype' => 'Ticket',
+                    'items_id' => (int) $ticket->getField('id'),
+                    '_do_notif' => false,
+                    '_disablenotif' => 1,
+                ])) {
+                    throw new RuntimeException('Unable to attach a sent GLPI document to the ticket.');
+                }
+            } finally {
+                if (is_file($temporary)) {
+                    unlink($temporary);
+                }
+            }
+        }
     }
 
     public static function render(Ticket $ticket): string

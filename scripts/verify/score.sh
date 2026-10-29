@@ -118,6 +118,11 @@ require_re "Ticket::canViewItem|canViewItem" front/download.php "downloads requi
 require_re "safeResolveUnder|realpath" front/download.php "download resolves controlled storage path"
 forbid_re "href=\"{{[[:space:]]*a\.path" templates/log_entry.html.twig "detail never renders raw attachment paths"
 require_re "attachment" inc/timeline.class.php "timeline creates secure attachment links"
+require_re "attachOutboundDocuments" inc/timeline.class.php "successful timeline registers regular documents"
+require_re "new Document\(\)" inc/history.class.php "sent attachments use the GLPI Document API"
+require_re "new Document_Item\(\)" inc/history.class.php "sent documents use native ticket links"
+require_re "_disablenotif" inc/history.class.php "document linking suppresses notifications"
+require_re "source_documents_id" inc/history.class.php "selected existing documents are not duplicated"
 
 # 7. SMTP reuse, CSRF, and translations remain mandatory.
 require_re "smtp_host|Config::getConfigurationValue" inc/config.class.php "plugin reuses GLPI SMTP configuration"

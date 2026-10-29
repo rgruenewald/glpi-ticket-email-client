@@ -87,7 +87,7 @@ No rule inheritance beyond that order is required.
 
 ### Attachments
 
-Stored attachment descriptors use a generated server-side ID plus filename, trusted MIME, size, and controlled storage reference. URLs contain an audit ID and attachment ID only. `front/download.php` resolves descriptors server-side and requires `Ticket::canViewItem()` before streaming.
+Stored attachment descriptors use a generated server-side ID plus filename, trusted MIME, size, and controlled storage reference. URLs contain an audit ID and attachment ID only. `front/download.php` resolves descriptors server-side and requires `Ticket::canViewItem()` before streaming. After successful SMTP delivery, normal uploaded attachments are also imported through GLPI’s Document API and linked to the ticket as ordinary documents in its entity, without native notifications or implicit status changes. They are available for explicit selection on subsequent replies. Selected existing public documents are sent without creating duplicate document records; inline images retain their CID/audit storage. Existing plugin-only attachments are not backfilled automatically.
 
 ## Acceptance criteria
 
@@ -135,7 +135,7 @@ With GLPI notifications enabled, this followup must not cause a second GLPI-gene
 
 ### A9 — Timeline-failure semantics
 
-If SMTP succeeds but followup creation fails, retain the sent audit row, set `timeline_status='failed'`, store the failure, and show a hard incomplete-send outcome. Do not automatically resend SMTP. Do not report full success until the followup is recorded. This is an external-SMTP failure boundary, not a silent fallback.
+If SMTP succeeds but followup creation or regular document attachment fails, retain the sent audit row and any already-created followup link, set `timeline_status='failed'`, store the failure, and show a hard incomplete-send outcome. Do not automatically resend SMTP. Do not report full success until the followup is recorded. This is an external-SMTP failure boundary, not a silent fallback.
 
 ### A10 — BCC and attachment reader visibility
 

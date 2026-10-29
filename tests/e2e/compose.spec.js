@@ -83,6 +83,31 @@ test('browser compose delivers once and creates audit and timeline; anonymous ac
   expect(await download.text()).toBe('Synthetic E2E attachment');
   await page.goto('/front/ticket.form.php?id=' + fixture.ticket);
   await expect(page.locator('body')).toContainText('Ticketmailer browser E2E content');
+  // Uploaded attachments become ordinary ticket documents and survive a new modal.
+  const documentId = sql('SELECT d.id FROM glpi_documents d JOIN glpi_documents_items di ON di.documents_id=d.id WHERE di.itemtype="Ticket" AND di.items_id=' + fixture.ticket + ' AND d.filename="e2e.txt"');
+  expect(Number(documentId)).toBeGreaterThan(0);
+  expect(sql('SELECT entities_id FROM glpi_documents WHERE id=' + documentId)).toBe(sql('SELECT entities_id FROM glpi_tickets WHERE id=' + fixture.ticket));
+  await page.locator('.ticketmailer-action-reply').click();
+  const form = page.locator('form.ticketmailer-compose:visible');
+  const selected = form.locator('[name="history_attachments[]"][value="' + documentId + '"]');
+  await expect(selected).toBeVisible();
+  await expect(selected).not.toBeChecked();
+  const preview = await page.request.get('/plugins/ticketmailer/front/history_attachment.php?tickets_id=' + fixture.ticket + '&documents_id=' + documentId);
+  expect(await preview.text()).toBe('Synthetic E2E attachment');
+  await selected.check();
+  await expect(form.locator('[name=include_history]')).not.toBeChecked();
+  const secondSubject = subject + '-again';
+  await form.getByRole('combobox', { name: 'To', exact: true }).fill('recipient@example.test');
+  await form.locator('[name=subject]').fill(secondSubject);
+  await form.frameLocator('iframe[id^=ticketmailer-body-html]').locator('body').fill('Reuse the existing ticket document');
+  await form.getByRole('button', { name: 'Send', exact: true }).click();
+  await expect(page).toHaveURL(new RegExp('/front/ticket.form.php\\?id=' + fixture.ticket));
+  const secondMail = await captured(request, secondSubject);
+  expect(secondMail.Attachments.map(a => a.FileName)).toEqual(['e2e.txt']);
+  const secondBytes = await request.get((process.env.TICKETMAILER_MAIL_URL || 'http://127.0.0.1:8025') + '/api/v1/message/' + secondMail.ID + '/part/' + secondMail.Attachments[0].PartID);
+  expect(await secondBytes.text()).toBe('Synthetic E2E attachment');
+  expect(sql('SELECT COUNT(*) FROM glpi_documents d JOIN glpi_documents_items di ON di.documents_id=d.id WHERE di.itemtype="Ticket" AND di.items_id=' + fixture.ticket)).toBe('1');
+  expect(sql('SELECT COUNT(*) FROM glpi_plugin_ticketmailer_logs WHERE tickets_id=' + fixture.ticket + ' AND status="sent" AND timeline_status="recorded"')).toBe('2');
   const anonymous = await browser.newContext({ baseURL });
   const denied = await anonymous.request.get('/plugins/ticketmailer/front/compose.php?tickets_id=' + fixture.ticket);
   expect(await denied.text()).not.toContain('data-ticketmailer-form');
@@ -96,12 +121,15 @@ test('SMTP outage records failure without a followup and recovers for subsequent
   const subject = 'E2E-outage-' + Date.now();
   await login(page);
   await composeMail(page, fixture.ticket, subject);
+  await page.locator('input[type=file].ticketmailer-file').setInputFiles({ name: 'unsent.txt', mimeType: 'text/plain', buffer: Buffer.from('Not delivered') });
+  await expect(page.locator('input[name$="[stored]"]')).toHaveCount(1);
   compose('stop', 'mailpit');
   try {
     await page.getByRole('button', { name: 'Send', exact: true }).click();
     await expect(page).toHaveURL(/front\/log_entry.php\?id=/);
     expect(sql('SELECT status FROM glpi_plugin_ticketmailer_logs WHERE tickets_id=' + fixture.ticket)).toBe('failed');
     expect(sql('SELECT COUNT(*) FROM glpi_itilfollowups WHERE itemtype="Ticket" AND items_id=' + fixture.ticket)).toBe('0');
+    expect(sql('SELECT COUNT(*) FROM glpi_documents_items WHERE itemtype="Ticket" AND items_id=' + fixture.ticket)).toBe('0');
   } finally {
     compose('start', 'mailpit');
   }
