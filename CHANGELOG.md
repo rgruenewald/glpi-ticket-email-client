@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.6.2](https://github.com/rgruenewald/glpi-ticket-email-client/compare/v2.6.1...v2.6.2)
+
+### Bug Fixes
+
+* **attachments:** Store successfully sent uploads as regular GLPI ticket documents so they can be selected and sent with later replies, without duplicating existing documents or native notifications.
+* **audit:** Preserve the existing followup link and report an incomplete outcome if document registration fails after delivery; never resend automatically.
+
+### Upgrade Notes
+
+* Back up the GLPI database and files before updating. No schema migration or new configuration is required.
+* Previously sent plugin-only attachments are not backfilled. Existing regular ticket documents remain selectable; private-followup documents stay excluded.
+
 ## [2.6.1](https://github.com/rgruenewald/glpi-ticket-email-client/compare/v2.6.0...v2.6.1) (2026-10-22)
 
 

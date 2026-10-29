@@ -92,6 +92,7 @@ class PluginTicketmailerTimeline
      */
     public static function recordOutbound(array $payload): array
     {
+        $id = null;
         try {
             $content = self::buildContent($payload);
             $followup = new ITILFollowup();
@@ -114,6 +115,13 @@ class PluginTicketmailerTimeline
                     'error'        => 'ITILFollowup::add failed',
                 ];
             }
+            if (!empty($payload['attachments'])) {
+                $ticket = new Ticket();
+                if (!$ticket->getFromDB((int) $payload['tickets_id'])) {
+                    throw new RuntimeException('Unable to load the sent document ticket.');
+                }
+                PluginTicketmailerHistory::attachOutboundDocuments($ticket, $payload['attachments']);
+            }
             return [
                 'ok'           => true,
                 'followups_id' => (int) $id,
@@ -122,7 +130,7 @@ class PluginTicketmailerTimeline
         } catch (\Throwable $e) {
             return [
                 'ok'           => false,
-                'followups_id' => null,
+                'followups_id' => $id ? (int) $id : null,
                 'error'        => $e->getMessage(),
             ];
         }

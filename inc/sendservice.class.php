@@ -96,7 +96,7 @@ class PluginTicketmailerSendservice
                 PluginTicketmailerAudit::markTimelineResult(
                     $log_id,
                     'failed',
-                    null,
+                    $timeline['followups_id'],
                     $timeline['error'],
                 );
             }
