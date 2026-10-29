@@ -1,9 +1,11 @@
-<!-- markdownlint-disable MD013 -->
+# Administrator guide / Administratorhandbuch
 
-# Administration documentation / Administrationsdokumentation
+This former planning page is kept so existing bookmarks continue to work. The administrator documentation is now available in both languages:
 
-[Documentation home / Dokumentationsstart](Home.md)
+- [Administrator guide (English)](https://github.com/rgruenewald/glpi-ticket-email-client/wiki/Administrator-Guide-EN)
+- [Installation and upgrades (English)](https://github.com/rgruenewald/glpi-ticket-email-client/wiki/Installation-EN)
 
-This former planning page is retained as a navigation target. Installation, upgrades, configuration and verification are documented in the [installation and administration guide](../INSTALLATION.md).
+Diese frühere Planungsseite bleibt erhalten, damit bestehende Lesezeichen funktionieren. Die Administratordokumentation ist jetzt in beiden Sprachen verfügbar:
 
-Diese frühere Planungsseite bleibt als Navigationsziel erhalten. Installation, Updates, Konfiguration und Prüfungen stehen im [Installations- und Administrationshandbuch](../INSTALLATION-DE.md).
+- [Administratorhandbuch (Deutsch)](https://github.com/rgruenewald/glpi-ticket-email-client/wiki/Administratorhandbuch-DE)
+- [Installation und Updates (Deutsch)](https://github.com/rgruenewald/glpi-ticket-email-client/wiki/Installation-DE)
