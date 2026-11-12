@@ -2,11 +2,11 @@
 
 # Benutzerhandbuch: GLPI Ticket Email Client
 
-[Dokumentationsstart](Home.md) · [English](User-Guide-EN.md) · [Installation und Administration](../INSTALLATION-DE.md)
+[Dokumentationsstart](https://github.com/rgruenewald/glpi-ticket-email-client/wiki/Home) · [English](https://github.com/rgruenewald/glpi-ticket-email-client/wiki/User-Guide-EN) · [Installation und Administration](https://github.com/rgruenewald/glpi-ticket-email-client/wiki/Installation-DE)
 
-Mit Ticketmailer schreiben Sie E-Mails aus einem Ticket, beginnen eine neue Unterhaltung oder erfassen eine interne Notiz direkt in GLPI. Dieses Handbuch beschreibt Ticketmailer 2.4.0, geprüft mit GLPI 11.0.8. Unterstützte Laufzeit: GLPI 11.0.x und PHP ab 8.2.
+Mit Ticketmailer schreiben Sie E-Mails aus einem Ticket, beginnen eine neue Unterhaltung oder erfassen eine interne Notiz direkt in GLPI. Dieses Handbuch beschreibt den aktuellen Code auf `main`, einschließlich Änderungen nach Release **2.6.1**. Unterstützte Laufzeit: GLPI 11.0.x und PHP ab 8.2; die dokumentierte Referenzumgebung ist GLPI 11.0.8. Die [Versionshinweise](https://github.com/rgruenewald/glpi-ticket-email-client/wiki/Versionshinweise-DE) trennen veröffentlichte und noch unveröffentlichte Änderungen.
 
-Die Bilder zeigen die aktuelle lokale Testinstanz mit synthetischen Tickets und Empfängern unter example.test. Sichtbare Aktionen und Felder hängen von Ihren Rechten und der Konfiguration ab. Je nach GLPI-Sprache und Konfiguration heißt die E-Mail-Aktion auch **Antworten**.
+Die Bilder stammen als Beispiele aus der Testinstanz zu Version 2.4.0 mit synthetischen Tickets und Empfängern unter example.test. Sichtbare Aktionen und Felder hängen von Ihren Rechten und der Konfiguration ab. Je nach GLPI-Sprache und Konfiguration heißt die E-Mail-Aktion auch **Antworten**.
 
 ## Schnellstart
 
@@ -22,9 +22,9 @@ Die Bilder zeigen die aktuelle lokale Testinstanz mit synthetischen Tickets und 
 
 Die Antwortaktion öffnet einen Dialog über dem Ticket. **E-Mail** ist vorausgewählt. Der Dialog enthält Empfängerfelder, Betreff, den GLPI-Texteditor und Anhänge.
 
-![Aktueller E-Mail-Dialog mit Empfängern, Ticketkennung im Betreff, Editor, Anhängen und Statusschaltern](images/current/compose-de.png)
+![Aktueller E-Mail-Dialog mit Empfängern, Ticketkennung im Betreff, Editor, Anhängen und Statusschaltern](https://raw.githubusercontent.com/wiki/rgruenewald/glpi-ticket-email-client/images/current/compose-de.png)
 
-Fehlt die Aktion? Lassen Sie die Ticketrechte und die Antwortrichtlinie prüfen. Zum Schreiben benötigen Sie das Recht, das Ticket zu aktualisieren oder einen Ticketbeitrag hinzuzufügen. Ein reines Leserecht erlaubt keinen Versand.
+Fehlt die Aktion? Lassen Sie die Ticketrechte und die Antwortrichtlinie prüfen. Für den Versand sind Ticketzugriff und die native GLPI-Berechtigung zum Hinzufügen eines Folgeeintrags erforderlich. Das Recht zum Aktualisieren des Tickets genügt allein nicht. Ein reines Leserecht erlaubt keinen Versand.
 
 ### Empfänger auswählen
 
@@ -57,6 +57,8 @@ Prüfen Sie eingefügten Inhalt. **Das Übernehmen eines Wissensartikels kann de
 
 Wählen Sie **Dateien auswählen** oder ziehen Sie Dateien in den Anhangsbereich. Prüfen Sie die angezeigte Auswahl. Es gelten die Uploadgrenzen von GLPI. Zu große oder abgewiesene Dateien müssen vor dem Versand korrigiert werden.
 
+Auf dem aktuellen `main` werden Uploads erfolgreich gesendeter E-Mails zusätzlich als Ticketdokumente gespeichert und mit dem Folgeeintrag verknüpft. Sie sind in späteren Antworten erneut auswählbar. Vorhandene Dokumente werden nicht dupliziert. Diese Änderung ist noch nicht in Release 2.6.1 enthalten.
+
 Für eingebettete Bilder nutzen Sie die Bildfunktionen des Editors, fügen ein kopiertes Bild ein oder ziehen ein Bild in den Nachrichtentext. Kontrollieren Sie die Darstellung vor dem Versand.
 
 ### Vorhandene Ticketanhänge verwenden
@@ -73,28 +75,28 @@ Private Ticketbeiträge und deren Dokumente bleiben ausgeschlossen. Prüfen Sie 
 
 Wählen Sie **Interne Notiz**, um das native GLPI-Formular für private Ticketbeiträge zu verwenden. Es enthält keine Ticketmailer-Empfängerfelder und keine automatisch erzeugte E-Mail-Signatur. Schreiben Sie die Notiz, fügen Sie bei Bedarf Dateien hinzu, prüfen Sie die Statusoptionen und wählen Sie **Hinzufügen**.
 
-![Aktueller Dialog für eine interne Notiz mit nativem GLPI-Editor und der Aktion Hinzufügen](images/current/internal-note-de.png)
+![Aktueller Dialog für eine interne Notiz mit nativem GLPI-Editor und der Aktion Hinzufügen](https://raw.githubusercontent.com/wiki/rgruenewald/glpi-ticket-email-client/images/current/internal-note-de.png)
 
 Die Notiz ist nach den nativen GLPI-Rechten und Sichtbarkeitsregeln privat. **Sie durchläuft weder den SMTP-Versand noch das Versandprotokoll von Ticketmailer. Die in GLPI konfigurierten Benachrichtigungen für Ticketbeiträge gelten jedoch weiterhin.** Eine private Notiz bedeutet deshalb nicht grundsätzlich, dass keine Benachrichtigungs-E-Mail entstehen kann.
 
 Beim Wechsel zwischen E-Mail und interner Notiz bleiben die Eingaben und Anhänge der beiden Formulare erhalten, solange der aktuelle Dialog eingebunden bleibt. Das sind keine gespeicherten Entwürfe. Verlassen Sie sich nach Neuladen, Verlassen des Tickets oder Sitzungsende nicht auf eine Wiederherstellung.
 
-[Video: E-Mail → Interne Notiz → E-Mail](videos/switch-modes.mp4) (etwa 7 Sekunden, englische Oberfläche, ohne Ton).
+[Video: E-Mail → Interne Notiz → E-Mail](https://raw.githubusercontent.com/wiki/rgruenewald/glpi-ticket-email-client/videos/switch-modes.mp4) (etwa 7 Sekunden, englische Oberfläche, ohne Ton).
 
 *Die echte Bildschirmaufnahme zeigt, wie die Empfängerfelder im Notizmodus verschwinden und der E-Mail-Text beim Zurückwechseln wieder erscheint. Anfang und Ende sind gekürzt. Die Aufnahme läuft in Originalgeschwindigkeit und zeigt keinen Versand.*
 
 ## 4. Ticketstatus wählen
 
-Unten im Formular stehen zwei Schalter. Nur einer kann eingeschaltet sein:
+Ohne ausdrücklich gewählten Statuswechsel behalten Antworten und Notizen den bisherigen Status bei, auch bei gelösten oder geschlossenen Tickets, sofern GLPI Folgeeinträge erlaubt.
 
-| Symbol | Bedeutung |
+| Schalter | Wirkung |
 | --- | --- |
-| Pause | Ticket nach der Aktion auf wartend setzen. |
-| Eingekreister Haken | Ticket nach der Aktion auf gelöst setzen. |
+| **Wartend** | Setzt das Ticket nach der Aktion auf Wartend, sofern der Wechsel erlaubt ist. |
+| **Gelöst** | Fordert nach der Aktion die Lösung des Tickets an. Bleibt sichtbar, ist aber bei fehlenden Rechten, Pflichtfeldern oder unzulässigem Lebenszyklus deaktiviert. |
 
-Bei E-Mails ist wartend standardmäßig eingeschaltet, sofern die Administration die Vorgabe nicht ändert. Schalten Sie es aus, um den Status beizubehalten, oder aktivieren Sie stattdessen gelöst. Die Statusänderung erfolgt erst, wenn SMTP erfolgreich war und der Ticketbeitrag gespeichert wurde.
+Bei E-Mails ist Wartend standardmäßig aktiviert, sofern die Entitäts- oder Benutzervorgabe es so festlegt und der Wechsel zulässig ist. Schalten Sie es aus, wenn der Status unverändert bleiben soll. Eine Lösungsvorlage allein löst das Ticket nicht. Sollten beide Werte übermittelt werden, hat Gelöst Vorrang.
 
-Bei internen Notizen verwenden die Schalter den nativen GLPI-Ablauf. Der Status wird beim Speichern der Notiz nach den GLPI-Regeln gesetzt. Die sichtbaren Bedienelemente können je nach Rechten und Konfiguration abweichen.
+Hat sich der Status seit dem Öffnen geändert, laden Sie das Formular vor dem Senden neu. Statusänderungen erfolgen nach erfolgreichem Versand oder Anlegen der Notiz. Ein SMTP-Fehler ändert den Status nicht. Scheitert der Statuswechsel erst nach Zustellung, wird die E-Mail nicht erneut gesendet.
 
 ## 5. Warnung vor einem GLPI-Postfach
 
@@ -114,7 +116,7 @@ Prüfen Sie Empfänger, Betreff, Text, Dateien, Verlauf und Statusoptionen. Wäh
 | --- | --- | --- |
 | Gesendet und protokolliert | SMTP war erfolgreich und die E-Mail wurde als Ticketbeitrag gespeichert. | Verlauf oder Versanddetail prüfen. SMTP-Erfolg beweist weder den Eingang im Postfach noch das Lesen durch den Empfänger. |
 | Fehlgeschlagen | Der SMTP-Versuch ist fehlgeschlagen. | Geschütztes Versanddetail öffnen und die Ursache administrativ prüfen lassen. Es gibt keinen automatischen Neuversand. |
-| Unvollständig | SMTP war erfolgreich, aber der Ticketbeitrag konnte nicht gespeichert werden. | **Nicht erneut senden.** Die E-Mail wurde bereits versendet. Lassen Sie den fehlenden Ticketeintrag administrativ klären. |
+| Unvollständig | SMTP war erfolgreich, aber ein späterer GLPI-Schritt schlug fehl: Folgeeintrag, Dokumentverknüpfung oder gewünschter Statuswechsel. Ein Folgeeintrag kann bereits existieren. | **Nicht erneut senden.** Die E-Mail wurde bereits versendet. Lassen Sie den fehlgeschlagenen GLPI-Schritt prüfen. |
 
 Bei Zeitüberschreitung oder unklarem Ergebnis prüfen Sie zuerst **Gesendete E-Mails**. Ein fehlender Verlaufseintrag bedeutet nicht automatisch, dass keine E-Mail versendet wurde.
 
@@ -124,7 +126,7 @@ Ein vollständiger E-Mail-Versand erzeugt einen normalen öffentlichen Ticketbei
 
 Öffnen Sie im Ticket **Gesendete E-Mails** und wählen Sie einen Betreff. Die Detailansicht zeigt Protokoll, Versandinformationen und Dateien. Nur Ticketleser können Nachrichtendetails und gespeicherte ausgehende Anhänge öffnen. Dazu gehört auch die vollständige BCC-Liste.
 
-![Aktuelles Versanddetail mit vollständiger BCC-Liste, Nachricht und gespeichertem Anhang](images/current/sent-detail-de.png)
+![Aktuelles Versanddetail mit vollständiger BCC-Liste, Nachricht und gespeichertem Anhang](https://raw.githubusercontent.com/wiki/rgruenewald/glpi-ticket-email-client/images/current/sent-detail-de.png)
 
 Private Notizen bleiben native GLPI-Ticketbeiträge und erscheinen nicht als E-Mail-Einträge im Ticketmailer-Versandprotokoll.
 
@@ -132,7 +134,7 @@ Private Notizen bleiben native GLPI-Ticketbeiträge und erscheinen nicht als E-M
 
 Wählen Sie **Helpdesk → Neue E-Mail**. In der englischen GLPI-Oberfläche heißt das Menü **Assistance → New email**. Diese Aktion ist etwas anderes als **Neue Konversation beginnen** in einer Ticketantwort.
 
-![Aktuelle Seite Neue E-Mail mit Absendereinheit, Empfängerfeldern, Editor und Senden](images/current/new-email-de.png)
+![Aktuelle Seite Neue E-Mail mit Absendereinheit, Empfängerfeldern, Editor und Senden](https://raw.githubusercontent.com/wiki/rgruenewald/glpi-ticket-email-client/images/current/new-email-de.png)
 
 1. Wählen Sie **Absender**. Die Liste enthält berechtigte Einheiten mit einer konfigurierten Absenderadresse.
 2. Ergänzen Sie Empfänger, Betreff, Nachricht und bei Bedarf Dateien.
@@ -155,4 +157,11 @@ Tritt nach der Ticketerstellung ein Fehler auf, prüfen Sie das erstellte Ticket
 
 Nennen Sie bei einer Fehlermeldung Ticketnummer, Zeitpunkt, angezeigtes Ergebnis und bereinigten Fehlertext. Veröffentlichen Sie keine SMTP-Zugangsdaten, echten Empfängerlisten oder privaten Ticketinhalte in öffentlichen Issues.
 
-[Installation und Administration](../INSTALLATION-DE.md) · [Sicherheitsrichtlinie](../../SECURITY.md) · [Zur Dokumentationsstartseite](Home.md)
+[Installation und Administration](https://github.com/rgruenewald/glpi-ticket-email-client/wiki/Installation-DE) · [Sicherheitsrichtlinie](https://github.com/rgruenewald/glpi-ticket-email-client/blob/main/SECURITY.md) · [Zur Dokumentationsstartseite](https://github.com/rgruenewald/glpi-ticket-email-client/wiki/Home)
+
+## Weitere Hilfe
+
+- [Installation](https://github.com/rgruenewald/glpi-ticket-email-client/wiki/Installation-DE)
+- [Administratorhandbuch](https://github.com/rgruenewald/glpi-ticket-email-client/wiki/Administratorhandbuch-DE)
+- [Fehlerbehebung](https://github.com/rgruenewald/glpi-ticket-email-client/wiki/Fehlerbehebung-DE)
+- [Versionshinweise](https://github.com/rgruenewald/glpi-ticket-email-client/wiki/Versionshinweise-DE)
