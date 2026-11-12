@@ -39,7 +39,7 @@ extensions, Python 3, npm and Playwright Chromium system libraries. Composer
 falls back to a container when unavailable locally. Set
 `TICKETMAILER_DOCKER_CONTEXT` to select another Docker context. Allow several
 minutes plus image downloads on the first run. The isolated test stack uses
-Docker-assigned loopback ports and removes its own containers/data on exit.
+dynamically selected loopback ports (stable across service restarts) and removes its own containers/data on exit.
 Never use production data or an external SMTP server.
 
 Git hooks are a developer guardrail, not a security boundary: they can be

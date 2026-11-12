@@ -26,6 +26,14 @@ node --test tests/*.test.js
 npm run test:ui
 npm run test:performance
 # Use private disposable containers, never the developer's running database.
-# Port zero lets Docker allocate independent loopback ports for parallel agents.
-RELEASE_DOCKER_CONTEXT="$context" RELEASE_HTTP_PORT=0 RELEASE_MAIL_PORT=0 RELEASE_E2E_ALL=1 bash scripts/release/integration.sh
+# Keep ports stable across Mailpit stop/start in the SMTP-outage scenario.
+read -r http_port mail_port < <(python3 - <<'PY'
+import socket
+sockets = [socket.socket(), socket.socket()]
+for sock in sockets:
+    sock.bind(("127.0.0.1", 0))
+print(*(sock.getsockname()[1] for sock in sockets))
+PY
+)
+RELEASE_DOCKER_CONTEXT="$context" RELEASE_HTTP_PORT="$http_port" RELEASE_MAIL_PORT="$mail_port" RELEASE_E2E_ALL=1 bash scripts/release/integration.sh
 echo 'PASS: all local push gates'
