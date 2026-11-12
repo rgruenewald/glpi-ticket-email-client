@@ -49,6 +49,16 @@ Open a ticket, select **Email reply**, check the recipients, and write your mess
 
 ## Get started
 
+### Parallel worktree development
+
+From a checked-out worktree, one command installs the PHP and Node dependencies and starts an isolated GLPI/MariaDB/Mailpit stack:
+
+```bash
+./scripts/bootstrap-worktree
+```
+
+The bootstrap chooses free loopback ports, uses a Compose project named after the worktree, and prints the resulting GLPI and Mailpit URLs. When the shared `ticketmailer` development database is running, it exports that synthetic test database once per worktree and imports it into a private volume. If no shared database is available, the repository E2E fixture creates a starter ticket instead. Stop an instance without deleting its data with the printed Compose command. Set `TICKETMAILER_HTTP_PORT`, `TICKETMAILER_MAIL_PORT`, or `TICKETMAILER_PROJECT` to override the defaults.
+
 **Supported:** GLPI 11.0.x · PHP 8.2+ · verified against GLPI 11.0.8.
 
 1. Download a [release](https://github.com/rgruenewald/glpi-ticket-email-client/releases) and place the plugin in `<glpi-root>/plugins/ticketmailer`.
