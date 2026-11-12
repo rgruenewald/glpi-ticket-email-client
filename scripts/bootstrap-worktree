@@ -8,7 +8,6 @@ compose() { docker --context rootless compose -p "$PROJECT" "$@"; }
 
 command -v docker >/dev/null || { echo 'Docker is required.' >&2; exit 1; }
 command -v python3 >/dev/null || { echo 'Python 3 is required for free-port selection.' >&2; exit 1; }
-command -v composer >/dev/null || { echo 'Composer is required.' >&2; exit 1; }
 command -v npm >/dev/null || { echo 'npm is required.' >&2; exit 1; }
 
 slug=$(basename "$ROOT" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g; s/--*/-/g; s/^-//; s/-$//')
@@ -34,7 +33,11 @@ EOF
 export TICKETMAILER_HTTP_PORT=${TICKETMAILER_HTTP_PORT:-$HTTP_PORT}
 export TICKETMAILER_MAIL_PORT=${TICKETMAILER_MAIL_PORT:-$MAIL_PORT}
 
-composer install --no-interaction --prefer-dist
+if command -v composer >/dev/null; then
+  composer install --no-interaction --prefer-dist
+else
+  docker --context rootless run --rm -v "$ROOT:/app" -w /app composer:2 install --no-interaction --prefer-dist
+fi
 npm ci --ignore-scripts
 
 state="${XDG_STATE_HOME:-$HOME/.local/state}/ticketmailer-worktrees/$PROJECT"
