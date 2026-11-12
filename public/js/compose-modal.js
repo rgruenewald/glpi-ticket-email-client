@@ -10,6 +10,22 @@
         document.body.append(modal);
         state = { pending: null, ready: false, owner };
         states.set(modal, state);
+        // Keyboard events inside TinyMCE's iframe do not bubble to Bootstrap.
+        modal.addEventListener('load', (event) => {
+            const iframe = event.target;
+            if (!iframe.matches?.('iframe.tox-edit-area__iframe')) return;
+            iframe.contentDocument?.addEventListener('keydown', (keyEvent) => {
+                if (keyEvent.key !== 'Escape' || keyEvent.defaultPrevented) return;
+                const openModals = document.querySelectorAll('.modal.show');
+                if (openModals[openModals.length - 1] !== modal) return;
+                // Preserve TinyMCE popup/dialog handling and the in-flight send lock.
+                if (document.querySelector('.tox-dialog, .tox-menu:not([style*="display: none"])')
+                    || modal.querySelector('[data-ticketmailer-sending]')) return;
+                modal.dispatchEvent(new KeyboardEvent('keydown', {
+                    key: 'Escape', bubbles: true, cancelable: true,
+                }));
+            });
+        }, true);
         state.load = () => {
             if (state.ready) return Promise.resolve();
             if (state.pending) return state.pending;
@@ -47,7 +63,7 @@
         const modal = document.getElementById(button.dataset.ticketmailerComposeTarget);
         if (!modal) return;
         event.preventDefault();
-        bootstrap.Modal.getOrCreateInstance(modal).show(button);
+        bootstrap.Modal.getOrCreateInstance(modal, { keyboard: true }).show(button);
         prepare(modal).load().catch(() => {
             // Retain the ACL-protected full-page fallback if loading fails.
             if (modal.isConnected) window.location.assign(modal.dataset.composeUrl);

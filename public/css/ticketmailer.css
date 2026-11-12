@@ -130,6 +130,13 @@
 	width: 100%;
 }
 
+/* Native sender options need a matching color pair, also in dark themes. */
+.ticketmailer-compose select[name="sender_entity"],
+.ticketmailer-compose select[name="sender_entity"] option {
+	color: var(--tblr-body-color, #182433);
+	background-color: var(--tblr-bg-forms, #fff);
+}
+
 /* TinyMCE / GLPI editor sit under Message label */
 .ticketmailer-editor .tox-tinymce,
 .ticketmailer-editor textarea {
