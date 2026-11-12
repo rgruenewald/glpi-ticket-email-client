@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cd "$(git rev-parse --show-toplevel)"
+# Git exports repository-local variables to hooks. Drop them after locating the
+# worktree so tests can safely create and use independent temporary repositories.
+while IFS= read -r name; do unset "$name"; done < <(git rev-parse --local-env-vars)
+check=false
+while read -r local_ref local_sha remote_ref remote_sha; do
+  # Deletions do not publish code. Tags and branches must resolve to tested HEAD.
+  [[ $local_sha =~ ^0+$ ]] && continue
+  if [ "$(git rev-parse "$local_sha^{commit}")" != "$(git rev-parse HEAD)" ]; then
+    echo 'Push rejected: check out the commit being pushed so it can be tested.' >&2
+    exit 1
+  fi
+  check=true
+done
+if $check; then
+  clean_tree() {
+    git diff --quiet HEAD -- && [ -z "$(git ls-files --others --exclude-standard)" ]
+  }
+  clean_tree || { echo 'Push rejected: commit changes and untracked source files before testing.' >&2; exit 1; }
+  tested_head=$(git rev-parse HEAD)
+  bash scripts/check-local
+  if ! clean_tree || [ "$(git rev-parse HEAD)" != "$tested_head" ]; then
+    echo 'Push rejected: source changed while checks were running.' >&2
+    exit 1
+  fi
+fi
