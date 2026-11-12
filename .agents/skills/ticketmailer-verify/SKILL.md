@@ -92,7 +92,9 @@ npm run test:performance
 ~~~
 
 See docs/performance/regression-tests.md for fixed JS/CSS references, timing tolerances,
-negative-case evidence and scope limits. CI runs .github/workflows/ui-performance.yml.
+negative-case evidence and scope limits. CI runs these in the package job of .github/workflows/ci.yml.
+`./scripts/install-hooks` enables the fail-closed pre-push gate;
+`./scripts/check-local` runs these plus offline checks and disposable full E2E.
 Do not automatically refresh references or increase budgets after a failure.
 
 ## Release surfaces

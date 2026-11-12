@@ -24,7 +24,7 @@ async function main() {
  async function setup() {
   await page.goto('about:blank'); await page.setContent(fixture());
   await page.addStyleTag({path:process.env.UI_STYLESHEET || path.join(root,'public/css/ticketmailer.css')});
-  await page.addScriptTag({path:require.resolve('jquery/dist/jquery.js')});
+  await page.addScriptTag({path:require.resolve('jquery')});
   await page.evaluate(() => {
    window.uiCounts={queries:0,toggles:0};
    const query=document.querySelectorAll.bind(document);
@@ -125,7 +125,7 @@ async function main() {
  const median=key=>samples.map(s=>s[key]).sort((a,b)=>a-b)[Math.floor(samples.length/2)];
  const activeMedian=Object.fromEntries(Object.keys(activeSamples[0]).map(k=>[k,activeSamples.map(s=>s[k]).sort((a,b)=>a-b)[Math.floor(activeSamples.length/2)]]));
  assert.deepEqual(pageErrors,[], 'no browser runtime errors');
- const result={root,activeSamples,activeMedian,chromium:browser.version(),jquery:require('jquery/package.json').version,scenario:'30 unrelated class mutations over 30 frames; 1500 timeline nodes; 400ms settle; no CPU throttle',repetitions,samples,median:Object.fromEntries(Object.keys(samples[0]).map(k=>[k,median(k)])),functionalChecks:'passed'};
+ const result={root,activeSamples,activeMedian,chromium:browser.version(),jquery:JSON.parse(fs.readFileSync(path.join(path.dirname(require.resolve('jquery')), '../package.json'), 'utf8')).version,scenario:'30 unrelated class mutations over 30 frames; 1500 timeline nodes; 400ms settle; no CPU throttle',repetitions,samples,median:Object.fromEntries(Object.keys(samples[0]).map(k=>[k,median(k)])),functionalChecks:'passed'};
  fs.writeFileSync(output,JSON.stringify(result,null,2));
  console.log(JSON.stringify({noise:result.median,active:result.activeMedian}));
  } finally { await browser.close(); }

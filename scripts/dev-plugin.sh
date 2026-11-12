@@ -83,5 +83,5 @@ plugin_apply() {
   # Installation can create glpi_plugins; resolve its identity after success.
   table_identity=$(plugin_row "SELECT COALESCE(CAST(CREATE_TIME AS CHAR), '') FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name='glpi_plugins'")
   python3 scripts/dev-schema.py record --instance "$db_identity:$table_identity" --value "$schema_hash"
-  echo "READY: ticketmailer $code_version active; worktree $PWD; http://127.0.0.1:8080"
+  echo "READY: ticketmailer $code_version active; worktree $PWD; http://127.0.0.1:${TICKETMAILER_HTTP_PORT:-8080}"
 }

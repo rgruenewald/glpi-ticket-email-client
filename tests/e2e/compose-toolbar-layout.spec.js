@@ -1,5 +1,9 @@
 const { test, expect } = require('@playwright/test');
-const ticket = Number(process.env.TICKET_ID || 137);
+const { compose } = require('./status-helpers');
+let ticket;
+test.beforeEach(() => {
+  ticket = JSON.parse(compose('exec', '-T', '--user', 'www-data', 'glpi', 'php', '/usr/local/bin/e2e-fixture.php', 'basic')).ticket;
+});
 
 for (const width of [1440, 390]) {
   test('email and internal note share toolbar geometry at ' + width, async ({ page }) => {
