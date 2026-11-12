@@ -39,6 +39,7 @@ else
   docker --context rootless run --rm -v "$ROOT:/app" -w /app composer:2 install --no-interaction --prefer-dist
 fi
 npm ci --ignore-scripts
+./scripts/install-hooks
 
 state="${XDG_STATE_HOME:-$HOME/.local/state}/ticketmailer-worktrees/$PROJECT"
 mkdir -p "$state"

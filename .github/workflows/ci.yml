@@ -3,9 +3,12 @@ name: CI
 on:
   pull_request:
     branches: [main]
-  push:
-    branches: [main]
   workflow_call:
+
+# Main is checked once via release.yml; PR updates cancel obsolete runs.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: read
@@ -47,7 +50,11 @@ jobs:
       - run: python3 -m unittest discover -s tests/release -v
       - run: python3 scripts/release/release.py build
       - run: python3 scripts/release/release.py verify
+      - run: npm ci --ignore-scripts
+      - run: npx playwright install --with-deps chromium
       - run: node --test tests/*.test.js
+      - run: npm run test:ui
+      - run: npm run test:performance
       - run: ROOT=. bash scripts/verify/score.sh
 
   integration:

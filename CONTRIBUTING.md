@@ -18,6 +18,36 @@ docker compose up -d --build
 
 The development-only login and required SMTP environment variables are documented in the README. Keep SMTP credentials in the ignored `.env`; do not commit local databases, uploaded files, `vendor/`, secrets, or generated artifacts.
 
+## Local push gate
+
+Run `./scripts/install-hooks` after cloning. `./scripts/bootstrap-worktree` also
+installs it. Git hooks are not automatically activated by cloning; installation
+is required. The relative `core.hooksPath=.githooks` applies to every worktree
+in this repository. Existing custom hook paths are preserved by refusing to
+overwrite them.
+
+The pre-push hook runs `./scripts/check-local` before publishing a branch or tag.
+It rejects non-HEAD commits, uncommitted tracked/untracked source changes and
+source changes during the check run, installs locked
+dependencies, and runs PHP/unit/contracts/package checks, UI tests, the actual
+Chromium performance benchmark, and all browser E2E tests against a disposable
+packaged GLPI stack. Failures or missing prerequisites block the push. Deleting
+a remote ref needs no tests. No success cache or automatic skipping is used.
+
+Prerequisites: Docker (rootless context by default), PHP with project test
+extensions, Python 3, npm and Playwright Chromium system libraries. Composer
+falls back to a container when unavailable locally. Set
+`TICKETMAILER_DOCKER_CONTEXT` to select another Docker context. Allow several
+minutes plus image downloads on the first run. The isolated test stack uses
+Docker-assigned loopback ports and removes its own containers/data on exit.
+Never use production data or an external SMTP server.
+
+Git hooks are a developer guardrail, not a security boundary: they can be
+bypassed or absent on a fresh clone. GitHub retains independent PR/security and
+release gates. CI runs once per PR revision, and once on main through the
+release workflow rather than twice. Performance checks share the package job
+instead of a separate workflow. The PHP 8.2–8.5 matrix remains intentional.
+
 ## Quality bar
 
 Run the contract verifier from the repository root:

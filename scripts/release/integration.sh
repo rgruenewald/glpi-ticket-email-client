@@ -32,6 +32,9 @@ mkdir -p "$RELEASE_FIXTURE_DIR"
 cp docker/glpi/e2e-fixture.php scripts/release/migration.php "$RELEASE_FIXTURE_DIR/"
 chmod -R a+rX "$tmp"
 compose up -d --build --wait --wait-timeout 360 glpi mailpit
+# Read actual bindings, including Docker-assigned ports (requested port 0).
+export TICKETMAILER_BASE_URL="http://$(compose port glpi 80)"
+export TICKETMAILER_MAIL_URL="http://$(compose port mailpit 8025)"
 compose exec -T --user www-data glpi php bin/console plugin:install ticketmailer --username=glpi --no-interaction --force
 compose exec -T --user www-data glpi php bin/console plugin:activate ticketmailer --no-interaction
 # Exercise actual SQL migrations from the legacy schema and compare the full
@@ -42,4 +45,8 @@ compose exec -T --user www-data glpi php /usr/local/bin/release-migration.php
 compose exec -T --user www-data glpi php /usr/local/bin/release-migration.php
 npm ci --ignore-scripts
 npx playwright install chromium
-npx playwright test tests/e2e/compose.spec.js
+if [ "${RELEASE_E2E_ALL:-0}" = 1 ]; then
+  npx playwright test
+else
+  npx playwright test tests/e2e/compose.spec.js
+fi

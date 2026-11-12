@@ -11,7 +11,7 @@ npm run test:performance
 
 Auf frischen Linux-Rechnern gegebenenfalls npx playwright install --with-deps chromium verwenden. Ein vorhandenes Chromium kann über CHROMIUM (absoluter Pfad) ausgewählt werden. Abhängigkeiten sind versionsgebunden; package-lock.json wird eingecheckt.
 
-Der Workflow .github/workflows/ui-performance.yml läuft bei jedem Pull Request und bei Pushes nach main. Rohmessungen und Screenshots werden auch bei Fehlern für 14 Tage als Artefakte gespeichert. Damit ein Fehler das Zusammenführen zwingend verhindert, muss der Repository-Administrator ui-performance als erforderlichen Statuscheck in den Branchregeln setzen. Der Workflow ändert diese externe Einstellung nicht selbst.
+Der Workflow .github/workflows/ci.yml (package job) läuft bei jedem Pull Request und bei Pushes nach main. Die CI prüft die Performance als Teil des Package-Jobs. Rohmessungen und Screenshots bleiben lokal im nicht versionierten Verzeichnis `test-results/performance/`; die CI muss sie nicht als separates Artefakt archivieren. Damit ein Fehler das Zusammenführen zwingend verhindert, muss der Repository-Administrator den Package-Job beziehungsweise den Required-Checks-Job in den Branchregeln setzen. Der Workflow ändert diese externe Einstellung nicht selbst.
 
 ## Testfälle und Grenzen
 
