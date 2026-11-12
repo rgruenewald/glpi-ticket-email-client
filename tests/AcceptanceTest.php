@@ -645,8 +645,8 @@ final class AcceptanceTest extends TestCase
         $entrypoint = (string) file_get_contents(self::REPO_ROOT . '/docker/glpi/docker-entrypoint.sh');
 
         $this->assertStringContainsString('GLPI_SMTP_HOST: mailpit', $compose);
-        $this->assertStringContainsString('127.0.0.1:8080:80', $compose);
-        $this->assertStringContainsString('127.0.0.1:8025:8025', $compose);
+        $this->assertStringContainsString('127.0.0.1:${TICKETMAILER_HTTP_PORT:-8080}:80', $compose);
+        $this->assertStringContainsString('127.0.0.1:${TICKETMAILER_MAIL_PORT:-8025}:8025', $compose);
         $this->assertStringNotContainsString('1025:1025', $compose);
         $this->assertStringContainsString('./inc:/var/www/html/plugins/ticketmailer/inc:ro', $compose);
         $this->assertStringNotContainsString('- .:/var/www/html/plugins/ticketmailer', $compose);

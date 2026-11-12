@@ -2,9 +2,9 @@
 # ticketmailer plugin auto-installed. Pinned to a
 # specific minor version so updates don't drift.
 
-FROM php:8.5-apache
+FROM php:8.5-apache@sha256:08af36df144462d84c7f16190557eec06cb9f656882685610b712a15eec54d46
 
-ENV GLPI_VERSION=11.0.8 \
+ENV GLPI_VERSION=11.0.13 \
     DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update \
