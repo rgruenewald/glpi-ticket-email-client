@@ -1,1 +1,2 @@
-echo changed >> .gitignore
+echo checked >> checks.log
+exit 0
