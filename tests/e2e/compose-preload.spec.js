@@ -46,7 +46,9 @@ for (const viewport of [{width:1440,height:1000},{width:390,height:844}]) {
       await modal.locator('[data-delivery-mode][value=internal_note]').check();
       await expect(modal.locator('[data-ticketmailer-panel=internal_note] form')).toBeVisible();
       await modal.locator('[data-delivery-mode][value=email]').check();
-      await modal.locator('.modal-header .btn-close').click();
+      await modal.locator('[name=subject]').focus();
+      await page.keyboard.press('Escape');
+      await expect(modal).toBeHidden();
       await page.locator('.ticketmailer-action-reply').click();
     }
     await expect(modal.locator('[name=subject]')).toHaveValue('Synthetic retained preload draft');
