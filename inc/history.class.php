@@ -1,0 +1,305 @@
+<?php
+/**
+ * Builds the public ticket context and resolves only the source documents a
+ * sender explicitly chose for an outbound email.
+ */
+class PluginTicketmailerHistory
+{
+    /**
+     * @return list<array{id:int, filename:string, mime:string, preview_url:string}>
+     */
+    public static function availableAttachments(Ticket $ticket): array
+    {
+        global $DB;
+
+        $item_ids = [
+            'Ticket' => [(int) $ticket->getField('id')],
+            'ITILFollowup' => [],
+        ];
+        foreach ($DB->request('glpi_itilfollowups', [
+            'items_id' => (int) $ticket->getField('id'),
+            'itemtype' => 'Ticket',
+            'is_private' => 0,
+        ]) as $followup) {
+            $item_ids['ITILFollowup'][] = (int) $followup['id'];
+        }
+
+        $documents = [];
+        foreach ($item_ids as $itemtype => $ids) {
+            if ($ids === []) {
+                continue;
+            }
+            $links_by_item = [];
+            foreach ($DB->request('glpi_documents_items', [
+                'itemtype' => $itemtype,
+                'items_id' => $ids,
+            ]) as $link) {
+                $links_by_item[(int) $link['items_id']][] = (int) $link['documents_id'];
+            }
+            // Keep source order, including ties in the final filename sort.
+            foreach ($ids as $items_id) {
+                foreach ($links_by_item[$items_id] ?? [] as $documents_id) {
+                    $documents[$documents_id] = true;
+                }
+            }
+        }
+
+        $available = [];
+        foreach (array_keys($documents) as $documents_id) {
+            $document = new Document();
+            if (!$document->getFromDB($documents_id)) {
+                continue;
+            }
+            $path = self::documentPath((string) $document->getField('filepath'));
+            if ($path === null) {
+                continue;
+            }
+            $available[] = [
+                'id' => $documents_id,
+                'filename' => self::filename($document),
+                'mime' => (string) ($document->getField('mime') ?: 'application/octet-stream'),
+                'preview_url' => Plugin::getWebDir('ticketmailer') . '/front/history_attachment.php'
+                    . '?tickets_id=' . (int) $ticket->getField('id')
+                    . '&documents_id=' . $documents_id,
+            ];
+        }
+
+        usort($available, static fn (array $left, array $right): int => strnatcasecmp($left['filename'], $right['filename']));
+        return $available;
+    }
+
+    /**
+     * @return array{filename:string, mime:string, path:string}|null
+     */
+    public static function resolveAttachment(Ticket $ticket, int $documents_id): ?array
+    {
+        foreach (self::availableAttachments($ticket) as $attachment) {
+            if ($attachment['id'] !== $documents_id) {
+                continue;
+            }
+            $document = new Document();
+            if (!$document->getFromDB($documents_id)) {
+                return null;
+            }
+            $path = self::documentPath((string) $document->getField('filepath'));
+            if ($path === null) {
+                return null;
+            }
+            return [
+                'filename' => self::filename($document),
+                'mime' => (string) ($document->getField('mime') ?: 'application/octet-stream'),
+                'path' => $path,
+            ];
+        }
+        return null;
+    }
+
+    /**
+     * @param list<int|string> $selected_ids
+     * @return list<array{id:string, stored:string, path:string, filename:string, mime:string, source_documents_id:int}>
+     */
+    public static function copySelectedAttachments(Ticket $ticket, array $selected_ids): array
+    {
+        $selected = self::selectedAttachments($ticket, $selected_ids);
+
+        $destination_root = GLPI_PLUGIN_DOC_DIR . '/ticketmailer/' . (int) $ticket->getField('id');
+        if (!is_dir($destination_root) && !mkdir($destination_root, 0o755, true) && !is_dir($destination_root)) {
+            throw new RuntimeException('Unable to prepare attachment storage.');
+        }
+
+        $attachments = [];
+        $created_paths = [];
+        try {
+            foreach ($selected as $documents_id => $attachment) {
+                $document = new Document();
+                if (!$document->getFromDB($documents_id)) {
+                    throw new RuntimeException('A selected history attachment is no longer available.');
+                }
+                $source = self::documentPath((string) $document->getField('filepath'));
+                if ($source === null) {
+                    throw new RuntimeException('A selected history attachment is no longer available.');
+                }
+                $stored = bin2hex(random_bytes(16));
+                $destination = $destination_root . '/' . $stored;
+                $created_paths[] = $destination;
+                if (!copy($source, $destination)) {
+                    throw new RuntimeException('Unable to copy a selected history attachment.');
+                }
+                $attachments[] = [
+                    'id' => bin2hex(random_bytes(8)),
+                    'stored' => $stored,
+                    'path' => $destination,
+                    'filename' => $attachment['filename'],
+                    'mime' => $attachment['mime'],
+                    'source_documents_id' => $documents_id,
+                ];
+            }
+        } catch (Throwable $exception) {
+            foreach ($created_paths as $path) {
+                @unlink($path);
+            }
+            throw $exception;
+        }
+
+        return $attachments;
+    }
+
+    /**
+     * Register sent uploads as ordinary ticket documents, keeping audit copies intact.
+     * @param list<array{stored:string, filename:string, source_documents_id?:int|null}> $attachments
+     */
+    public static function attachOutboundDocuments(Ticket $ticket, array $attachments): void
+    {
+        foreach ($attachments as $attachment) {
+            // Selected public documents already exist. Never duplicate them on each reply.
+            if (!empty($attachment['source_documents_id'])) {
+                if (self::resolveAttachment($ticket, (int) $attachment['source_documents_id']) === null) {
+                    throw new RuntimeException('A selected history attachment is no longer available.');
+                }
+                continue;
+            }
+            $root = GLPI_PLUGIN_DOC_DIR . '/ticketmailer/' . (int) $ticket->getField('id');
+            $source = PluginTicketmailerHook::safeResolveUnder($root, (string) ($attachment['stored'] ?? ''));
+            if ($source === null || !is_file($source)) {
+                throw new RuntimeException('Sent attachment storage is unavailable.');
+            }
+            $filename = basename(str_replace('\\', '/', (string) $attachment['filename']));
+            $prefix = bin2hex(random_bytes(16)) . '_';
+            $temporary = GLPI_TMP_DIR . '/' . $prefix . $filename;
+            try {
+                if (!copy($source, $temporary)) {
+                    throw new RuntimeException('Unable to prepare a sent document.');
+                }
+                $document = new Document();
+                // Do not pass itemtype/items_id: Document::post_addItem would notify
+                // and change ticket status. Link explicitly with notifications disabled.
+                $documents_id = $document->add([
+                    'name' => $filename,
+                    'entities_id' => (int) $ticket->getField('entities_id'),
+                    'is_recursive' => 0,
+                    '_filename' => [$prefix . $filename],
+                    '_prefix_filename' => [$prefix],
+                    '_only_if_upload_succeed' => 1,
+                ]);
+                if (!$documents_id) {
+                    throw new RuntimeException('Unable to create a sent GLPI document.');
+                }
+                $link = new Document_Item();
+                if (!$link->add([
+                    'documents_id' => (int) $documents_id,
+                    'itemtype' => 'Ticket',
+                    'items_id' => (int) $ticket->getField('id'),
+                    '_do_notif' => false,
+                    '_disablenotif' => 1,
+                ])) {
+                    throw new RuntimeException('Unable to attach a sent GLPI document to the ticket.');
+                }
+            } finally {
+                if (is_file($temporary)) {
+                    unlink($temporary);
+                }
+            }
+        }
+    }
+
+    public static function render(Ticket $ticket): string
+    {
+        global $DB;
+
+        $entries = [[
+            'date' => (string) $ticket->getField('date_creation'),
+            'author' => self::userDisplayName((int) $ticket->getField('users_id')),
+            'content' => (string) $ticket->getField('content'),
+        ]];
+        foreach ($DB->request('glpi_itilfollowups', [
+            'items_id' => (int) $ticket->getField('id'),
+            'itemtype' => 'Ticket',
+            'is_private' => 0,
+            'ORDER' => 'date ASC',
+        ]) as $followup) {
+            $entries[] = [
+                'date' => (string) $followup['date'],
+                'author' => self::userDisplayName((int) $followup['users_id']),
+                'content' => (string) $followup['content'],
+            ];
+        }
+
+        $html = '<p>' . htmlspecialchars(sprintf(
+            __('Ticket #%1$d: %2$s', 'ticketmailer'),
+            (int) $ticket->getField('id'),
+            (string) $ticket->getField('name'),
+        ), ENT_QUOTES, 'UTF-8') . '</p>';
+        foreach ($entries as $entry) {
+            $html .= sprintf(
+                '<p><small>%s</small></p><blockquote>%s</blockquote>',
+                htmlspecialchars(sprintf(
+                    __('On %1$s, %2$s wrote:', 'ticketmailer'),
+                    $entry['date'],
+                    $entry['author'],
+                ), ENT_QUOTES, 'UTF-8'),
+                $entry['content'],
+            );
+        }
+        return $html;
+    }
+
+    /**
+     * @param list<int|string> $selected_ids
+     */
+    public static function validateSelectedAttachments(Ticket $ticket, array $selected_ids): void
+    {
+        self::selectedAttachments($ticket, $selected_ids);
+    }
+
+    /**
+     * @param list<int|string> $selected_ids
+     * @return array<int, array{id:int, filename:string, mime:string}>
+     */
+    private static function selectedAttachments(Ticket $ticket, array $selected_ids): array
+    {
+        $available = [];
+        foreach (self::availableAttachments($ticket) as $attachment) {
+            $available[$attachment['id']] = $attachment;
+        }
+
+        $selected = [];
+        foreach ($selected_ids as $selected_id) {
+            $documents_id = filter_var($selected_id, FILTER_VALIDATE_INT);
+            if ($documents_id === false || $documents_id <= 0 || !isset($available[$documents_id])) {
+                throw new InvalidArgumentException('A selected history attachment is no longer available.');
+            }
+            $selected[$documents_id] = $available[$documents_id];
+        }
+
+        return $selected;
+    }
+
+    public static function appendToMessage(string $body_html, string $history_html): string
+    {
+        return $history_html === '' ? $body_html : $body_html . '<hr>' . $history_html;
+    }
+
+    private static function documentPath(string $filepath): ?string
+    {
+        $documents_root = realpath(GLPI_DOC_DIR);
+        $path = $documents_root === false ? false : realpath($documents_root . '/' . $filepath);
+        if ($path === false || !is_file($path) || !str_starts_with($path, $documents_root . DIRECTORY_SEPARATOR)) {
+            return null;
+        }
+        return $path;
+    }
+
+    private static function filename(Document $document): string
+    {
+        return (string) ($document->getField('filename') ?: $document->getField('name') ?: __('Attachment', 'ticketmailer'));
+    }
+
+    private static function userDisplayName(int $users_id): string
+    {
+        if ($users_id <= 0) {
+            return __('Unknown', 'ticketmailer');
+        }
+        $user = new User();
+        return $user->getFromDB($users_id) ? (string) $user->getFriendlyName() : __('Unknown', 'ticketmailer');
+    }
+}

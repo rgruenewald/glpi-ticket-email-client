@@ -1,0 +1,603 @@
+# locales/ticketmailer.en.po — English (default) translations.
+# Every msgid in the .pot file has a corresponding msgstr
+# here (A16: i18n completeness).
+msgid ""
+msgstr ""
+"Project-Id-Version: ticketmailer 1.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-02 15:00:00+0000\n"
+"PO-Revision-Date: 2026-07-02 15:00:00+0000\n"
+"Last-Translator: ticketmailer contributors\n"
+"Language-Team: English\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: inc/log_tab.class.php
+msgid "Sent email"
+msgid_plural "Sent emails"
+msgstr[0] "Sent email"
+msgstr[1] "Sent emails"
+
+#: setup.php inc/plugin.class.php front/config.form.php inc/timeline.class.php
+msgid "Ticket Email Client"
+msgid_plural "Ticket Email Clients"
+msgstr[0] "Ticket Email Client"
+msgstr[1] "Ticket Email Clients"
+
+#: front/compose.php templates/compose.html.twig
+msgid "Compose email"
+msgstr "Compose email"
+
+#: templates/forward.html.twig
+msgid "Test version"
+msgstr "Test version"
+
+#: front/forward.php templates/forward.html.twig
+msgid "Forward ticket"
+msgstr "Forward ticket"
+
+#: front/log.php templates/log_entry.html.twig
+msgid "Ticket Email Client log"
+msgstr "Ticket Email Client log"
+
+#: templates/log_entry.html.twig
+msgid "Sent at"
+msgstr "Sent at"
+
+#: templates/log_entry.html.twig
+msgid "Subject"
+msgstr "Subject"
+
+#: templates/log_entry.html.twig
+msgid "Recipients"
+msgstr "Recipients"
+
+#: templates/log_entry.html.twig
+msgid "Status"
+msgstr "Status"
+
+#: templates/log_entry.html.twig
+msgid "Sent"
+msgstr "Sent"
+
+#: templates/log_entry.html.twig
+msgid "Failed"
+msgstr "Failed"
+
+#: templates/compose.html.twig templates/forward.html.twig
+msgid "To"
+msgstr "To"
+
+#: templates/compose.html.twig templates/forward.html.twig
+msgid "CC"
+msgstr "CC"
+
+#: templates/compose.html.twig templates/forward.html.twig
+msgid "BCC"
+msgstr "BCC"
+
+#: templates/compose.html.twig templates/forward.html.twig
+msgid "Message"
+msgstr "Message"
+
+#: templates/compose.html.twig
+msgid "Send"
+msgstr "Send"
+
+#: templates/compose.html.twig
+msgid "Cancel"
+msgstr "Cancel"
+
+#: templates/compose.html.twig
+msgid "Attachments"
+msgstr "Attachments"
+
+#: inc/timeline.class.php templates/compose.html.twig templates/log_entry.html.twig
+msgid "Open attachment"
+msgstr "Open attachment"
+
+#: templates/log_entry.html.twig
+msgid "Inline images"
+msgstr "Inline images"
+
+#: templates/log_entry.html.twig
+msgid "Error"
+msgstr "Error"
+
+#: templates/log_entry.html.twig
+msgid "Plain-text alternative"
+msgstr "Plain-text alternative"
+
+#: front/send.php
+msgid "Subject is required."
+msgstr "Subject is required."
+
+#: front/send.php
+msgid "Body is required."
+msgstr "Body is required."
+
+#: front/send.php
+msgid "Choose either waiting or solved, not both."
+msgstr "Choose either waiting or solved, not both."
+
+#: inc/composer.class.php
+msgid "Ticket could not be loaded."
+msgstr "Ticket could not be loaded."
+
+#: inc/composer.class.php
+msgid "No valid sender is configured for the ticket entity."
+msgstr "No valid sender is configured for the ticket entity."
+
+#: front/send.php
+msgid "At least one recipient is required (To, CC, or BCC)."
+msgstr "At least one recipient is required (To, CC, or BCC)."
+
+#: front/send.php
+msgid "Field \"%s\" contains an invalid address."
+msgstr "Field \"%s\" contains an invalid address."
+
+#: templates/compose.html.twig
+msgid "Separate addresses with comma, semicolon, or Enter."
+msgstr "Separate addresses with comma, semicolon, or Enter."
+
+#: templates/forward.html.twig
+msgid "Forwarding the full ticket history. Add recipients and send."
+msgstr "Forwarding the full ticket history. Add recipients and send."
+
+#: templates/log_entry.html.twig
+msgid "%count hidden recipient(s)"
+msgstr "%count hidden recipient(s)"
+
+msgid "E-Mail antworten"
+msgstr "E-Mail antworten"
+
+#: templates/compose.html.twig
+msgid "Reply mode"
+msgstr "Reply mode"
+
+#: templates/compose.html.twig
+msgid "Email"
+msgstr "Email"
+
+#: templates/compose.html.twig
+msgid "Internal note"
+msgstr "Internal note"
+
+#: templates/compose.html.twig
+msgid "Knowledge base"
+msgstr "Knowledge base"
+
+#: templates/compose.html.twig
+msgid "Could not copy the knowledge base article to the clipboard."
+msgstr "Could not copy the knowledge base article to the clipboard."
+
+#: templates/compose.html.twig templates/forward.html.twig
+msgid "Could not copy the template to the clipboard."
+msgstr "Could not copy the template to the clipboard."
+
+#: templates/compose.html.twig templates/forward.html.twig
+msgid "Text copied"
+msgstr "Text copied"
+#: front/send.php
+msgid "Unsupported delivery mode."
+msgstr "Unsupported delivery mode."
+
+msgid "Email reply"
+msgstr "Email reply"
+
+
+msgid "One or more recipients match an active incoming mailbox login. Aliases, forwarding, and non-email logins are not detected."
+msgstr "One or more recipients match an active incoming mailbox login. The intended recipient may not receive the message because GLPI uses the ticket number to assign it to this ticket instead of creating a new ticket. Aliases, forwarding, and non-email logins are not detected."
+
+msgid "I understand and want to send anyway"
+msgstr "I understand and want to send anyway"
+
+msgid "Incomplete send (timeline failed)"
+msgstr "Incomplete send (timeline failed)"
+
+msgid "Pending"
+msgstr "Pending"
+
+msgid "Mailbox override"
+msgstr "Mailbox override"
+
+msgid "Sender confirmed send despite matching active mailbox login(s)."
+msgstr "Sender confirmed send despite matching active mailbox login(s)."
+
+msgid "Timeline error"
+msgstr "Timeline error"
+
+msgid "From"
+msgstr "From"
+
+msgid "Field \"%1$s\" contains an invalid address: %2$s"
+msgstr "Field \"%1$s\" contains an invalid address: %2$s"
+
+msgid "Recipient(s) match an active incoming mailbox login: %s. Confirm the override to send anyway. Aliases, forwarding, and non-email logins are not detected."
+msgstr "Recipient(s) match an active incoming mailbox login: %s. Confirm the override to send anyway. Aliases, forwarding, and non-email logins are not detected."
+
+msgid "Match is best-effort against active collector logins that look like emails. Aliases, forwarding, and non-email logins are not detected."
+msgstr "Match is best-effort against active collector logins that look like emails. Aliases, forwarding, and non-email logins are not detected."
+
+msgid "Drop or paste images into the message to embed them inline."
+msgstr "Drop or paste images into the message to embed them inline."
+
+#: templates/compose.html.twig templates/forward.html.twig
+msgid "Drag & drop your file here, or choose files."
+msgstr "Drag & drop your file here, or choose files."
+
+#: front/config.form.php
+msgid "E-mail signature"
+msgstr "E-mail signature"
+
+#: front/config.form.php
+msgid "The plain-text signature is generated automatically from this HTML."
+msgstr "The plain-text signature is generated automatically from this HTML."
+
+#: front/config.form.php
+msgid "Set ticket status to waiting after a successful e-mail send."
+msgstr "Set ticket status to waiting after a successful e-mail send."
+
+#: front/send.php
+msgid "Selected follow-up source is unavailable."
+msgstr "Selected follow-up source is unavailable."
+
+#: inc/timelineaction.class.php
+msgid "Reply"
+msgstr "Reply"
+
+#: inc/timelineaction.class.php
+msgid "Forward"
+msgstr "Forward"
+
+#: templates/compose.html.twig templates/forward.html.twig
+msgid "Clear"
+msgstr "Clear"
+
+#: templates/forward.html.twig
+msgid "Template"
+msgstr "Template"
+
+#: inc/timelineaction.class.php
+msgid "Answer templates"
+msgstr "Answer templates"
+
+#: inc/timelineaction.class.php
+msgid "Solution templates"
+msgstr "Solution templates"
+
+#: templates/compose.html.twig templates/forward.html.twig
+msgid "Source"
+msgstr "Source"
+
+#: front/config.form.php
+msgid "Show newest timeline entries first."
+msgstr "Show newest timeline entries first."
+
+#: front/config.form.php
+msgid "Hide GLPI native Answer action."
+msgstr "Hide GLPI native Answer action."
+
+#: templates/compose.html.twig
+msgid "Attach public ticket history"
+msgstr "Attach public ticket history"
+#: templates/compose.html.twig
+msgid "No public ticket attachments are available."
+msgstr "No public ticket attachments are available."
+
+#: templates/compose.html.twig
+msgid "Select the public ticket attachments to include."
+msgstr "Select the public ticket attachments to include."
+
+#: front/send.php
+msgid "A selected history attachment is no longer available."
+msgstr "A selected history attachment is no longer available."
+
+#: inc/history.class.php
+msgid "Ticket #%1$d: %2$s"
+msgstr "Ticket #%1$d: %2$s"
+
+#: inc/history.class.php
+msgid "On %1$s, %2$s wrote:"
+msgstr "On %1$s, %2$s wrote:"
+
+#: inc/history.class.php
+msgid "Attachment"
+msgstr "Attachment"
+
+#: inc/history.class.php
+msgid "Unknown"
+msgstr "Unknown"
+
+#: templates/compose.html.twig public/js/composer.js
+msgid "Remove %s"
+msgstr "Remove %s"
+#: templates/compose.html.twig public/js/composer.js
+msgid "bytes"
+msgstr "bytes"
+
+#: templates/compose.html.twig public/js/composer.js
+msgid "Upload failed."
+msgstr "Upload failed."
+
+#: templates/compose.html.twig
+msgid "Start a new conversation"
+msgstr "Start a new conversation"
+
+#: templates/compose.html.twig
+msgid "Replies may create a new ticket."
+msgstr "Replies may create a new ticket."
+
+#: inc/timeline.class.php
+msgid "Routing"
+msgstr "Routing"
+
+#: inc/timeline.class.php templates/log_entry.html.twig
+msgid "New conversation; replies may create a new ticket."
+msgstr "New conversation; replies may create a new ticket."
+
+#: templates/compose.html.twig
+msgid "Choose files"
+msgstr "Choose files"
+
+#: ajax/upload.php ajax/upload_image.php
+msgid "A ticket is required."
+msgstr "A ticket is required."
+
+#: ajax/upload.php ajax/upload_image.php
+msgid "You are not allowed to add attachments to this ticket."
+msgstr "You are not allowed to add attachments to this ticket."
+
+#: ajax/upload.php ajax/upload_image.php
+msgid "File upload failed."
+msgstr "File upload failed."
+
+#: ajax/upload.php ajax/upload_image.php
+msgid "File is too large."
+msgstr "File is too large."
+
+#: ajax/upload.php ajax/upload_image.php
+msgid "Could not store uploaded file."
+msgstr "Could not store uploaded file."
+
+#: ajax/upload_image.php
+msgid "Only image files can be embedded inline."
+msgstr "Only image files can be embedded inline."
+
+msgid "The intended recipient may not receive the message because GLPI uses the ticket number to assign it to this ticket instead of creating a new ticket."
+msgstr "The intended recipient may not receive the message because GLPI uses the ticket number to assign it to this ticket instead of creating a new ticket."
+
+msgid "Affected addresses:"
+msgstr "Affected addresses:"
+
+msgid "Aliases, forwarding, and non-email logins are not detected."
+msgstr "Aliases, forwarding, and non-email logins are not detected."
+
+msgid "This address may not receive the message because GLPI uses the ticket number to assign it to this ticket instead of creating a new ticket."
+msgstr "This address may not receive the message because GLPI uses the ticket number to assign it to this ticket instead of creating a new ticket."
+#: front/config.form.php
+msgid "Notification template assignments by entity"
+msgstr "Notification template assignments by entity"
+
+#: front/config.form.php
+msgid "The selected template provides the initial subject and signature."
+msgstr "The selected template provides the initial subject and signature."
+
+#: front/config.form.php
+msgid "Assigned template"
+msgstr "Assigned template"
+
+#: front/config.form.php
+msgid "Effective template"
+msgstr "Effective template"
+
+#: front/config.form.php
+msgid "Template #%d"
+msgstr "Template #%d"
+
+#: front/config.form.php
+msgid "inherited from %s"
+msgstr "inherited from %s"
+
+#: front/config.form.php
+msgid "No accessible entities."
+msgstr "No accessible entities."
+
+#: front/config.form.php
+msgid "Outbound email"
+msgstr "Outbound email"
+
+#: front/config.form.php
+msgid "Global settings"
+msgstr "Global settings"
+#: front/send.php
+msgid "Subject contains invalid characters."
+msgstr "Subject contains invalid characters."
+
+#: front/config.form.php
+msgid "Preselect \"Set ticket status to waiting\" in the e-mail form."
+msgstr "Preselect \"Set ticket status to waiting\" in the e-mail form."
+
+#: inc/config.class.php
+msgid "Available variables"
+msgstr "Available variables"
+
+#: inc/config.class.php
+msgid "Ticket"
+msgstr "Ticket"
+
+#: inc/config.class.php
+msgid "Agent"
+msgstr "Agent"
+
+#: inc/config.class.php front/config.form.php
+msgid "Entity"
+msgstr "Entity"
+
+#: templates/compose.html.twig
+msgid "Set ticket status to waiting after sending."
+msgstr "Set ticket status to waiting after sending."
+
+#: templates/compose.html.twig
+msgid "Set ticket status to solved after sending."
+msgstr "Set ticket status to solved after sending."
+
+#: front/new.php inc/proactive.class.php front/send.php
+msgid "New email"
+msgstr "New email"
+
+#: front/new.php inc/proactive.class.php front/send.php
+msgid "Sending creates a new ticket."
+msgstr "Sending creates a new ticket."
+
+#: front/new.php inc/proactive.class.php front/send.php
+msgid "Change the active GLPI entity before opening a new email."
+msgstr "Change the active GLPI entity before opening a new email."
+
+#: front/new.php inc/proactive.class.php front/send.php
+msgid "To recipients become requesters; CC recipients become observers."
+msgstr "To recipients become requesters; CC recipients become observers."
+
+#: front/new.php inc/proactive.class.php front/send.php
+msgid "BCC recipients are visible to ticket readers but do not become ticket observers."
+msgstr "BCC recipients are visible to ticket readers but do not become ticket observers."
+
+#: front/new.php inc/proactive.class.php front/send.php
+msgid "Not allowed."
+msgstr "Not allowed."
+
+#: front/new.php inc/proactive.class.php front/send.php
+msgid "This message has already been submitted."
+msgstr "This message has already been submitted."
+
+#: front/new.php inc/proactive.class.php front/send.php
+msgid "This message has already been submitted. Check the ticket before sending again."
+msgstr "This message has already been submitted. Check the ticket before sending again."
+
+#: front/new.php inc/proactive.class.php front/send.php
+msgid "Could not create the ticket. No email was sent."
+msgstr "Could not create the ticket. No email was sent."
+
+#: front/new.php inc/proactive.class.php front/send.php
+msgid "Ticket created, but its entity or permissions changed. No email was sent."
+msgstr "Ticket created, but its entity or permissions changed. No email was sent."
+
+#: front/new.php inc/proactive.class.php front/send.php
+msgid "An uploaded file is unavailable. Please attach it again."
+msgstr "An uploaded file is unavailable. Please attach it again."
+
+#: front/send.php
+msgid "At least one To recipient is required."
+msgstr "At least one To recipient is required."
+msgid "Show Answer button"
+msgstr "Show Answer button"
+
+msgid "Show Task button"
+msgstr "Show Task button"
+
+msgid "Show Solution button"
+msgstr "Show Solution button"
+
+msgid "Show Document button"
+msgstr "Show Document button"
+
+msgid "Show Internal note button"
+msgstr "Show Internal note button"
+
+msgid "Show answer templates"
+msgstr "Show answer templates"
+
+msgid "Show solution templates"
+msgstr "Show solution templates"
+
+msgid "Show followup source"
+msgstr "Show followup source"
+
+msgid "Hide replaced native actions."
+msgstr "Hide replaced native actions."
+
+msgid "Create a task"
+msgstr "Create a task"
+
+msgid "Solution"
+msgstr "Solution"
+
+msgid "Document"
+msgstr "Document"
+
+msgid "Ticket actions"
+msgstr "Ticket actions"
+
+msgid "Answer"
+msgstr "Answer"
+
+msgid "Task"
+msgstr "Task"
+
+msgid "Email dialog"
+msgstr "Email dialog"
+
+msgid "Behavior"
+msgstr "Behavior"
+
+msgid "Enabled actions replace their native equivalents. Disabled actions remain available in the native menu."
+msgstr "Enabled actions replace their native equivalents. Disabled actions remain available in the native menu."
+
+msgid "Choose the available email and internal-note controls."
+msgstr "Choose the available email and internal-note controls."
+
+msgid "Default ticket status and timeline order."
+msgstr "Default ticket status and timeline order."
+
+msgid "Followup source"
+msgstr "Followup source"
+
+msgid "Preselect waiting status"
+msgstr "Preselect waiting status"
+
+msgid "Newest timeline entries first"
+msgstr "Newest timeline entries first"
+
+msgid "Sender"
+msgstr "Sender"
+
+#: inc/config.class.php
+msgid "Show full entity hierarchy in sender selection"
+msgstr "Show full entity hierarchy in sender selection"
+
+#: inc/timeline.class.php inc/timelineaction.class.php hook.php templates/compose.html.twig
+msgid "Solved"
+msgstr "Solved"
+
+#: inc/timeline.class.php inc/timelineaction.class.php hook.php templates/compose.html.twig
+msgid "This ticket is already solved."
+msgstr "This ticket is already solved."
+
+#: inc/timeline.class.php inc/timelineaction.class.php hook.php templates/compose.html.twig
+msgid "This ticket is solved or closed. Replies and internal notes keep its status unchanged. Use GLPI to reopen it explicitly."
+msgstr "This ticket is solved or closed. Replies and internal notes keep its status unchanged. Use GLPI to reopen it explicitly."
+
+#: inc/timeline.class.php inc/timelineaction.class.php hook.php templates/compose.html.twig
+
+#: inc/timeline.class.php inc/timelineaction.class.php hook.php templates/compose.html.twig
+msgid "GLPI does not allow adding a followup to this ticket."
+msgstr "GLPI does not allow adding a followup to this ticket."
+
+#: inc/timeline.class.php inc/timelineaction.class.php hook.php templates/compose.html.twig
+msgid "The ticket status has changed. Reopen the dialog and check the status before submitting."
+msgstr "The ticket status has changed. Reopen the dialog and check the status before submitting."
+
+#: inc/timeline.class.php inc/timelineaction.class.php hook.php templates/compose.html.twig
+msgid "GLPI does not allow the selected ticket status change."
+msgstr "GLPI does not allow the selected ticket status change."
+
+#: inc/timeline.class.php inc/timelineaction.class.php hook.php templates/compose.html.twig
+msgid "The email was sent, but the ticket status could not be changed. Check the current ticket status. Do not send the email again."
+msgstr "The email was sent, but the ticket status could not be changed. Check the current ticket status. Do not send the email again."
+
+#: inc/timeline.class.php inc/timelineaction.class.php hook.php templates/compose.html.twig
+msgid "The internal note was added, but the ticket status could not be changed. Check the current ticket status."
+msgstr "The internal note was added, but the ticket status could not be changed. Check the current ticket status."

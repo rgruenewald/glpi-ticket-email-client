@@ -1,0 +1,30 @@
+name: Notify GLPI catalog
+
+on:
+  push:
+    branches: [main]
+    paths: [ticketmailer.xml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: glpi-catalog-notify
+  cancel-in-progress: false
+
+jobs:
+  notify:
+    if: github.ref == 'refs/heads/main' && vars.GLPI_CATALOG_ENABLED == 'true'
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Request refresh of the registered GLPI listing
+        env:
+          GLPI_CATALOG_TOKEN: ${{ secrets.GLPI_CATALOG_TOKEN }}
+        run: |
+          test -n "$GLPI_CATALOG_TOKEN" || { echo "GLPI_CATALOG_TOKEN is required"; exit 1; }
+          # No automatic POST retries: a timeout may still have reached the server.
+          curl --fail-with-body --silent --show-error --connect-timeout 15 --max-time 60 \
+            --request POST https://plugins.glpi-project.org/api/plugin/update \
+            --data-urlencode "key=$GLPI_CATALOG_TOKEN" \
+            --data-urlencode 'plugin=ticketmailer'

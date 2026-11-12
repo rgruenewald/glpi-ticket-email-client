@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+# Bootstrap an isolated GLPI development stack for this worktree.
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$ROOT"
+compose() { docker --context rootless compose -p "$PROJECT" "$@"; }
+
+command -v docker >/dev/null || { echo 'Docker is required.' >&2; exit 1; }
+command -v python3 >/dev/null || { echo 'Python 3 is required for free-port selection.' >&2; exit 1; }
+command -v npm >/dev/null || { echo 'npm is required.' >&2; exit 1; }
+
+slug=$(basename "$ROOT" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g; s/--*/-/g; s/^-//; s/-$//')
+PROJECT=${TICKETMAILER_PROJECT:-ticketmailer-${slug:-dev}}
+# Compose project names may contain only a conservative subset of characters.
+PROJECT=$(printf '%s' "$PROJECT" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9_-]/-/g')
+PROJECT=${PROJECT:-ticketmailer-${slug:-dev}}
+export PROJECT
+
+read -r HTTP_PORT MAIL_PORT <<EOF
+$(python3 - <<'PY'
+import socket
+ports = []
+for _ in range(2):
+    sock = socket.socket()
+    sock.bind(('127.0.0.1', 0))
+    ports.append(sock.getsockname()[1])
+    sock.close()
+print(*ports)
+PY
+)
+EOF
+export TICKETMAILER_HTTP_PORT=${TICKETMAILER_HTTP_PORT:-$HTTP_PORT}
+export TICKETMAILER_MAIL_PORT=${TICKETMAILER_MAIL_PORT:-$MAIL_PORT}
+
+if command -v composer >/dev/null; then
+  composer install --no-interaction --prefer-dist
+else
+  docker --context rootless run --rm -v "$ROOT:/app" -w /app composer:2 install --no-interaction --prefer-dist
+fi
+npm ci --ignore-scripts
+./scripts/install-hooks
+
+state="${XDG_STATE_HOME:-$HOME/.local/state}/ticketmailer-worktrees/$PROJECT"
+mkdir -p "$state"
+chmod 700 "$state"
+seed="$state/test-database.sql"
+
+# Copy the current shared test database when it exists. This preserves the
+# familiar GLPI users, tickets and plugin state without sharing its volume.
+if [ ! -s "$seed" ] && docker --context rootless compose -p ticketmailer ps --status running -q db 2>/dev/null | grep -q .; then
+  echo "Exporting seed database from Compose project ticketmailer …"
+  docker --context rootless compose -p ticketmailer exec -T db sh -c 'exec mariadb-dump -uglpi -p"$MARIADB_PASSWORD" --single-transaction --routines --events glpi' > "$seed"
+fi
+
+compose up -d --wait --wait-timeout 240 db
+if [ -s "$seed" ] && [ ! -e "$state/seed-imported" ]; then
+  echo "Importing seeded database into $PROJECT …"
+  compose exec -T db sh -c 'exec mariadb -uglpi -p"$MARIADB_PASSWORD" glpi' < "$seed"
+  : > "$state/seed-imported"
+fi
+compose up -d --build --wait --wait-timeout 240 glpi mailpit
+compose exec -T --user www-data glpi php bin/console glpi:plugin:install ticketmailer --username=glpi --no-interaction --force
+compose exec -T --user www-data glpi php bin/console glpi:plugin:activate ticketmailer --no-interaction
+
+# A fresh fallback still gets useful records from the repository's E2E fixture.
+if [ ! -s "$seed" ] && [ ! -e "$state/seed-imported" ]; then
+  compose exec -T --user www-data glpi php /usr/local/bin/e2e-fixture.php basic >/dev/null
+  : > "$state/seed-imported"
+fi
+
+echo
+echo "READY: $PROJECT"
+echo "GLPI:    http://127.0.0.1:$TICKETMAILER_HTTP_PORT (glpi / glpi)"
+echo "Mailpit: http://127.0.0.1:$TICKETMAILER_MAIL_PORT"
+echo "Stop:    docker --context rootless compose -p $PROJECT stop"

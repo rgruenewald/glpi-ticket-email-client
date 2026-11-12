@@ -1,0 +1,171 @@
+{
+  "root": "/tmp/ticketmailer-ui-bench/variant-2",
+  "activeSamples": [
+    {
+      "queries": 150,
+      "toggles": 45,
+      "scriptMs": 7.65,
+      "layoutMs": 2.1660000000000004,
+      "styleMs": 3.0380000000000003,
+      "taskMs": 75.015
+    },
+    {
+      "queries": 150,
+      "toggles": 45,
+      "scriptMs": 7.0040000000000004,
+      "layoutMs": 1.9459999999999997,
+      "styleMs": 2.99,
+      "taskMs": 60.00299999999999
+    },
+    {
+      "queries": 150,
+      "toggles": 45,
+      "scriptMs": 7.058,
+      "layoutMs": 2.0359999999999996,
+      "styleMs": 3.2270000000000003,
+      "taskMs": 67.58
+    },
+    {
+      "queries": 150,
+      "toggles": 45,
+      "scriptMs": 6.6899999999999995,
+      "layoutMs": 1.9479999999999997,
+      "styleMs": 3.0319999999999996,
+      "taskMs": 60.23
+    },
+    {
+      "queries": 150,
+      "toggles": 45,
+      "scriptMs": 6.804000000000001,
+      "layoutMs": 1.875,
+      "styleMs": 2.909,
+      "taskMs": 64.843
+    },
+    {
+      "queries": 150,
+      "toggles": 45,
+      "scriptMs": 6.769000000000001,
+      "layoutMs": 1.9029999999999998,
+      "styleMs": 2.9949999999999997,
+      "taskMs": 59.202999999999996
+    },
+    {
+      "queries": 150,
+      "toggles": 45,
+      "scriptMs": 6.882999999999999,
+      "layoutMs": 1.9889999999999994,
+      "styleMs": 2.9370000000000003,
+      "taskMs": 65.52
+    },
+    {
+      "queries": 150,
+      "toggles": 45,
+      "scriptMs": 6.788999999999999,
+      "layoutMs": 2.088,
+      "styleMs": 2.927,
+      "taskMs": 59.414
+    },
+    {
+      "queries": 150,
+      "toggles": 45,
+      "scriptMs": 6.603,
+      "layoutMs": 1.9009999999999996,
+      "styleMs": 2.826,
+      "taskMs": 65.09499999999998
+    }
+  ],
+  "activeMedian": {
+    "queries": 150,
+    "toggles": 45,
+    "scriptMs": 6.804000000000001,
+    "layoutMs": 1.9479999999999997,
+    "styleMs": 2.99,
+    "taskMs": 64.843
+  },
+  "chromium": "156.0.8078.4",
+  "scenario": "30 unrelated class mutations over 30 frames; 1500 timeline nodes; 400ms settle; no CPU throttle",
+  "repetitions": 9,
+  "samples": [
+    {
+      "queries": 0,
+      "toggles": 0,
+      "scriptMs": 1.7360000000000015,
+      "layoutMs": 0,
+      "styleMs": 0,
+      "taskMs": 6.176000000000001
+    },
+    {
+      "queries": 0,
+      "toggles": 0,
+      "scriptMs": 1.556,
+      "layoutMs": 0,
+      "styleMs": 0,
+      "taskMs": 6.011000000000003
+    },
+    {
+      "queries": 0,
+      "toggles": 0,
+      "scriptMs": 1.5500000000000003,
+      "layoutMs": 0,
+      "styleMs": 0,
+      "taskMs": 5.999999999999998
+    },
+    {
+      "queries": 0,
+      "toggles": 0,
+      "scriptMs": 1.6000000000000003,
+      "layoutMs": 0,
+      "styleMs": 0,
+      "taskMs": 6.271000000000006
+    },
+    {
+      "queries": 0,
+      "toggles": 0,
+      "scriptMs": 1.54,
+      "layoutMs": 0,
+      "styleMs": 0,
+      "taskMs": 6.101999999999997
+    },
+    {
+      "queries": 0,
+      "toggles": 0,
+      "scriptMs": 1.539,
+      "layoutMs": 0,
+      "styleMs": 0,
+      "taskMs": 6.229000000000005
+    },
+    {
+      "queries": 0,
+      "toggles": 0,
+      "scriptMs": 1.5739999999999998,
+      "layoutMs": 0,
+      "styleMs": 0,
+      "taskMs": 6.277999999999999
+    },
+    {
+      "queries": 0,
+      "toggles": 0,
+      "scriptMs": 1.641,
+      "layoutMs": 0,
+      "styleMs": 0,
+      "taskMs": 6.615000000000003
+    },
+    {
+      "queries": 0,
+      "toggles": 0,
+      "scriptMs": 1.655,
+      "layoutMs": 0,
+      "styleMs": 0,
+      "taskMs": 6.486000000000006
+    }
+  ],
+  "median": {
+    "queries": 0,
+    "toggles": 0,
+    "scriptMs": 1.5739999999999998,
+    "layoutMs": 0,
+    "styleMs": 0,
+    "taskMs": 6.229000000000005
+  },
+  "functionalChecks": "passed"
+}

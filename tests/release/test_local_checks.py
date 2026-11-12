@@ -14,6 +14,9 @@ class PushHookTest(unittest.TestCase):
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
         self.root = Path(self.tmp.name)
+        local_vars = subprocess.run(['git', 'rev-parse', '--local-env-vars'],
+                                    text=True, capture_output=True, check=True).stdout.split()
+        self.env = {key: value for key, value in os.environ.items() if key not in local_vars}
         self.git('init', '-q')
         self.git('config', 'user.name', 'Hook Test')
         self.git('config', 'user.email', 'hook@example.test')
@@ -25,11 +28,11 @@ class PushHookTest(unittest.TestCase):
         self.sha = self.git('rev-parse', 'HEAD').stdout.strip()
 
     def git(self, *args):
-        return subprocess.run(['git', *args], cwd=self.root, text=True, capture_output=True, check=True)
+        return subprocess.run(['git', *args], cwd=self.root, env=self.env, text=True, capture_output=True, check=True)
 
     def hook(self, sha=None):
         line = f'refs/heads/test {sha or self.sha} refs/heads/test {"0" * 40}\n'
-        return subprocess.run(['bash', str(ROOT / '.githooks/pre-push')], cwd=self.root, input=line, text=True, capture_output=True)
+        return subprocess.run(['bash', str(ROOT / '.githooks/pre-push')], cwd=self.root, env=self.env, input=line, text=True, capture_output=True)
 
     def test_success_runs_checks(self):
         result = self.hook()
@@ -44,7 +47,7 @@ class PushHookTest(unittest.TestCase):
         line = f'refs/heads/test {sha} refs/heads/test {"0" * 40}\n'
         result = subprocess.run(['bash', str(ROOT / '.githooks/pre-push')],
                                 cwd=self.root, input=line, text=True, capture_output=True,
-                                env={**os.environ, 'GIT_DIR': str(self.root / '.git')})
+                                env={**self.env, 'GIT_DIR': str(self.root / '.git')})
         self.assertEqual(result.returncode, 0, result.stderr)
 
     def test_failure_blocks_push(self):
@@ -89,9 +92,9 @@ class PushHookTest(unittest.TestCase):
     def test_installer_is_idempotent_and_preserves_existing_hooks(self):
         shutil.copy(ROOT / 'scripts/install-hooks', self.root / 'scripts/install-hooks')
         for _ in range(2):
-            subprocess.run(['bash', 'scripts/install-hooks'], cwd=self.root, check=True, capture_output=True)
+            subprocess.run(['bash', 'scripts/install-hooks'], cwd=self.root, env=self.env, check=True, capture_output=True)
         self.assertEqual(self.git('config', '--get', 'core.hooksPath').stdout.strip(), '.githooks')
         self.git('config', 'core.hooksPath', 'custom-hooks')
-        result = subprocess.run(['bash', 'scripts/install-hooks'], cwd=self.root, capture_output=True)
+        result = subprocess.run(['bash', 'scripts/install-hooks'], cwd=self.root, env=self.env, capture_output=True)
         self.assertNotEqual(result.returncode, 0)
         self.assertEqual(self.git('config', '--get', 'core.hooksPath').stdout.strip(), 'custom-hooks')

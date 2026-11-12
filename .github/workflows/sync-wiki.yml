@@ -1,0 +1,57 @@
+name: Sync GitHub Wiki
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/wiki/**"
+      - "scripts/verify/wiki_links.py"
+      - "tests/release/test_wiki_links.py"
+      - ".github/workflows/sync-wiki.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-wiki
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Verify wiki links
+        run: |
+          python3 scripts/verify/wiki_links.py
+          python3 -m unittest discover -s tests/release -p test_wiki_links.py -v
+
+      - name: Checkout wiki
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ github.repository }}.wiki
+          path: wiki
+          persist-credentials: true
+
+      - name: Mirror documentation
+        run: rsync --archive --delete --exclude='.git/' docs/wiki/ wiki/
+
+      - name: Commit and push
+        working-directory: wiki
+        run: |
+          git add --all
+          if git diff --cached --quiet; then
+            echo "Wiki already synchronized."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "docs: sync wiki from ${GITHUB_SHA}"
+          git push

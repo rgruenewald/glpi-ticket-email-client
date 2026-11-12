@@ -1,0 +1,171 @@
+{
+  "root": "/tmp/ticketmailer-ui-bench/variant-1",
+  "activeSamples": [
+    {
+      "queries": 150,
+      "toggles": 45,
+      "scriptMs": 6.5649999999999995,
+      "layoutMs": 1.9849999999999999,
+      "styleMs": 3.1769999999999996,
+      "taskMs": 70.074
+    },
+    {
+      "queries": 150,
+      "toggles": 45,
+      "scriptMs": 6.796999999999999,
+      "layoutMs": 1.957,
+      "styleMs": 3.212,
+      "taskMs": 62.272
+    },
+    {
+      "queries": 150,
+      "toggles": 45,
+      "scriptMs": 6.210999999999999,
+      "layoutMs": 1.803,
+      "styleMs": 2.7430000000000003,
+      "taskMs": 63.245999999999995
+    },
+    {
+      "queries": 150,
+      "toggles": 45,
+      "scriptMs": 6.369000000000001,
+      "layoutMs": 1.889,
+      "styleMs": 2.851,
+      "taskMs": 58.586
+    },
+    {
+      "queries": 150,
+      "toggles": 45,
+      "scriptMs": 6.234,
+      "layoutMs": 1.7820000000000003,
+      "styleMs": 2.771,
+      "taskMs": 63.488
+    },
+    {
+      "queries": 150,
+      "toggles": 45,
+      "scriptMs": 6.178,
+      "layoutMs": 1.859,
+      "styleMs": 2.8000000000000003,
+      "taskMs": 58.146
+    },
+    {
+      "queries": 150,
+      "toggles": 45,
+      "scriptMs": 6.404000000000001,
+      "layoutMs": 1.8249999999999993,
+      "styleMs": 2.8120000000000003,
+      "taskMs": 63.94
+    },
+    {
+      "queries": 150,
+      "toggles": 45,
+      "scriptMs": 6.626,
+      "layoutMs": 1.8920000000000001,
+      "styleMs": 3.0410000000000004,
+      "taskMs": 60.26999999999999
+    },
+    {
+      "queries": 150,
+      "toggles": 45,
+      "scriptMs": 6.5280000000000005,
+      "layoutMs": 1.8619999999999999,
+      "styleMs": 2.8449999999999998,
+      "taskMs": 63.81100000000001
+    }
+  ],
+  "activeMedian": {
+    "queries": 150,
+    "toggles": 45,
+    "scriptMs": 6.404000000000001,
+    "layoutMs": 1.8619999999999999,
+    "styleMs": 2.8449999999999998,
+    "taskMs": 63.245999999999995
+  },
+  "chromium": "156.0.8078.4",
+  "scenario": "30 unrelated class mutations over 30 frames; 1500 timeline nodes; 400ms settle; no CPU throttle",
+  "repetitions": 9,
+  "samples": [
+    {
+      "queries": 75,
+      "toggles": 30,
+      "scriptMs": 2.820999999999999,
+      "layoutMs": 0,
+      "styleMs": 0,
+      "taskMs": 7.154999999999995
+    },
+    {
+      "queries": 75,
+      "toggles": 30,
+      "scriptMs": 2.1620000000000004,
+      "layoutMs": 0,
+      "styleMs": 0,
+      "taskMs": 6.590999999999999
+    },
+    {
+      "queries": 75,
+      "toggles": 30,
+      "scriptMs": 2.233,
+      "layoutMs": 0,
+      "styleMs": 0,
+      "taskMs": 6.545999999999996
+    },
+    {
+      "queries": 75,
+      "toggles": 30,
+      "scriptMs": 2.243,
+      "layoutMs": 0,
+      "styleMs": 0,
+      "taskMs": 6.568000000000004
+    },
+    {
+      "queries": 75,
+      "toggles": 30,
+      "scriptMs": 2.437,
+      "layoutMs": 0,
+      "styleMs": 0,
+      "taskMs": 7.378999999999997
+    },
+    {
+      "queries": 75,
+      "toggles": 30,
+      "scriptMs": 2.1910000000000003,
+      "layoutMs": 0,
+      "styleMs": 0,
+      "taskMs": 6.769999999999998
+    },
+    {
+      "queries": 75,
+      "toggles": 30,
+      "scriptMs": 2.422,
+      "layoutMs": 0,
+      "styleMs": 0,
+      "taskMs": 7.466999999999994
+    },
+    {
+      "queries": 75,
+      "toggles": 30,
+      "scriptMs": 2.3469999999999995,
+      "layoutMs": 0,
+      "styleMs": 0,
+      "taskMs": 6.98
+    },
+    {
+      "queries": 75,
+      "toggles": 30,
+      "scriptMs": 2.119,
+      "layoutMs": 0,
+      "styleMs": 0,
+      "taskMs": 6.595000000000003
+    }
+  ],
+  "median": {
+    "queries": 75,
+    "toggles": 30,
+    "scriptMs": 2.243,
+    "layoutMs": 0,
+    "styleMs": 0,
+    "taskMs": 6.769999999999998
+  },
+  "functionalChecks": "passed"
+}

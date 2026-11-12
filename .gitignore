@@ -1,1 +1,56 @@
-checks.log
+# Dependencies (keep composer.lock and package-lock.json tracked)
+/vendor/
+/node_modules/
+
+# Local configuration and secrets; allow sanitized templates
+.env
+.env.*
+!.env.example
+!.env.*.example
+auth.json
+/docker-compose.override.yml
+/compose.override.yml
+
+# GLPI runtime data, never source
+/_files/
+/_cache/
+/_log/
+/_sessions/
+
+# Test, coverage and browser artifacts
+.phpunit.cache/
+.phpunit.result.cache
+.phpunit-watcher.yml
+/test-results/
+/playwright-report/
+/blob-report/
+/coverage/
+/.nyc_output/
+
+# Generated release packages and local caches
+/dist/
+__pycache__/
+*.py[cod]
+/.cache/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Local agent state; maintained contracts live under docs/specifications/
+/.agent/
+/.pi-subagents/
+
+# Editor, OS and temporary files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+Desktop.ini
+*~
+*.swp
+*.swo
+*.tmp
+*.bak
+*.orig
+*.rej
