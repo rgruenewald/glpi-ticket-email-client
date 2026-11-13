@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.7.0](https://github.com/rgruenewald/glpi-ticket-email-client/compare/v2.6.2...v2.7.0) (2026-11-13)
+
+
+### Features
+
+* **glpi:** add GLPI 12 support and migrate test instance ([#72](https://github.com/rgruenewald/glpi-ticket-email-client/issues/72)) ([8fe0d3c](https://github.com/rgruenewald/glpi-ticket-email-client/commit/8fe0d3c04bba661b00dda9bcda4fc852cbbcbb75))
+
+
+### Bug Fixes
+
+* **compose:** enable Escape dismissal and readable sender options ([4ba431a](https://github.com/rgruenewald/glpi-ticket-email-client/commit/4ba431af7343019c79739f45e21b5faee20a16ed))
+
 ## [2.6.2](https://github.com/rgruenewald/glpi-ticket-email-client/compare/v2.6.1...v2.6.2) (2026-10-29)
 
 
