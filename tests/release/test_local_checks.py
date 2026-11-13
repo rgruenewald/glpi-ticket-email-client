@@ -73,13 +73,17 @@ class PushHookTest(unittest.TestCase):
         self.sha = self.git('rev-parse', 'HEAD').stdout.strip()
         self.assertNotEqual(self.hook().returncode, 0)
 
-    def test_ci_avoids_duplicate_workflows_without_dropping_gates(self):
-        ci = (ROOT / '.github/workflows/ci.yml').read_text()
-        self.assertNotIn('  push:', ci)
-        self.assertIn('  workflow_call:', ci)
+    def test_local_ci_preserves_all_gates_without_github_actions(self):
+        ci_path = ROOT / 'scripts/ci'
+        self.assertTrue(ci_path.is_file())
+        self.assertTrue(os.access(ci_path, os.X_OK))
+        ci = ci_path.read_text()
+        for ver in ('"8.2"', '"8.3"', '"8.4"', '"8.5"'):
+            self.assertIn(ver, ci)
         self.assertIn('npm run test:performance', ci)
-        self.assertIn('needs: [unit, package, integration]', ci)
-        self.assertFalse((ROOT / '.github/workflows/ui-performance.yml').exists())
+        self.assertIn('scripts/verify/score.sh', ci)
+        self.assertIn('scripts/release/integration.sh', ci)
+        self.assertFalse((ROOT / '.github/workflows').exists())
 
     def test_non_head_commit_blocks_push(self):
         self.git('commit', '--allow-empty', '-qm', 'second')

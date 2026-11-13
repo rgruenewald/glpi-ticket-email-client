@@ -45,17 +45,17 @@ No release or marketplace submission is authorized merely by running local check
 
 ## Daily process
 
-- Open a feature/fix PR, review it and wait for Required checks plus other existing
-  gates. CI runs PHP tests, Node tests, v2 contracts, packaging tests and packaged
-  GLPI installation/migration/SMTP integration.
-- Merge with a Conventional Commit title. The Release workflow maintains one
-  release PR with generated version changes and changelog.
-- Review the release PR. Add administrator-facing upgrade/backup instructions and
-  known limitations. Migration and delivery behavior need particular attention.
-- Explicitly merge that PR when ready. Release Please creates a version tag and a
-  draft release. The exact tagged commit is packaged and integration-tested again.
-- Only after every gate succeeds are assets uploaded and the draft published.
-  Do not publish drafts manually to work around a failed gate.
+- Run local CI before committing or pushing: `make ci` or `./scripts/ci all` (runs PHP
+  matrix 8.2–8.5, dependency audits, score.sh, UI performance, and disposable GLPI integration).
+- `scripts/check-local` is wired into `.githooks/pre-push` to prevent pushing unverified commits.
+- Prepare version bump in `VERSION`, `setup.php`, `CHANGELOG.md`, and `.release-please-manifest.json`.
+- Review practical changes, upgrade notes, migration behavior, and known limitations.
+- Build and verify release assets locally with dry-run protection:
+  `python3 scripts/release/publish.py --dry-run`
+- When verified and authorized, publish to GitHub:
+  `python3 scripts/release/publish.py --publish`
+- Only after every gate succeeds are assets uploaded and the release published.
+  Do not publish manually around failed gates.
 
 Assets: ticketmailer-X.Y.Z.tar.gz, ticketmailer.xml, SHA256SUMS. The archive has a
 single ticketmailer/ runtime tree, no vendor/dev/test/agent files, and includes
@@ -148,26 +148,21 @@ from the published assets, not current development constants. Existing 2.3.2 and
 2.4.0 entries therefore retain 11.0.0 through 11.99.99; the narrower 11.0.x range
 applies to the next release. Review this historical range before submission.
 
-After successful publication, release.yml calls catalog.yml on main. This opens
-a normal PR from automation/glpi-catalog, using the existing release GitHub App
-credentials. It never pushes directly to protected main. Review the metadata and
-merge after required checks. A conflicting automation branch fails rather than
-force-pushing; resolve or delete an obsolete branch before rerunning GLPI catalog
-on main. A no-change refresh creates no PR. The catalog PR may cause Release
-Please to maintain a later release PR, but creates no endless catalog update loop.
+After successful publication, refresh the historical catalog with `python3 scripts/release/catalog.py`.
+Review the updated `ticketmailer.xml` metadata and commit.
+To notify the registered GLPI directory after the release is public:
+Run `scripts/release/notify-catalog.sh` (or `make catalog-notify`).
 
 ### Registration and refresh notification
 
 Register through https://plugins.glpi-project.org/ and confirm that the directory
 accepts the stable XML URL and historical entries. Registration and moderation
-require a human account. The API workflow follows pluginsGLPI/fields, formcreator
-and tag, but remains disabled until the listing is registered:
+require a human account. The notification workflow follows:
 
-1. Store the directory-issued API key as repository secret GLPI_CATALOG_TOKEN.
-   Never commit the token or include it in shell command arguments.
-2. Set repository variable GLPI_CATALOG_ENABLED=true.
-3. Run Notify GLPI catalog on main for an initial refresh. Subsequent changes to
-   ticketmailer.xml on main trigger it automatically, after the catalog is public.
+1. Store the directory-issued API key in the environment as `GLPI_CATALOG_TOKEN`.
+   Never commit the token or include it in plain logs.
+2. Run `scripts/release/notify-catalog.sh` to request directory refresh.
+   Use `scripts/release/notify-catalog.sh --dry-run` to test connectivity.
 
 The POST to /api/plugin/update has a timeout and fails on HTTP errors. It is not
 automatically retried, because a timed-out request may have reached the server.

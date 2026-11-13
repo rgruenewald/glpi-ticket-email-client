@@ -140,17 +140,15 @@ class CatalogTest(unittest.TestCase):
         spec.loader.exec_module(release)
         self.assertNotIn("ticketmailer.xml", release.files(ROOT))
 
-    def test_workflows_gate_refresh_and_notification(self):
-        refresh = (ROOT / ".github/workflows/catalog.yml").read_text()
-        notify = (ROOT / ".github/workflows/catalog-notify.yml").read_text()
-        workflow = (ROOT / ".github/workflows/release.yml").read_text()
-        self.assertIn("if: needs.release.outputs.published == 'true'", workflow)
-        self.assertIn("gh pr create", refresh)
-        self.assertNotIn("--force", refresh)
-        self.assertNotIn("pull_request:", refresh + notify)
-        self.assertIn("paths: [ticketmailer.xml]", notify)
-        self.assertIn("vars.GLPI_CATALOG_ENABLED == 'true'", notify)
-        self.assertIn("github.ref == 'refs/heads/main'", notify)
+    def test_local_catalog_scripts_gate_refresh_and_notification(self):
+        catalog_script = ROOT / "scripts/release/catalog.py"
+        notify_script = ROOT / "scripts/release/notify-catalog.sh"
+        self.assertTrue(catalog_script.is_file())
+        self.assertTrue(notify_script.is_file())
+
+        notify = notify_script.read_text()
+        self.assertIn("--dry-run", notify)
+        self.assertIn("GLPI_CATALOG_TOKEN", notify)
         self.assertIn("--fail-with-body", notify)
         self.assertNotIn("--retry", notify)
 

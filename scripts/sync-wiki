@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# Sync local documentation from docs/wiki/ to GitHub Wiki.
+# Replaces .github/workflows/sync-wiki.yml with a local CLI workflow.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+dry_run=1
+if [ "${1:-}" = "--publish" ]; then
+  dry_run=0
+elif [ "${1:-}" = "--help" ] || [ "${1:-}" = "-h" ]; then
+  echo "Usage: scripts/sync-wiki [--publish|--dry-run]"
+  echo "  --dry-run   Verify wiki links and structure without pushing (default)"
+  echo "  --publish   Sync and push changes to GitHub Wiki"
+  exit 0
+fi
+
+echo "Verifying wiki links and structure..."
+python3 scripts/verify/wiki_links.py
+python3 -m unittest discover -s tests/release -p test_wiki_links.py -v
+
+if [ "$dry_run" -eq 1 ]; then
+  echo "WIKI DRY-RUN COMPLETE: Wiki links and tests passed."
+  echo "Pass --publish to push docs/wiki/ to GitHub Wiki repository."
+  exit 0
+fi
+
+repo=${GITHUB_REPOSITORY:-"rgruenewald/glpi-ticket-email-client"}
+tmp=$(mktemp -d)
+trap 'rm -rf "$tmp"' EXIT
+
+echo "Cloning wiki repository https://github.com/${repo}.wiki.git..."
+git clone "https://github.com/${repo}.wiki.git" "$tmp/wiki"
+
+echo "Mirroring docs/wiki/ to wiki checkout..."
+rsync --archive --delete --exclude='.git/' docs/wiki/ "$tmp/wiki/"
+
+cd "$tmp/wiki"
+git add --all
+if git diff --cached --quiet; then
+  echo "Wiki is already up to date."
+  exit 0
+fi
+
+git commit -m "docs: sync wiki from $(git -C "$OLDPWD" rev-parse --short HEAD)"
+git push origin HEAD
+echo "Wiki synchronized and published successfully."
