@@ -9,7 +9,7 @@ Read ../../../docs/RELEASING.md and ../../../release-please-config.json first. R
 
 1. Inspect git status, current branch, remote main, tags and releases read-only. Never infer a published release from setup.php alone.
 2. Run python3 scripts/release/release.py check and the eight offline tests with python3 -m unittest discover -s tests/release -v. Never manually increment only one version surface.
-3. Run the project verify skill, build and verify with scripts/release/release.py, then run bash scripts/release/integration.sh with an explicitly selected Docker context. This disposable test does not authorize production or shared-dev database changes.
+3. Run the local CI pipeline with ./scripts/ci all, build and verify with scripts/release/publish.py --dry-run. This disposable verification checks the full PHP matrix, offline deterministic packaging, score.sh, and packaged integration without changing production or shared-dev data.
 4. For a release PR, inspect all generated version changes, changelog, compatibility and migration notes. Every required check must have passed. Do not merge, tag, publish or change GitHub protection without explicit task coverage.
 5. For failures, distinguish a failed draft from a public release. Follow the recovery section; never move tags, overwrite published assets or manually publish around failed gates.
 6. Report exact commit, version, commands/results and untested compatibility. Keep secrets and browser traces out of regular artifacts.
