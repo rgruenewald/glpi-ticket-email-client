@@ -1,0 +1,162 @@
+#!/usr/bin/env bash
+# scripts/ci — Purely local CI pipeline for ticketmailer.
+# Replaces GitHub Actions: PHP matrix, dependency audits, contracts, UI performance,
+# and disposable packaged GLPI integration. Fail closed on any gate.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+context=${TICKETMAILER_DOCKER_CONTEXT:-}
+if [ -z "$context" ]; then
+  if docker context inspect rootless >/dev/null 2>&1; then
+    context=rootless
+  else
+    context=default
+  fi
+fi
+
+PHP_MATRIX=("8.2" "8.3" "8.4" "8.5")
+
+composer_cmd() {
+  if command -v composer >/dev/null 2>&1; then
+    composer "$@"
+  else
+    docker --context "$context" run --rm -v "$PWD:/app" -w /app composer:2 "$@"
+  fi
+}
+
+host_php_version() {
+  if command -v php >/dev/null 2>&1; then
+    php -r 'echo PHP_MAJOR_VERSION . "." . PHP_MINOR_VERSION;'
+  else
+    echo ""
+  fi
+}
+
+HOST_PHP=$(host_php_version)
+
+run_php_lint() {
+  local ver="$1"
+  echo "--- PHP $ver Syntax Lint ---"
+  if [ "$ver" = "$HOST_PHP" ]; then
+    find inc front ajax tests -name '*.php' -print0 | xargs -0 -n1 php -l
+    php -l setup.php
+    php -l hook.php
+  else
+    docker --context "$context" run --rm -v "$PWD:/app" -w /app "php:${ver}-cli" sh -c \
+      "find inc front ajax tests -name '*.php' -print0 | xargs -0 -n1 php -l && php -l setup.php && php -l hook.php"
+  fi
+}
+
+run_php_unit() {
+  local ver="$1"
+  echo "--- PHP $ver Unit Tests (PHPUnit) ---"
+  if [ "$ver" = "$HOST_PHP" ]; then
+    vendor/bin/phpunit --fail-on-warning
+  else
+    docker --context "$context" run --rm -v "$PWD:/app" -w /app "php:${ver}-cli" \
+      php vendor/bin/phpunit --fail-on-warning
+  fi
+}
+
+gate_deps() {
+  echo "=== Gate: Dependencies & Security Audits ==="
+  composer_cmd validate --strict
+  composer_cmd install --no-interaction --prefer-dist
+  composer_cmd audit
+  npm ci --ignore-scripts
+  # Match the former Dependency Review threshold; fail closed on audit errors.
+  npm audit --audit-level=moderate
+}
+
+gate_security() {
+  echo "=== Gate: Local CodeQL Security Analysis ==="
+  python3 scripts/security/scan.py
+}
+
+gate_php_matrix() {
+  echo "=== Gate: PHP Matrix (${PHP_MATRIX[*]}) ==="
+  for ver in "${PHP_MATRIX[@]}"; do
+    run_php_lint "$ver"
+    run_php_unit "$ver"
+  done
+}
+
+gate_package_and_contracts() {
+  echo "=== Gate: Package, Contracts, UI & Performance ==="
+  python3 scripts/verify/wiki_links.py
+  python3 -m unittest discover -s tests/release -v
+  python3 scripts/release/release.py check
+  python3 scripts/release/release.py build
+  python3 scripts/release/release.py verify
+  ROOT=. bash scripts/verify/score.sh
+  node --test tests/*.test.js
+  npm run test:ui
+  npm run test:performance
+}
+
+gate_integration() {
+  echo "=== Gate: Packaged GLPI Integration (Disposable Docker) ==="
+  read -r http_port mail_port < <(python3 - <<'PY'
+import socket
+sockets = [socket.socket(), socket.socket()]
+for sock in sockets:
+    sock.bind(("127.0.0.1", 0))
+print(*(sock.getsockname()[1] for sock in sockets))
+PY
+  )
+  RELEASE_DOCKER_CONTEXT="$context" \
+  RELEASE_HTTP_PORT="$http_port" \
+  RELEASE_MAIL_PORT="$mail_port" \
+  RELEASE_E2E_ALL=1 \
+  bash scripts/release/integration.sh
+}
+
+mode=${1:-all}
+case "$mode" in
+  all)
+    gate_deps
+    gate_security
+    gate_php_matrix
+    gate_package_and_contracts
+    gate_integration
+    echo "=== ALL LOCAL CI GATES PASSED ==="
+    ;;
+  quick)
+    gate_deps
+    gate_security
+    gate_php_matrix
+    gate_package_and_contracts
+    echo "=== QUICK LOCAL CI GATES PASSED (integration skipped) ==="
+    ;;
+  deps)
+    gate_deps
+    ;;
+  security)
+    gate_security
+    ;;
+  matrix)
+    gate_php_matrix
+    ;;
+  package)
+    gate_package_and_contracts
+    ;;
+  integration)
+    gate_integration
+    ;;
+  help|-h|--help)
+    echo "Usage: scripts/ci [all|quick|deps|security|matrix|package|integration]"
+    echo "  all         Run all gates including PHP matrix and disposable integration (default)"
+    echo "  quick       Run all offline gates without packaged integration"
+    echo "  deps        Validate composer, npm, and run security audits"
+    echo "  security    Run pinned local CodeQL default suites for JS/TS and Python"
+    echo "  matrix      Run syntax lint and PHPUnit on PHP 8.2, 8.3, 8.4, 8.5"
+    echo "  package     Run score.sh, contract tests, UI tests, and performance benchmarks"
+    echo "  integration Run disposable packaged GLPI Docker E2E and migration tests"
+    exit 0
+    ;;
+  *)
+    echo "Unknown mode: $mode" >&2
+    echo "Run 'scripts/ci help' for options." >&2
+    exit 1
+    ;;
+esac

@@ -2,12 +2,14 @@
 import importlib.util
 import io
 import json
+import os
 from pathlib import Path
 import shutil
 import subprocess
 import tarfile
 import tempfile
 import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[2]
 spec = importlib.util.spec_from_file_location("release", ROOT / "scripts/release/release.py")
@@ -15,14 +17,37 @@ release = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(release)
 
 
-class ReleaseAppWorkflowTest(unittest.TestCase):
-    def test_release_and_catalog_use_app_client_id(self):
-        for name in ("release.yml", "catalog.yml"):
-            with self.subTest(workflow=name):
-                workflow = (ROOT / ".github/workflows" / name).read_text()
-                self.assertIn("client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}", workflow)
-                self.assertNotIn("app-id:", workflow)
-                self.assertIn("private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}", workflow)
+class LocalReleasePublisherTest(unittest.TestCase):
+    def test_publish_script_exists_and_defaults_to_dry_run(self):
+        pub_path = ROOT / "scripts/release/publish.py"
+        self.assertTrue(pub_path.is_file())
+        self.assertTrue(os.access(pub_path, os.X_OK))
+
+        spec_pub = importlib.util.spec_from_file_location("publish", pub_path)
+        if spec_pub is None or spec_pub.loader is None:
+            self.fail("Could not load publish.py")
+        publish_mod = importlib.util.module_from_spec(spec_pub)
+        spec_pub.loader.exec_module(publish_mod)
+
+        notes = publish_mod.extract_notes("2.6.2", ROOT / "CHANGELOG.md")
+        self.assertIn("Bug Fixes", notes)
+
+        # Dry run with skip-ci and allow-dirty returns verified assets without publishing
+        res = publish_mod.plan_or_publish(
+            root=ROOT,
+            publish=False,
+            skip_ci=True,
+            allow_dirty=True,
+        )
+        self.assertFalse(res["published"])
+        version = (ROOT / "VERSION").read_text().strip()
+        self.assertEqual(res["version"], version)
+        self.assertIn(f"ticketmailer-{version}.tar.gz", res["assets"])
+        self.assertIn("ticketmailer.xml", res["assets"])
+        self.assertIn("SHA256SUMS", res["assets"])
+
+    def test_no_github_actions_workflows_exist(self):
+        self.assertFalse((ROOT / ".github/workflows").exists())
 
 
 class ReleaseTest(unittest.TestCase):
@@ -120,18 +145,77 @@ class ReleaseTest(unittest.TestCase):
         self.assertEqual(version.findtext("compatibility/min"), "11.0.0")
         self.assertEqual(version.findtext("compatibility/max"), "12.0.99")
 
-    def test_workflows_pin_actions_and_do_not_publish_on_pr(self):
-        import re
-        for path in (ROOT / ".github/workflows").glob("*.yml"):
-            if path.name not in {"ci.yml", "release.yml"}:
-                continue
-            for value in re.findall(r"uses: ([^\s]+)", path.read_text()):
-                if not value.startswith("./"):
-                    self.assertRegex(value, r"@[0-9a-f]{40}$")
-        workflow = (ROOT / ".github/workflows/release.yml").read_text()
-        self.assertNotIn("pull_request_target", workflow)
-        self.assertIn("release_created", workflow)
-        self.assertIn("--draft=false", workflow)
+    def test_publish_rechecks_candidate_after_ci_and_before_network(self):
+        spec_pub = importlib.util.spec_from_file_location('publisher_drift', ROOT / 'scripts/release/publish.py')
+        publisher = importlib.util.module_from_spec(spec_pub)
+        spec_pub.loader.exec_module(publisher)
+        subprocess.run(['git', 'init', '-q'], cwd=self.root, check=True)
+        subprocess.run(['git', 'config', 'user.name', 'Test'], cwd=self.root, check=True)
+        subprocess.run(['git', 'config', 'user.email', 'test@example.com'], cwd=self.root, check=True)
+        subprocess.run(['git', 'add', '.'], cwd=self.root, check=True)
+        subprocess.run(['git', 'commit', '-qm', 'initial'], cwd=self.root, check=True)
+        original_run = subprocess.run
+        original_notes = publisher.extract_notes
+
+        def no_network(cmd, *args, **kwargs):
+            if cmd[0] == 'gh':
+                self.fail('Publication reached GitHub with changed candidate')
+            return original_run(cmd, *args, **kwargs)
+
+        for stage in ('after_ci', 'before_create'):
+            for mutation in ('untracked', 'tracked', 'head'):
+                with self.subTest(stage=stage, mutation=mutation):
+                    def change():
+                        if mutation == 'untracked':
+                            (self.root / 'new.py').write_text('unverified')
+                        elif mutation == 'tracked':
+                            with (self.root / 'hook.php').open('a') as handle:
+                                handle.write('\n// unverified change\n')
+                        else:
+                            original_run(['git', 'commit', '--allow-empty', '-qm', 'concurrent'],
+                                         cwd=self.root, check=True)
+
+                    def ci(*args):
+                        if stage == 'after_ci': change()
+
+                    def notes(*args):
+                        result = original_notes(*args)
+                        if stage == 'before_create': change()
+                        return result
+
+                    with patch.object(publisher, 'check_gh_auth', return_value=(True, 'test')):
+                        with patch.object(publisher, 'run_local_ci', side_effect=ci):
+                            with patch.object(publisher, 'extract_notes', side_effect=notes):
+                                with patch.object(publisher.subprocess, 'run', side_effect=no_network):
+                                    with self.assertRaisesRegex(ValueError, 'candidate changed'):
+                                        publisher.plan_or_publish(self.root, self.out, publish=True)
+                    if (self.root / 'new.py').exists(): (self.root / 'new.py').unlink()
+                    original_run(['git', 'restore', 'hook.php'], cwd=self.root, check=True)
+
+    def test_publish_rejects_dirty_working_tree_and_skip_ci(self):
+        spec_pub = importlib.util.spec_from_file_location("publish", ROOT / "scripts/release/publish.py")
+        if spec_pub is None or spec_pub.loader is None:
+            self.fail("Could not load publish.py")
+        publish_mod = importlib.util.module_from_spec(spec_pub)
+        spec_pub.loader.exec_module(publish_mod)
+
+        subprocess.run(["git", "init", "-q"], cwd=self.root, check=True)
+        subprocess.run(["git", "config", "user.name", "Test"], cwd=self.root, check=True)
+        subprocess.run(["git", "config", "user.email", "test@example.com"], cwd=self.root, check=True)
+        subprocess.run(["git", "add", "."], cwd=self.root, check=True)
+        subprocess.run(["git", "commit", "-qm", "initial"], cwd=self.root, check=True)
+
+        is_clean, _ = publish_mod.check_git_status(self.root)
+        self.assertTrue(is_clean)
+        (self.root / "untracked.txt").write_text("untracked")
+        is_clean_dirty, _ = publish_mod.check_git_status(self.root)
+        self.assertFalse(is_clean_dirty)
+        with self.assertRaises(ValueError):
+            publish_mod.plan_or_publish(self.root, publish=True, skip_ci=True, allow_dirty=True)
+
+        (self.root / "untracked.txt").unlink()
+        with self.assertRaises(ValueError):
+            publish_mod.plan_or_publish(self.root, publish=True, skip_ci=True)
 
 
 if __name__ == "__main__":

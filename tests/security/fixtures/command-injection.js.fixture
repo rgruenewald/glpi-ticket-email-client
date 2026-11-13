@@ -1,0 +1,7 @@
+// Synthetic negative fixture, never execute. Licensed under the repository GPL.
+const express = require('express');
+const cp = require('child_process');
+const app = express();
+app.get('/run', (req, res) => {
+  cp.exec(req.query.command, (error, output) => res.send(output));
+});

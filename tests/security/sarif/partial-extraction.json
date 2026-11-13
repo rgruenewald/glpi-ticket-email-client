@@ -1,0 +1,63 @@
+{
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CodeQL",
+          "rules": [
+            {
+              "id": "js/example",
+              "properties": {
+                "security-severity": "8.0",
+                "tags": [
+                  "security"
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "invocations": [
+        {
+          "executionSuccessful": true,
+          "toolExecutionNotifications": [
+            {
+              "descriptor": {
+                "id": "js/baseline/expected-extracted-files"
+              },
+              "level": "none",
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
+                      "uri": "app.js",
+                      "uriBaseId": "%SRCROOT%"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "descriptor": {
+                "id": "js/diagnostics/successfully-extracted-files"
+              },
+              "level": "none",
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
+                      "uri": "other.js",
+                      "uriBaseId": "%SRCROOT%"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "results": []
+    }
+  ]
+}

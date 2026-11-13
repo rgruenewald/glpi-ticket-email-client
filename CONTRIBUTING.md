@@ -35,18 +35,22 @@ packaged GLPI stack. Failures or missing prerequisites block the push. Deleting
 a remote ref needs no tests. No success cache or automatic skipping is used.
 
 Prerequisites: Docker (rootless context by default), PHP with project test
-extensions, Python 3, npm and Playwright Chromium system libraries. Composer
+extensions, Python 3.11+, npm, Playwright Chromium system libraries and the pinned
+local CodeQL bundle (`python3 scripts/security/install-codeql.py`). Composer
 falls back to a container when unavailable locally. Set
 `TICKETMAILER_DOCKER_CONTEXT` to select another Docker context. Allow several
 minutes plus image downloads on the first run. The isolated test stack uses
 dynamically selected loopback ports (stable across service restarts) and removes its own containers/data on exit.
 Never use production data or an external SMTP server.
 
-Git hooks are a developer guardrail, not a security boundary: they can be
-bypassed or absent on a fresh clone. GitHub retains independent PR/security and
-release gates. CI runs once per PR revision, and once on main through the
-release workflow rather than twice. Performance checks share the package job
-instead of a separate workflow. The PHP 8.2–8.5 matrix remains intentional.
+Git hooks and local CI are developer guardrails: `make ci` or `./scripts/ci all`
+executes the full gate matrix locally (PHP 8.2–8.5 lint and PHPUnit, security audits,
+contracts, UI performance, and disposable packaged integration). Local CI runs
+completely independent of external CI services. Both all and quick include
+fail-closed local CodeQL JS/TS and Python analysis; quick omits packaged
+integration and cannot authorize publication. See
+[local security gates](docs/verification/local-security.md) for installation,
+severity policy, dependency-audit coverage differences and local-enforcement limits.
 
 ## Quality bar
 
@@ -81,9 +85,13 @@ Use a focused branch and describe the problem, behavior change, verification per
 
 ## Releases
 
-Use Conventional Commit PR titles and squash merges. Release Please maintains a
-reviewable release PR; merging it explicitly authorizes that version. See
-[Release management](docs/RELEASING.md) for required gates and GitHub setup.
+Releases are published to GitHub via the local release tool `python3 scripts/release/publish.py`.
+Releases require passing all local CI gates (`make ci`), version alignment, and deterministic
+build verification. The publisher defaults to all and rejects `--publish --ci-mode quick`
+and `--publish --skip-ci`; release approval is an explicitly authorized local
+`--publish` invocation, not a GitHub Actions workflow. Dry-run mode (`--dry-run`, default) verifies assets offline without publishing;
+explicit `--publish` publishes release assets and notes to GitHub. See
+[Release management](docs/RELEASING.md) for details.
 
 ## Change pull requests
 

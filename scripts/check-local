@@ -1,39 +1,8 @@
 #!/usr/bin/env bash
-# Fail closed: the same offline gates as CI, plus real browser performance and
-# disposable packaged GLPI integration. No cached success or silent skipping.
+# scripts/check-local — Run local CI gates before push.
+# Invoked by .githooks/pre-push. Fail closed on any gate.
 set -euo pipefail
 cd "$(dirname "$0")/.."
-context=${TICKETMAILER_DOCKER_CONTEXT:-rootless}
-composer_cmd() {
-  if command -v composer >/dev/null; then composer "$@";
-  else docker --context "$context" run --rm -v "$PWD:/app" -w /app composer:2 "$@"; fi
-}
-echo 'Local push gates: dependencies, PHP, contracts, UI, performance, packaged GLPI E2E'
-composer_cmd validate --strict
-composer_cmd install --no-interaction --prefer-dist
-npm ci --ignore-scripts
-npx playwright install chromium
-find inc front ajax tests -name '*.php' -print0 | xargs -0 -n1 php -l
-php -l setup.php
-php -l hook.php
-vendor/bin/phpunit --fail-on-warning
-python3 scripts/verify/wiki_links.py
-python3 -m unittest discover -s tests/release -v
-python3 scripts/release/release.py build
-python3 scripts/release/release.py verify
-ROOT=. bash scripts/verify/score.sh
-node --test tests/*.test.js
-npm run test:ui
-npm run test:performance
-# Use private disposable containers, never the developer's running database.
-# Keep ports stable across Mailpit stop/start in the SMTP-outage scenario.
-read -r http_port mail_port < <(python3 - <<'PY'
-import socket
-sockets = [socket.socket(), socket.socket()]
-for sock in sockets:
-    sock.bind(("127.0.0.1", 0))
-print(*(sock.getsockname()[1] for sock in sockets))
-PY
-)
-RELEASE_DOCKER_CONTEXT="$context" RELEASE_HTTP_PORT="$http_port" RELEASE_MAIL_PORT="$mail_port" RELEASE_E2E_ALL=1 bash scripts/release/integration.sh
-echo 'PASS: all local push gates'
+
+echo "Running full local CI pipeline via scripts/ci all..."
+exec ./scripts/ci all "$@"
