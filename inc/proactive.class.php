@@ -69,7 +69,7 @@ class PluginTicketmailerProactive
         }
         return [
             'title' => __('New email', 'ticketmailer'),
-            'page' => Plugin::getWebDir('ticketmailer', false) . '/front/new.php',
+            'page' => PluginTicketmailerConfig::getWebDir(false) . '/front/new.php',
             'icon' => 'ti ti-mail-plus',
         ];
     }

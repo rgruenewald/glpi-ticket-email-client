@@ -29,7 +29,7 @@ class PluginTicketmailerTimelineAction
         return TemplateRenderer::getInstance()->render('@ticketmailer/compose_modal.html.twig', [
             'modal_name' => $name,
             'title' => self::label(),
-            'url' => Plugin::getWebDir('ticketmailer') . '/front/compose.php?tickets_id='
+            'url' => PluginTicketmailerConfig::getWebDir() . '/front/compose.php?tickets_id='
                 . (int) $ticket->getField('id') . '&initial_mode=' . rawurlencode($mode),
         ]);
     }
@@ -199,7 +199,7 @@ class PluginTicketmailerTimelineAction
         $recipients_to = self::actorEmails($ticket, CommonITILActor::REQUESTER);
         $recipients_cc = self::actorEmails($ticket, CommonITILActor::OBSERVER);
         $tickets_id = (int) $ticket->getField('id');
-        $web = Plugin::getWebDir('ticketmailer');
+        $web = PluginTicketmailerConfig::getWebDir();
         $editor_id = 'ticketmailer-body-html-' . self::REPLY . '-' . $tickets_id . '-' . ($inline ? 'inline' : 'modal') . '-' . bin2hex(random_bytes(4));
         $content = PluginTicketmailerConfig::contentForTicket($ticket);
         $preferences = PluginTicketmailerConfig::forEntity((int) $ticket->getField('entities_id'));

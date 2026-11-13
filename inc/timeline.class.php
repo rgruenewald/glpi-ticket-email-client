@@ -167,7 +167,7 @@ class PluginTicketmailerTimeline
         $sent_at = (string) ($payload['sent_at'] ?? date('Y-m-d H:i:s'));
         $from    = (string) ($payload['from'] ?? '');
         $log_id  = (int) ($payload['log_id'] ?? 0);
-        $web     = Plugin::getWebDir('ticketmailer');
+        $web     = PluginTicketmailerConfig::getWebDir();
 
         $lines   = [];
         $lines[] = '<div class="ticketmailer-followup">';

@@ -4,11 +4,11 @@ require_once __DIR__ . '/../inc/bootstrap.php';
 Session::checkLoginUser();
 $entity = (int) ($_SESSION['glpiactive_entity'] ?? 0);
 if (!PluginTicketmailerProactive::canUse($entity)) {
-    Html::displayRightError();
+    PluginTicketmailerConfig::displayRightError();
 }
 PluginTicketmailerProactive::cleanup();
 $context = PluginTicketmailerProactive::createContext($entity, (int) Session::getLoginUserID());
-$web = Plugin::getWebDir('ticketmailer');
+$web = PluginTicketmailerConfig::getWebDir();
 $editor_id = 'ticketmailer-new-body';
 ob_start();
 Html::textarea(['name'=>'body_html', 'value'=>'', 'enable_richtext'=>true, 'editor_id'=>$editor_id, 'rows'=>14, 'display'=>true, 'enable_images'=>true, 'enable_fileupload'=>false]);

@@ -152,7 +152,10 @@ class PluginTicketmailerAudit
     public static function find(int $id): ?array
     {
         global $DB;
-        foreach ($DB->request('glpi_plugin_ticketmailer_logs', ['id' => $id]) as $r) {
+        foreach ($DB->request([
+            'FROM' => 'glpi_plugin_ticketmailer_logs',
+            'WHERE' => ['id' => $id],
+        ]) as $r) {
             return $r;
         }
         return null;
@@ -164,10 +167,11 @@ class PluginTicketmailerAudit
         global $DB;
         $rows = [];
         foreach (
-            $DB->request(
-                'glpi_plugin_ticketmailer_logs',
-                ['tickets_id' => $tickets_id, 'ORDER' => 'sent_at DESC'],
-            ) as $r
+            $DB->request([
+                'FROM' => 'glpi_plugin_ticketmailer_logs',
+                'WHERE' => ['tickets_id' => $tickets_id],
+                'ORDER' => 'sent_at DESC',
+            ]) as $r
         ) {
             $rows[] = $r;
         }

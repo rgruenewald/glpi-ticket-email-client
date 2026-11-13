@@ -43,12 +43,14 @@ class Document_Item {
     }
 }
 class TestDatabase {
-    public function request(string $table, array $where): array {
+    public function request($criteria, array $where = []): array {
+        $table = is_array($criteria) ? ($criteria['FROM'] ?? '') : $criteria;
         if ($table === 'glpi_itilfollowups') return [];
         return [['items_id'=>42, 'documents_id'=>5]];
     }
 }
 $DB = new TestDatabase();
+require __DIR__ . '/../../inc/config.class.php';
 require __DIR__ . '/../../inc/hook.class.php';
 require __DIR__ . '/../../inc/history.class.php';
 require __DIR__ . '/../../inc/timeline.class.php';

@@ -10,17 +10,17 @@ Session::checkLoginUser();
 $tickets_id = (int) ($_GET['tickets_id'] ?? 0);
 $documents_id = (int) ($_GET['documents_id'] ?? 0);
 if ($tickets_id <= 0 || $documents_id <= 0) {
-    Html::displayNotFoundError();
+    PluginTicketmailerConfig::displayNotFoundError();
 }
 
 $ticket = new Ticket();
 if (!$ticket->getFromDB($tickets_id) || (!Session::haveAccessToEntity((int) $ticket->getField('entities_id')) || !$ticket->canViewItem())) {
-    Html::displayRightError();
+    PluginTicketmailerConfig::displayRightError();
 }
 
 $attachment = PluginTicketmailerHistory::resolveAttachment($ticket, $documents_id);
 if ($attachment === null) {
-    Html::displayNotFoundError();
+    PluginTicketmailerConfig::displayNotFoundError();
 }
 
 // MIME metadata originates in a user-uploaded document record; accept only a

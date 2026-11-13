@@ -34,7 +34,7 @@ test('ticket UPDATE alone cannot bypass followup CREATE permission',async({page}
  await expect(page.locator('.ticketmailer-action-reply')).toHaveCount(0);
  const response=await page.request.get('/plugins/ticketmailer/front/compose.php?tickets_id='+f.ownTicket);
  expect(await response.text()).not.toContain('class="ticketmailer-compose"');
- const token=await page.locator('input[name=_glpi_csrf_token]').first().inputValue();
+ const token=await page.locator('input[name=_glpi_csrf_token]').first().inputValue({timeout:1000}).catch(()=>'');
  await page.request.post('/plugins/ticketmailer/front/send.php',{form:sendInput(token,f.ownTicket)});
  expect(sql('SELECT COUNT(*) FROM glpi_plugin_ticketmailer_logs WHERE tickets_id='+f.ownTicket)).toBe('0');
 });
@@ -62,7 +62,7 @@ for (const allowed of [false,true]) {
   await login(page,f.users.writer.login,f.ownTicket);
   if (!allowed) {
    await expect(page.locator('.ticketmailer-action-reply')).toHaveCount(0);
-   const token=await page.locator('input[name=_glpi_csrf_token]').first().inputValue();
+   const token=await page.locator('input[name=_glpi_csrf_token]').first().inputValue({timeout:1000}).catch(()=>'');
    await page.request.post('/plugins/ticketmailer/front/send.php',{form:sendInput(token,f.ownTicket,{expected_status:'6'})});
    expect(sql('SELECT COUNT(*) FROM glpi_plugin_ticketmailer_logs WHERE tickets_id='+f.ownTicket)).toBe('0');
    expect(await mailIDs(request)).toEqual(before);

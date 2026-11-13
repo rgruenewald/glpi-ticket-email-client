@@ -7,7 +7,7 @@
  */
 class PluginTicketmailerLogTab extends CommonGLPI
 {
-    public static $rightname = 'ticket';
+    public static string $rightname = 'ticket';
 
     public static function getTypeName($nb = 0): string
     {

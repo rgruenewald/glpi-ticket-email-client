@@ -35,12 +35,12 @@ function addDocument(int $item, string $type, string $marker): int {
     global $DB;
     $relative = '_tmp/e2e-' . bin2hex(random_bytes(12)) . '.txt';
     file_put_contents(GLPI_DOC_DIR . '/' . $relative, $marker);
-    $DB->insertOrDie('glpi_documents', [
+    $DB->insert('glpi_documents', [
         'name' => $marker, 'filename' => $marker . '.txt', 'filepath' => $relative,
         'mime' => 'text/plain', 'entities_id' => 0,
     ]);
     $id = (int) $DB->insertId();
-    $DB->insertOrDie('glpi_documents_items', ['documents_id' => $id, 'itemtype' => $type, 'items_id' => $item]);
+    $DB->insert('glpi_documents_items', ['documents_id' => $id, 'itemtype' => $type, 'items_id' => $item]);
     return $id;
 }
 if (($argv[1] ?? '') === 'policy') {
@@ -69,7 +69,7 @@ if ($scenario === 'recipients') {
             throw new RuntimeException('Could not create recipient fixture');
         }
         (new Profile_User())->add(['users_id' => $user, 'profiles_id' => 4, 'entities_id' => 0, 'is_recursive' => 1]);
-        $DB->insertOrDie('glpi_useremails', ['users_id' => $user, 'email' => $email, 'is_default' => 1]);
+        $DB->insert('glpi_useremails', ['users_id' => $user, 'email' => $email, 'is_default' => 1]);
         $result['recipients'][] = ['query' => $login, 'label' => $kind === 'named' ? 'Ada Lovelace' : $login, 'email' => $email];
     }
 }
@@ -105,7 +105,7 @@ if (in_array($scenario, ['acl', 'status-required'], true)) {
         }
         // Central UI needs basic ticket-read rights; only writer gets followup creation.
         foreach (['ticket' => Ticket::READALL | READ, 'followup' => $role === 'writer' ? ITILFollowup::ADDALLITEM : 0] as $name => $rights) {
-            $DB->updateOrDie('glpi_profilerights', ['rights' => $rights], ['profiles_id' => $profile, 'name' => $name]);
+            $DB->update('glpi_profilerights', ['rights' => $rights], ['profiles_id' => $profile, 'name' => $name]);
         }
         $login = 'e2e-' . $role . '-' . $suffix;
         $user = (new User())->add(['name' => $login, 'password' => 'E2E-local-only-123!', 'password2' => 'E2E-local-only-123!', 'is_active' => 1]);
@@ -113,24 +113,24 @@ if (in_array($scenario, ['acl', 'status-required'], true)) {
             throw new RuntimeException('Could not create user');
         }
         // User::add may assign a default profile; replace only this new fixture user's grants.
-        $DB->deleteOrDie('glpi_profiles_users', ['users_id' => $user]);
+        $DB->delete('glpi_profiles_users', ['users_id' => $user]);
         (new Profile_User())->add(['users_id' => $user, 'profiles_id' => $profile, 'entities_id' => $entity, 'is_recursive' => 1, 'is_default_profile' => 1]);
         $result['users'][$role] = ['login' => $login, 'profile' => (int) $profile];
     }
-    $DB->insertOrDie('glpi_plugin_ticketmailer_reply_policies', ['entities_id' => $entity, 'profiles_id' => null, 'mode' => 'available']);
+    $DB->insert('glpi_plugin_ticketmailer_reply_policies', ['entities_id' => $entity, 'profiles_id' => null, 'mode' => 'available']);
     if ($scenario === 'status-required') {
         $template = (new TicketTemplate())->add(['name'=>'E2E required location '.$suffix, 'entities_id'=>$entity]);
         $field = (new Ticket())->getSearchOptionIDByField('field', 'completename', 'glpi_locations');
         if (!$template || !$field) throw new RuntimeException('Missing required-field fixture');
         $result['location'] = (new Location())->add(['name'=>'E2E location '.$suffix, 'entities_id'=>$entity]);
         if (!$result['location']) throw new RuntimeException('Missing location fixture');
-        $DB->insertOrDie('glpi_tickettemplatemandatoryfields', ['tickettemplates_id'=>$template, 'num'=>$field]);
-        $DB->updateOrDie('glpi_profiles', ['tickettemplates_id'=>$template], ['id'=>$result['users']['writer']['profile']]);
+        $DB->insert('glpi_tickettemplatemandatoryfields', ['tickettemplates_id'=>$template, 'num'=>$field]);
+        $DB->update('glpi_profiles', ['tickettemplates_id'=>$template], ['id'=>$result['users']['writer']['profile']]);
     }
 }
 if ($scenario === 'mailbox') {
     $address = 'collector-' . bin2hex(random_bytes(8)) . '@example.test';
-    $DB->insertOrDie('glpi_mailcollectors', ['name' => 'E2E collector', 'login' => $address, 'is_active' => 1]);
+    $DB->insert('glpi_mailcollectors', ['name' => 'E2E collector', 'login' => $address, 'is_active' => 1]);
     $result['mailbox'] = $address;
     $result['collector'] = (int) $DB->insertId();
 }

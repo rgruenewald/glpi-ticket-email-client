@@ -71,6 +71,11 @@ if [ ! -s /var/www/html/config/glpicrypt.key ]; then
   fi
 fi
 
+# Migrate database schema if an existing database is attached.
+if [ "${glpi_schema_exists}" != "0" ]; then
+  php /var/www/html/bin/console db:update --allow-superuser --no-interaction || true
+fi
+
 # Configure GLPI core SMTP from the container environment on every boot.
 # Leave GLPI's existing mail configuration untouched when no host is supplied.
 if [ -n "${GLPI_SMTP_HOST:-}" ]; then

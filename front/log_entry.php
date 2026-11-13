@@ -12,12 +12,12 @@ Session::checkLoginUser();
 $id = (int) ($_REQUEST['log_id'] ?? $_GET['id'] ?? 0);
 $entry = $id > 0 ? PluginTicketmailerAudit::find($id) : null;
 if ($entry === null) {
-    Html::displayNotFoundError();
+    PluginTicketmailerConfig::displayNotFoundError();
 }
 
 $ticket = new Ticket();
 if (!$ticket->getFromDB((int) $entry['tickets_id']) || (!Session::haveAccessToEntity((int) $ticket->getField('entities_id')) || !$ticket->canViewItem())) {
-    Html::displayRightError();
+    PluginTicketmailerConfig::displayRightError();
 }
 
 $recipients_to  = PluginTicketmailerAudit::decodeJson((string) $entry['recipients_to']);
@@ -36,7 +36,7 @@ if (!($ticketmailer_embedded ?? false)) {
     );
 }
 
-$web = Plugin::getWebDir('ticketmailer');
+$web = PluginTicketmailerConfig::getWebDir();
 $twig = TemplateRenderer::getInstance();
 echo $twig->render('@ticketmailer/log_entry.html.twig', [
     'entry'            => $entry,

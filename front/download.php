@@ -11,17 +11,17 @@ $log_id        = (int) ($_GET['log_id'] ?? 0);
 $attachment_id = (string) ($_GET['attachment_id'] ?? '');
 
 if ($log_id <= 0 || $attachment_id === '') {
-    Html::displayNotFoundError();
+    PluginTicketmailerConfig::displayNotFoundError();
 }
 
 $entry = PluginTicketmailerAudit::find($log_id);
 if ($entry === null) {
-    Html::displayNotFoundError();
+    PluginTicketmailerConfig::displayNotFoundError();
 }
 
 $ticket = new Ticket();
 if (!$ticket->getFromDB((int) $entry['tickets_id']) || (!Session::haveAccessToEntity((int) $ticket->getField('entities_id')) || !$ticket->canViewItem())) {
-    Html::displayRightError();
+    PluginTicketmailerConfig::displayRightError();
 }
 
 $attachments = PluginTicketmailerAudit::decodeJson((string) ($entry['attachments'] ?? ''));
@@ -36,7 +36,7 @@ foreach ($attachments as $a) {
     }
 }
 if ($found === null) {
-    Html::displayNotFoundError();
+    PluginTicketmailerConfig::displayNotFoundError();
 }
 
 $files_root = GLPI_PLUGIN_DOC_DIR . '/ticketmailer/' . (int) $entry['tickets_id'];
@@ -49,10 +49,10 @@ if ($real === null || !is_file($real)) {
         if ($real === null || $root_real === ''
             || (!str_starts_with($real, $root_real . DIRECTORY_SEPARATOR) && $real !== $root_real)
         ) {
-            Html::displayNotFoundError();
+            PluginTicketmailerConfig::displayNotFoundError();
         }
     } else {
-        Html::displayNotFoundError();
+        PluginTicketmailerConfig::displayNotFoundError();
     }
 }
 
