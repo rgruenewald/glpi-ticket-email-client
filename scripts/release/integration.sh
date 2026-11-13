@@ -4,7 +4,14 @@ set -euo pipefail
 cd "$(dirname "$0")/../.."
 python3 scripts/release/release.py verify
 version=$(tr -d '\n' < VERSION)
-context=${RELEASE_DOCKER_CONTEXT:-${TICKETMAILER_DOCKER_CONTEXT:-rootless}}
+context=${RELEASE_DOCKER_CONTEXT:-${TICKETMAILER_DOCKER_CONTEXT:-}}
+if [ -z "$context" ]; then
+  if docker context inspect rootless >/dev/null 2>&1; then
+    context=rootless
+  else
+    context=default
+  fi
+fi
 export COMPOSE_FILE="$PWD/scripts/release/compose.yml"
 export COMPOSE_PROJECT_NAME="ticketmailer-release-${GITHUB_RUN_ID:-$$}"
 export TICKETMAILER_DOCKER_CONTEXT="$context"
