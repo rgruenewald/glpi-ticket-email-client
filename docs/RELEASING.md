@@ -7,7 +7,9 @@ Commit titles: fix for patches, feat for minor versions, and a breaking-change
 footer or ! for major versions. Review the release PR's changelog, compatibility,
 migration notes and required checks before merging. No automatic merge.
 
-Release Please maintains VERSION, setup.php, CHANGELOG.md and its manifest together.
+Keep VERSION, setup.php, CHANGELOG.md and the version manifest aligned. The
+retained Release Please configuration is metadata/history, not an Actions
+dependency of the local release publisher.
 The initial development baseline is 2.3.1 at commit
 3c940f2db6c710dd556a6871eb08439366634187. There were no remote tags or releases
 when this process was introduced. The baseline is not a historical published
@@ -19,41 +21,39 @@ tests cover GLPI 11.0.8 / PHP 8.5; unit CI covers PHP 8.2–8.5. This does not p
 all future GLPI 11 releases or GLPI 10 compatible. Review the advertised range
 before marketplace submission; changing compatibility is a separate product decision.
 
-## One-time GitHub setup
+## Local CI and repository protection
 
-1. Install a dedicated GitHub App on this repository only, with Contents,
-   Pull requests and Issues read/write. No administration, workflows or branch
-   bypass permission. Set repository variable RELEASE_APP_CLIENT_ID to the App client
-   ID (the `Iv...` identifier, not its numeric App ID) and Actions secret
-   RELEASE_APP_PRIVATE_KEY. Enter the key in GitHub's secret UI or secure stdin,
-   never chat, command-line arguments, source files or logs.
-2. The App token makes release PRs trigger normal CI. PRs created with the standard
-   GITHUB_TOKEN do not normally trigger other workflows. Do not silently substitute
-   a PAT or bypass checks. Missing App configuration fails the release job closed.
-3. Protect main with a branch ruleset requiring PRs and the exact status check
-   Required checks, blocking force pushes and deletion. Use zero required human
-   approvals for a solo maintainer. Require an up-to-date branch. Configure squash
-   merging with PR title as the commit title; disable merge and rebase merges only
-   after checking existing branch workflows. Do not remove unrelated protection.
-4. Protect version tags against update and deletion, allowing the release App to
-   create tags. Do not prohibit the App's initial tag creation.
-5. Existing PR review protection is already enabled. Make new checks required only
-   after the workflow has run successfully, to avoid an unmergeable bootstrap PR.
+Dependency audits, CodeQL source-security analysis, builds and tests run locally,
+not in GitHub Actions. See [local security gates](verification/local-security.md)
+for the pinned installation, default query suites, high/critical threshold,
+coverage limitations and failure tests. No release-only Actions workflow is
+introduced: actual release approval is the explicit local publish command.
 
-Repository administration and App creation are not performed by local scripts.
-No release or marketplace submission is authorized merely by running local checks.
+Preserve PR requirements and unrelated protections. Changing former Actions-backed
+Dependency Review/CodeQL requirements is a separate, explicitly authorized
+repository-administration operation after the replacement gates and exact commit
+have passed. The local scripts never change rulesets or upload analysis artifacts.
+Local hooks are bypassable; removing hosted checks means GitHub can no longer
+enforce their successful local equivalents.
+
+Repository administration is not performed by release scripts. No release or
+marketplace submission is authorized merely by running local checks.
 
 ## Daily process
 
 - Run local CI before committing or pushing: `make ci` or `./scripts/ci all` (runs PHP
-  matrix 8.2–8.5, dependency audits, score.sh, UI performance, and disposable GLPI integration).
+  matrix 8.2–8.5, dependency audits, local CodeQL, score.sh, UI performance, and disposable GLPI integration).
 - `scripts/check-local` is wired into `.githooks/pre-push` to prevent pushing unverified commits.
 - Prepare version bump in `VERSION`, `setup.php`, `CHANGELOG.md`, and `.release-please-manifest.json`.
 - Review practical changes, upgrade notes, migration behavior, and known limitations.
 - Build and verify release assets locally with dry-run protection:
   `python3 scripts/release/publish.py --dry-run`
 - When verified and authorized, publish to GitHub:
-  `python3 scripts/release/publish.py --publish`
+  `python3 scripts/release/publish.py --publish --ci-mode all`
+- Publisher dry-run and publication default to all local gates. Explicit
+  `--dry-run --ci-mode quick` omits packaged integration, not security analysis.
+  Publication refuses both `--ci-mode quick` and `--skip-ci`; neither a
+  dry-run nor a successful PR grants release authorization.
 - Only after every gate succeeds are assets uploaded and the release published.
   Do not publish manually around failed gates.
 
@@ -96,12 +96,12 @@ Build time defaults to the commit timestamp. Set SOURCE_DATE_EPOCH explicitly to
 reproduce a historical build. Sorted paths, fixed ownership/mode and timestamp,
 USTAR and a timestamped gzip stream make repeat builds byte-identical on the same
 Python/zlib toolchain and inputs. Cross-version compression identity is not promised.
-CI pins Python's minor version, not the full operating-system/compression stack.
+Local CI uses the installed Python version, not a pinned operating-system/compression stack.
 Checksums provide integrity, not a cryptographic identity signature.
 
     RELEASE_DOCKER_CONTEXT=rootless bash scripts/release/integration.sh
 
-On GitHub runners the Docker context defaults to default. This creates its own
+The standalone integration command creates its own
 randomly named disposable Compose project, database and loopback ports 18080 and
 18025. It never reuses scripts/dev volumes. Ports can be changed with
 RELEASE_HTTP_PORT / RELEASE_MAIL_PORT. It removes only its own containers and data
@@ -118,14 +118,27 @@ fixture proves preservation of every historical database layout or index.
 
 ## Failures and recovery
 
-No gate may be bypassed. A failure after draft creation leaves a draft and tag,
-not a published catalog entry. Do not move the tag, replace published assets, or
-assume rerunning Release Please will re-emit release_created for an existing draft.
-Diagnose using the workflow log and reproduce the exact tag locally. If the release
-commit is defective, prepare a corrected patch release. If only CI infrastructure
-failed, a separately authorized recovery must re-check the exact tag, run all gates,
-upload only the three expected assets without --clobber and publish the existing
-draft. Recovery automation is intentionally not included in the normal workflow.
+No gate may be bypassed. The local publisher runs every gate and builds/verifies
+assets before invoking `gh release create`. It does not create a preliminary
+release or maintain a separate approval state. HEAD and checkout cleanliness are
+checked again after local CI and immediately before the create command. Do not
+edit the checkout concurrently: without a global lock, a small final race remains.
+
+A failure before the create command makes no release changes on GitHub. Diagnose
+the local command output and private CI artifacts, correct the cause, and rerun
+all gates on the exact clean committed candidate before a separately authorized
+`--publish` invocation.
+
+A failure or timeout during `gh release create` has an uncertain remote outcome:
+the tag, release or some assets may already exist. Inspect the exact remote tag,
+release state and three expected assets read-only before doing anything else.
+Do not blindly repeat create, move/delete tags, overwrite assets with `--clobber`
+or assume the operation rolled back. The publisher has no automatic recovery or
+resume mode. Any completion of a partial remote operation needs separate approval,
+verification of the exact candidate/tag and checksums, and all local gates. If
+public code or assets are defective, prepare a corrected patch release instead of
+replacing published artifacts. Catalog refresh/notification is a separate local
+operation and must not advertise an incomplete release.
 
 ## GLPI directory / Marketplace
 

@@ -9,6 +9,7 @@ import subprocess
 import tarfile
 import tempfile
 import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[2]
 spec = importlib.util.spec_from_file_location("release", ROOT / "scripts/release/release.py")
@@ -143,6 +144,53 @@ class ReleaseTest(unittest.TestCase):
         self.assertTrue(version.findtext("download_url").endswith("/v" + release.check(ROOT)["version"] + "/ticketmailer-" + release.check(ROOT)["version"] + ".tar.gz"))
         self.assertEqual(version.findtext("compatibility/min"), "11.0.0")
         self.assertEqual(version.findtext("compatibility/max"), "12.0.99")
+
+    def test_publish_rechecks_candidate_after_ci_and_before_network(self):
+        spec_pub = importlib.util.spec_from_file_location('publisher_drift', ROOT / 'scripts/release/publish.py')
+        publisher = importlib.util.module_from_spec(spec_pub)
+        spec_pub.loader.exec_module(publisher)
+        subprocess.run(['git', 'init', '-q'], cwd=self.root, check=True)
+        subprocess.run(['git', 'config', 'user.name', 'Test'], cwd=self.root, check=True)
+        subprocess.run(['git', 'config', 'user.email', 'test@example.com'], cwd=self.root, check=True)
+        subprocess.run(['git', 'add', '.'], cwd=self.root, check=True)
+        subprocess.run(['git', 'commit', '-qm', 'initial'], cwd=self.root, check=True)
+        original_run = subprocess.run
+        original_notes = publisher.extract_notes
+
+        def no_network(cmd, *args, **kwargs):
+            if cmd[0] == 'gh':
+                self.fail('Publication reached GitHub with changed candidate')
+            return original_run(cmd, *args, **kwargs)
+
+        for stage in ('after_ci', 'before_create'):
+            for mutation in ('untracked', 'tracked', 'head'):
+                with self.subTest(stage=stage, mutation=mutation):
+                    def change():
+                        if mutation == 'untracked':
+                            (self.root / 'new.py').write_text('unverified')
+                        elif mutation == 'tracked':
+                            with (self.root / 'hook.php').open('a') as handle:
+                                handle.write('\n// unverified change\n')
+                        else:
+                            original_run(['git', 'commit', '--allow-empty', '-qm', 'concurrent'],
+                                         cwd=self.root, check=True)
+
+                    def ci(*args):
+                        if stage == 'after_ci': change()
+
+                    def notes(*args):
+                        result = original_notes(*args)
+                        if stage == 'before_create': change()
+                        return result
+
+                    with patch.object(publisher, 'check_gh_auth', return_value=(True, 'test')):
+                        with patch.object(publisher, 'run_local_ci', side_effect=ci):
+                            with patch.object(publisher, 'extract_notes', side_effect=notes):
+                                with patch.object(publisher.subprocess, 'run', side_effect=no_network):
+                                    with self.assertRaisesRegex(ValueError, 'candidate changed'):
+                                        publisher.plan_or_publish(self.root, self.out, publish=True)
+                    if (self.root / 'new.py').exists(): (self.root / 'new.py').unlink()
+                    original_run(['git', 'restore', 'hook.php'], cwd=self.root, check=True)
 
     def test_publish_rejects_dirty_working_tree_and_skip_ci(self):
         spec_pub = importlib.util.spec_from_file_location("publish", ROOT / "scripts/release/publish.py")

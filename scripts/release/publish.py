@@ -57,7 +57,21 @@ def check_git_status(root: Path = ROOT) -> tuple[bool, str]:
         if untracked.stdout.strip():
             details.append(f"untracked files: {len(untracked.stdout.strip().splitlines())}")
         return False, "; ".join(details)
+    if untracked.returncode != 0:
+        return False, "unable to enumerate untracked files"
     return True, "clean"
+
+
+def git_head(root: Path) -> str:
+    return subprocess.check_output(
+        ["git", "rev-parse", "--verify", "HEAD"], cwd=root, text=True
+    ).strip()
+
+
+def verify_release_candidate(root: Path, expected_head: str) -> None:
+    clean, detail = check_git_status(root)
+    if not clean or git_head(root) != expected_head:
+        raise ValueError(f"Release candidate changed during verification ({detail}); refusing publication.")
 
 
 def check_gh_auth() -> tuple[bool, str]:
@@ -79,7 +93,7 @@ def shutil_which(cmd: str) -> bool:
     return shutil.which(cmd) is not None
 
 
-def run_local_ci(mode: str = "quick", root: Path = ROOT) -> None:
+def run_local_ci(mode: str = "all", root: Path = ROOT) -> None:
     """Run local CI gate before release."""
     ci_script = root / "scripts/ci"
     if not ci_script.is_file():
@@ -95,16 +109,19 @@ def plan_or_publish(
     out: Path = ROOT / "dist",
     publish: bool = False,
     skip_ci: bool = False,
-    ci_mode: str = "quick",
+    ci_mode: str = "all",
     allow_dirty: bool = False,
     tag: str | None = None,
 ) -> dict:
+    if publish and ci_mode != "all":
+        raise ValueError("Publication requires --ci-mode all; quick omits packaged integration.")
     meta = release.check(root, tag)
     version = meta["version"]
     release_tag = tag or f"v{version}"
 
     # 1. Check Git status. A real publication must always come from a
     # clean, committed checkout; --allow-dirty is only for dry-run tests.
+    candidate_head = git_head(root) if publish else None
     is_clean, git_msg = check_git_status(root)
     if not is_clean and (publish or not allow_dirty):
         raise ValueError(f"Git working tree is not clean ({git_msg}). Refusing release.")
@@ -119,6 +136,8 @@ def plan_or_publish(
     # 3. Local CI verification
     if not skip_ci:
         run_local_ci(ci_mode, root)
+    if publish:
+        verify_release_candidate(root, candidate_head)
 
     # 4. Build and verify release assets
     epoch_val = os.environ.get("SOURCE_DATE_EPOCH")
@@ -196,6 +215,7 @@ def plan_or_publish(
             "--notes-file",
             str(notes_file),
         ]
+        verify_release_candidate(root, candidate_head)
         subprocess.run(cmd, cwd=root, check=True)
         result["published"] = True
         print(f"Successfully published release {release_tag} to GitHub!")
@@ -227,8 +247,8 @@ def main():
     parser.add_argument(
         "--ci-mode",
         choices=["quick", "all"],
-        default="quick",
-        help="Local CI mode to execute (default: quick)",
+        default="all",
+        help="Local CI mode (default: all; quick is permitted only for dry-run)",
     )
     parser.add_argument(
         "--allow-dirty",

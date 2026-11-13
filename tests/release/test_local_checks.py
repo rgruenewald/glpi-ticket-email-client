@@ -80,6 +80,8 @@ class PushHookTest(unittest.TestCase):
         ci = ci_path.read_text()
         for ver in ('"8.2"', '"8.3"', '"8.4"', '"8.5"'):
             self.assertIn(ver, ci)
+        self.assertIn('composer_cmd audit', ci)
+        self.assertIn('npm audit --audit-level=moderate', ci)
         self.assertIn('npm run test:performance', ci)
         self.assertIn('scripts/verify/score.sh', ci)
         self.assertIn('scripts/release/integration.sh', ci)

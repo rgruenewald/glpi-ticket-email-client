@@ -1,0 +1,7 @@
+# Synthetic negative fixture, never execute. Licensed under the repository GPL.
+from flask import Flask, request
+import subprocess
+app = Flask(__name__)
+@app.route('/run')
+def run():
+    return subprocess.check_output(request.args['command'], shell=True)

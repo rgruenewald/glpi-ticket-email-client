@@ -64,8 +64,13 @@ gate_deps() {
   composer_cmd install --no-interaction --prefer-dist
   composer_cmd audit
   npm ci --ignore-scripts
-  # Keep this gate fail-closed: a failed or unavailable audit must stop CI.
-  npm audit --audit-level=high
+  # Match the former Dependency Review threshold; fail closed on audit errors.
+  npm audit --audit-level=moderate
+}
+
+gate_security() {
+  echo "=== Gate: Local CodeQL Security Analysis ==="
+  python3 scripts/security/scan.py
 }
 
 gate_php_matrix() {
@@ -110,6 +115,7 @@ mode=${1:-all}
 case "$mode" in
   all)
     gate_deps
+    gate_security
     gate_php_matrix
     gate_package_and_contracts
     gate_integration
@@ -117,12 +123,16 @@ case "$mode" in
     ;;
   quick)
     gate_deps
+    gate_security
     gate_php_matrix
     gate_package_and_contracts
     echo "=== QUICK LOCAL CI GATES PASSED (integration skipped) ==="
     ;;
   deps)
     gate_deps
+    ;;
+  security)
+    gate_security
     ;;
   matrix)
     gate_php_matrix
@@ -134,10 +144,11 @@ case "$mode" in
     gate_integration
     ;;
   help|-h|--help)
-    echo "Usage: scripts/ci [all|quick|deps|matrix|package|integration]"
+    echo "Usage: scripts/ci [all|quick|deps|security|matrix|package|integration]"
     echo "  all         Run all gates including PHP matrix and disposable integration (default)"
     echo "  quick       Run all offline gates without packaged integration"
     echo "  deps        Validate composer, npm, and run security audits"
+    echo "  security    Run pinned local CodeQL default suites for JS/TS and Python"
     echo "  matrix      Run syntax lint and PHPUnit on PHP 8.2, 8.3, 8.4, 8.5"
     echo "  package     Run score.sh, contract tests, UI tests, and performance benchmarks"
     echo "  integration Run disposable packaged GLPI Docker E2E and migration tests"
