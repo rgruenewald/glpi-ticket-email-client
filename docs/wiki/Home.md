@@ -2,7 +2,7 @@
 
 Ticketmailer adds email replies, new outgoing conversations, and internal notes to GLPI tickets. / Ticketmailer ergänzt GLPI-Tickets um E-Mail-Antworten, neue ausgehende Konversationen und interne Notizen.
 
-**Compatibility / Kompatibilität:** GLPI 11.0.x, PHP ≥ 8.2. Reference environment / Referenzumgebung: GLPI 11.0.8.
+**Compatibility / Kompatibilität:** GLPI 12.0.x primary / Hauptplattform; GLPI 11.0.x supported / unterstützt. GLPI 10 unsupported / nicht unterstützt. PHP ≥ 8.2 plus host GLPI requirements / Anforderungen. Integration targets / Prüfziele: GLPI 12.0.2 and / und 11.0.8; actual run evidence records verification / Prüfnachweise dokumentieren tatsächliche Läufe.
 
 **Documentation scope / Dokumentationsstand:** current `main` code, including changes after released version **2.6.1**. / Aktueller Code auf `main`, einschließlich Änderungen nach der veröffentlichten Version **2.6.1**. Unreleased changes are labelled in the version notes. / Noch unveröffentlichte Änderungen sind in den Versionshinweisen gekennzeichnet.
 

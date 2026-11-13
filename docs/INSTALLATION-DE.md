@@ -4,7 +4,7 @@
 
 ## Kompatibilität und Voraussetzungen
 
-- Ticketmailer 2.4.0; GLPI 11.0.x, geprüft mit GLPI 11.0.8.
+- GLPI 12.0.x ist die Hauptplattform; GLPI 11.0.x bleibt unterstützt. GLPI 10 wird nicht unterstützt. Die Pakettests zielen auf 12.0.2 und 11.0.8; tatsächliche Prüfläufe sind separat nachzuweisen.
 - PHP ab 8.2 und eine funktionierende SMTP-Konfiguration in GLPI.
 - Zum Antworten: Recht zur Ticketaktualisierung oder zum Hinzufügen eines Ticketbeitrags.
 - Zum Lesen von Versandprotokoll und Anhängen: Leserecht auf das zugehörige Ticket.

@@ -4,7 +4,7 @@
 
 ## Requirements
 
-- GLPI **11.0.x**, PHP **8.2 or later**. GLPI 11.0.8 is the reference environment; GLPI 11.1 is not supported.
+- GLPI **12.0.x** (primary) or **11.0.x** (compatibility). GLPI 10 is not supported. PHP **8.2 or later** is the plugin language floor; also meet the GLPI host requirements. Packaged integration targets 12.0.2 and 11.0.8; consult actual run evidence.
 - An operational GLPI installation with outbound SMTP configured by an administrator.
 - A backup of the GLPI database and plugin files before installation or upgrade.
 

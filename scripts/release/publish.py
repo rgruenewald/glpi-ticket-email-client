@@ -10,6 +10,7 @@ import json
 import os
 from pathlib import Path
 import re
+import shlex
 import subprocess
 import sys
 
@@ -151,6 +152,7 @@ def plan_or_publish(
     expected_assets = [
         out / f"ticketmailer-{version}.tar.gz",
         out / "ticketmailer.xml",
+        out / "ticketmailer.spdx.json",
         out / "SHA256SUMS",
     ]
     for asset in expected_assets:
@@ -186,13 +188,10 @@ def plan_or_publish(
         print("----------------------------------------")
         print(notes[:400] + ("..." if len(notes) > 400 else ""))
         print("----------------------------------------")
-        print(f"\nCommand that would be executed to publish:")
-        print(f"  gh release create \"{release_tag}\" \\\n"
-              f"    \"{out / f'ticketmailer-{version}.tar.gz'}\" \\\n"
-              f"    \"{out / 'ticketmailer.xml'}\" \\\n"
-              f"    \"{out / 'SHA256SUMS'}\" \\\n"
-              f"    --title \"{release_tag}\" \\\n"
-              f"    --notes <CHANGELOG_NOTES>")
+        print("\nCommand that would be executed to publish:")
+        print(shlex.join(["gh", "release", "create", release_tag,
+                          *(str(asset) for asset in expected_assets),
+                          "--title", release_tag, "--notes-file", "<CHANGELOG_NOTES>"]))
         print("\nDRY-RUN COMPLETE: No changes were made to GitHub.")
         print("To publish, re-run with explicit --publish flag.")
         return result
@@ -209,6 +208,7 @@ def plan_or_publish(
             release_tag,
             str(out / f"ticketmailer-{version}.tar.gz"),
             str(out / "ticketmailer.xml"),
+            str(out / "ticketmailer.spdx.json"),
             str(out / "SHA256SUMS"),
             "--title",
             release_tag,

@@ -1,0 +1,10 @@
+<?php
+// Analysis-only GLPI base types. Never require this in a runtime or PHPUnit.
+class CommonGLPI
+{
+    // GLPI 11 contract; runtime tests also cover GLPI 12's typed field.
+    public static $rightname = '';
+
+    public static function createTabEntry(string $text, int $count = 0, ?string $itemtype = null, ?string $icon = null): array|string {}
+}
+class CommonDBTM extends CommonGLPI {}

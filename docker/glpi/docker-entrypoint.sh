@@ -27,7 +27,7 @@ for i in {1..30}; do
   sleep 2
 done
 
-# GLPI 11 resolves configuration and its security key from /var/www/html/config.
+# GLPI 12 and 11 resolve configuration and its security key from /var/www/html/config.
 # Keep the DB config on the named volume so encrypted values survive restarts.
 mkdir -p /var/www/html/config
 if [ ! -e /var/www/html/config/config_db.php ]; then

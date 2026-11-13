@@ -14,52 +14,68 @@ if [ -z "$context" ]; then
   fi
 fi
 
+source scripts/toolchain.env
 PHP_MATRIX=("8.2" "8.3" "8.4" "8.5")
 
+# Pin host tools without changing the user-wide environment.
+if [ "${TICKETMAILER_PINNED_TOOLS:-0}" != 1 ]; then
+  export TICKETMAILER_PINNED_TOOLS=1
+  exec mise exec -- bash "$0" "$@"
+fi
+# Some mise installations resolve Python commands but omit its bin directory
+# from child-shell PATH. Use the resolved interpreter for every nested script.
+export PATH="$(dirname "$(mise which python3)"):$PATH"
+test "$(python3 --version)" = "Python 3.14.6" || { echo "Pinned Python is required." >&2; exit 1; }
+test "$(node --version)" = v24.22.1 || { echo "Pinned Node is required." >&2; exit 1; }
+test "$(npm --version)" = 11.19.1 || { echo "Use the npm bundled with the pinned Node version." >&2; exit 1; }
+
+# Private, persistent evidence; Playwright must not clean this directory.
+mkdir -p .cache/ci
+export TICKETMAILER_EVIDENCE_DIR=$(mktemp -d "$PWD/.cache/ci/run-XXXXXX")
+chmod 700 "$TICKETMAILER_EVIDENCE_DIR"
+python3 scripts/ci-evidence.py start "$TICKETMAILER_EVIDENCE_DIR" "${1:-all}"
+finish() {
+  result=$?
+  trap - EXIT
+  python3 scripts/ci-evidence.py finish "$TICKETMAILER_EVIDENCE_DIR" "$result" || result=1
+  echo "CI evidence: $TICKETMAILER_EVIDENCE_DIR"
+  exit "$result"
+}
+trap finish EXIT
+exec > >(tee "$TICKETMAILER_EVIDENCE_DIR/ci.log") 2>&1
+
 composer_cmd() {
-  if command -v composer >/dev/null 2>&1; then
-    composer "$@"
-  else
-    docker --context "$context" run --rm -v "$PWD:/app" -w /app composer:2 "$@"
-  fi
+  TICKETMAILER_DOCKER_CONTEXT="$context" bash scripts/composer "$@"
 }
 
-host_php_version() {
-  if command -v php >/dev/null 2>&1; then
-    php -r 'echo PHP_MAJOR_VERSION . "." . PHP_MINOR_VERSION;'
-  else
-    echo ""
-  fi
+php_image() {
+  local key="PHP_IMAGE_${1//./}"
+  printf '%s\n' "${!key}"
 }
 
-HOST_PHP=$(host_php_version)
+build_php_test() {
+  docker --context "$context" build --build-arg "PHP_IMAGE=$(php_image "$1")" \
+    -t "ticketmailer/test-php:$1" docker/test
+}
 
 run_php_lint() {
   local ver="$1"
   echo "--- PHP $ver Syntax Lint ---"
-  if [ "$ver" = "$HOST_PHP" ]; then
-    find inc front ajax tests -name '*.php' -print0 | xargs -0 -n1 php -l
-    php -l setup.php
-    php -l hook.php
-  else
-    docker --context "$context" run --rm -v "$PWD:/app" -w /app "php:${ver}-cli" sh -c \
-      "find inc front ajax tests -name '*.php' -print0 | xargs -0 -n1 php -l && php -l setup.php && php -l hook.php"
-  fi
+  docker --context "$context" run --rm -v "$PWD:/app:ro" -w /app "ticketmailer/test-php:$ver" sh -c \
+    "find inc front ajax tests -name '*.php' -print0 | xargs -0 -n1 php -l && php -l setup.php && php -l hook.php"
 }
 
 run_php_unit() {
   local ver="$1"
   echo "--- PHP $ver Unit Tests (PHPUnit) ---"
-  if [ "$ver" = "$HOST_PHP" ]; then
-    vendor/bin/phpunit --fail-on-warning
-  else
-    docker --context "$context" run --rm -v "$PWD:/app" -w /app "php:${ver}-cli" \
-      php vendor/bin/phpunit --fail-on-warning
-  fi
+  docker --context "$context" run --rm -v "$PWD:/app:ro" \
+    -v "$TICKETMAILER_EVIDENCE_DIR:/evidence" -w /app "ticketmailer/test-php:$ver" \
+    php vendor/bin/phpunit --fail-on-warning --do-not-cache-result --log-junit "/evidence/phpunit-$ver.xml"
 }
 
 gate_deps() {
   echo "=== Gate: Dependencies & Security Audits ==="
+  composer_cmd --version
   composer_cmd validate --strict
   composer_cmd install --no-interaction --prefer-dist
   composer_cmd audit
@@ -71,11 +87,16 @@ gate_deps() {
 gate_security() {
   echo "=== Gate: Local CodeQL Security Analysis ==="
   python3 scripts/security/scan.py
+  mkdir -p "$TICKETMAILER_EVIDENCE_DIR/phpstan-cache"
+  docker --context "$context" run --rm -v "$PWD:/app:ro" -w /app \
+    -v "$TICKETMAILER_EVIDENCE_DIR/phpstan-cache:/app/.cache/phpstan" "$COMPOSER_IMAGE" \
+    php vendor/bin/phpstan analyse --no-progress --error-format=json --memory-limit=512M > "$TICKETMAILER_EVIDENCE_DIR/phpstan.json"
 }
 
 gate_php_matrix() {
   echo "=== Gate: PHP Matrix (${PHP_MATRIX[*]}) ==="
   for ver in "${PHP_MATRIX[@]}"; do
+    build_php_test "$ver"
     run_php_lint "$ver"
     run_php_unit "$ver"
   done
@@ -89,26 +110,30 @@ gate_package_and_contracts() {
   python3 scripts/release/release.py build
   python3 scripts/release/release.py verify
   ROOT=. bash scripts/verify/score.sh
-  node --test tests/*.test.js
   npm run test:ui
   npm run test:performance
 }
 
 gate_integration() {
   echo "=== Gate: Packaged GLPI Integration (Disposable Docker) ==="
-  read -r http_port mail_port < <(python3 - <<'PY'
+  for target in PRIMARY SUPPORTED; do
+    # Explicit free ports retain their binding after the SMTP-outage restart.
+    # Docker-assigned port 0 would be reallocated on container restart.
+    read -r http_port mail_port < <(python3 - <<'PY'
 import socket
 sockets = [socket.socket(), socket.socket()]
 for sock in sockets:
     sock.bind(("127.0.0.1", 0))
 print(*(sock.getsockname()[1] for sock in sockets))
 PY
-  )
-  RELEASE_DOCKER_CONTEXT="$context" \
-  RELEASE_HTTP_PORT="$http_port" \
-  RELEASE_MAIL_PORT="$mail_port" \
-  RELEASE_E2E_ALL=1 \
-  bash scripts/release/integration.sh
+    )
+    version_key="GLPI_$target"
+    digest_key="GLPI_${target}_SHA256"
+    RELEASE_DOCKER_CONTEXT="$context" \
+    RELEASE_HTTP_PORT="$http_port" RELEASE_MAIL_PORT="$mail_port" RELEASE_E2E_ALL=1 \
+    RELEASE_GLPI_VERSION="${!version_key}" RELEASE_GLPI_SHA256="${!digest_key}" \
+    bash scripts/release/integration.sh
+  done
 }
 
 mode=${1:-all}
@@ -146,7 +171,7 @@ case "$mode" in
   help|-h|--help)
     echo "Usage: scripts/ci [all|quick|deps|security|matrix|package|integration]"
     echo "  all         Run all gates including PHP matrix and disposable integration (default)"
-    echo "  quick       Run all offline gates without packaged integration"
+    echo "  quick       Run all non-integration gates (network access required)"
     echo "  deps        Validate composer, npm, and run security audits"
     echo "  security    Run pinned local CodeQL default suites for JS/TS and Python"
     echo "  matrix      Run syntax lint and PHPUnit on PHP 8.2, 8.3, 8.4, 8.5"

@@ -1,6 +1,17 @@
 version: 2
 
 updates:
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    open-pull-requests-limit: 3
+    groups:
+      npm-minor-and-patch:
+        update-types: [minor, patch]
+
   - package-ecosystem: composer
     directory: "/"
     schedule:
@@ -18,6 +29,8 @@ updates:
     directories:
       - "/"
       - "/docker/glpi"
+      - "/docker/test"
+      - "/scripts/release"
     schedule:
       interval: weekly
     cooldown:

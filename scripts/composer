@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Use the reviewed Composer binary, not an arbitrary host installation.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+source scripts/toolchain.env
+context=${TICKETMAILER_DOCKER_CONTEXT:-rootless}
+exec docker --context "$context" run --rm -e COMPOSER_HOME=/tmp/composer -v "$PWD:/app" -w /app "$COMPOSER_IMAGE" "$@"

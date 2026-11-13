@@ -2,7 +2,7 @@
 
 [Deutsch](INSTALLATION-DE.md) · [English user guide](wiki/User-Guide-EN.md)
 
-**Compatibility:** GLPI 11.0.x and PHP 8.2 or later. Verified against **GLPI 11.0.8**.
+**Compatibility:** GLPI 12.0.x is primary; GLPI 11.0.x remains supported. GLPI 10 is not supported. PHP 8.2 is the plugin language minimum; also meet the PHP requirements of your GLPI release. The packaged integration targets are **12.0.2 and 11.0.8**; completed run evidence records actual verification.
 
 Install from a GitHub release or the source repository. Marketplace publication has not been verified; the included catalog metadata is preparation, not proof of listing or acceptance.
 
@@ -18,7 +18,7 @@ Native internal notes are separate: they do not use Ticketmailer SMTP/audit, but
 
 ## Requirements
 
-- GLPI 11.0.x.
+- GLPI 12.0.x (primary) or GLPI 11.0.x (compatibility).
 - PHP 8.2 or later.
 - A working GLPI core SMTP configuration.
 - A GLPI user who can update tickets or add followups.
@@ -140,7 +140,7 @@ GLPI Ticket Email Client does not provide:
 
 ## Development and verification
 
-The shared local stack provides GLPI 11.0.8, MariaDB and Mailpit. No external SMTP
+The shared local stack provides GLPI 12.0.2, MariaDB and Mailpit. No external SMTP
 account is needed. GLPI listens on http://127.0.0.1:8080 (test login `glpi / glpi`),
 and captured mail on http://127.0.0.1:8025. No relay is configured. Use synthetic
 data only. The helper explicitly selects the `rootless` Docker context.

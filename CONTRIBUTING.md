@@ -3,7 +3,7 @@
 ## Before opening a change
 
 - Discuss behavior changes in an issue before implementing them.
-- Keep the plugin compatible with PHP 8.2+ and GLPI 11.0.x.
+- Keep the plugin compatible with PHP 8.2+, GLPI 12.0.x (primary) and GLPI 11.0.x (compatibility). GLPI 10 is not supported.
 - Do not add SMTP settings, notification-engine delivery, inbound mail handling, drafts, queues, editor libraries, or GLPI core patches.
 - Preserve the send invariant: validate → create audit intent → exactly one SMTP attempt → create one `_disablenotif` timeline followup after SMTP success.
 - Preserve ticket authorization and CSRF checks on every controller and AJAX endpoint.
@@ -34,10 +34,11 @@ Chromium performance benchmark, and all browser E2E tests against a disposable
 packaged GLPI stack. Failures or missing prerequisites block the push. Deleting
 a remote ref needs no tests. No success cache or automatic skipping is used.
 
-Prerequisites: Docker (rootless context by default), PHP with project test
-extensions, Python 3.11+, npm, Playwright Chromium system libraries and the pinned
-local CodeQL bundle (`python3 scripts/security/install-codeql.py`). Composer
-falls back to a container when unavailable locally. Set
+Prerequisites: Docker (rootless context by default), mise with the versions in
+`.mise.toml` installed/trusted, PHP for standalone local checks, Playwright Chromium system libraries and the pinned
+local CodeQL bundle (`python3 scripts/security/install-codeql.py`). CI always uses the pinned Composer container and builds extension-complete PHP
+8.2–8.5 test images; it does not substitute host PHP or Composer. `scripts/composer`
+provides the same Composer entrypoint for standalone commands. Set
 `TICKETMAILER_DOCKER_CONTEXT` to select another Docker context. Allow several
 minutes plus image downloads on the first run. The isolated test stack uses
 dynamically selected loopback ports (stable across service restarts) and removes its own containers/data on exit.
@@ -52,6 +53,12 @@ integration and cannot authorize publication. See
 [local security gates](docs/verification/local-security.md) for installation,
 severity policy, dependency-audit coverage differences and local-enforcement limits.
 
+## Toolchain and evidence
+
+See [toolchain policy](docs/verification/toolchain.md) for version pins, PHPStan
+baseline limits, private commit/snapshot-bound evidence, update responsibilities
+and the distinction between local gates and independent enforcement.
+
 ## Quality bar
 
 Run the contract verifier from the repository root:
@@ -63,7 +70,7 @@ ROOT=. bash scripts/verify/score.sh
 When dependencies are available, also run:
 
 ```bash
-composer install
+bash scripts/composer install
 vendor/bin/phpunit
 ```
 

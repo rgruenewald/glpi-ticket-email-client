@@ -6,7 +6,7 @@ Feature / v2 cutover.
 
 ## Goal
 
-Turn `ticketmailer` into a ticket-context email reply client for GLPI 11. A permitted user composes an outbound email from a ticket using GLPI’s rich-text editor, To/CC/BCC, subject, and attachments. The send is SMTP-delivered once, durably audited, and represented as a normal GLPI timeline followup.
+Turn `ticketmailer` into a ticket-context email reply client for GLPI 12 (primary) and GLPI 11 (compatibility). GLPI 10 is not supported. A permitted user composes an outbound email from a ticket using GLPI’s rich-text editor, To/CC/BCC, subject, and attachments. The send is SMTP-delivered once, durably audited, and represented as a normal GLPI timeline followup.
 
 ## Supersedes v1
 
@@ -38,8 +38,9 @@ This contract supersedes conflicting parts of `docs/archive/contracts/ticket-mai
 
 ## Target compatibility
 
-- GLPI 11.0.x, verified against GLPI 11.0.8.
-- PHP 8.2+.
+- GLPI 12.0.x is primary; GLPI 11.0.x remains supported. GLPI 10 is not supported. This supersedes the original GLPI 11-only scope (ADR 0002).
+- Packaged integration targets GLPI 12.0.2 and 11.0.8 separately. Actual completed runs, not the target matrix, establish verification.
+- PHP 8.2+ is the plugin language floor; meet the host GLPI PHP requirements as well.
 - Existing GLPI SMTP configuration and direct `GLPIMailer` transport path.
 
 ## Affected surfaces
@@ -161,9 +162,9 @@ All new user-facing labels, error text, policy labels, and incomplete-send state
 8. Ticket reader can see BCC/download; non-reader cannot. SMTP visible headers contain no BCC.
 9. Locale parity and migration field presence.
 
-## Required manual verification — GLPI 11.0.8 + Mailpit
+## Required runtime verification: GLPI 12.0.2 and 11.0.8 + Mailpit
 
-- Verify the source-proven `timeline_answer_actions` descriptor replacement in the GLPI 11.0.8 runtime.
+- Verify the source-proven `timeline_answer_actions` descriptor replacement in both target runtimes. The original source evidence was GLPI 11.0.8.
 - Send a rich email with To/CC/BCC, normal attachment, and inline image. Mailpit has exactly one message with expected envelope/body/attachments and no BCC visible header.
 - Open the ticket as a second ticket reader: complete followup shows To/CC/BCC/body and links download. A user without ticket read is denied every view/download.
 - Enable GLPI notifications and verify `_disablenotif` prevents a duplicate followup notification.
@@ -176,7 +177,7 @@ All new user-facing labels, error text, policy labels, and incomplete-send state
 - No compatibility shim retains ASSIGN→CC defaults.
 - No custom mail transport, editor library, or unrequested background job is added.
 
-## A14: Proactive new email (GLPI 11)
+## A14: Proactive new email (GLPI 12 and 11)
 
 - Assistance exposes New email to central-interface users with ticket CREATE and UPDATE rights in the active entity.
 - Opening/cancelling creates no ticket. Sending requires To, subject, body, valid recipients, authorized entity and valid temporary uploads.

@@ -13,7 +13,11 @@ if [ -z "$context" ]; then
   fi
 fi
 export COMPOSE_FILE="$PWD/scripts/release/compose.yml"
-export COMPOSE_PROJECT_NAME="ticketmailer-release-${GITHUB_RUN_ID:-$$}"
+export COMPOSE_PROJECT_NAME="ticketmailer-release-$$"
+if [ -n "${TICKETMAILER_EVIDENCE_DIR:-}" ]; then
+  export TICKETMAILER_E2E_REPORT_DIR="$TICKETMAILER_EVIDENCE_DIR/glpi-${RELEASE_GLPI_VERSION:-12.0.2}"
+  mkdir -p "$TICKETMAILER_E2E_REPORT_DIR"
+fi
 export TICKETMAILER_DOCKER_CONTEXT="$context"
 export TICKETMAILER_BASE_URL="http://127.0.0.1:${RELEASE_HTTP_PORT:-18080}"
 export TICKETMAILER_MAIL_URL="http://127.0.0.1:${RELEASE_MAIL_PORT:-18025}"
@@ -25,7 +29,14 @@ compose() { docker --context "$context" compose "$@"; }
 cleanup() {
   status=$?
   trap - EXIT
-  if [ "$status" -ne 0 ]; then compose logs --tail 20 glpi >&2 || true; compose exec -T glpi sh -c "tail -40 files/_log/sql-errors.log" >&2 || true; fi
+  if [ "$status" -ne 0 ]; then
+    compose logs --tail 20 glpi >&2 || true
+    compose exec -T --user www-data glpi sh -c '
+      for file in files/_log/php-errors.log files/_log/sql-errors.log; do
+        if [ -f "$file" ]; then tail -40 "$file"; fi
+      done
+    ' >&2 || true
+  fi
   compose down --volumes --remove-orphans >/dev/null 2>&1 || true
   rm -rf "$tmp"
   exit "$status"
@@ -42,6 +53,12 @@ compose up -d --build --wait --wait-timeout 360 glpi mailpit
 # Read actual bindings, including Docker-assigned ports (requested port 0).
 export TICKETMAILER_BASE_URL="http://$(compose port glpi 80)"
 export TICKETMAILER_MAIL_URL="http://$(compose port mailpit 8025)"
+# Record the actual installed runtime, not just the build argument.
+compose exec -T --user www-data glpi php bin/console --version | tee "$tmp/runtime-version.txt"
+grep -Fxq "GLPI CLI ${RELEASE_GLPI_VERSION:-12.0.2}" "$tmp/runtime-version.txt"
+if [ -n "${TICKETMAILER_E2E_REPORT_DIR:-}" ]; then
+  cp "$tmp/runtime-version.txt" "$TICKETMAILER_E2E_REPORT_DIR/runtime-version.txt"
+fi
 compose exec -T --user www-data glpi php bin/console plugin:install ticketmailer --username=glpi --no-interaction --force
 compose exec -T --user www-data glpi php bin/console plugin:activate ticketmailer --no-interaction
 # Exercise actual SQL migrations from the legacy schema and compare the full

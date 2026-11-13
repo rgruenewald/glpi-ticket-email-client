@@ -17,7 +17,7 @@ SMTP-Erfolg bedeutet Annahme durch den Transport, keine garantierte Posteingangs
 
 ## Antwortaktion fehlt oder Zugriff verweigert
 
-1. Plugin-Aktivierung und Kompatibilität mit GLPI 11.0.x / PHP ab 8.2 prüfen.
+1. Plugin-Aktivierung und Kompatibilität mit GLPI 12.0.x oder 11.0.x / PHP ab 8.2 und die PHP-Anforderungen von GLPI prüfen.
 2. Aktives Profil, Entität, Ticketleserecht und natives GLPI-Recht zum Hinzufügen eines Folgeeintrags prüfen.
 3. Antwortrichtlinie und globale Schaltflächensichtbarkeit prüfen. Eine hervorgehobene oder umgeleitete native Antwort kann den separaten Einstieg ersetzen.
 4. Nach Rechte- oder Konfigurationsänderungen neu laden. Sichtbarkeit umgeht keine Berechtigungen.

@@ -1,7 +1,9 @@
 {
   "private": true,
+  "engines": { "node": "24.x", "npm": "11.x" },
+  "packageManager": "npm@11.19.1",
   "scripts": {
-    "test:ui": "node tests/ticket-timeline.test.js && node tests/composer-send-lock.test.js && node --test tests/performance/budgets.test.cjs",
+    "test:ui": "node --test tests/*.test.js tests/performance/budgets.test.cjs",
     "test:performance": "node tests/performance/run.cjs",
     "test:e2e": "playwright test"
   },

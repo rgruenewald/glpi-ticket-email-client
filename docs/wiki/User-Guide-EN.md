@@ -4,7 +4,7 @@
 
 [Documentation home](https://github.com/rgruenewald/glpi-ticket-email-client/wiki/Home) · [Deutsch](https://github.com/rgruenewald/glpi-ticket-email-client/wiki/Benutzerhandbuch-DE) · [Installation and administration](https://github.com/rgruenewald/glpi-ticket-email-client/wiki/Installation-EN)
 
-Write an email from a ticket, start a new conversation, or add an internal note without leaving GLPI. This guide covers the current `main` code, including changes after release **2.6.1**. Supported runtime: GLPI 11.0.x and PHP 8.2 or later; the documented reference environment is GLPI 11.0.8. See [version notes](https://github.com/rgruenewald/glpi-ticket-email-client/wiki/Version-Notes-EN) for released and unreleased changes.
+Write an email from a ticket, start a new conversation, or add an internal note without leaving GLPI. This guide covers the current `main` code, including changes after release **2.6.1**. Supported runtime: GLPI 12.0.x (primary) and GLPI 11.0.x (compatibility); GLPI 10 is not supported. PHP 8.2 is the plugin language floor, in addition to the GLPI host requirements. Packaged integration targets 12.0.2 and 11.0.8; actual runs establish verification. See [version notes](https://github.com/rgruenewald/glpi-ticket-email-client/wiki/Version-Notes-EN) for released and unreleased changes.
 
 The screenshots below are examples from the 2.4.0 test instance with synthetic tickets and example.test recipients. Available actions and fields depend on your permissions and the administrator's configuration. Button names may differ with the GLPI language; the email reply action may also be labelled **Answer**.
 

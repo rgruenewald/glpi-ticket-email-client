@@ -44,6 +44,14 @@ ignored `.cache/security/` in mode-0700 run directories, outside Playwright's
 source code: do not publish them indiscriminately. Logs from dependency audits
 may contact the configured package registries and advisory services.
 
+## PHP analysis and run evidence
+
+PHPStan adds a separate PHP 8.2-targeted level-1 gate over runtime PHP. Its explicit
+baseline covers missing external GLPI symbols only; it is not PHP taint analysis.
+CI also records private commit/snapshot-bound reports, including the runtime
+package hashes. See [toolchain policy](toolchain.md) for pins, baseline limitations,
+report privacy, update responsibilities and independent-enforcement boundaries.
+
 ## Source-security policy
 
 The `javascript-code-scanning.qls` and `python-code-scanning.qls` default suites

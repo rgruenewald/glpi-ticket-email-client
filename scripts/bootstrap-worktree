@@ -33,11 +33,7 @@ EOF
 export TICKETMAILER_HTTP_PORT=${TICKETMAILER_HTTP_PORT:-$HTTP_PORT}
 export TICKETMAILER_MAIL_PORT=${TICKETMAILER_MAIL_PORT:-$MAIL_PORT}
 
-if command -v composer >/dev/null; then
-  composer install --no-interaction --prefer-dist
-else
-  docker --context rootless run --rm -v "$ROOT:/app" -w /app composer:2 install --no-interaction --prefer-dist
-fi
+bash scripts/composer install --no-interaction --prefer-dist
 npm ci --ignore-scripts
 ./scripts/install-hooks
 

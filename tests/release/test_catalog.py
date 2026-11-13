@@ -69,6 +69,16 @@ class CatalogTest(unittest.TestCase):
                         self.assertEqual(node.findtext("de"), "Deutsche Beschreibung")
                 self.assertEqual(self.bodies, original)
 
+    def test_extra_sbom_checksums_are_accepted_but_whitespace_names_are_not(self):
+        tag = "v2.5.0"
+        self.bodies[tag]["ticketmailer.spdx.json"] = b"SBOM fixture"
+        self.rehash(tag)
+        self.build()
+        self.bodies[tag]["bad name.json"] = b"bad name"
+        self.rehash(tag)
+        with self.assertRaises(ValueError):
+            self.build()
+
     def test_directory_license_and_required_tags(self):
         for legacy in (True, False):
             with self.subTest(legacy=legacy):

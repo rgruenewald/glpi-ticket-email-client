@@ -1,7 +1,7 @@
 name: ticketmailer-release-check
 services:
   db:
-    image: mariadb:10.11
+    image: mariadb:10.11.19@sha256:7d829180b5b2a9ba74f6242876ab401a0d7dd338a807e522ef92bc9698760f20
     environment:
       MARIADB_DATABASE: glpi
       MARIADB_USER: glpi
@@ -14,10 +14,14 @@ services:
       timeout: 3s
       retries: 40
   mailpit:
-    image: axllent/mailpit:v1.27.10
+    image: axllent/mailpit:v1.33.1@sha256:aef2aacc11f075ec0fb6874275ee4a421e688e11a96ebb296134d1735c7761ce
     ports: ['127.0.0.1:${RELEASE_MAIL_PORT:-18025}:8025']
   glpi:
-    build: ../../docker/glpi
+    build:
+      context: ../../docker/glpi
+      args:
+        GLPI_VERSION: ${RELEASE_GLPI_VERSION:-12.0.2}
+        GLPI_SHA256: ${RELEASE_GLPI_SHA256:-028d9d275cf747600bbbefe072fd0724c1d4e7eee18378e696fea60a73d50359}
     depends_on:
       db:
         condition: service_healthy

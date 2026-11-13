@@ -28,4 +28,4 @@ All observed prepared interactions were below 200 ms. Source base 2e41f2a plus t
 - Local test stack restored to its original docker-e2e mounts after measurement.
 - Existing GLPI-native editor and dropdown APIs are inspected from the actual installed version; no GLPI/vendor changes.
 
-The reusable lifecycle and performance checks do not replace a future SMTP/upload/template end-to-end matrix or compatibility testing on GLPI 10. The actual browser version tested here is GLPI 11.0.2.
+The reusable lifecycle and performance checks do not replace a future SMTP/upload/template end-to-end matrix or compatibility testing on the current GLPI 12 and 11 target matrix. GLPI 10 is not supported. The actual browser version tested here is GLPI 11.0.2.

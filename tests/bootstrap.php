@@ -10,6 +10,9 @@ if (is_file($autoload)) {
 if (!class_exists('CommonGLPI')) {
     class CommonGLPI
     {
+        // GLPI 11's untyped field catches incompatible child redeclarations.
+        public static $rightname = '';
+
         public static function createTabEntry(string $text, int $count = 0, ?string $itemtype = null, ?string $icon = null): array|string
         {
             return $text;

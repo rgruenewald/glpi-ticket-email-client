@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Offline, deterministic GLPI package and catalog builder. Python 3.11+."""
 import argparse
+from datetime import datetime, timezone
 import gzip
 import hashlib
 import io
@@ -92,6 +93,35 @@ def catalog(meta):
     return ET.tostring(root, encoding="utf-8", xml_declaration=True) + b"\n"
 
 
+def sbom(root, meta, epoch):
+    """SPDX 2.3 runtime file inventory, not a scan of GLPI or dev packages."""
+    inventory = []
+    relationships = [{"spdxElementId": "SPDXRef-DOCUMENT", "relationshipType": "DESCRIBES", "relatedSpdxElement": "SPDXRef-ticketmailer"}]
+    # The creation timestamp is part of the document identity, too.
+    digest = hashlib.sha256(str(epoch).encode())
+    for index, name in enumerate(files(root)):
+        checksum = hashlib.sha256((root / name).read_bytes()).hexdigest()
+        digest.update((name + "\0" + checksum + "\n").encode())
+        identifier = "SPDXRef-File-" + str(index)
+        inventory.append({"SPDXID": identifier, "fileName": "./ticketmailer/" + name,
+                          "checksums": [{"algorithm": "SHA256", "checksumValue": checksum}],
+                          "licenseConcluded": "NOASSERTION", "copyrightText": "NOASSERTION"})
+        relationships.append({"spdxElementId": "SPDXRef-ticketmailer", "relationshipType": "CONTAINS", "relatedSpdxElement": identifier})
+    document = {
+        "spdxVersion": "SPDX-2.3", "dataLicense": "CC0-1.0", "SPDXID": "SPDXRef-DOCUMENT",
+        "name": "ticketmailer-" + meta["version"],
+        "documentNamespace": REPOSITORY + "/spdx/" + meta["version"] + "/" + digest.hexdigest(),
+        "creationInfo": {"creators": ["Tool: ticketmailer-release.py"],
+                         "created": datetime.fromtimestamp(epoch, timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")},
+        "packages": [{"SPDXID": "SPDXRef-ticketmailer", "name": "ticketmailer", "versionInfo": meta["version"],
+                      "downloadLocation": REPOSITORY + "/releases/download/v" + meta["version"] + "/ticketmailer-" + meta["version"] + ".tar.gz",
+                      "filesAnalyzed": False, "licenseDeclared": "GPL-3.0-or-later", "licenseConcluded": "NOASSERTION",
+                      "copyrightText": "NOASSERTION"}],
+        "files": inventory, "relationships": relationships,
+    }
+    return (json.dumps(document, sort_keys=True, indent=2) + "\n").encode()
+
+
 def write_checksums(out):
     names = sorted(p.name for p in out.iterdir() if p.is_file() and p.name != "SHA256SUMS")
     (out / "SHA256SUMS").write_text("".join(hashlib.sha256((out / n).read_bytes()).hexdigest() + "  " + n + "\n" for n in names))
@@ -102,7 +132,7 @@ def build(root, out, epoch):
     if epoch < 0:
         raise ValueError("SOURCE_DATE_EPOCH must be non-negative")
     out.mkdir(parents=True, exist_ok=True)
-    expected = {"ticketmailer-" + meta["version"] + ".tar.gz", "ticketmailer.xml", "SHA256SUMS"}
+    expected = {"ticketmailer-" + meta["version"] + ".tar.gz", "ticketmailer.xml", "ticketmailer.spdx.json", "SHA256SUMS"}
     if any(p.name not in expected or p.is_symlink() or not p.is_file() for p in out.iterdir()):
         raise ValueError("Output directory must be empty or contain only this release")
     archive = out / ("ticketmailer-" + meta["version"] + ".tar.gz")
@@ -119,6 +149,7 @@ def build(root, out, epoch):
                 info.uname = info.gname = ""
                 tar.addfile(info, io.BytesIO(data))
     (out / "ticketmailer.xml").write_bytes(catalog(meta))
+    (out / "ticketmailer.spdx.json").write_bytes(sbom(root, meta, epoch))
     write_checksums(out)
     verify(root, out)
     return archive
@@ -127,7 +158,7 @@ def build(root, out, epoch):
 def verify(root, out):
     meta = check(root)
     archive = out / ("ticketmailer-" + meta["version"] + ".tar.gz")
-    expected_names = {archive.name, "ticketmailer.xml", "SHA256SUMS"}
+    expected_names = {archive.name, "ticketmailer.xml", "ticketmailer.spdx.json", "SHA256SUMS"}
     if {p.name for p in out.iterdir()} != expected_names:
         raise ValueError("Unexpected or missing release assets")
     checksums = "".join(hashlib.sha256((out / n).read_bytes()).hexdigest() + "  " + n + "\n" for n in sorted(expected_names - {"SHA256SUMS"}))
@@ -138,6 +169,8 @@ def verify(root, out):
     expected = {"ticketmailer/" + n: root / n for n in files(root)}
     with tarfile.open(archive, "r:gz") as tar:
         members = tar.getmembers()
+        if not members or (out / "ticketmailer.spdx.json").read_bytes() != sbom(root, meta, members[0].mtime):
+            raise ValueError("SBOM differs from packaged runtime inventory")
         if [m.name for m in members] != sorted(expected):
             raise ValueError("Unexpected, duplicate, unsorted or missing archive members")
         for member in members:

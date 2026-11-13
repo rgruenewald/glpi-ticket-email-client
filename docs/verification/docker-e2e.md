@@ -2,8 +2,8 @@
 
 ## Scope and safety
 
-Disposable development instance: GLPI 11.0.8, PHP 8.5, MariaDB 10.11 and Mailpit.
-This does not demonstrate GLPI 10 compatibility. GLPI listens on
+Disposable development instance: GLPI 12.0.2, PHP 8.5, MariaDB 10.11 and Mailpit.
+The packaged CI also targets GLPI 11.0.8 in a separate disposable instance. GLPI 10 is not supported. Target versions are not proof of completed tests; consult run evidence. GLPI listens on
 http://127.0.0.1:8080 and Mailpit on http://127.0.0.1:8025. No database or SMTP
 port is published. No SMTP relay or forwarding is configured.
 
@@ -116,8 +116,11 @@ are not covered, nor is rendering in Outlook or other external mail clients. Exi
 check the duplicate-submit UI lock; the browser suite checks a single captured
 delivery, not server-side idempotency.
 
-Failures produce ignored `test-results/` screenshots and traces. Inspect with
-`npx playwright show-trace test-results/<case>/trace.zip`.
+Failures produce ignored `.cache/playwright/artifacts/` screenshots and traces
+for direct Playwright runs. Inspect with
+`npx playwright show-trace .cache/playwright/artifacts/<case>/trace.zip`.
+CI keeps per-GLPI reports below its printed `.cache/ci/run-*` evidence directory,
+with traces in `glpi-<version>/artifacts/`; see [toolchain policy](toolchain.md).
 
 ## Persistence and reset
 

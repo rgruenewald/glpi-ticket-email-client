@@ -1,0 +1,16 @@
+includes:
+    - phpstan-baseline.neon
+
+parameters:
+    level: 1
+    phpVersion: 80200
+    scanFiles:
+        - tests/static/glpi.stub
+    paths:
+        - inc
+        - front
+        - ajax
+        - setup.php
+        - hook.php
+    tmpDir: .cache/phpstan
+    reportUnmatchedIgnoredErrors: true

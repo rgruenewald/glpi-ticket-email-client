@@ -16,10 +16,12 @@ when this process was introduced. The baseline is not a historical published
 release. The next version follows new Conventional Commits. Never invent old tags.
 The bootstrap SHA is ignored after the first managed release.
 
-Runtime metadata currently advertises GLPI 11.0.0 through 11.99.99. Integration
-tests cover GLPI 11.0.8 / PHP 8.5; unit CI covers PHP 8.2–8.5. This does not prove
-all future GLPI 11 releases or GLPI 10 compatible. Review the advertised range
-before marketplace submission; changing compatibility is a separate product decision.
+Runtime metadata advertises GLPI 11.0.0 through 12.0.99. GLPI 12.0.x is primary;
+GLPI 11.0.x remains supported. GLPI 10 is not supported (ADR 0002). The packaged
+integration matrix targets GLPI 12.0.2 and 11.0.8 / PHP 8.5 in separate disposable
+instances; unit CI covers PHP 8.2–8.5. A configured target is not proof of a
+completed test. Consult the private run evidence for actual results. PHP 8.2 is
+the plugin language minimum; GLPI host requirements also apply.
 
 ## Local CI and repository protection
 
@@ -57,7 +59,7 @@ marketplace submission is authorized merely by running local checks.
 - Only after every gate succeeds are assets uploaded and the release published.
   Do not publish manually around failed gates.
 
-Assets: ticketmailer-X.Y.Z.tar.gz, ticketmailer.xml, SHA256SUMS. The archive has a
+Assets: ticketmailer-X.Y.Z.tar.gz, ticketmailer.xml, ticketmailer.spdx.json, SHA256SUMS. The archive has a
 single ticketmailer/ runtime tree, no vendor/dev/test/agent files, and includes
 license and security documentation. No runtime Composer packages are currently
 needed; adding one deliberately blocks packaging until its inclusion is designed.
@@ -97,7 +99,12 @@ reproduce a historical build. Sorted paths, fixed ownership/mode and timestamp,
 USTAR and a timestamped gzip stream make repeat builds byte-identical on the same
 Python/zlib toolchain and inputs. Cross-version compression identity is not promised.
 Local CI uses the installed Python version, not a pinned operating-system/compression stack.
-Checksums provide integrity, not a cryptographic identity signature.
+Checksums provide integrity, not a cryptographic identity signature. The deterministic
+SPDX 2.3 SBOM inventories the runtime package files and their SHA-256 hashes; it is
+not an inventory of external GLPI, container OS packages or development dependencies.
+The verifier rejects a modified SBOM even if its checksum is recomputed. Local CI
+evidence is not signed, independently attested provenance or a SLSA-level claim.
+Release signing requires a separately selected identity and key-management policy.
 
     RELEASE_DOCKER_CONTEXT=rootless bash scripts/release/integration.sh
 
@@ -131,7 +138,7 @@ all gates on the exact clean committed candidate before a separately authorized
 
 A failure or timeout during `gh release create` has an uncertain remote outcome:
 the tag, release or some assets may already exist. Inspect the exact remote tag,
-release state and three expected assets read-only before doing anything else.
+release state and four expected assets read-only before doing anything else.
 Do not blindly repeat create, move/delete tags, overwrite assets with `--clobber`
 or assume the operation rolled back. The publisher has no automatic recovery or
 resume mode. Any completion of a partial remote operation needs separate approval,
@@ -158,8 +165,8 @@ The script reads public stable releases only, downloads their XML and packages,
 and checks both against published SHA256SUMS. Invalid or missing assets fail the
 whole refresh without replacing the catalog. Historical compatibility is copied
 from the published assets, not current development constants. Existing 2.3.2 and
-2.4.0 entries therefore retain 11.0.0 through 11.99.99; the narrower 11.0.x range
-applies to the next release. Review this historical range before submission.
+2.4.0 entries therefore retain 11.0.0 through 11.99.99; current development targets GLPI 12.0.x primarily while retaining GLPI 11.0.x support.
+Historical published entries are not rewritten. Review this historical range before submission.
 
 After successful publication, refresh the historical catalog with `python3 scripts/release/catalog.py`.
 Review the updated `ticketmailer.xml` metadata and commit.

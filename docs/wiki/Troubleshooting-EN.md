@@ -17,7 +17,7 @@ SMTP success means the transport accepted the message, not guaranteed inbox deli
 
 ## Reply action missing or access denied
 
-1. Confirm the plugin is enabled and compatible with GLPI 11.0.x / PHP ≥ 8.2.
+1. Confirm the plugin is enabled and compatible with GLPI 12.0.x or 11.0.x / PHP ≥ 8.2 plus GLPI host requirements.
 2. Confirm the active profile and entity, ticket read access, and GLPI’s native right to add a followup.
 3. Check entity/profile reply policy and global button visibility. A promoted or redirected native Answer may replace the separate entry point.
 4. Reload after permission or configuration changes. Changing visibility does not bypass rights.
