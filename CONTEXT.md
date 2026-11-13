@@ -3,8 +3,8 @@
 ## Identity
 
 - **Name:** `ticketmailer` (GLPI plugin directory / gettext domain)
-- **Type:** GLPI 11 plugin (`composer.json` type `glpi-plugin`)
-- **Runtime:** PHP ≥ 8.2, GLPI ^11.0 (verified against 11.0.8). GLPI is the external host runtime, not a Composer package dependency.
+- **Type:** GLPI 12 plugin with GLPI 11 compatibility (`composer.json` type `glpi-plugin`)
+- **Runtime:** PHP ≥ 8.2 (plugin language floor), GLPI 12.0.x primary and GLPI 11.0.x supported. Each GLPI release also imposes its own PHP requirements. The packaged gate targets 12.0.2 and 11.0.8; run evidence is the verification record. GLPI 10 is not supported. GLPI is the external host runtime, not a Composer package dependency.
 - **License:** GPL-3.0-or-later
 - **Version constant:** `PLUGIN_TICKETMAILER_VERSION` in `setup.php` (currently 2.7.0) <!-- x-release-please-version -->
 
@@ -48,14 +48,14 @@ ajax/*.php               validate, upload, forward_preview
 templates/*.html.twig    compose / forward / log_entry UI
 sql/                     install + versioned updates
 locales/                 ticketmailer.{pot,en.po,de.po}
-docker/ + compose        GLPI 11 + MariaDB; external SMTP via GLPI core config
+docker/ + compose        GLPI 12 (primary) / 11 + MariaDB; external SMTP via GLPI core config
 tests/                   PHPUnit acceptance
 ```
 
 **Canonical product contract:** `docs/specifications/glpi-ticket-email-client-v2/spec.md`
 **Historical (superseded on conflict):** `docs/archive/contracts/ticket-mailer/`
 **Local planning state:** `.agent/` is ignored and is not required to build or verify the project.
-**Locked decisions ADR:** `docs/adr/0001-v2-locked-product-decisions.md`
+**Locked decisions ADR:** `docs/adr/0001-v2-locked-product-decisions.md`; compatibility scope superseded by `docs/adr/0002-glpi-12-primary-compatibility.md`.
 
 ## Schema
 
@@ -85,4 +85,4 @@ ROOT=. bash scripts/verify/score.sh
 
 ## Proactive email
 
-Central-interface users with ticket CREATE and UPDATE in the active entity can open **New email** under Assistance. Opening or cancelling creates no ticket. On send, To becomes requesters and CC becomes observers; BCC is delivery-only but remains visible in the audit and timeline. Existing unique active users are linked by email; otherwise GLPI email actors are used without creating accounts. The active entity is frozen when the form opens. GLPI business rules and mandatory ticket-template fields remain effective; an entity change or missing post-create permission blocks delivery. The ticket description is empty and the sent email is the first message followup. Creation notifications are suppressed. A durable per-action state and filesystem lock prevent repeat ticket creation and SMTP retries. Interrupted creation is fail-closed and needs manual inspection. Temporary uploads expire after 24 hours and are cleaned on the next new-email visit; no draft body is stored. Replies and proactive messages share Sendservice. Only GLPI 11 is supported.
+Central-interface users with ticket CREATE and UPDATE in the active entity can open **New email** under Assistance. Opening or cancelling creates no ticket. On send, To becomes requesters and CC becomes observers; BCC is delivery-only but remains visible in the audit and timeline. Existing unique active users are linked by email; otherwise GLPI email actors are used without creating accounts. The active entity is frozen when the form opens. GLPI business rules and mandatory ticket-template fields remain effective; an entity change or missing post-create permission blocks delivery. The ticket description is empty and the sent email is the first message followup. Creation notifications are suppressed. A durable per-action state and filesystem lock prevent repeat ticket creation and SMTP retries. Interrupted creation is fail-closed and needs manual inspection. Temporary uploads expire after 24 hours and are cleaned on the next new-email visit; no draft body is stored. Replies and proactive messages share Sendservice. GLPI 12 is primary; GLPI 11 remains supported. GLPI 10 is not supported.

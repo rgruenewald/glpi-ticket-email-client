@@ -59,7 +59,7 @@ From a checked-out worktree, one command installs the PHP and Node dependencies 
 
 The bootstrap chooses free loopback ports, uses a Compose project named after the worktree, and prints the resulting GLPI and Mailpit URLs. When the shared `ticketmailer` development database is running, it exports that synthetic test database once per worktree and imports it into a private volume. If no shared database is available, the repository E2E fixture creates a starter ticket instead. Stop an instance without deleting its data with the printed Compose command. Set `TICKETMAILER_HTTP_PORT`, `TICKETMAILER_MAIL_PORT`, or `TICKETMAILER_PROJECT` to override the defaults.
 
-**Supported:** GLPI 11.0.x · PHP 8.2+ · verified against GLPI 11.0.8.
+**Supported:** GLPI 12.0.x (primary) and GLPI 11.0.x (compatibility). GLPI 10 is not supported. Plugin language minimum: PHP 8.2; also meet the PHP requirements of your GLPI version. The packaged integration gate targets GLPI 12.0.2 and 11.0.8; see the actual run evidence before claiming verification.
 
 1. Download a [release](https://github.com/rgruenewald/glpi-ticket-email-client/releases) and place the plugin in `<glpi-root>/plugins/ticketmailer`.
 2. Install and enable `ticketmailer` through GLPI's plugin administration or CLI.

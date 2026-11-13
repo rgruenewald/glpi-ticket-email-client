@@ -31,7 +31,7 @@ def assemble(releases, assets):
         bodies = assets(tag)
         checksums = {}
         for line in bodies["SHA256SUMS"].decode().splitlines():
-            match = re.fullmatch(r"([a-f0-9]{64})  ([^/s]+)", line)
+            match = re.fullmatch(r"([a-f0-9]{64})  ([^/\s]+)", line)
             if not match or match[2] in checksums:
                 raise ValueError("Invalid release checksums: " + tag)
             checksums[match[2]] = match[1]

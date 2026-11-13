@@ -1,10 +1,12 @@
-# docker/glpi/Dockerfile — GLPI 11 image with the
+# docker/glpi/Dockerfile — GLPI 12 (primary) / 11 (supported) image with the
 # ticketmailer plugin auto-installed. Pinned to a
 # specific minor version so updates don't drift.
 
 FROM php:8.5-apache@sha256:08af36df144462d84c7f16190557eec06cb9f656882685610b712a15eec54d46
 
-ENV GLPI_VERSION=12.0.2 \
+ARG GLPI_VERSION=12.0.2
+ARG GLPI_SHA256=028d9d275cf747600bbbefe072fd0724c1d4e7eee18378e696fea60a73d50359
+ENV GLPI_VERSION=${GLPI_VERSION} \
     DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update \
@@ -28,11 +30,12 @@ RUN apt-get update \
 RUN set -eux; \
     curl -fsSL "https://github.com/glpi-project/glpi/releases/download/${GLPI_VERSION}/glpi-${GLPI_VERSION}.tgz" \
         -o /tmp/glpi.tgz; \
+    echo "${GLPI_SHA256}  /tmp/glpi.tgz" | sha256sum -c -; \
     tar -xzf /tmp/glpi.tgz -C /var/www/html/ --strip-components=1; \
     rm -f /tmp/glpi.tgz; \
     chown -R www-data:www-data /var/www/html
 
-# GLPI 11 requires the public directory as Apache's document root. Legacy
+# GLPI 12 and 11 require the public directory as Apache's document root. Legacy
 # plugin PHP controllers must reach GLPI's Symfony front controller so
 # Html::redirect() is converted into an HTTP response. Static plugin assets
 # remain directly exposed because they are outside GLPI's `/public` tree.

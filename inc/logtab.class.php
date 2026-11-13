@@ -7,7 +7,8 @@
  */
 class PluginTicketmailerLogTab extends CommonGLPI
 {
-    public static string $rightname = 'ticket';
+    // Do not redeclare CommonGLPI::$rightname: it is untyped in GLPI 11
+    // and typed in GLPI 12. Ticket-read ACL is checked explicitly below.
 
     public static function getTypeName($nb = 0): string
     {

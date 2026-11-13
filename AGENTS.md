@@ -6,7 +6,7 @@ Project operating rules for agents. Product facts live in `CONTEXT.md` and the v
 
 1. **Behavior / ACs:** `docs/specifications/glpi-ticket-email-client-v2/spec.md`
 2. **Kernel facts:** `CONTEXT.md`
-3. **Locked product decisions:** `docs/adr/0001-v2-locked-product-decisions.md`
+3. **Locked product decisions:** `docs/adr/0001-v2-locked-product-decisions.md`; compatibility: `docs/adr/0002-glpi-12-primary-compatibility.md` (GLPI 12 primary, GLPI 11 supported, no GLPI 10)
 4. **v1 contract** (`docs/archive/contracts/ticket-mailer/`): historical only; ignore when it conflicts with v2
 5. **Local `.agent/` state:** unversioned working material, not a source of project rules
 

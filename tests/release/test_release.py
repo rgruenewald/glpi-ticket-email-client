@@ -110,6 +110,25 @@ class ReleaseTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             release.build(self.root, self.out, 1700000000)
 
+    def test_sbom_namespace_changes_with_document_timestamp(self):
+        meta = release.check(self.root)
+        first = json.loads(release.sbom(self.root, meta, 1700000000))
+        second = json.loads(release.sbom(self.root, meta, 1700000001))
+        self.assertNotEqual(first["documentNamespace"], second["documentNamespace"])
+
+    def test_sbom_inventory_and_tampering(self):
+        release.build(self.root, self.out, 1700000000)
+        path = self.out / "ticketmailer.spdx.json"
+        document = json.loads(path.read_text())
+        self.assertEqual(document["spdxVersion"], "SPDX-2.3")
+        self.assertEqual({item["fileName"] for item in document["files"]},
+                         {"./ticketmailer/" + name for name in release.files(self.root)})
+        document["files"][0]["checksums"][0]["checksumValue"] = "0" * 64
+        path.write_text(json.dumps(document))
+        release.write_checksums(self.out)
+        with self.assertRaisesRegex(ValueError, "SBOM differs"):
+            release.verify(self.root, self.out)
+
     def test_rejects_changed_archive(self):
         archive = release.build(self.root, self.out, 1700000000)
         with archive.open("ab") as stream:

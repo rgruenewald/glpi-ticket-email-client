@@ -4,7 +4,7 @@
 
 ## Voraussetzungen
 
-- GLPI **11.0.x**, PHP **ab 8.2**. Referenzumgebung ist GLPI 11.0.8; GLPI 11.1 wird nicht unterstützt.
+- GLPI **12.0.x** (Hauptplattform) oder **11.0.x** (Kompatibilität). GLPI 10 wird nicht unterstützt. PHP **ab 8.2** ist das Sprachminimum des Plugins; zusätzlich gelten die PHP-Anforderungen von GLPI. Pakettests zielen auf 12.0.2 und 11.0.8; tatsächliche Prüfnachweise separat beachten.
 - Eine funktionsfähige GLPI-Installation mit administrativ konfiguriertem SMTP-Versand.
 - Ein Backup der GLPI-Datenbank und Plugin-Dateien vor Installation oder Update.
 

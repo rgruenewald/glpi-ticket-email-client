@@ -126,7 +126,7 @@ require_re "source_documents_id" inc/history.class.php "selected existing docume
 
 # 7. SMTP reuse, CSRF, and translations remain mandatory.
 require_re "smtp_host|Config::getConfigurationValue" inc/config.class.php "plugin reuses GLPI SMTP configuration"
-require_re "GLPIMailer" inc/mailer.class.php "plugin sends through GLPI 11 direct mailer"
+require_re "GLPIMailer" inc/mailer.class.php "plugin sends through GLPI 12/11 direct mailer"
 require_re "Session::checkLoginUser" front/send.php "send requires login"
 require_re "canUpdateItem|canAddFollowups" front/send.php "send requires ticket write/followup permission"
 forbid_re 'Session::checkCSRF\(\$_POST\)' front/send.php "send relies on GLPI bootstrap CSRF validation"

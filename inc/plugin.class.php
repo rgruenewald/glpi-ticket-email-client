@@ -7,7 +7,9 @@
  */
 class PluginTicketmailer extends CommonDBTM
 {
-    public static string $rightname = 'config';
+    // Metadata-only descriptor. Configuration access is checked explicitly
+    // in front/config.form.php; do not redeclare the version-dependent
+    // CommonGLPI::$rightname property.
 
     public static function getTypeName($nb = 0): string
     {

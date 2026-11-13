@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  phpunit.xml — PHPUnit 10 config for the ticketmailer plugin.
+  phpunit.xml — PHPUnit 11 config for the ticketmailer plugin.
   Mirrors the acceptance criteria from
-  .agent/contracts/ticket-mailer/spec.md and the structural
+  docs/specifications/glpi-ticket-email-client-v2/spec.md and the structural
   checks encoded in score.sh. The two test layers are
   intentionally redundant: score.sh is the canonical single
   binary verifier; PHPUnit is the regression suite for when

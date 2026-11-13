@@ -1,0 +1,1501 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Call to static method checkLoginUser\(\) on an unknown class Session\.$#'
+			identifier: class.notFound
+			count: 1
+			path: ajax/autocomplete_users.php
+
+		-
+			message: '#^Call to static method getLoginUserID\(\) on an unknown class Session\.$#'
+			identifier: class.notFound
+			count: 1
+			path: ajax/autocomplete_users.php
+
+		-
+			message: '#^Call to static method getNewCSRFToken\(\) on an unknown class Session\.$#'
+			identifier: class.notFound
+			count: 3
+			path: ajax/autocomplete_users.php
+
+		-
+			message: '#^Function getEntitiesRestrictCriteria not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: ajax/autocomplete_users.php
+
+		-
+			message: '#^Instantiated class Ticket not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: ajax/autocomplete_users.php
+
+		-
+			message: '#^Call to static method checkLoginUser\(\) on an unknown class Session\.$#'
+			identifier: class.notFound
+			count: 1
+			path: ajax/forward_preview.php
+
+		-
+			message: '#^Instantiated class Ticket not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: ajax/forward_preview.php
+
+		-
+			message: '#^Call to static method checkLoginUser\(\) on an unknown class Session\.$#'
+			identifier: class.notFound
+			count: 1
+			path: ajax/upload.php
+
+		-
+			message: '#^Call to static method getLoginUserID\(\) on an unknown class Session\.$#'
+			identifier: class.notFound
+			count: 1
+			path: ajax/upload.php
+
+		-
+			message: '#^Call to static method getNewCSRFToken\(\) on an unknown class Session\.$#'
+			identifier: class.notFound
+			count: 1
+			path: ajax/upload.php
+
+		-
+			message: '#^Call to static method haveAccessToEntity\(\) on an unknown class Session\.$#'
+			identifier: class.notFound
+			count: 1
+			path: ajax/upload.php
+
+		-
+			message: '#^Constant GLPI_PLUGIN_DOC_DIR not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: ajax/upload.php
+
+		-
+			message: '#^Constant READ not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: ajax/upload.php
+
+		-
+			message: '#^Function __ not found\.$#'
+			identifier: function.notFound
+			count: 6
+			path: ajax/upload.php
+
+		-
+			message: '#^Instantiated class Ticket not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: ajax/upload.php
+
+		-
+			message: '#^Call to static method checkLoginUser\(\) on an unknown class Session\.$#'
+			identifier: class.notFound
+			count: 1
+			path: ajax/upload_image.php
+
+		-
+			message: '#^Call to static method getLoginUserID\(\) on an unknown class Session\.$#'
+			identifier: class.notFound
+			count: 1
+			path: ajax/upload_image.php
+
+		-
+			message: '#^Call to static method getNewCSRFToken\(\) on an unknown class Session\.$#'
+			identifier: class.notFound
+			count: 1
+			path: ajax/upload_image.php
+
+		-
+			message: '#^Call to static method haveAccessToEntity\(\) on an unknown class Session\.$#'
+			identifier: class.notFound
+			count: 1
+			path: ajax/upload_image.php
+
+		-
+			message: '#^Constant GLPI_PLUGIN_DOC_DIR not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: ajax/upload_image.php
+
+		-
+			message: '#^Constant READ not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: ajax/upload_image.php
+
+		-
+			message: '#^Function __ not found\.$#'
+			identifier: function.notFound
+			count: 7
+			path: ajax/upload_image.php
+
+		-
+			message: '#^Instantiated class Ticket not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: ajax/upload_image.php
+
+		-
+			message: '#^Call to static method checkLoginUser\(\) on an unknown class Session\.$#'
+			identifier: class.notFound
+			count: 1
+			path: ajax/validate_recipients.php
+
+		-
+			message: '#^Call to static method getNewCSRFToken\(\) on an unknown class Session\.$#'
+			identifier: class.notFound
+			count: 1
+			path: ajax/validate_recipients.php
+
+		-
+			message: '#^Call to static method haveAccessToEntity\(\) on an unknown class Session\.$#'
+			identifier: class.notFound
+			count: 2
+			path: ajax/validate_recipients.php
+
+		-
+			message: '#^Constant READ not found\.$#'
+			identifier: constant.notFound
+			count: 2
+			path: ajax/validate_recipients.php
+
+		-
+			message: '#^Function __ not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: ajax/validate_recipients.php
+
+		-
+			message: '#^Instantiated class Ticket not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: ajax/validate_recipients.php
+
+		-
+			message: '#^Call to static method checkLoginUser\(\) on an unknown class Session\.$#'
+			identifier: class.notFound
+			count: 1
+			path: front/compose.php
+
+		-
+			message: '#^Call to static method footer\(\) on an unknown class Html\.$#'
+			identifier: class.notFound
+			count: 1
+			path: front/compose.php
+
+		-
+			message: '#^Call to static method header\(\) on an unknown class Html\.$#'
+			identifier: class.notFound
+			count: 1
+			path: front/compose.php
+
+		-
+			message: '#^Function __ not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: front/compose.php
+
+		-
+			message: '#^Instantiated class Plugin not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: front/compose.php
+
+		-
+			message: '#^Instantiated class Ticket not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: front/compose.php
+
+		-
+			message: '#^Call to static method checkLoginUser\(\) on an unknown class Session\.$#'
+			identifier: class.notFound
+			count: 1
+			path: front/config.form.php
+
+		-
+			message: '#^Call to static method checkRight\(\) on an unknown class Session\.$#'
+			identifier: class.notFound
+			count: 1
+			path: front/config.form.php
+
+		-
+			message: '#^Call to static method dropdown\(\) on an unknown class NotificationTemplate\.$#'
+			identifier: class.notFound
+			count: 1
+			path: front/config.form.php
+
+		-
+			message: '#^Call to static method footer\(\) on an unknown class Html\.$#'
+			identifier: class.notFound
+			count: 1
+			path: front/config.form.php
+
+		-
+			message: '#^Call to static method getActiveEntities\(\) on an unknown class Session\.$#'
+			identifier: class.notFound
+			count: 1
+			path: front/config.form.php
+
+		-
+			message: '#^Call to static method getNewCSRFToken\(\) on an unknown class Session\.$#'
+			identifier: class.notFound
+			count: 2
+			path: front/config.form.php
+
+		-
+			message: '#^Call to static method getTable\(\) on an unknown class Entity\.$#'
+			identifier: class.notFound
+			count: 1
+			path: front/config.form.php
+
+		-
+			message: '#^Call to static method haveAccessToEntity\(\) on an unknown class Session\.$#'
+			identifier: class.notFound
+			count: 3
+			path: front/config.form.php
+
+		-
+			message: '#^Call to static method header\(\) on an unknown class Html\.$#'
+			identifier: class.notFound
+			count: 1
+			path: front/config.form.php
+
+		-
+			message: '#^Call to static method hidden\(\) on an unknown class Html\.$#'
+			identifier: class.notFound
+			count: 6
+			path: front/config.form.php
+
+		-
+			message: '#^Call to static method redirect\(\) on an unknown class Html\.$#'
+			identifier: class.notFound
+			count: 1
+			path: front/config.form.php
+
+		-
+			message: '#^Class Ticket not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: front/config.form.php
+
+		-
+			message: '#^Constant UPDATE not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: front/config.form.php
+
+		-
+			message: '#^Function __ not found\.$#'
+			identifier: function.notFound
+			count: 28
+			path: front/config.form.php
+
+		-
+			message: '#^Instantiated class NotificationTemplate not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: front/config.form.php
+
+		-
+			message: '#^Call to static method checkLoginUser\(\) on an unknown class Session\.$#'
+			identifier: class.notFound
+			count: 1
+			path: front/download.php
+
+		-
+			message: '#^Call to static method haveAccessToEntity\(\) on an unknown class Session\.$#'
+			identifier: class.notFound
+			count: 1
+			path: front/download.php
+
+		-
+			message: '#^Constant GLPI_PLUGIN_DOC_DIR not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: front/download.php
+
+		-
+			message: '#^Instantiated class Ticket not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: front/download.php
+
+		-
+			message: '#^Call to static method checkLoginUser\(\) on an unknown class Session\.$#'
+			identifier: class.notFound
+			count: 1
+			path: front/history_attachment.php
+
+		-
+			message: '#^Call to static method haveAccessToEntity\(\) on an unknown class Session\.$#'
+			identifier: class.notFound
+			count: 1
+			path: front/history_attachment.php
+
+		-
+			message: '#^Instantiated class Ticket not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: front/history_attachment.php
+
+		-
+			message: '#^Call to static method checkLoginUser\(\) on an unknown class Session\.$#'
+			identifier: class.notFound
+			count: 1
+			path: front/log.php
+
+		-
+			message: '#^Call to static method footer\(\) on an unknown class Html\.$#'
+			identifier: class.notFound
+			count: 1
+			path: front/log.php
+
+		-
+			message: '#^Call to static method header\(\) on an unknown class Html\.$#'
+			identifier: class.notFound
+			count: 1
+			path: front/log.php
+
+		-
+			message: '#^Function __ not found\.$#'
+			identifier: function.notFound
+			count: 5
+			path: front/log.php
+
+		-
+			message: '#^Call to static method checkLoginUser\(\) on an unknown class Session\.$#'
+			identifier: class.notFound
+			count: 1
+			path: front/log_entry.php
+
+		-
+			message: '#^Call to static method footer\(\) on an unknown class Html\.$#'
+			identifier: class.notFound
+			count: 1
+			path: front/log_entry.php
+
+		-
+			message: '#^Call to static method getInstance\(\) on an unknown class Glpi\\Application\\View\\TemplateRenderer\.$#'
+			identifier: class.notFound
+			count: 1
+			path: front/log_entry.php
+
+		-
+			message: '#^Call to static method haveAccessToEntity\(\) on an unknown class Session\.$#'
+			identifier: class.notFound
+			count: 1
+			path: front/log_entry.php
+
+		-
+			message: '#^Call to static method header\(\) on an unknown class Html\.$#'
+			identifier: class.notFound
+			count: 1
+			path: front/log_entry.php
+
+		-
+			message: '#^Function __ not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: front/log_entry.php
+
+		-
+			message: '#^Instantiated class Ticket not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: front/log_entry.php
+
+		-
+			message: '#^Call to static method checkLoginUser\(\) on an unknown class Session\.$#'
+			identifier: class.notFound
+			count: 1
+			path: front/new.php
+
+		-
+			message: '#^Call to static method footer\(\) on an unknown class Html\.$#'
+			identifier: class.notFound
+			count: 1
+			path: front/new.php
+
+		-
+			message: '#^Call to static method getInstance\(\) on an unknown class Glpi\\Application\\View\\TemplateRenderer\.$#'
+			identifier: class.notFound
+			count: 1
+			path: front/new.php
+
+		-
+			message: '#^Call to static method getLoginUserID\(\) on an unknown class Session\.$#'
+			identifier: class.notFound
+			count: 1
+			path: front/new.php
+
+		-
+			message: '#^Call to static method getNewCSRFToken\(\) on an unknown class Session\.$#'
+			identifier: class.notFound
+			count: 2
+			path: front/new.php
+
+		-
+			message: '#^Call to static method header\(\) on an unknown class Html\.$#'
+			identifier: class.notFound
+			count: 1
+			path: front/new.php
+
+		-
+			message: '#^Call to static method textarea\(\) on an unknown class Html\.$#'
+			identifier: class.notFound
+			count: 1
+			path: front/new.php
+
+		-
+			message: '#^Function __ not found\.$#'
+			identifier: function.notFound
+			count: 2
+			path: front/new.php
+
+		-
+			message: '#^Function htmlescape not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: front/new.php
+
+		-
+			message: '#^Access to constant SOLVED on an unknown class Ticket\.$#'
+			identifier: class.notFound
+			count: 2
+			path: front/send.php
+
+		-
+			message: '#^Access to constant WAITING on an unknown class Ticket\.$#'
+			identifier: class.notFound
+			count: 2
+			path: front/send.php
+
+		-
+			message: '#^Call to static method addErrorMessage\(\) on an unknown class Html\.$#'
+			identifier: class.notFound
+			count: 1
+			path: front/send.php
+
+		-
+			message: '#^Call to static method addMessageAfterRedirect\(\) on an unknown class Session\.$#'
+			identifier: class.notFound
+			count: 4
+			path: front/send.php
+
+		-
+			message: '#^Call to static method back\(\) on an unknown class Html\.$#'
+			identifier: class.notFound
+			count: 1
+			path: front/send.php
+
+		-
+			message: '#^Call to static method checkLoginUser\(\) on an unknown class Session\.$#'
+			identifier: class.notFound
+			count: 1
+			path: front/send.php
+
+		-
+			message: '#^Call to static method footer\(\) on an unknown class Html\.$#'
+			identifier: class.notFound
+			count: 2
+			path: front/send.php
+
+		-
+			message: '#^Call to static method getEmailSender\(\) on an unknown class Config\.$#'
+			identifier: class.notFound
+			count: 1
+			path: front/send.php
+
+		-
+			message: '#^Call to static method getFormURLWithID\(\) on an unknown class Ticket\.$#'
+			identifier: class.notFound
+			count: 3
+			path: front/send.php
+
+		-
+			message: '#^Call to static method getInstance\(\) on an unknown class Glpi\\Application\\View\\TemplateRenderer\.$#'
+			identifier: class.notFound
+			count: 2
+			path: front/send.php
+
+		-
+			message: '#^Call to static method getLoginUserID\(\) on an unknown class Session\.$#'
+			identifier: class.notFound
+			count: 2
+			path: front/send.php
+
+		-
+			message: '#^Call to static method getNewCSRFToken\(\) on an unknown class Session\.$#'
+			identifier: class.notFound
+			count: 4
+			path: front/send.php
+
+		-
+			message: '#^Call to static method getSearchURL\(\) on an unknown class Ticket\.$#'
+			identifier: class.notFound
+			count: 2
+			path: front/send.php
+
+		-
+			message: '#^Call to static method haveAccessToEntity\(\) on an unknown class Session\.$#'
+			identifier: class.notFound
+			count: 1
+			path: front/send.php
+
+		-
+			message: '#^Call to static method header\(\) on an unknown class Html\.$#'
+			identifier: class.notFound
+			count: 2
+			path: front/send.php
+
+		-
+			message: '#^Call to static method redirect\(\) on an unknown class Html\.$#'
+			identifier: class.notFound
+			count: 5
+			path: front/send.php
+
+		-
+			message: '#^Call to static method textarea\(\) on an unknown class Html\.$#'
+			identifier: class.notFound
+			count: 2
+			path: front/send.php
+
+		-
+			message: '#^Constant ERROR not found\.$#'
+			identifier: constant.notFound
+			count: 3
+			path: front/send.php
+
+		-
+			message: '#^Constant GLPI_PLUGIN_DOC_DIR not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: front/send.php
+
+		-
+			message: '#^Constant READ not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: front/send.php
+
+		-
+			message: '#^Constant WARNING not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: front/send.php
+
+		-
+			message: '#^Function __ not found\.$#'
+			identifier: function.notFound
+			count: 18
+			path: front/send.php
+
+		-
+			message: '#^Instantiated class Glpi\\Exception\\Http\\BadRequestHttpException not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: front/send.php
+
+		-
+			message: '#^Instantiated class RequestType not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: front/send.php
+
+		-
+			message: '#^Instantiated class Ticket not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: front/send.php
+
+		-
+			message: '#^Access to constant SOLVED on an unknown class Ticket\.$#'
+			identifier: class.notFound
+			count: 5
+			path: hook.php
+
+		-
+			message: '#^Access to constant WAITING on an unknown class Ticket\.$#'
+			identifier: class.notFound
+			count: 2
+			path: hook.php
+
+		-
+			message: '#^Call to static method addMessageAfterRedirect\(\) on an unknown class Session\.$#'
+			identifier: class.notFound
+			count: 3
+			path: hook.php
+
+		-
+			message: '#^Call to static method deleteConfigurationValues\(\) on an unknown class Config\.$#'
+			identifier: class.notFound
+			count: 1
+			path: hook.php
+
+		-
+			message: '#^Call to static method haveRight\(\) on an unknown class Session\.$#'
+			identifier: class.notFound
+			count: 1
+			path: hook.php
+
+		-
+			message: '#^Call to static method registerClass\(\) on an unknown class Plugin\.$#'
+			identifier: class.notFound
+			count: 1
+			path: hook.php
+
+		-
+			message: '#^Class Ticket not found\.$#'
+			identifier: class.notFound
+			count: 2
+			path: hook.php
+
+		-
+			message: '#^Constant ERROR not found\.$#'
+			identifier: constant.notFound
+			count: 3
+			path: hook.php
+
+		-
+			message: '#^Constant GLPI_PLUGIN_DOC_DIR not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: hook.php
+
+		-
+			message: '#^Constant READ not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: hook.php
+
+		-
+			message: '#^Function __ not found\.$#'
+			identifier: function.notFound
+			count: 3
+			path: hook.php
+
+		-
+			message: '#^Instantiated class Ticket not found\.$#'
+			identifier: class.notFound
+			count: 3
+			path: hook.php
+
+		-
+			message: '#^Parameter \$followup of function plugin_ticketmailer_force_internal_note_private\(\) has invalid type ITILFollowup\.$#'
+			identifier: class.notFound
+			count: 1
+			path: hook.php
+
+		-
+			message: '#^Parameter \$followup of function plugin_ticketmailer_prepare_internal_note\(\) has invalid type ITILFollowup\.$#'
+			identifier: class.notFound
+			count: 1
+			path: hook.php
+
+		-
+			message: '#^Parameter \$followup of function plugin_ticketmailer_set_internal_note_solved\(\) has invalid type ITILFollowup\.$#'
+			identifier: class.notFound
+			count: 1
+			path: hook.php
+
+		-
+			message: '#^Parameter \$target of function plugin_ticketmailer_filter_notification_template_data\(\) has invalid type NotificationTargetTicket\.$#'
+			identifier: class.notFound
+			count: 1
+			path: hook.php
+
+		-
+			message: '#^Parameter \$ticket of function plugin_ticketmailer_item_purge\(\) has invalid type Ticket\.$#'
+			identifier: class.notFound
+			count: 1
+			path: hook.php
+
+		-
+			message: '#^Call to static method setPath\(\) on an unknown class Session\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/bootstrap.php
+
+		-
+			message: '#^Call to static method start\(\) on an unknown class Session\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/bootstrap.php
+
+		-
+			message: '#^Instantiated class Glpi\\Kernel\\Kernel not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/bootstrap.php
+
+		-
+			message: '#^Call to static method getEmailSender\(\) on an unknown class Config\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/composer.class.php
+
+		-
+			message: '#^Function __ not found\.$#'
+			identifier: function.notFound
+			count: 2
+			path: inc/composer.class.php
+
+		-
+			message: '#^Instantiated class Ticket not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/composer.class.php
+
+		-
+			message: '#^Access to constant GLPI_USER on an unknown class NotificationTarget\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/config.class.php
+
+		-
+			message: '#^Access to constant MODE_MAIL on an unknown class Notification_NotificationTemplate\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/config.class.php
+
+		-
+			message: '#^Access to constant TIMELINE_ORDER_NATURAL on an unknown class CommonITILObject\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/config.class.php
+
+		-
+			message: '#^Access to constant TIMELINE_ORDER_REVERSE on an unknown class CommonITILObject\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/config.class.php
+
+		-
+			message: '#^Call to static method displayNotFoundError\(\) on an unknown class Html\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/config.class.php
+
+		-
+			message: '#^Call to static method displayRightError\(\) on an unknown class Html\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/config.class.php
+
+		-
+			message: '#^Call to static method getConfigurationValue\(\) on an unknown class Config\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/config.class.php
+
+		-
+			message: '#^Call to static method getDefaultForUser\(\) on an unknown class UserEmail\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/config.class.php
+
+		-
+			message: '#^Call to static method getInstance\(\) on an unknown class NotificationTarget\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/config.class.php
+
+		-
+			message: '#^Call to static method getLoginUserID\(\) on an unknown class Session\.$#'
+			identifier: class.notFound
+			count: 2
+			path: inc/config.class.php
+
+		-
+			message: '#^Call to static method getTable\(\) on an unknown class Entity\.$#'
+			identifier: class.notFound
+			count: 2
+			path: inc/config.class.php
+
+		-
+			message: '#^Call to static method getWebDir\(\) on an unknown class Plugin\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/config.class.php
+
+		-
+			message: '#^Call to static method setConfigurationValues\(\) on an unknown class Config\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/config.class.php
+
+		-
+			message: '#^Class Config not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/config.class.php
+
+		-
+			message: '#^Class NotificationTargetTicket not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/config.class.php
+
+		-
+			message: '#^Class Ticket not found\.$#'
+			identifier: class.notFound
+			count: 2
+			path: inc/config.class.php
+
+		-
+			message: '#^Function __ not found\.$#'
+			identifier: function.notFound
+			count: 14
+			path: inc/config.class.php
+
+		-
+			message: '#^Function getAncestorsOf not found\.$#'
+			identifier: function.notFound
+			count: 2
+			path: inc/config.class.php
+
+		-
+			message: '#^Instantiated class Entity not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/config.class.php
+
+		-
+			message: '#^Instantiated class NotificationTemplate not found\.$#'
+			identifier: class.notFound
+			count: 2
+			path: inc/config.class.php
+
+		-
+			message: '#^Instantiated class Ticket not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/config.class.php
+
+		-
+			message: '#^Instantiated class User not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/config.class.php
+
+		-
+			message: '#^Parameter \$ticket of method PluginTicketmailerConfig\:\:contentForTicket\(\) has invalid type Ticket\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/config.class.php
+
+		-
+			message: '#^Parameter \$ticket of method PluginTicketmailerConfig\:\:expandTicketVariables\(\) has invalid type Ticket\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/config.class.php
+
+		-
+			message: '#^Parameter \$ticket of method PluginTicketmailerConfig\:\:fallbackSubjectForTicket\(\) has invalid type Ticket\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/config.class.php
+
+		-
+			message: '#^Parameter \$ticket of method PluginTicketmailerConfig\:\:renderNotificationTemplate\(\) has invalid type Ticket\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/config.class.php
+
+		-
+			message: '#^Parameter \$ticket of method PluginTicketmailerConfig\:\:setWaitingAfterSend\(\) has invalid type Ticket\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/config.class.php
+
+		-
+			message: '#^Parameter \$ticket of method PluginTicketmailerConfig\:\:signatureForTicket\(\) has invalid type Ticket\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/config.class.php
+
+		-
+			message: '#^Parameter \$ticket of method PluginTicketmailerConfig\:\:subjectForTicket\(\) has invalid type Ticket\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/config.class.php
+
+		-
+			message: '#^Constant GLPI_DOC_DIR not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: inc/history.class.php
+
+		-
+			message: '#^Constant GLPI_PLUGIN_DOC_DIR not found\.$#'
+			identifier: constant.notFound
+			count: 2
+			path: inc/history.class.php
+
+		-
+			message: '#^Constant GLPI_TMP_DIR not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: inc/history.class.php
+
+		-
+			message: '#^Function __ not found\.$#'
+			identifier: function.notFound
+			count: 5
+			path: inc/history.class.php
+
+		-
+			message: '#^Instantiated class Document not found\.$#'
+			identifier: class.notFound
+			count: 4
+			path: inc/history.class.php
+
+		-
+			message: '#^Instantiated class Document_Item not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/history.class.php
+
+		-
+			message: '#^Instantiated class User not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/history.class.php
+
+		-
+			message: '#^Parameter \$document of method PluginTicketmailerHistory\:\:filename\(\) has invalid type Document\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/history.class.php
+
+		-
+			message: '#^Parameter \$ticket of method PluginTicketmailerHistory\:\:attachOutboundDocuments\(\) has invalid type Ticket\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/history.class.php
+
+		-
+			message: '#^Parameter \$ticket of method PluginTicketmailerHistory\:\:availableAttachments\(\) has invalid type Ticket\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/history.class.php
+
+		-
+			message: '#^Parameter \$ticket of method PluginTicketmailerHistory\:\:copySelectedAttachments\(\) has invalid type Ticket\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/history.class.php
+
+		-
+			message: '#^Parameter \$ticket of method PluginTicketmailerHistory\:\:render\(\) has invalid type Ticket\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/history.class.php
+
+		-
+			message: '#^Parameter \$ticket of method PluginTicketmailerHistory\:\:resolveAttachment\(\) has invalid type Ticket\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/history.class.php
+
+		-
+			message: '#^Parameter \$ticket of method PluginTicketmailerHistory\:\:selectedAttachments\(\) has invalid type Ticket\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/history.class.php
+
+		-
+			message: '#^Parameter \$ticket of method PluginTicketmailerHistory\:\:validateSelectedAttachments\(\) has invalid type Ticket\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/history.class.php
+
+		-
+			message: '#^Call to static method logInFile\(\) on an unknown class Toolbox\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/hook.class.php
+
+		-
+			message: '#^Call to static method getFormURLWithID\(\) on an unknown class Ticket\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/logtab.class.php
+
+		-
+			message: '#^Class Ticket not found\.$#'
+			identifier: class.notFound
+			count: 3
+			path: inc/logtab.class.php
+
+		-
+			message: '#^Function __ not found\.$#'
+			identifier: function.notFound
+			count: 6
+			path: inc/logtab.class.php
+
+		-
+			message: '#^Function _sn not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: inc/logtab.class.php
+
+		-
+			message: '#^Instantiated class Ticket not found\.$#'
+			identifier: class.notFound
+			count: 2
+			path: inc/logtab.class.php
+
+		-
+			message: '#^Method PluginTicketmailerLogTab\:\:getCurrentTicket\(\) has invalid return type Ticket\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/logtab.class.php
+
+		-
+			message: '#^Call to static method fromPath\(\) on an unknown class Symfony\\Component\\Mime\\Part\\DataPart\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/mailer.class.php
+
+		-
+			message: '#^Function __ not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: inc/mailer.class.php
+
+		-
+			message: '#^Instantiated class GLPIMailer not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/mailer.class.php
+
+		-
+			message: '#^Instantiated class Symfony\\Component\\Mime\\Address not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/mailer.class.php
+
+		-
+			message: '#^Function _sn not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: inc/plugin.class.php
+
+		-
+			message: '#^Access to constant READALL on an unknown class Ticket\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/proactive.class.php
+
+		-
+			message: '#^Access to constant READMY on an unknown class Ticket\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/proactive.class.php
+
+		-
+			message: '#^Call to static method getCurrentInterface\(\) on an unknown class Session\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/proactive.class.php
+
+		-
+			message: '#^Call to static method getDropdownName\(\) on an unknown class Dropdown\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/proactive.class.php
+
+		-
+			message: '#^Call to static method getEmailSender\(\) on an unknown class Config\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/proactive.class.php
+
+		-
+			message: '#^Call to static method getEntitiesForProfileByUser\(\) on an unknown class Profile_User\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/proactive.class.php
+
+		-
+			message: '#^Call to static method getLoginUserID\(\) on an unknown class Session\.$#'
+			identifier: class.notFound
+			count: 2
+			path: inc/proactive.class.php
+
+		-
+			message: '#^Call to static method getUsersIdByEmails\(\) on an unknown class User\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/proactive.class.php
+
+		-
+			message: '#^Call to static method haveRight\(\) on an unknown class Session\.$#'
+			identifier: class.notFound
+			count: 4
+			path: inc/proactive.class.php
+
+		-
+			message: '#^Constant CREATE not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: inc/proactive.class.php
+
+		-
+			message: '#^Constant GLPI_PLUGIN_DOC_DIR not found\.$#'
+			identifier: constant.notFound
+			count: 3
+			path: inc/proactive.class.php
+
+		-
+			message: '#^Constant UPDATE not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: inc/proactive.class.php
+
+		-
+			message: '#^Function __ not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: inc/proactive.class.php
+
+		-
+			message: '#^Instantiated class Entity not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/proactive.class.php
+
+		-
+			message: '#^Access to constant SOLVED on an unknown class Ticket\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/sendservice.class.php
+
+		-
+			message: '#^Access to constant WAITING on an unknown class Ticket\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/sendservice.class.php
+
+		-
+			message: '#^Call to static method addMessageAfterRedirect\(\) on an unknown class Session\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/sendservice.class.php
+
+		-
+			message: '#^Call to static method getLoginUserID\(\) on an unknown class Session\.$#'
+			identifier: class.notFound
+			count: 2
+			path: inc/sendservice.class.php
+
+		-
+			message: '#^Constant ERROR not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: inc/sendservice.class.php
+
+		-
+			message: '#^Function __ not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: inc/sendservice.class.php
+
+		-
+			message: '#^Parameter \$ticket of method PluginTicketmailerSendservice\:\:deliver\(\) has invalid type Ticket\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/sendservice.class.php
+
+		-
+			message: '#^Access to constant SOLVED on an unknown class Ticket\.$#'
+			identifier: class.notFound
+			count: 2
+			path: inc/timeline.class.php
+
+		-
+			message: '#^Access to constant WAITING on an unknown class Ticket\.$#'
+			identifier: class.notFound
+			count: 2
+			path: inc/timeline.class.php
+
+		-
+			message: '#^Call to static method canUpdate\(\) on an unknown class Ticket\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/timeline.class.php
+
+		-
+			message: '#^Call to static method haveAccessToEntity\(\) on an unknown class Session\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/timeline.class.php
+
+		-
+			message: '#^Call to static method isAllowedStatus\(\) on an unknown class Ticket\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/timeline.class.php
+
+		-
+			message: '#^Class Ticket not found\.$#'
+			identifier: class.notFound
+			count: 2
+			path: inc/timeline.class.php
+
+		-
+			message: '#^Constant CREATE not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: inc/timeline.class.php
+
+		-
+			message: '#^Function __ not found\.$#'
+			identifier: function.notFound
+			count: 14
+			path: inc/timeline.class.php
+
+		-
+			message: '#^Instantiated class ITILFollowup not found\.$#'
+			identifier: class.notFound
+			count: 2
+			path: inc/timeline.class.php
+
+		-
+			message: '#^Instantiated class Ticket not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/timeline.class.php
+
+		-
+			message: '#^Parameter \$ticket of method PluginTicketmailerTimeline\:\:canAddFollowup\(\) has invalid type Ticket\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/timeline.class.php
+
+		-
+			message: '#^Parameter \$ticket of method PluginTicketmailerTimeline\:\:canChangeStatus\(\) has invalid type Ticket\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/timeline.class.php
+
+		-
+			message: '#^Parameter \$ticket of method PluginTicketmailerTimeline\:\:validateSubmission\(\) has invalid type Ticket\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/timeline.class.php
+
+		-
+			message: '#^Access to constant OBSERVER on an unknown class CommonITILActor\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/timelineaction.class.php
+
+		-
+			message: '#^Access to constant REQUESTER on an unknown class CommonITILActor\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/timelineaction.class.php
+
+		-
+			message: '#^Access to constant SOLVED on an unknown class Ticket\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/timelineaction.class.php
+
+		-
+			message: '#^Access to constant WAITING on an unknown class Ticket\.$#'
+			identifier: class.notFound
+			count: 2
+			path: inc/timelineaction.class.php
+
+		-
+			message: '#^Call to static method dropdown\(\) on an unknown class RequestType\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/timelineaction.class.php
+
+		-
+			message: '#^Call to static method getDefault\(\) on an unknown class RequestType\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/timelineaction.class.php
+
+		-
+			message: '#^Call to static method getIcon\(\) on an unknown class ITILFollowup\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/timelineaction.class.php
+
+		-
+			message: '#^Call to static method getInstance\(\) on an unknown class Glpi\\Application\\View\\TemplateRenderer\.$#'
+			identifier: class.notFound
+			count: 2
+			path: inc/timelineaction.class.php
+
+		-
+			message: '#^Call to static method getMailingSignature\(\) on an unknown class Notification\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/timelineaction.class.php
+
+		-
+			message: '#^Call to static method getNewCSRFToken\(\) on an unknown class Session\.$#'
+			identifier: class.notFound
+			count: 2
+			path: inc/timelineaction.class.php
+
+		-
+			message: '#^Call to static method getSolvedStatusArray\(\) on an unknown class Ticket\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/timelineaction.class.php
+
+		-
+			message: '#^Call to static method show\(\) on an unknown class Dropdown\.$#'
+			identifier: class.notFound
+			count: 2
+			path: inc/timelineaction.class.php
+
+		-
+			message: '#^Call to static method textarea\(\) on an unknown class Html\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/timelineaction.class.php
+
+		-
+			message: '#^Class ITILFollowup not found\.$#'
+			identifier: class.notFound
+			count: 2
+			path: inc/timelineaction.class.php
+
+		-
+			message: '#^Class Ticket not found\.$#'
+			identifier: class.notFound
+			count: 3
+			path: inc/timelineaction.class.php
+
+		-
+			message: '#^Function __ not found\.$#'
+			identifier: function.notFound
+			count: 12
+			path: inc/timelineaction.class.php
+
+		-
+			message: '#^Function _x not found\.$#'
+			identifier: function.notFound
+			count: 2
+			path: inc/timelineaction.class.php
+
+		-
+			message: '#^Instantiated class ITILFollowup not found\.$#'
+			identifier: class.notFound
+			count: 2
+			path: inc/timelineaction.class.php
+
+		-
+			message: '#^Instantiated class User not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/timelineaction.class.php
+
+		-
+			message: '#^Parameter \$ticket of method PluginTicketmailerTimelineAction\:\:actorEmails\(\) has invalid type Ticket\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/timelineaction.class.php
+
+		-
+			message: '#^Parameter \$ticket of method PluginTicketmailerTimelineAction\:\:canUse\(\) has invalid type Ticket\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/timelineaction.class.php
+
+		-
+			message: '#^Parameter \$ticket of method PluginTicketmailerTimelineAction\:\:entitySignature\(\) has invalid type Ticket\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/timelineaction.class.php
+
+		-
+			message: '#^Parameter \$ticket of method PluginTicketmailerTimelineAction\:\:modal\(\) has invalid type Ticket\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/timelineaction.class.php
+
+		-
+			message: '#^Parameter \$ticket of method PluginTicketmailerTimelineAction\:\:modalName\(\) has invalid type Ticket\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/timelineaction.class.php
+
+		-
+			message: '#^Parameter \$ticket of method PluginTicketmailerTimelineAction\:\:nativeActions\(\) has invalid type Ticket\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/timelineaction.class.php
+
+		-
+			message: '#^Parameter \$ticket of method PluginTicketmailerTimelineAction\:\:nativeAnswerAction\(\) has invalid type Ticket\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/timelineaction.class.php
+
+		-
+			message: '#^Parameter \$ticket of method PluginTicketmailerTimelineAction\:\:nativeFollowupForm\(\) has invalid type Ticket\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/timelineaction.class.php
+
+		-
+			message: '#^Parameter \$ticket of method PluginTicketmailerTimelineAction\:\:renderForm\(\) has invalid type Ticket\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/timelineaction.class.php
+
+		-
+			message: '#^Parameter \$ticket of method PluginTicketmailerTimelineAction\:\:renderReply\(\) has invalid type Ticket\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/timelineaction.class.php
+
+		-
+			message: '#^Parameter \$ticket of method PluginTicketmailerTimelineAction\:\:renderReplyForm\(\) has invalid type Ticket\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/timelineaction.class.php
+
+		-
+			message: '#^Parameter \$ticket of method PluginTicketmailerTimelineReply\:\:renderForm\(\) has invalid type Ticket\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/timelinereply.class.php
+
+		-
+			message: '#^Class ITILFollowup not found\.$#'
+			identifier: class.notFound
+			count: 3
+			path: setup.php
+
+		-
+			message: '#^Class NotificationTargetTicket not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: setup.php
+
+		-
+			message: '#^Constant GLPI_VERSION not found\.$#'
+			identifier: constant.notFound
+			count: 2
+			path: setup.php
+
+		-
+			message: '#^Function __ not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: setup.php
