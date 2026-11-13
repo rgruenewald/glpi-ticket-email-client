@@ -9,7 +9,7 @@ Session::checkRight('config', UPDATE);
 
 $entities_id = (int) ($_GET['entities_id'] ?? $_POST['entities_id'] ?? ($_SESSION['glpiactive_entity'] ?? 0));
 if (!Session::haveAccessToEntity($entities_id)) {
-    Html::displayRightError();
+    PluginTicketmailerConfig::displayRightError();
 }
 global $CFG_GLPI;
 $config_url = rtrim((string) ($CFG_GLPI['root_doc'] ?? ''), '/') . '/plugins/ticketmailer/front/config.form.php';
@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['save_template_assignment'])) {
         $assignment_entities_id = (int) ($_POST['assignment_entities_id'] ?? -1);
         if (!Session::haveAccessToEntity($assignment_entities_id)) {
-            Html::displayRightError();
+            PluginTicketmailerConfig::displayRightError();
         }
         PluginTicketmailerConfig::saveNotificationTemplateAssignment(
             $assignment_entities_id,

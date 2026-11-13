@@ -64,11 +64,11 @@ Target: %s
 }
 plugin_apply() {
   if [ "$needs_install" = 1 ]; then
-    compose exec -T --user www-data glpi php bin/console glpi:plugin:install ticketmailer --username=glpi --no-interaction --force
+    compose exec -T --user www-data glpi php bin/console plugin:install ticketmailer --username=glpi --no-interaction --force
   fi
   active_state=$(plugin_row "SELECT state FROM glpi_plugins WHERE directory='ticketmailer'")
   if [ "$active_state" != 1 ]; then
-    compose exec -T --user www-data glpi php bin/console glpi:plugin:activate ticketmailer --no-interaction
+    compose exec -T --user www-data glpi php bin/console plugin:activate ticketmailer --no-interaction
   fi
   actual=$(plugin_row "SELECT CONCAT(version, ':', state) FROM glpi_plugins WHERE directory='ticketmailer'")
   if [ "$actual" != "$code_version:1" ]; then

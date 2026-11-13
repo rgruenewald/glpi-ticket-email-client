@@ -8,17 +8,17 @@ require_once __DIR__ . '/../inc/bootstrap.php';
 
 $plugin = new Plugin();
 if (!$plugin->isInstalled('ticketmailer') || !$plugin->isActivated('ticketmailer')) {
-    Html::displayNotFoundError();
+    PluginTicketmailerConfig::displayNotFoundError();
 }
 Session::checkLoginUser();
 
 $tickets_id = (int) ($_POST['tickets_id'] ?? $_GET['tickets_id'] ?? 0);
 $ticket = new Ticket();
 if ($tickets_id <= 0 || !$ticket->getFromDB($tickets_id)) {
-    Html::displayNotFoundError();
+    PluginTicketmailerConfig::displayNotFoundError();
 }
 if (!PluginTicketmailerTimelineAction::canUse($ticket)) {
-    Html::displayRightError();
+    PluginTicketmailerConfig::displayRightError();
 }
 
 if (!isset($_SERVER['HTTP_X_REQUESTED_WITH'])) {

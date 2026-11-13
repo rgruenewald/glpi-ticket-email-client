@@ -156,9 +156,13 @@ function fixture(scenario) {
   return JSON.parse(compose('exec', '-T', 'glpi', 'php', '/usr/local/bin/e2e-fixture.php', scenario));
 }
 async function post(page, url, fields = {}, files = {}) {
-  const token = await page.locator('meta[property="glpi:csrf_token"]').getAttribute('content');
+  const token = (await page.locator('meta[property="glpi:csrf_token"]').getAttribute('content', { timeout: 1000 }).catch(() => null)) ?? '';
+  const headers = { 'X-Requested-With': 'XMLHttpRequest' };
+  if (token) {
+    headers['X-Glpi-Csrf-Token'] = token;
+  }
   return page.request.post(url, {
-    headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-Glpi-Csrf-Token': token },
+    headers,
     multipart: { ...fields, ...files },
   });
 }

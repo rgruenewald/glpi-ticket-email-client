@@ -6,6 +6,41 @@
  */
 class PluginTicketmailerConfig
 {
+    public static function getWebDir(bool $full = true): string
+    {
+        global $CFG_GLPI;
+        if (is_callable(['Plugin', 'getWebDir'])) {
+            return Plugin::getWebDir('ticketmailer', $full);
+        }
+        $root = $full ? rtrim((string) ($CFG_GLPI['root_doc'] ?? ''), '/') : '';
+        return $root . '/plugins/ticketmailer';
+    }
+
+    public static function displayRightError(): void
+    {
+        if (class_exists('Glpi\\Exception\\Http\\AccessDeniedHttpException')) {
+            $class = 'Glpi\\Exception\\Http\\AccessDeniedHttpException';
+            throw new $class();
+        }
+        if (is_callable(['Html', 'displayRightError'])) {
+            Html::displayRightError();
+        }
+        http_response_code(403);
+        exit;
+    }
+
+    public static function displayNotFoundError(): void
+    {
+        if (class_exists('Glpi\\Exception\\Http\\NotFoundHttpException')) {
+            $class = 'Glpi\\Exception\\Http\\NotFoundHttpException';
+            throw new $class();
+        }
+        if (is_callable(['Html', 'displayNotFoundError'])) {
+            Html::displayNotFoundError();
+        }
+        http_response_code(404);
+        exit;
+    }
 
     /** Compatibility accessor retained for external callers. */
     public static function smtpUsername(): string

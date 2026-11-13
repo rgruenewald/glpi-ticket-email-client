@@ -16,10 +16,13 @@ class PluginTicketmailerHistory
             'Ticket' => [(int) $ticket->getField('id')],
             'ITILFollowup' => [],
         ];
-        foreach ($DB->request('glpi_itilfollowups', [
-            'items_id' => (int) $ticket->getField('id'),
-            'itemtype' => 'Ticket',
-            'is_private' => 0,
+        foreach ($DB->request([
+            'FROM' => 'glpi_itilfollowups',
+            'WHERE' => [
+                'items_id' => (int) $ticket->getField('id'),
+                'itemtype' => 'Ticket',
+                'is_private' => 0,
+            ],
         ]) as $followup) {
             $item_ids['ITILFollowup'][] = (int) $followup['id'];
         }
@@ -30,9 +33,12 @@ class PluginTicketmailerHistory
                 continue;
             }
             $links_by_item = [];
-            foreach ($DB->request('glpi_documents_items', [
-                'itemtype' => $itemtype,
-                'items_id' => $ids,
+            foreach ($DB->request([
+                'FROM' => 'glpi_documents_items',
+                'WHERE' => [
+                    'itemtype' => $itemtype,
+                    'items_id' => $ids,
+                ],
             ]) as $link) {
                 $links_by_item[(int) $link['items_id']][] = (int) $link['documents_id'];
             }
@@ -58,7 +64,7 @@ class PluginTicketmailerHistory
                 'id' => $documents_id,
                 'filename' => self::filename($document),
                 'mime' => (string) ($document->getField('mime') ?: 'application/octet-stream'),
-                'preview_url' => Plugin::getWebDir('ticketmailer') . '/front/history_attachment.php'
+                'preview_url' => PluginTicketmailerConfig::getWebDir() . '/front/history_attachment.php'
                     . '?tickets_id=' . (int) $ticket->getField('id')
                     . '&documents_id=' . $documents_id,
             ];
@@ -211,10 +217,13 @@ class PluginTicketmailerHistory
             'author' => self::userDisplayName((int) $ticket->getField('users_id')),
             'content' => (string) $ticket->getField('content'),
         ]];
-        foreach ($DB->request('glpi_itilfollowups', [
-            'items_id' => (int) $ticket->getField('id'),
-            'itemtype' => 'Ticket',
-            'is_private' => 0,
+        foreach ($DB->request([
+            'FROM' => 'glpi_itilfollowups',
+            'WHERE' => [
+                'items_id' => (int) $ticket->getField('id'),
+                'itemtype' => 'Ticket',
+                'is_private' => 0,
+            ],
             'ORDER' => 'date ASC',
         ]) as $followup) {
             $entries[] = [

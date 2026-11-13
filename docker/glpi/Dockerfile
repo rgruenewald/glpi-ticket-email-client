@@ -4,7 +4,7 @@
 
 FROM php:8.5-apache@sha256:08af36df144462d84c7f16190557eec06cb9f656882685610b712a15eec54d46
 
-ENV GLPI_VERSION=11.0.13 \
+ENV GLPI_VERSION=12.0.2 \
     DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update \

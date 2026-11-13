@@ -20,7 +20,7 @@ $entries = $tickets_id > 0
     ? PluginTicketmailerAudit::listForTicket($tickets_id)
     : [];
 
-$web = Plugin::getWebDir('ticketmailer');
+$web = PluginTicketmailerConfig::getWebDir();
 echo '<table class="tab_cadre_fixe">';
 echo '<tr><th>' . htmlspecialchars(__('Sent at', 'ticketmailer'), ENT_QUOTES, 'UTF-8') . '</th>';
 echo '<th>' . htmlspecialchars(__('Ticket', 'ticketmailer'), ENT_QUOTES, 'UTF-8') . '</th>';

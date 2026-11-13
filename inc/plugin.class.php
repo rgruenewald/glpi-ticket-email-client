@@ -7,7 +7,7 @@
  */
 class PluginTicketmailer extends CommonDBTM
 {
-    public static $rightname = 'config';
+    public static string $rightname = 'config';
 
     public static function getTypeName($nb = 0): string
     {
@@ -19,9 +19,8 @@ class PluginTicketmailer extends CommonDBTM
         return 'ticketmailer';
     }
 
-    public static function getWebDir(): string
+    public static function getWebDir(bool $full = true): string
     {
-        global $CFG_GLPI;
-        return rtrim((string) $CFG_GLPI['root_doc'], '/') . '/plugins/ticketmailer';
+        return PluginTicketmailerConfig::getWebDir($full);
     }
 }

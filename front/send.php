@@ -16,13 +16,13 @@ $proactive_context = null;
 if (!empty($_POST['compose_token'])) {
     $proactive_context = PluginTicketmailerProactive::context((string) $_POST['compose_token'], (int) Session::getLoginUserID());
     if ($proactive_context === null || !PluginTicketmailerProactive::canUse((int) $proactive_context['entities_id'])) {
-        Html::displayRightError();
+        PluginTicketmailerConfig::displayRightError();
     }
     $proactive_lock = PluginTicketmailerProactive::lock($proactive_context);
     $proactive_state = PluginTicketmailerProactive::state($proactive_context);
     if ($proactive_state['phase'] === 'open') {
         $entity = filter_var($_POST['sender_entity'] ?? $proactive_context['entities_id'], FILTER_VALIDATE_INT);
-        if ($entity === false || !PluginTicketmailerProactive::canUse($entity)) { Html::displayRightError(); }
+        if ($entity === false || !PluginTicketmailerProactive::canUse($entity)) { PluginTicketmailerConfig::displayRightError(); }
         $proactive_context = PluginTicketmailerProactive::selectEntity($proactive_context, $entity);
         PluginTicketmailerProactive::enterEntity($proactive_context);
     }
@@ -33,9 +33,9 @@ if (!empty($_POST['compose_token'])) {
     }
     $tickets_id = 0;
 } elseif ($tickets_id <= 0 || !$ticket->getFromDB($tickets_id) || !Session::haveAccessToEntity((int) $ticket->getField('entities_id')) || !$ticket->can($tickets_id, READ) || !PluginTicketmailerTimelineAction::canUse($ticket)) {
-    Html::displayRightError();
+    PluginTicketmailerConfig::displayRightError();
 }
-$web = Plugin::getWebDir('ticketmailer');
+$web = PluginTicketmailerConfig::getWebDir();
 $delivery_mode = (string) ($_POST['delivery_mode'] ?? 'email');
 if ($delivery_mode !== 'email') {
     $error = new \Glpi\Exception\Http\BadRequestHttpException();
