@@ -39,8 +39,9 @@ class LocalReleasePublisherTest(unittest.TestCase):
             allow_dirty=True,
         )
         self.assertFalse(res["published"])
-        self.assertEqual(res["version"], (ROOT / "VERSION").read_text().strip())
-        self.assertIn("ticketmailer-2.6.2.tar.gz", res["assets"])
+        version = (ROOT / "VERSION").read_text().strip()
+        self.assertEqual(res["version"], version)
+        self.assertIn(f"ticketmailer-{version}.tar.gz", res["assets"])
         self.assertIn("ticketmailer.xml", res["assets"])
         self.assertIn("SHA256SUMS", res["assets"])
 
