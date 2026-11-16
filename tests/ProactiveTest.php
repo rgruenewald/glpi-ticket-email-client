@@ -9,7 +9,7 @@ final class ProactiveTest extends TestCase
     public function testRecipientsBecomeActorsWithoutBcc(): void
     {
         $input = PluginTicketmailerProactive::ticketInput(4, 'Maintenance', ['a@example.test'], ['b@example.test']);
-        self::assertSame('', $input['content']);
+        self::assertSame('.', $input['content']);
         self::assertTrue($input['_disablenotif']);
         self::assertSame(4, $input['entities_id']);
         self::assertSame('a@example.test', $input['_actors']['requester'][0]['alternative_email']);

@@ -34,7 +34,7 @@ Open a ticket, select **Email reply**, check the recipients, and write your mess
 
 - **A full email composer:** GLPI's built-in rich-text editor, inline images, normal attachments, and To/CC/BCC, including BCC-only messages.
 - **Relevant ticket context:** optionally append public ticket history and select attachments from the ticket or public followups. Private followups and their documents are never offered or sent.
-- **Start a conversation, too:** use **Assistance → New email** to create a ticket and send a proactive message in one workflow.
+- **Start a conversation, too:** use **Assistance → New email** to create a ticket and send a proactive message in one workflow. The ticket description starts with a single period (`.`) to satisfy required-description fields; the email body is recorded in the timeline.
 - **Email or internal note:** choose Email by default, or switch to GLPI's native private-followup form for an internal note. GLPI's configured native followup notifications remain unchanged.
 - **Ticket-aware subjects:** keep the ticket routing marker, or explicitly start a new conversation with a warning that replies may create a new ticket.
 - **Fit your team's workflow:** entity-specific ticket templates, entity/profile reply policies, and English and German interfaces.

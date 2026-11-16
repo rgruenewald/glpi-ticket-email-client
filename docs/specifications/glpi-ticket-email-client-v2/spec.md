@@ -181,7 +181,7 @@ All new user-facing labels, error text, policy labels, and incomplete-send state
 
 - Assistance exposes New email to central-interface users with ticket CREATE and UPDATE rights in the active entity.
 - Opening/cancelling creates no ticket. Sending requires To, subject, body, valid recipients, authorized entity and valid temporary uploads.
-- Ticket title is the human subject, description stays empty, no provenance message or duplicated email body is added.
+- Ticket title is the human subject; description is a single period (`.`) so description-required ticket templates permit later edits. No provenance message or duplicated email body is added. Existing tickets are not modified.
 - To maps to requesters, CC to observers, BCC to delivery only. Unique active users are reused by email; unknown/ambiguous addresses remain email actors without account creation.
 - Native ticket-creation notifications are disabled; normal business rules and required fields remain enforced. Reloading and authorizing the created ticket precedes delivery.
 - Send uses the shared audit intent / one SMTP attempt / public followup pipeline. Ticket marker uses the newly assigned ID; entity signature is expanded after creation.
