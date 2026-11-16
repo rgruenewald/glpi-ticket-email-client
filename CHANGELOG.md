@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.7.3](https://github.com/rgruenewald/glpi-ticket-email-client/compare/v2.7.2...v2.7.3) (2026-11-16)
+
+### Build and verification
+
+* Reduce local release verification time by overlapping independent security, PHP and GLPI checks after isolated UI performance measurements. Split each GLPI version across two independent test stacks, with serial tests inside each stack and checked exhaustive coverage.
+* Isolate release assets and browser evidence per run, record per-step timings, and avoid redundant full verification immediately before a publisher dry-run. Mandatory pre-push and publication checks remain unchanged.
+* Wait for the authenticated landing page before compose E2E tests navigate again.
+
+### Upgrade notes
+
+* This release changes development and release tooling, not runtime ticket or email behavior. No database migration or administrator configuration change is required. Back up the database and plugin files before replacing the package as usual.
+* GLPI 12 remains primary and GLPI 11 remains supported; compatibility requirements are unchanged. The release gate targets GLPI 12.0.2 and 11.0.8, with unit tests on PHP 8.2–8.5.
+* Developers running local verification now use four isolated GLPI stacks by default. Resource-constrained machines can select the documented serial settings without dropping any gate.
+
 ## [2.7.2](https://github.com/rgruenewald/glpi-ticket-email-client/compare/v2.7.1...v2.7.2) (2026-11-16)
 
 ### Bug Fixes
