@@ -84,7 +84,8 @@ class PushHookTest(unittest.TestCase):
         self.assertIn('npm audit --audit-level=moderate', ci)
         self.assertIn('npm run test:performance', ci)
         self.assertIn('scripts/verify/score.sh', ci)
-        self.assertIn('scripts/release/integration.sh', ci)
+        self.assertIn('scripts/release/integration-matrix.py', ci)
+        self.assertIn('scripts/release/integration.sh', (ROOT / 'scripts/release/integration-matrix.py').read_text())
         self.assertFalse((ROOT / '.github/workflows').exists())
 
     def test_non_head_commit_blocks_push(self):

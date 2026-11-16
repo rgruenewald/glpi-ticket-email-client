@@ -47,7 +47,7 @@ test('recipient lookup shows name or login and bracketed email in To, CC and BCC
     }
     await expect(control.locator('input[type=hidden]')).toHaveValue(fixture.recipients.map(recipient => recipient.email).join(', '));
   }
-  await page.screenshot({ path: 'test-results/recipient-lookup.png' });
+  await page.screenshot({path: require('node:path').join(process.env.TICKETMAILER_E2E_REPORT_DIR || 'test-results', 'recipient-lookup.png')});
 });
 
 test('browser compose delivers once and creates audit and timeline; anonymous access denied', async ({ page, request, browser, baseURL }) => {

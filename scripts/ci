@@ -15,6 +15,7 @@ if [ -z "$context" ]; then
 fi
 
 source scripts/toolchain.env
+source scripts/ci-timing.sh
 PHP_MATRIX=("8.2" "8.3" "8.4" "8.5")
 
 # Pin host tools without changing the user-wide environment.
@@ -29,20 +30,26 @@ test "$(python3 --version)" = "Python 3.14.6" || { echo "Pinned Python is requir
 test "$(node --version)" = v24.22.1 || { echo "Pinned Node is required." >&2; exit 1; }
 test "$(npm --version)" = 11.19.1 || { echo "Use the npm bundled with the pinned Node version." >&2; exit 1; }
 
-# Private, persistent evidence; Playwright must not clean this directory.
-mkdir -p .cache/ci
-export TICKETMAILER_EVIDENCE_DIR=$(mktemp -d "$PWD/.cache/ci/run-XXXXXX")
-chmod 700 "$TICKETMAILER_EVIDENCE_DIR"
-python3 scripts/ci-evidence.py start "$TICKETMAILER_EVIDENCE_DIR" "${1:-all}"
-finish() {
-  result=$?
-  trap - EXIT
-  python3 scripts/ci-evidence.py finish "$TICKETMAILER_EVIDENCE_DIR" "$result" || result=1
-  echo "CI evidence: $TICKETMAILER_EVIDENCE_DIR"
-  exit "$result"
-}
-trap finish EXIT
-exec > >(tee "$TICKETMAILER_EVIDENCE_DIR/ci.log") 2>&1
+# Workers share the parent evidence directory and never initialize/finalize it.
+if [ "${1:-}" != _worker ]; then
+  # Private, persistent evidence; Playwright must not clean this directory.
+  mkdir -p .cache/ci
+  export TICKETMAILER_EVIDENCE_DIR=$(mktemp -d "$PWD/.cache/ci/run-XXXXXX")
+  chmod 700 "$TICKETMAILER_EVIDENCE_DIR"
+  export RELEASE_ASSET_DIR="$TICKETMAILER_EVIDENCE_DIR/package"
+  python3 scripts/ci-evidence.py start "$TICKETMAILER_EVIDENCE_DIR" "${1:-all}"
+  finish() {
+    result=$?
+    trap - EXIT
+    python3 scripts/ci-evidence.py finish "$TICKETMAILER_EVIDENCE_DIR" "$result" || result=1
+    echo "CI evidence: $TICKETMAILER_EVIDENCE_DIR"
+    exit "$result"
+  }
+  trap finish EXIT
+  trap 'exit 130' INT
+  trap 'exit 143' TERM
+  exec > >(tee "$TICKETMAILER_EVIDENCE_DIR/ci.log") 2>&1
+fi
 
 composer_cmd() {
   TICKETMAILER_DOCKER_CONTEXT="$context" bash scripts/composer "$@"
@@ -75,20 +82,21 @@ run_php_unit() {
 
 gate_deps() {
   echo "=== Gate: Dependencies & Security Audits ==="
-  composer_cmd --version
-  composer_cmd validate --strict
-  composer_cmd install --no-interaction --prefer-dist
-  composer_cmd audit
-  npm ci --ignore-scripts
+  timed composer-version composer_cmd --version
+  timed composer-validate composer_cmd validate --strict
+  timed composer-install composer_cmd install --no-interaction --prefer-dist
+  timed composer-audit composer_cmd audit
+  timed npm-install npm ci --ignore-scripts
   # Match the former Dependency Review threshold; fail closed on audit errors.
-  npm audit --audit-level=moderate
+  timed npm-audit npm audit --audit-level=moderate
 }
 
 gate_security() {
   echo "=== Gate: Local CodeQL Security Analysis ==="
-  python3 scripts/security/scan.py
-  mkdir -p "$TICKETMAILER_EVIDENCE_DIR/phpstan-cache"
-  docker --context "$context" run --rm -v "$PWD:/app:ro" -w /app \
+  timed codeql python3 scripts/security/scan.py
+  # Docker cannot create a nested mountpoint inside the read-only source mount.
+  mkdir -p .cache/phpstan "$TICKETMAILER_EVIDENCE_DIR/phpstan-cache"
+  timed phpstan docker --context "$context" run --rm -v "$PWD:/app:ro" -w /app \
     -v "$TICKETMAILER_EVIDENCE_DIR/phpstan-cache:/app/.cache/phpstan" "$COMPOSER_IMAGE" \
     php vendor/bin/phpstan analyse --no-progress --error-format=json --memory-limit=512M > "$TICKETMAILER_EVIDENCE_DIR/phpstan.json"
 }
@@ -96,61 +104,76 @@ gate_security() {
 gate_php_matrix() {
   echo "=== Gate: PHP Matrix (${PHP_MATRIX[*]}) ==="
   for ver in "${PHP_MATRIX[@]}"; do
-    build_php_test "$ver"
-    run_php_lint "$ver"
-    run_php_unit "$ver"
+    timed "php-$ver-build" build_php_test "$ver"
+    timed "php-$ver-lint" run_php_lint "$ver"
+    timed "php-$ver-unit" run_php_unit "$ver"
   done
 }
 
 gate_package_and_contracts() {
   echo "=== Gate: Package, Contracts, UI & Performance ==="
-  python3 scripts/verify/wiki_links.py
-  python3 -m unittest discover -s tests/release -v
-  python3 scripts/release/release.py check
-  python3 scripts/release/release.py build
-  python3 scripts/release/release.py verify
-  ROOT=. bash scripts/verify/score.sh
-  npm run test:ui
-  npm run test:performance
+  timed wiki-links python3 scripts/verify/wiki_links.py
+  timed release-contracts python3 -m unittest discover -s tests/release -v
+  timed package-build python3 scripts/release/release.py build --out "$RELEASE_ASSET_DIR"
+  timed package-verify python3 scripts/release/release.py verify --out "$RELEASE_ASSET_DIR"
+  ROOT=. timed score bash scripts/verify/score.sh
+  timed ui-contracts npm run test:ui
+  timed ui-performance npm run test:performance
+}
+
+prepare_browser() {
+  timed browser-install npx playwright install chromium
+  export RELEASE_DEPS_READY=1
 }
 
 gate_integration() {
   echo "=== Gate: Packaged GLPI Integration (Disposable Docker) ==="
-  for target in PRIMARY SUPPORTED; do
-    # Explicit free ports retain their binding after the SMTP-outage restart.
-    # Docker-assigned port 0 would be reallocated on container restart.
-    read -r http_port mail_port < <(python3 - <<'PY'
-import socket
-sockets = [socket.socket(), socket.socket()]
-for sock in sockets:
-    sock.bind(("127.0.0.1", 0))
-print(*(sock.getsockname()[1] for sock in sockets))
-PY
-    )
-    version_key="GLPI_$target"
-    digest_key="GLPI_${target}_SHA256"
-    RELEASE_DOCKER_CONTEXT="$context" \
-    RELEASE_HTTP_PORT="$http_port" RELEASE_MAIL_PORT="$mail_port" RELEASE_E2E_ALL=1 \
-    RELEASE_GLPI_VERSION="${!version_key}" RELEASE_GLPI_SHA256="${!digest_key}" \
-    bash scripts/release/integration.sh
-  done
+  if [ ! -d "$RELEASE_ASSET_DIR" ]; then
+    timed package-build python3 scripts/release/release.py build --out "$RELEASE_ASSET_DIR"
+  fi
+  if [ "${1:-}" = standalone ]; then
+    timed integration-npm npm ci --ignore-scripts
+  fi
+  if [ "${RELEASE_DEPS_READY:-0}" != 1 ]; then
+    prepare_browser
+  fi
+  export RELEASE_DOCKER_CONTEXT="$context" RELEASE_E2E_ALL=1
+  export GLPI_PRIMARY GLPI_PRIMARY_SHA256 GLPI_SUPPORTED GLPI_SUPPORTED_SHA256
+  timed integration-matrix python3 scripts/release/integration-matrix.py
+}
+
+preflight() {
+  timed version-check python3 scripts/release/release.py check
 }
 
 mode=${1:-all}
 case "$mode" in
+  _worker)
+    test -f "${TICKETMAILER_EVIDENCE_DIR:?parent evidence is required}/summary.json"
+    test -d "${RELEASE_ASSET_DIR:?verified parent package is required}"
+    case "${2:-}" in
+      security) timed security gate_security ;;
+      php-matrix) timed php-matrix gate_php_matrix ;;
+      integration) gate_integration ;;
+      *) echo "Unknown CI worker" >&2; exit 1 ;;
+    esac
+    ;;
   all)
-    gate_deps
-    gate_security
-    gate_php_matrix
-    gate_package_and_contracts
-    gate_integration
+    preflight
+    timed dependencies gate_deps
+    prepare_browser
+    timed package-contracts gate_package_and_contracts
+    # Keep UI timing measurements isolated from CodeQL, PHP and GLPI workloads.
+    timed parallel-gates python3 scripts/ci-parallel.py
     echo "=== ALL LOCAL CI GATES PASSED ==="
     ;;
   quick)
-    gate_deps
-    gate_security
-    gate_php_matrix
-    gate_package_and_contracts
+    preflight
+    timed dependencies gate_deps
+    timed security gate_security
+    timed php-matrix gate_php_matrix
+    prepare_browser
+    timed package-contracts gate_package_and_contracts
     echo "=== QUICK LOCAL CI GATES PASSED (integration skipped) ==="
     ;;
   deps)
@@ -163,10 +186,13 @@ case "$mode" in
     gate_php_matrix
     ;;
   package)
+    preflight
+    prepare_browser
     gate_package_and_contracts
     ;;
   integration)
-    gate_integration
+    preflight
+    gate_integration standalone
     ;;
   help|-h|--help)
     echo "Usage: scripts/ci [all|quick|deps|security|matrix|package|integration]"

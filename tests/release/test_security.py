@@ -224,11 +224,13 @@ class SecurityGateTest(unittest.TestCase):
                                  cwd=ROOT, capture_output=True)
         self.assertEqual(ignored.returncode, 0)
 
-    def test_all_and_quick_include_security_before_other_gates(self):
+    def test_all_and_quick_require_security(self):
         ci = (ROOT / 'scripts/ci').read_text()
-        for mode in ('all', 'quick'):
-            section = ci.split('  ' + mode + ')', 1)[1].split(';;', 1)[0]
-            self.assertIn('gate_security', section)
+        quick = ci.split('  quick)', 1)[1].split(';;', 1)[0]
+        self.assertIn('gate_security', quick)
+        full = ci.split('  all)', 1)[1].split(';;', 1)[0]
+        self.assertIn('scripts/ci-parallel.py', full)
+        self.assertIn('security) timed security gate_security', ci)
         self.assertIn('scripts/security/scan.py', ci)
 
     def test_real_publication_requires_full_local_ci(self):

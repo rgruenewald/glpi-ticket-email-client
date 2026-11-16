@@ -5,6 +5,8 @@ import json
 from pathlib import Path
 import subprocess
 import sys
+import os
+import time
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -30,6 +32,10 @@ def main():
     if action == 'start':
         report = {
             'status': 'running', 'mode': value,
+            'started_monotonic_ns': time.monotonic_ns(),
+            'integration_jobs': int(os.environ.get('TICKETMAILER_INTEGRATION_JOBS', '4')),
+            'gate_jobs': int(os.environ.get('TICKETMAILER_GATE_JOBS', '3')),
+            'integration_shards': int(os.environ.get('TICKETMAILER_INTEGRATION_SHARDS', '2')),
             'revision': command('git', 'rev-parse', 'HEAD'),
             'source_sha256': fingerprint(),
             'dirty': bool(command('git', 'status', '--porcelain')),
@@ -41,8 +47,10 @@ def main():
     elif action == 'finish':
         report = json.loads(path.read_text())
         report['exit_code'] = int(value)
+        report['duration_seconds'] = (time.monotonic_ns() - report['started_monotonic_ns']) / 1_000_000_000
+        report['timings'] = sorted((json.loads(item.read_text()) for item in (Path(destination) / 'timings').glob('*.json')), key=lambda item: item['step'])
         report['release_assets'] = {item.name: hashlib.sha256(item.read_bytes()).hexdigest()
-                                    for item in sorted((ROOT / 'dist').glob('*')) if item.is_file()}
+                                    for item in sorted(Path(os.environ.get('RELEASE_ASSET_DIR', ROOT / 'dist')).glob('*')) if item.is_file()}
         report['source_unchanged'] = fingerprint() == report['source_sha256'] and command('git', 'rev-parse', 'HEAD') == report['revision']
         report['status'] = 'passed' if int(value) == 0 and report['source_unchanged'] else 'failed'
     else:

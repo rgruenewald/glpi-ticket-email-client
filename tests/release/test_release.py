@@ -33,12 +33,14 @@ class LocalReleasePublisherTest(unittest.TestCase):
         self.assertIn("Bug Fixes", notes)
 
         # Dry run with skip-ci and allow-dirty returns verified assets without publishing
-        res = publish_mod.plan_or_publish(
-            root=ROOT,
-            publish=False,
-            skip_ci=True,
-            allow_dirty=True,
-        )
+        with tempfile.TemporaryDirectory() as tmp:
+            res = publish_mod.plan_or_publish(
+                root=ROOT,
+                out=Path(tmp),
+                publish=False,
+                skip_ci=True,
+                allow_dirty=True,
+            )
         self.assertFalse(res["published"])
         version = (ROOT / "VERSION").read_text().strip()
         self.assertEqual(res["version"], version)

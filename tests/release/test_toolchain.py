@@ -41,8 +41,10 @@ class ToolchainTest(unittest.TestCase):
             if 'IMAGE' in name:
                 self.assertRegex(value, r'@sha256:[0-9a-f]{64}$')
         ci = (ROOT / 'scripts/ci').read_text()
-        self.assertIn('for target in PRIMARY SUPPORTED', ci)
-        self.assertIn('RELEASE_HTTP_PORT="$http_port" RELEASE_MAIL_PORT="$mail_port"', ci)
+        self.assertIn('scripts/release/integration-matrix.py', ci)
+        matrix = (ROOT / 'scripts/release/integration-matrix.py').read_text()
+        self.assertIn("('PRIMARY', 'SUPPORTED')", matrix)
+        self.assertIn('RELEASE_HTTP_PORT=str(ports[index * 2])', matrix)
         self.assertIn('mise which python3', ci)
         self.assertIn('Python 3.14.6', ci)
         self.assertNotIn('HOST_PHP', ci)
@@ -94,7 +96,7 @@ class ToolchainTest(unittest.TestCase):
             subprocess.run(['git', 'init', '-q', str(root)], check=True)
             def command(*args):
                 return '' if args == ('git', 'status', '--porcelain') else 'fixture-version'
-            for code, mutate, passed in ((0, False, True), (1, False, False), (0, True, False)):
+            for code, mutate, passed in ((0, False, True), (1, False, False), (143, False, False), (0, True, False)):
                 with patch.object(evidence, 'ROOT', root), patch.object(evidence, 'command', side_effect=command):
                     with patch.object(sys, 'argv', ['evidence', 'start', str(output), 'quick']):
                         evidence.main()
