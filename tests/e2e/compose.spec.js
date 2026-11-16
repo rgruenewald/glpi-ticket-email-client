@@ -11,6 +11,8 @@ async function login(page, user = 'glpi', password = 'glpi') {
   await page.locator('#login_name').fill(user);
   await page.locator('#login_password').fill(password);
   await page.locator('[name=submit]').click();
+  // Absence alone can pass on an intermediate redirect/error document.
+  await page.waitForURL(/\/front\/(central|helpdesk\.public)\.php(?:[?#]|$)/);
   await expect(page.locator('#login_name')).toHaveCount(0);
 }
 async function composeMail(page, ticket, subject, recipient = 'recipient@example.test') {
