@@ -1,5 +1,20 @@
 # Changelog
 
+## [2.7.1](https://github.com/rgruenewald/glpi-ticket-email-client/compare/v2.7.0...v2.7.1) (2026-11-16)
+
+### Bug Fixes
+
+* **glpi:** fix a fatal inheritance error when loading the plugin on GLPI 11. Remove plugin redeclarations of `CommonGLPI::$rightname` so the log tab and plugin descriptor inherit the untyped GLPI 11 or typed GLPI 12 property. Explicit access checks remain in place.
+
+### Upgrade notes
+
+* GLPI 11 installations affected by an HTTP 500 after enabling 2.7.0 should upgrade to 2.7.1. Back up the database and plugin files before replacing the plugin package. No new database migration or configuration change is required.
+* GLPI 12 remains the primary runtime; GLPI 11 remains supported. Regression tests cover both parent-property definitions. The release gate targets GLPI 12.0.2 and 11.0.8; GLPI 11.0.11 was the reported failing production version and is not a separate automated test target.
+
+### Build and verification
+
+* Harden the local release toolchain with pinned inputs, PHP 8.2–8.5 checks, local security analysis, packaged GLPI 12/11 integration and deterministic package/SBOM verification.
+
 ## [2.7.0](https://github.com/rgruenewald/glpi-ticket-email-client/compare/v2.6.2...v2.7.0) (2026-11-13)
 
 
