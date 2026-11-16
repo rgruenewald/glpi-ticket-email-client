@@ -144,7 +144,7 @@ class PluginTicketmailerProactive
                 'alternative_email'=>$email, 'use_notification'=>1];
         };
         return [
-            'name'=>$subject, 'content'=>'', 'entities_id'=>$entity, 'status'=>1,
+            'name'=>$subject, 'content'=>'.', 'entities_id'=>$entity, 'status'=>1,
             'users_id_recipient'=>(int) Session::getLoginUserID(),
             '_disablenotif'=>true,
             '_actors'=>['requester'=>array_map($actor, $to), 'observer'=>array_map($actor, $cc), 'assign'=>[]],

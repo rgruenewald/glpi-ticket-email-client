@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.7.2](https://github.com/rgruenewald/glpi-ticket-email-client/compare/v2.7.1...v2.7.2) (2026-11-16)
+
+### Bug Fixes
+
+* **compose:** initialize descriptions of tickets created through New email with a single period (`.`), instead of an empty value, so a required description does not block subsequent ticket edits. The email body remains in the timeline without duplication.
+
+### Upgrade notes
+
+* Back up the database and plugin files before replacing the plugin package. No database migration or configuration change is required. Existing tickets are unchanged; manually fill their description if it is empty and required by the ticket template.
+* GLPI 12 remains primary and GLPI 11 remains supported; compatibility requirements are unchanged.
+
 ## [2.7.1](https://github.com/rgruenewald/glpi-ticket-email-client/compare/v2.7.0...v2.7.1) (2026-11-16)
 
 ### Bug Fixes
