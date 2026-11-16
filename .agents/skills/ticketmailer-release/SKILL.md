@@ -8,8 +8,8 @@ description: Prepare and verify ticketmailer Release Please PRs, deterministic p
 Read ../../../docs/RELEASING.md and ../../../release-please-config.json first. Resolve all commands from the repository root.
 
 1. Inspect git status, current branch, remote main, tags and releases read-only. Never infer a published release from setup.php alone.
-2. Run python3 scripts/release/release.py check and the eight offline tests with python3 -m unittest discover -s tests/release -v. Never manually increment only one version surface.
-3. Run the local CI pipeline with ./scripts/ci all, build and verify with scripts/release/publish.py --dry-run. This disposable verification checks the full PHP matrix, offline deterministic packaging, score.sh, and packaged integration without changing production or shared-dev data.
+2. Run python3 scripts/release/release.py check and the offline tests with python3 -m unittest discover -s tests/release -v. Never manually increment only one version surface.
+3. Run scripts/release/publish.py --dry-run once: it already invokes ./scripts/ci all, then builds and verifies the assets. Do not separately repeat the identical full CI pipeline on the unchanged candidate before the dry-run. This disposable verification checks the full PHP matrix, offline deterministic packaging, score.sh, and packaged integration without changing production or shared-dev data. The pre-push hook and mandatory publication gates remain unchanged.
 4. For a release PR, inspect all generated version changes, changelog, compatibility and migration notes. Every required check must have passed. Do not merge, tag, publish or change GitHub protection without explicit task coverage.
 5. For failures, distinguish a failed draft from a public release. Follow the recovery section; never move tags, overwrite published assets or manually publish around failed gates.
 6. Report exact commit, version, commands/results and untested compatibility. Keep secrets and browser traces out of regular artifacts.

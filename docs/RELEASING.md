@@ -43,12 +43,15 @@ marketplace submission is authorized merely by running local checks.
 
 ## Daily process
 
-- Run local CI before committing or pushing: `make ci` or `./scripts/ci all` (runs PHP
-  matrix 8.2–8.5, dependency audits, local CodeQL, score.sh, UI performance, and disposable GLPI integration).
+- For development, run `make ci` or `./scripts/ci all` (PHP matrix 8.2–8.5,
+  dependency audits, local CodeQL, score.sh, UI performance, and disposable GLPI
+  integration). Before a release dry-run, do not additionally run this identical
+  full pipeline on the same candidate: the publisher already invokes it. The
+  pre-push hook and the mandatory full publication check remain unchanged.
 - `scripts/check-local` is wired into `.githooks/pre-push` to prevent pushing unverified commits.
 - Prepare version bump in `VERSION`, `setup.php`, `CHANGELOG.md`, and `.release-please-manifest.json`.
 - Review practical changes, upgrade notes, migration behavior, and known limitations.
-- Build and verify release assets locally with dry-run protection:
+- Build and verify release assets, including one full CI pass, with dry-run protection:
   `python3 scripts/release/publish.py --dry-run`
 - When verified and authorized, publish to GitHub:
   `python3 scripts/release/publish.py --publish --ci-mode all`
@@ -107,6 +110,58 @@ evidence is not signed, independently attested provenance or a SLSA-level claim.
 Release signing requires a separately selected identity and key-management policy.
 
     RELEASE_DOCKER_CONTEXT=rootless bash scripts/release/integration.sh
+
+### Timing and parallel integration
+
+Local CI records monotonic durations and exit codes per step in the private
+`.cache/ci/run-*/timings/` directory and collects them in `summary.json` alongside
+wall-clock elapsed duration (`duration_seconds`, not the sum of overlapping steps).
+Command arguments are not recorded in timing files. PHPStan JSON stays separate
+from timing diagnostics. Each run builds into its own `package/` directory;
+standalone release builds and the publisher still use `dist/`.
+
+In `all` mode, dependencies, package/contracts and the UI performance benchmark
+finish before the independent security, PHP-matrix and integration gates run
+concurrently. The UI benchmark therefore never overlaps these heavy workloads.
+Every gate must succeed; a failed gate does not hide peer results. Gate logs live
+in `gate-security.log`, `gate-php-matrix.log` and `gate-integration.log`. Workers
+share the parent evidence directory but never initialize or finalize its summary.
+Interruption terminates their process groups and allows cleanup before escalating
+to SIGKILL after 60 seconds per worker. `quick` keeps its sequential execution.
+Set `TICKETMAILER_GATE_JOBS=1` to run the three gates sequentially (default: `3`).
+For a fully serial comparison also set `TICKETMAILER_INTEGRATION_SHARDS=1`
+and `TICKETMAILER_INTEGRATION_JOBS=1`.
+Security can finish after integration starts, but never after successful CI or
+publication: all three exit statuses remain mandatory.
+
+Both GLPI versions run concurrently, each partitioned into two isolated shards
+by default (four stacks, capped at four concurrent integration jobs). Each stack
+has its own Compose project, database, Mailpit, ports, screenshots and Playwright
+reports. Tests within each stack remain serial because they mutate shared state. Dependencies are prepared before
+launching either target; integration does not concurrently reinstall node_modules.
+Each stack writes `integration-VERSION-shard-N.log` in the evidence directory
+(or `integration-VERSION.log` with one shard). A failing
+target blocks the gate; the other target is allowed to finish and clean up.
+On interruption, target process groups receive termination and execute cleanup.
+`TICKETMAILER_INTEGRATION_SHARDS` accepts `1` or `2` (default: `2`), and
+`TICKETMAILER_INTEGRATION_JOBS` caps concurrent stacks at `1` through `4`
+(default: `4`). Each GLPI version uses a separate stack for each shard.
+Playwright partitions individual tests with `--fully-parallel --workers=1`, so
+tests still execute serially inside each stack. No session state is cached.
+Before startup, JSON discovery checks that the shards are nonempty, disjoint
+and exhaustively cover the unsharded suite; the private `e2e-inventory.json`
+records this mapping. Reports and timings include the version and shard number.
+See [Playwright sharding](https://playwright.dev/docs/test-sharding) for partition
+semantics. More stacks require additional CPU and memory; no tests are omitted.
+
+The four-stack default was measured on 12 CPUs / 31 GiB RAM. For constrained
+machines or a controlled fully serial comparison, run
+`TICKETMAILER_GATE_JOBS=1 TICKETMAILER_INTEGRATION_SHARDS=1 TICKETMAILER_INTEGRATION_JOBS=1 ./scripts/ci all`.
+To retain parallel GLPI versions with fewer stacks, use
+`TICKETMAILER_INTEGRATION_SHARDS=1 TICKETMAILER_INTEGRATION_JOBS=2 ./scripts/ci all`.
+All settings retain every gate and both target versions. Compare the same source snapshot,
+toolchain and warm cache without concurrent unrelated test workloads. No CI
+evidence is reused to bypass publication gates.
 
 The standalone integration command creates its own
 randomly named disposable Compose project, database and loopback ports 18080 and

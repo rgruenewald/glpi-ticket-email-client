@@ -11,6 +11,8 @@ async function login(page, user = 'glpi', password = 'glpi') {
   await page.locator('#login_name').fill(user);
   await page.locator('#login_password').fill(password);
   await page.locator('[name=submit]').click();
+  // Absence alone can pass on an intermediate redirect/error document.
+  await page.waitForURL(/\/front\/(central|helpdesk\.public)\.php(?:[?#]|$)/);
   await expect(page.locator('#login_name')).toHaveCount(0);
 }
 async function composeMail(page, ticket, subject, recipient = 'recipient@example.test') {
@@ -47,7 +49,7 @@ test('recipient lookup shows name or login and bracketed email in To, CC and BCC
     }
     await expect(control.locator('input[type=hidden]')).toHaveValue(fixture.recipients.map(recipient => recipient.email).join(', '));
   }
-  await page.screenshot({ path: 'test-results/recipient-lookup.png' });
+  await page.screenshot({path: require('node:path').join(process.env.TICKETMAILER_E2E_REPORT_DIR || 'test-results', 'recipient-lookup.png')});
 });
 
 test('browser compose delivers once and creates audit and timeline; anonymous access denied', async ({ page, request, browser, baseURL }) => {

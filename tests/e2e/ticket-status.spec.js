@@ -52,7 +52,7 @@ for (const status of [1,4,5]) {
    await expect(page.getByRole('tooltip')).toBeVisible();
    const order=await page.locator('.ticketmailer-timeline-action button').evaluateAll(nodes=>nodes.map(n=>n.className));
    expect(order[0]).toContain('action-reply'); expect(order[1]).toContain('action-solution'); expect(order[2]).toContain('action-internal_note');
-   await page.screenshot({path:'test-results/status-solved-actions.png'});
+   await page.screenshot({path: require('node:path').join(process.env.TICKETMAILER_E2E_REPORT_DIR || 'test-results', 'status-solved-actions.png')});
   }
   const modal=await open(page);
   if(status!==1) await expect(modal.locator('[name=set_waiting]')).toHaveCount(0);
