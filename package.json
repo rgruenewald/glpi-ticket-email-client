@@ -8,9 +8,9 @@
     "test:e2e": "playwright test"
   },
   "devDependencies": {
-    "@playwright/test": "^1.65.0",
-    "jquery": "^4.0.0",
-    "playwright": "^1.65.0",
+    "@playwright/test": "^1.65.1",
+    "jquery": "^4.1.0",
+    "playwright": "^1.65.1",
     "pngjs": "^7.0.0"
   }
 }
