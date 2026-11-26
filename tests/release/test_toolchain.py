@@ -68,10 +68,8 @@ class ToolchainTest(unittest.TestCase):
         self.assertIn("v" + tools["node"], ci)
         self.assertIn(package["packageManager"].split("@")[1], ci)
 
-    def test_update_coverage_and_reports(self):
-        dependabot = (ROOT / '.github/dependabot.yml').read_text()
-        for item in ('package-ecosystem: npm', '/docker/test', '/scripts/release'):
-            self.assertIn(item, dependabot)
+    def test_local_update_policy_and_reports(self):
+        self.assertFalse((ROOT / '.github/dependabot.yml').exists())
         playwright = (ROOT / 'playwright.config.js').read_text()
         for item in ("['junit'", "['html'", 'retain-on-failure', 'TICKETMAILER_E2E_REPORT_DIR'):
             self.assertIn(item, playwright)
