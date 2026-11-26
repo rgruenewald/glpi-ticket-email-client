@@ -6,7 +6,7 @@ class PluginTicketmailerSendservice
         bool $mailbox_override, array $mailbox_matches, bool $new_conversation, int $requesttypes_id,
         bool $set_waiting, bool $set_solved, ?array $proactive_context = null, ?int $expected_status = null): array
     {
-        if (!PluginTicketmailerConfig::canSendOutboundEmail()) {
+        if (!$ticket->getFromDB((int) $ticket->getField('id')) || !PluginTicketmailerConfig::canSendOnTicket($ticket)) {
             throw new InvalidArgumentException(__('Not allowed.', 'ticketmailer'));
         }
         if (PluginTicketmailerRecipients::exceedsLimit($payload['to'], $payload['cc'], $payload['bcc'])) {

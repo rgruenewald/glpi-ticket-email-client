@@ -22,6 +22,17 @@ class PluginTicketmailerConfig
         return Session::getCurrentInterface() === 'central' && Session::haveRight('ticket', UPDATE);
     }
 
+    /** A profile right is necessary but never sufficient for an existing ticket. */
+    public static function canSendOnTicket(Ticket $ticket): bool
+    {
+        $tickets_id = (int) $ticket->getField('id');
+        return $tickets_id > 0
+            && self::canSendOutboundEmail()
+            && Session::haveAccessToEntity((int) $ticket->getField('entities_id'))
+            && $ticket->can($tickets_id, READ)
+            && $ticket->can($tickets_id, UPDATE);
+    }
+
     public static function displayRightError(): void
     {
         if (class_exists('Glpi\\Exception\\Http\\AccessDeniedHttpException')) {
@@ -352,6 +363,13 @@ class PluginTicketmailerConfig
             : 0;
     }
 
+    private static ?NotificationTargetTicket $composeNotificationTarget = null;
+
+    public static function isComposeNotificationTarget(NotificationTargetTicket $target): bool
+    {
+        return self::$composeNotificationTarget === $target;
+    }
+
     /** @return array{subject:string, signature:string} */
     private static function renderNotificationTemplate(int $notificationtemplates_id, Ticket $ticket): array
     {
@@ -371,15 +389,21 @@ class PluginTicketmailerConfig
         $template->resetComputedTemplates();
         $template->setSignature('');
         $options = ['item' => $ticket];
-        $tid = $template->getTemplateByLanguage(
-            $target,
-            [
-                'language' => (string) ($_SESSION['glpilanguage'] ?? ($GLOBALS['CFG_GLPI']['language'] ?? 'en_GB')),
-                'additionnaloption' => ['usertype' => NotificationTarget::GLPI_USER],
-            ],
-            'update',
-            $options,
-        );
+        $previousTarget = self::$composeNotificationTarget;
+        self::$composeNotificationTarget = $target;
+        try {
+            $tid = $template->getTemplateByLanguage(
+                $target,
+                [
+                    'language' => (string) ($_SESSION['glpilanguage'] ?? ($GLOBALS['CFG_GLPI']['language'] ?? 'en_GB')),
+                    'additionnaloption' => ['usertype' => NotificationTarget::GLPI_USER],
+                ],
+                'update',
+                $options,
+            );
+        } finally {
+            self::$composeNotificationTarget = $previousTarget;
+        }
         if ($tid === false) {
             return ['subject' => '', 'signature' => ''];
         }

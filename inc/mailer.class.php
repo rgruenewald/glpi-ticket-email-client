@@ -72,7 +72,7 @@ class PluginTicketmailerMailer
                 return [
                     'status' => 'failed',
                     'msg_id' => null,
-                    'error' => $mailer->getError() ?? __('Unable to send email.', 'ticketmailer'),
+                    'error' => __('Unable to send email.', 'ticketmailer'),
                 ];
             }
 
@@ -82,11 +82,11 @@ class PluginTicketmailerMailer
                 'msg_id' => $messageId?->getBodyAsString(),
                 'error' => null,
             ];
-        } catch (\Throwable $exception) {
+        } catch (\Throwable) {
             return [
                 'status' => 'failed',
                 'msg_id' => null,
-                'error' => $exception->getMessage(),
+                'error' => __('Unable to send email.', 'ticketmailer'),
             ];
         }
     }

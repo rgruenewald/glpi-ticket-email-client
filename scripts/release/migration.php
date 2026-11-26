@@ -3,6 +3,7 @@
 require '/var/www/html/vendor/autoload.php';
 (new Glpi\Kernel\Kernel())->boot();
 global $DB;
+require_once GLPI_ROOT . '/plugins/ticketmailer/setup.php';
 require_once GLPI_ROOT . '/plugins/ticketmailer/inc/hook.class.php';
 $tables = ['glpi_plugin_ticketmailer_logs', 'glpi_plugin_ticketmailer_configs'];
 function schemaSnapshot($DB, array $tables): array {
@@ -21,7 +22,7 @@ if (in_array('--snapshot', $argv, true)) {
     file_put_contents($baseline, json_encode(schemaSnapshot($DB, $tables), JSON_THROW_ON_ERROR));
     exit(0);
 }
-if (!PluginTicketmailerHook::migrateSchema('/var/www/html/plugins/ticketmailer/sql')) {
+if (!PluginTicketmailerHook::migrateSchema()) {
     throw new RuntimeException('Migration failed');
 }
 $expected = json_decode(file_get_contents($baseline), true, 512, JSON_THROW_ON_ERROR);

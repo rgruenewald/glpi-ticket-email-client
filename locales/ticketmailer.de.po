@@ -609,3 +609,15 @@ msgstr "Die interne Notiz wurde hinzugefügt, aber der Ticketstatus konnte nicht
 #, php-format
 msgid "A message can have at most %d recipients across To, CC, and BCC."
 msgstr "Eine Nachricht darf insgesamt höchstens %d Empfänger in An, CC und BCC haben."
+
+#: templates/compose.html.twig
+msgid "BCC is hidden in the email headers, but visible to everyone who can read the ticket."
+msgstr "BCC ist in den E-Mail-Kopfzeilen verborgen, aber für alle sichtbar, die das Ticket lesen dürfen."
+
+#: inc/mailer.class.php templates/log_entry.html.twig
+msgid "Unable to send email."
+msgstr "Die E-Mail konnte nicht gesendet werden."
+
+#: front/compose.php front/send.php inc/timelineaction.class.php
+msgid "Email reply"
+msgstr "E-Mail antworten"

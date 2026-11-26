@@ -608,3 +608,15 @@ msgstr ""
 #, php-format
 msgid "A message can have at most %d recipients across To, CC, and BCC."
 msgstr ""
+
+#: templates/compose.html.twig
+msgid "BCC is hidden in the email headers, but visible to everyone who can read the ticket."
+msgstr ""
+
+#: inc/mailer.class.php templates/log_entry.html.twig
+msgid "Unable to send email."
+msgstr ""
+
+#: front/compose.php front/send.php inc/timelineaction.class.php
+msgid "Email reply"
+msgstr ""

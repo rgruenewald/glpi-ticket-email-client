@@ -138,12 +138,13 @@
             <label class="ticketmailer-mail-label" for="{{ form_id }}-recipients_bcc-input">{{ __('BCC', 'ticketmailer') }}</label>
             <div class="ticketmailer-mail-field ticketmailer-recipient-control" data-recipient-control>
                 <div class="ticketmailer-recipient-chips"></div>
-                <input type="text" id="{{ form_id }}-recipients_bcc-input" class="ticketmailer-recipient-input" autocomplete="off">
+                <input type="text" id="{{ form_id }}-recipients_bcc-input" class="ticketmailer-recipient-input" autocomplete="off" aria-describedby="{{ form_id }}-bcc-visibility">
                 <button type="button" class="ticketmailer-recipient-clear" aria-label="{{ __('Clear', 'ticketmailer') }}">
                     <i class="ti ti-x" aria-hidden="true"></i>
                 </button>
                 <input type="hidden" id="{{ form_id }}-recipients_bcc" name="recipients_bcc"
                        value="{{ recipients_bcc_raw }}">
+                <small id="{{ form_id }}-bcc-visibility" class="text-muted w-100">{{ __('BCC is hidden in the email headers, but visible to everyone who can read the ticket.', 'ticketmailer') }}</small>
             </div>
         </div>
 

@@ -37,7 +37,7 @@ final class SendserviceTest extends TestCase
 
     public function testNativeAuthorizationAndCombinedRecipientLimitAreCheckedBeforeAnySideEffect(): void
     {
-        foreach (['no-ticket-update', 'self-service', 'too-many-recipients'] as $scenario) {
+        foreach (['no-ticket-update', 'item-update-denied', 'self-service', 'too-many-recipients'] as $scenario) {
             $result = $this->probe($scenario);
             self::assertSame(0, $result['attempts']);
             self::assertSame([], $result['audit']);

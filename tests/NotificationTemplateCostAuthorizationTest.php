@@ -60,6 +60,7 @@ if (!class_exists('Session')) {
 }
 
 require_once __DIR__ . '/../hook.php';
+require_once __DIR__ . '/../inc/config.class.php';
 
 final class NotificationTemplateCostAuthorizationTest extends TestCase
 {
@@ -78,7 +79,7 @@ final class NotificationTemplateCostAuthorizationTest extends TestCase
             'costs' => [['##cost.totalcost##' => '150.00']],
         ];
 
-        plugin_ticketmailer_filter_notification_template_data($target);
+        $this->filterComposerTarget($target);
 
         self::assertSame(['##ticket.title##' => 'Printer offline'], $target->data);
     }
@@ -93,9 +94,29 @@ final class NotificationTemplateCostAuthorizationTest extends TestCase
             'costs' => [['##cost.totalcost##' => '150.00']],
         ];
 
-        plugin_ticketmailer_filter_notification_template_data($target);
+        $this->filterComposerTarget($target);
 
         self::assertArrayHasKey('##ticket.totalcost##', $target->data);
         self::assertArrayHasKey('costs', $target->data);
+    }
+    #[Test]
+    public function native_notification_data_is_not_changed(): void
+    {
+        Session::$canReadCosts = false;
+        $target = new NotificationTargetTicket();
+        $target->data = ['##ticket.totalcost##' => '150.00'];
+        plugin_ticketmailer_filter_notification_template_data($target);
+        self::assertSame(['##ticket.totalcost##' => '150.00'], $target->data);
+    }
+
+    private function filterComposerTarget(NotificationTargetTicket $target): void
+    {
+        $active = new ReflectionProperty(PluginTicketmailerConfig::class, 'composeNotificationTarget');
+        $active->setValue(null, $target);
+        try {
+            plugin_ticketmailer_filter_notification_template_data($target);
+        } finally {
+            $active->setValue(null, null);
+        }
     }
 }

@@ -30,6 +30,11 @@ test('recipient lookup shows name or login and bracketed email in To, CC and BCC
   await page.locator('.ticketmailer-action-reply').click();
   const form = page.locator('form.ticketmailer-compose:visible');
   await expect(form).toBeVisible();
+  const unrelated = await post(page, '/plugins/ticketmailer/ajax/autocomplete_users.php', {
+    tickets_id: String(fixture.ticket), query: fixture.unrelated.query,
+  });
+  expect(unrelated.status()).toBe(200);
+  expect((await unrelated.json()).results).toEqual([]);
   for (const field of ['To', 'CC', 'BCC']) {
     const input = form.getByRole('combobox', { name: field, exact: true });
     const control = input.locator('..');
@@ -50,6 +55,42 @@ test('recipient lookup shows name or login and bracketed email in To, CC and BCC
     await expect(control.locator('input[type=hidden]')).toHaveValue(fixture.recipients.map(recipient => recipient.email).join(', '));
   }
   await page.screenshot({path: require('node:path').join(process.env.TICKETMAILER_E2E_REPORT_DIR || 'test-results', 'recipient-lookup.png')});
+});
+
+test('recipient AJAX requires a valid compose context for New email', async ({ page }) => {
+  await login(page);
+  await page.goto('/plugins/ticketmailer/front/new.php');
+  const form = page.locator('form.ticketmailer-compose');
+  const token = await form.locator('[name=compose_token]').inputValue();
+  const sender = await form.locator('[name=sender_entity]').inputValue();
+  const endpoint = '/plugins/ticketmailer/ajax/validate_recipients.php';
+  const recipients = { recipients_to: 'recipient@example.test' };
+  expect((await post(page, endpoint, recipients)).status()).toBe(403);
+  expect((await post(page, endpoint, { ...recipients, compose_token: 'invalid' })).status()).toBe(403);
+  expect((await post(page, endpoint, { ...recipients, compose_token: token, sender_entity: '-1' })).status()).toBe(403);
+  const allowed = await post(page, endpoint, { ...recipients, compose_token: token, sender_entity: sender });
+  expect(allowed.status()).toBe(200);
+  expect(await allowed.json()).toMatchObject({ ok: true, count: 1 });
+  await expect(form.getByRole('combobox', { name: 'BCC', exact: true }))
+    .toHaveAccessibleDescription(/visible to everyone who can read the ticket/);
+});
+
+test('New email creates and sends once in the authorized sender entity', async ({ page, request }) => {
+  fixture('basic'); // Configure an entity sender and local SMTP capture.
+  await login(page);
+  await page.goto('/plugins/ticketmailer/front/new.php');
+  const entity = await page.locator('[name=sender_entity]').inputValue();
+  const subject = 'E2E-new-mail-' + Date.now();
+  await page.getByRole('combobox', { name: 'To', exact: true }).fill('recipient@example.test');
+  await page.locator('[name=subject]').fill(subject);
+  await page.frameLocator('iframe[id^=ticketmailer-new-body]').locator('body').fill('New outbound email from the browser');
+  await page.getByRole('button', { name: 'Send', exact: true }).click();
+  await expect(page).toHaveURL(/ticket[.]form[.]php[?]id=/);
+  const id = Number(new URL(page.url()).searchParams.get('id'));
+  expect(sql('SELECT entities_id FROM glpi_tickets WHERE id=' + id)).toBe(entity);
+  expect(sql('SELECT status FROM glpi_plugin_ticketmailer_logs WHERE tickets_id=' + id)).toBe('sent');
+  const mail = await captured(request, subject);
+  expect(mail.To[0].Address).toBe('recipient@example.test');
 });
 
 test('browser compose delivers once and creates audit and timeline; anonymous access denied', async ({ page, request, browser, baseURL }) => {
@@ -130,6 +171,11 @@ test('SMTP outage records failure without a followup and recovers for subsequent
     await page.getByRole('button', { name: 'Send', exact: true }).click();
     await expect(page).toHaveURL(/front\/log_entry.php\?id=/);
     expect(sql('SELECT status FROM glpi_plugin_ticketmailer_logs WHERE tickets_id=' + fixture.ticket)).toBe('failed');
+    await expect(page.locator('.ticketmailer-error')).toContainText('Unable to send email.');
+    sql('UPDATE glpi_plugin_ticketmailer_logs SET error_message="E2E_PRIVATE_TRANSPORT_DETAILS" WHERE tickets_id=' + fixture.ticket);
+    await page.reload();
+    await expect(page.locator('.ticketmailer-error')).toContainText('Unable to send email.');
+    await expect(page.locator('body')).not.toContainText('E2E_PRIVATE_TRANSPORT_DETAILS');
     expect(sql('SELECT COUNT(*) FROM glpi_itilfollowups WHERE itemtype="Ticket" AND items_id=' + fixture.ticket)).toBe('0');
     expect(sql('SELECT COUNT(*) FROM glpi_documents_items WHERE itemtype="Ticket" AND items_id=' + fixture.ticket)).toBe('0');
   } finally {
@@ -302,6 +348,11 @@ test('entity boundaries, recursive grants and profile reply policy protect direc
     expect(r.status()).toBe(200);
     await expect(page.locator('form.ticketmailer-compose')).toBeVisible();
   }
+  const directory = await post(page, '/plugins/ticketmailer/ajax/autocomplete_users.php', {
+    tickets_id: String(f.ownTicket), query: f.users.writer.login,
+  });
+  expect(directory.status()).toBe(200);
+  expect((await directory.json()).results).toEqual([]);
   const foreign = await page.goto('/plugins/ticketmailer/front/compose.php?tickets_id=' + f.foreignTicket);
   expect(foreign.status()).toBe(403);
   const foreignLog = await page.request.get('/plugins/ticketmailer/front/log.php?tickets_id=' + f.foreignTicket);

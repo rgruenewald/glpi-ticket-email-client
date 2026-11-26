@@ -120,13 +120,13 @@ The POST must reject missing, false, forged, or stale override evidence. Audit r
 
 ### A6 — Authorization, CSRF, and controlled files
 
-Compose, send, recipient validation, upload, and download require GLPI login. Outbound email actions require the native GLPI ticket UPDATE right on the active central-interface profile. Replies also require entity and ticket-read access and native followup creation rights; new outbound tickets retain their separate ticket creation and entity checks. Native GLPI replies remain available under GLPI’s rights. Download and all audit access require entity access and `Ticket::canViewItem()`. POST and AJAX CSRF checks are enforced. Files use configured GLPI upload limits, generated storage identifiers, ticket-scoped ownership checks, and server-determined MIME; user-provided paths, MIME, or same-name uploads cannot overwrite or expose another attachment.
+Compose, send, recipient validation, upload, and download require GLPI login. Outbound email actions require the native GLPI ticket UPDATE right on the active central-interface profile. Replies also require entity access, native item-level READ and UPDATE checks on the ticket, and native followup creation rights. New outbound tickets require a valid user-bound compose context and authorized sender entity, GLPI’s native CREATE check on the new ticket input, and the same item-level READ and UPDATE checks after creation, before delivery. Native GLPI replies remain available under GLPI’s rights. Download and all audit access require entity access and `Ticket::canViewItem()`. POST and AJAX CSRF checks are enforced. Files use configured GLPI upload limits, generated storage identifiers, ticket-scoped ownership checks, and server-determined MIME; user-provided paths, MIME, or same-name uploads cannot overwrite or expose another attachment.
 
 ### A7 — Durable SMTP intent and exactly-once send attempt
 
 After all validation, create audit intent `status='pending'` and `timeline_status='pending'`. Submit exactly one SMTP send through GLPI’s configured SMTP settings. The compose/send path must not call `NotificationEvent::raiseEvent`, `Notification::raiseEvent`, `NotificationMailing::send`, or another GLPI notification-delivery API.
 
-On SMTP failure, mark the audit row `status='failed'`, store a safe error message, leave no successful-send followup, and show the failure from secure audit detail. No automatic resend occurs.
+On SMTP failure, mark the audit row `status='failed'`, store a generic, translated error message, never expose transport diagnostics from historical audit rows, leave no successful-send followup, and show the failure from secure audit detail. No automatic resend occurs.
 
 ### A8 — Complete timeline followup without duplicate notifications
 
@@ -140,6 +140,7 @@ If SMTP succeeds but followup creation or regular document attachment fails, ret
 
 ### A10 — BCC and attachment reader visibility
 
+The compose form warns that BCC is visible to ticket readers.
 Every ticket reader may see the complete BCC list in the followup and audit detail and may open secure outbound attachment links. A user without ticket-read access receives no BCC data, attachment metadata, body, or download bytes.
 
 ### A11 — Audit detail and timeline consistency
@@ -148,7 +149,7 @@ Audit detail and its linked followup expose identical sender, recipient, subject
 
 ### A12 — Localization and migration
 
-All new user-facing labels, error text, policy labels, and incomplete-send state are translated through GLPI and present in `ticketmailer.pot`, English, and German catalogs. Install creates new schema idempotently; upgrade from v1 runs a versioned migration without losing existing audit rows. Existing rows receive safe defaults for new timeline/override fields.
+All new user-facing labels, error text, policy labels, and incomplete-send state are translated through GLPI and present in `ticketmailer.pot`, English, and German catalogs. Install loads the idempotent greenfield schema via GLPI; upgrade from v1 uses GLPI’s Migration API without losing existing audit rows. The versioned SQL files document the historical schema changes. Existing rows receive safe defaults for new timeline/override fields.
 
 ## Required automated verification
 
@@ -223,8 +224,11 @@ available. No DOM/CSS native-action suppression is used.
 Answer templates, solution templates and followup source can be disabled separately
 in global settings. Private-note template/source controls follow the same switches.
 To/CC/BCC autocomplete searches active GLPI users by login, first/last name and
-email within active entity visibility, preserving recursive assignments. Arbitrary
-email input remains supported. Each modal open restores its button-specific mode.
+email in the ticket or selected sender entity, including recursive assignments
+from ancestor entities. Both recipient AJAX endpoints require an authorized ticket
+or a valid, authorized proactive compose context. Directory suggestions and their
+email addresses additionally require native GLPI user-read permission. Manual
+email input remains supported without that permission. Each modal open restores its button-specific mode.
 
 Action labels are short and translated consistently (Answer, Task, Solution,
 Document, Internal note). The connected group uses native solid primary buttons.

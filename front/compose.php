@@ -23,7 +23,7 @@ if (!PluginTicketmailerTimelineAction::canUse($ticket)) {
 
 if (!isset($_SERVER['HTTP_X_REQUESTED_WITH'])) {
     Html::header(
-        __('E-Mail antworten', 'ticketmailer'),
+        __('Email reply', 'ticketmailer'),
         $_SERVER['PHP_SELF'],
         'helpdesk',
         'ticket',

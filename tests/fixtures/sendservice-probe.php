@@ -1,6 +1,7 @@
 <?php
 // Runs in a fresh PHP process so GLPI test doubles cannot leak between suites.
 define('ERROR', 1);
+define('READ', 1);
 define('UPDATE', 2);
 function __(string $text, string $domain = ''): string { return $text; }
 class Ticket {
@@ -17,8 +18,12 @@ class Ticket {
         return true;
     }
     public function getFromDB(int $id): bool { return true; }
+    public function can(int $id, int $right): bool {
+        return $id === 42 && ($right === READ || ($right === UPDATE && $GLOBALS['argv'][1] !== 'item-update-denied'));
+    }
 }
 class Session {
+    public static function haveAccessToEntity(int $entity): bool { return $entity === 42; }
     public static array $messages = [];
     public static function getLoginUserID(): int { return 7; }
     public static function addMessageAfterRedirect(string $text, ...$args): void { self::$messages[] = $text; }

@@ -15,6 +15,7 @@ import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[2]
 REPOSITORY = "https://github.com/rgruenewald/glpi-ticket-email-client"
+LOGO_URL = "https://raw.githubusercontent.com/rgruenewald/glpi-ticket-email-client/main/public/img/logo.png"
 PACKAGE_PATHS = ("setup.php", "hook.php", "inc", "front", "ajax", "templates", "locales", "public", "sql", "LICENSE", "README.md", "SECURITY.md", "composer.json")
 SEMVER = r"[0-9]+\.[0-9]+\.[0-9]+"
 
@@ -70,6 +71,7 @@ def catalog(meta):
     add(root, "name", "GLPI Ticket Email Client")
     add(root, "key", "ticketmailer")
     add(root, "state", "stable")
+    add(root, "logo", LOGO_URL)
     desc = ET.SubElement(root, "description")
     add(ET.SubElement(desc, "short"), "en", "Compose and send ticket emails through GLPI SMTP.")
     add(ET.SubElement(desc, "long"), "en", "Ticket email composer with recipients, attachments, an audit trail and timeline integration. Uses the existing GLPI SMTP configuration.")

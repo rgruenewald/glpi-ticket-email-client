@@ -67,6 +67,13 @@ class TimelineActionTicket extends Ticket
         ];
     }
     public static bool $authorized = true;
+    public static bool $itemUpdate = true;
+
+    public function can(int $id, int $right): bool
+    {
+        return $id === (int) $this->getField('id') && self::$authorized && ($right === READ || ($right === UPDATE && self::$itemUpdate));
+    }
+
     /** @var array<string, mixed> */
     public array $fields = ['id' => 42];
 
@@ -177,6 +184,17 @@ final class TimelinePreferencesTest extends TestCase
             self::assertFalse(PluginTicketmailerTimelineAction::canUse(new TimelineActionTicket()));
         } finally {
             Session::$canAccessEntity = true;
+        }
+    }
+
+    #[Test]
+    public function native_profile_update_does_not_replace_item_update(): void
+    {
+        TimelineActionTicket::$itemUpdate = false;
+        try {
+            self::assertFalse(PluginTicketmailerTimelineAction::canUse(new TimelineActionTicket()));
+        } finally {
+            TimelineActionTicket::$itemUpdate = true;
         }
     }
 

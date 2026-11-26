@@ -54,6 +54,13 @@
 		);
 	}
 
+	function appendRecipientContext(form, data) {
+		for (const name of ["tickets_id", "compose_token", "sender_entity"]) {
+			const field = form.querySelector('[name="' + name + '"]');
+			if (field) data.append(name, field.value);
+		}
+	}
+
 	function recipientForSuggestion(suggestion) {
 		return {
 			email: suggestion.email,
@@ -421,10 +428,7 @@
 				queueAjax(form, (resolve) => {
 					var data = new FormData();
 					var token = getAjaxCsrf(form);
-					data.append(
-						"tickets_id",
-						form.querySelector('input[name="tickets_id"]').value,
-					);
+					appendRecipientContext(form, data);
 					["recipients_to", "recipients_cc", "recipients_bcc"].forEach(
 						(name) => {
 							var field = form.querySelector('input[name="' + name + '"]');
@@ -447,6 +451,7 @@
 							var response = JSON.parse(xhr.responseText);
 							setAjaxCsrf(form, response.csrf || "");
 							if (xhr.status < 200 || xhr.status >= 300) {
+								resolve();
 								return;
 							}
 							var matches = Array.isArray(response.mailbox_matches)
@@ -578,15 +583,13 @@
 			queueAjax(form, (resolve) => {
 				var data = new FormData();
 				var token = getAjaxCsrf(form);
-				var ticket = form.querySelector('input[name="tickets_id"]');
 				data.append("query", query);
-                data.append("tickets_id", ticket ? ticket.value : "");
-                var composeToken = form.querySelector('[name="compose_token"]');
-                if (composeToken) data.append("compose_token", composeToken.value);
-                data.append("_glpi_csrf_token", token);
+				appendRecipientContext(form, data);
+				data.append("_glpi_csrf_token", token);
 				var xhr = new XMLHttpRequest();
 				xhr.open("POST", url);
-				xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");				if (token) {
+				xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+				if (token) {
 					xhr.setRequestHeader("X-Glpi-Csrf-Token", token);
 				}
 				xhr.onload = () => {

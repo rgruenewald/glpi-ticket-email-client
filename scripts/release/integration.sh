@@ -73,8 +73,8 @@ if [ -n "${TICKETMAILER_E2E_REPORT_DIR:-}" ]; then
 fi
 timed "$prefix-plugin-install" compose exec -T --user www-data glpi php bin/console plugin:install ticketmailer --username=glpi --no-interaction --force
 timed "$prefix-plugin-activate" compose exec -T --user www-data glpi php bin/console plugin:activate ticketmailer --no-interaction
-# Exercise actual SQL migrations from the legacy schema and compare the full
-# result to a clean installation. No previously published release exists yet.
+# Exercise the GLPI migration from the legacy fixture and compare it with
+# a clean installation.
 timed "$prefix-schema-snapshot" compose exec -T --user www-data glpi php /usr/local/bin/release-migration.php --snapshot
 compose exec -T db mariadb -uglpi -pglpi glpi < scripts/release/legacy-schema.sql
 timed "$prefix-migration" compose exec -T --user www-data glpi php /usr/local/bin/release-migration.php

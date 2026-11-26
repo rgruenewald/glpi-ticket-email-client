@@ -4,27 +4,18 @@
  */
 require_once __DIR__ . '/../inc/bootstrap.php';
 
-
 Session::checkLoginUser();
 header('Content-Type: application/json; charset=utf-8');
 
-$tickets_id = (int) ($_POST['tickets_id'] ?? 0);
-$context = PluginTicketmailerProactive::context((string) ($_POST['compose_token'] ?? ''), (int) Session::getLoginUserID());
-if ($context !== null && PluginTicketmailerProactive::canUse((int) $context['entities_id'])) {
-    $entities_id = (int) $context['entities_id'];
-} else {
-$ticket = new Ticket();
-if ($tickets_id <= 0 || !$ticket->getFromDB($tickets_id) || !PluginTicketmailerTimelineAction::canUse($ticket)) {
+$entities_id = PluginTicketmailerTimelineAction::recipientContextEntity($_POST);
+if ($entities_id === null) {
     http_response_code(403);
     echo json_encode(['error' => 'forbidden']);
     exit;
 }
 
-$entities_id = (int) $ticket->getField('entities_id');
-}
-
 $query = trim((string) ($_POST['query'] ?? ''));
-if (mb_strlen($query) < 2) {
+if (!User::canView() || mb_strlen($query) < 2) {
     echo json_encode(['results' => [], 'csrf' => Session::getNewCSRFToken(true)]);
     exit;
 }
@@ -33,11 +24,6 @@ global $DB;
 $results = [];
 // GLPI escapes request values; escape LIKE wildcards, not SQL literals.
 $needle = '%' . addcslashes(mb_substr($query, 0, 100), '%_\\') . '%';
-$entities = array_values(array_map('intval', $_SESSION['glpiactiveentities'] ?? []));
-if ($entities === []) {
-    echo json_encode(['results' => [], 'csrf' => Session::getNewCSRFToken(true)]);
-    exit;
-}
 $userSearch = $DB->request([
     'SELECT' => ['glpi_users.name', 'glpi_users.realname', 'glpi_users.firstname', 'glpi_useremails.email'],
     'DISTINCT' => true,
@@ -54,7 +40,7 @@ $userSearch = $DB->request([
     'WHERE' => [
         'glpi_users.is_active' => 1,
         'glpi_users.is_deleted' => 0,
-        'AND' => [getEntitiesRestrictCriteria('glpi_profiles_users', '', $entities, true)],
+        'AND' => [getEntitiesRestrictCriteria('glpi_profiles_users', '', $entities_id, true)],
         'OR' => [
             ['glpi_users.name' => ['LIKE', $needle]],
             ['glpi_users.realname' => ['LIKE', $needle]],

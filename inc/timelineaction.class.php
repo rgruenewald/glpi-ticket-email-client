@@ -18,6 +18,28 @@ class PluginTicketmailerTimelineAction
     {
     }
 
+    /** Authorize read-only composer AJAX against exactly one send context. */
+    public static function recipientContextEntity(array $input): ?int
+    {
+        $token = $input['compose_token'] ?? '';
+        if ($token !== '') {
+            $context = is_string($token)
+                ? PluginTicketmailerProactive::context($token, (int) Session::getLoginUserID())
+                : null;
+            if ($context === null || !PluginTicketmailerProactive::canUse((int) $context['entities_id'])) {
+                return null;
+            }
+            $entity = filter_var($input['sender_entity'] ?? $context['entities_id'], FILTER_VALIDATE_INT);
+            return $entity !== false && PluginTicketmailerProactive::canUse($entity) ? $entity : null;
+        }
+
+        $id = filter_var($input['tickets_id'] ?? 0, FILTER_VALIDATE_INT);
+        $ticket = new Ticket();
+        return $id > 0 && $ticket->getFromDB($id) && self::canUse($ticket)
+            ? (int) $ticket->getField('entities_id')
+            : null;
+    }
+
     public static function renderReply(Ticket $ticket, bool $inline = true): string
     {
         return (new self())->renderForm($ticket, $inline);
@@ -152,7 +174,7 @@ class PluginTicketmailerTimelineAction
 
     public static function canUse(Ticket $ticket): bool
     {
-        if (!PluginTicketmailerConfig::canSendOutboundEmail() || !PluginTicketmailerTimeline::canAddFollowup($ticket)) {
+        if (!PluginTicketmailerConfig::canSendOnTicket($ticket) || !PluginTicketmailerTimeline::canAddFollowup($ticket)) {
             return false;
         }
 
@@ -465,6 +487,6 @@ class PluginTicketmailerTimelineAction
 
     private static function label(): string
     {
-        return __('E-Mail antworten', 'ticketmailer');
+        return __('Email reply', 'ticketmailer');
     }
 }

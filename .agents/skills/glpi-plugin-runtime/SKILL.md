@@ -52,8 +52,8 @@ Naming: GLPI plugin style `PluginTicketmailer*`, files `inc/<name>.class.php`.
 ## Schema / migrate
 
 - Greenfield: `sql/install.sql` (logs + reply_policies, v2 columns).
-- Upgrade: `sql/update-1.1.0.sql` (and future `update-X.Y.Z.sql`).
-- Uninstall: `sql/uninstall.sql`.
+- Upgrade: GLPI Migration API in the lifecycle helper; versioned SQL records historical schema changes.
+- Uninstall: GLPI Migration API.
 - Install path must leave schema equivalent to latest `install.sql`.
 - Table prefix pattern: `glpi_plugin_ticketmailer_*`.
 
