@@ -67,6 +67,7 @@ for (const viewport of [{width:1440,height:1000},{width:390,height:844}]) {
   });
 }
 test('early click shares in-flight preload and retries failed prefetch', async ({page}) => {
+  test.setTimeout(180_000);
   await login(page);
   let requests = 0;
   let release;

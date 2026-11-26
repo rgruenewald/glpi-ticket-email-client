@@ -42,10 +42,11 @@ data. No source or security database is uploaded automatically.
 
 ## Updates and enforcement
 
-Dependabot handles Composer, npm and Docker inputs, including the test Dockerfile
-and release Compose. It does not update `toolchain.env`, mise pins, GLPI archive
-digests or the CodeQL lock automatically. Review these together, compare upstream
-release digests, run policy tests and both packaged GLPI targets before merging.
+Dependency updates are checked locally; this repository does not enable Dependabot.
+That includes Composer, npm, Docker inputs, the test Dockerfile and release Compose.
+Local checks also cover `toolchain.env`, mise pins, GLPI archive digests and the
+CodeQL lock. Review dependency changes together, compare upstream release digests,
+run policy tests and both packaged GLPI targets before merging.
 The drift contracts reject inconsistent default GLPI versions and service images.
 
 GLPI 12 is primary; GLPI 11 remains supported. GLPI 10 is not supported. Historical

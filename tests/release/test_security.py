@@ -111,8 +111,8 @@ class SecurityGateTest(unittest.TestCase):
                          {'tests/check.js', 'generated/app.ts'})
         self.assertEqual(scan.expected_sources(self.root, 'python'), {'app.py'})
 
-    def test_actions_dependabot_ecosystem_removed(self):
-        self.assertNotIn('github-actions', (ROOT / '.github/dependabot.yml').read_text())
+    def test_dependabot_configuration_is_disabled(self):
+        self.assertFalse((ROOT / '.github/dependabot.yml').exists())
 
     def test_suppression_does_not_bypass_high_finding(self):
         report = self.report()
