@@ -82,7 +82,8 @@ class PluginTicketmailerTimelineAction
             'task' => [__('Task', 'ticketmailer'), 'ti ti-checkbox', null],
             'document' => [__('Document', 'ticketmailer'), 'ti ti-paperclip', null],
         ];
-        $html = '';
+        $main = '';
+        $menu = '';
         foreach ($buttons as $key => [$label, $icon, $mode]) {
             $already_solved = $key === 'solution' && in_array((int) $ticket->getField('status'), Ticket::getSolvedStatusArray(), true);
             if (!$preferences['show_action_' . $key]
@@ -92,10 +93,9 @@ class PluginTicketmailerTimelineAction
             }
             if ($already_solved) {
                 $tooltip = htmlspecialchars(__('This ticket is already solved.', 'ticketmailer'), ENT_QUOTES, 'UTF-8');
-                $html .= '<span class="btn-group" tabindex="0" data-bs-toggle="tooltip" data-bs-trigger="hover focus" title="' . $tooltip . '" aria-label="' . $tooltip . '">'
-                    . '<button type="button" class="btn btn-primary ticketmailer-action-solution" disabled aria-disabled="true">'
-                    . '<i class="ti ti-check me-1" aria-hidden="true"></i>'
-                    . htmlspecialchars(__('Solved', 'ticketmailer'), ENT_QUOTES, 'UTF-8') . '</button></span>';
+                $menu .= '<button type="button" class="dropdown-item ticketmailer-action-solution ticketmailer-solved-action" aria-disabled="true" data-bs-toggle="tooltip" title="' . $tooltip . '" aria-label="' . $tooltip . '">'
+                    . '<i class="ti ti-check me-2" aria-hidden="true"></i>'
+                    . htmlspecialchars(__('Solved', 'ticketmailer'), ENT_QUOTES, 'UTF-8') . '</button>';
                 continue;
             }
             if ($mode !== null) {
@@ -105,13 +105,37 @@ class PluginTicketmailerTimelineAction
                 $attrs = ' data-bs-toggle="collapse" data-bs-target="#new-'
                     . htmlspecialchars($native[$key]['class'], ENT_QUOTES, 'UTF-8') . '-block"';
             }
-            $html .= '<button type="button" class="btn btn-primary ticketmailer-action-' . $key . '"'
-                . $attrs . '><i class="' . $icon . ' me-1" aria-hidden="true"></i>'
+            $button = '<button type="button" class="dropdown-item ticketmailer-action-' . $key . '"'
+                . $attrs . '><i class="' . $icon . ' me-2" aria-hidden="true"></i>'
                 . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '</button>';
+            if ($key === 'reply') {
+                $main = '<button type="button" class="btn btn-primary ticketmailer-action-reply"'
+                    . $attrs . '><i class="' . $icon . ' me-1" aria-hidden="true"></i>'
+                    . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '</button>';
+            } else {
+                $menu .= $button;
+            }
         }
-        if ($html !== '') {
-            echo '<div class="btn-group ticketmailer-timeline-action me-2" role="group" aria-label="'
-                . htmlspecialchars(__('Ticket actions', 'ticketmailer'), ENT_QUOTES, 'UTF-8') . '">' . $html . '</div>';
+        if ($main !== '' || $menu !== '') {
+            $has_reply = $main !== '';
+            $group_label = htmlspecialchars(__('Ticket actions', 'ticketmailer'), ENT_QUOTES, 'UTF-8');
+            $more_label = htmlspecialchars(__('More ticket actions', 'ticketmailer'), ENT_QUOTES, 'UTF-8');
+            if (!$has_reply) {
+                $main = '<button type="button" class="btn btn-primary dropdown-toggle ticketmailer-action-more"'
+                    . ' data-bs-toggle="dropdown" aria-expanded="false" aria-label="' . $more_label . '">'
+                    . $group_label . '</button>';
+            }
+            $dropdown = '<div class="dropdown btn-group ticketmailer-action-dropdown" role="group" aria-label="'
+                . $group_label . '">' . $main;
+            if ($has_reply && $menu !== '') {
+                $dropdown .= '<button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false" aria-label="'
+                    . $more_label . '"></button>';
+            }
+            if ($menu !== '') {
+                $dropdown .= '<div class="dropdown-menu dropdown-menu-end ticketmailer-action-menu">' . $menu . '</div>';
+            }
+            $dropdown .= '</div>';
+            echo '<div class="ticketmailer-timeline-action me-2">' . $dropdown . '</div>';
         }
     }
 

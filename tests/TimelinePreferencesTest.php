@@ -237,7 +237,7 @@ final class TimelinePreferencesTest extends TestCase
         PluginTicketmailerTimelineAction::displayActions(['item' => $ticket]);
         $html = ob_get_clean();
         self::assertStringContainsString('title="This ticket is already solved."', $html);
-        self::assertStringContainsString('disabled aria-disabled="true"', $html);
+        self::assertStringContainsString('aria-disabled="true"', $html);
         self::assertStringContainsString('>Solved</button>', $html);
         self::assertStringNotContainsString('_solution"', $html);
         self::assertLessThan(strpos($html, 'ticketmailer-action-solution'), strpos($html, 'ticketmailer-action-reply'));

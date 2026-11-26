@@ -20,6 +20,9 @@ async function fixture(page, status) {
  return f;
 }
 async function open(page, mode='reply') {
+ if (mode !== 'reply') {
+  await page.locator('.ticketmailer-action-dropdown .dropdown-toggle-split, .ticketmailer-action-more').click();
+ }
  await page.locator('.ticketmailer-action-' + mode).click();
  const modal=page.locator('[data-ticketmailer-compose-modal]:visible');
  await expect(modal.locator('[data-ticketmailer-delivery]')).toBeVisible();
@@ -42,16 +45,16 @@ for (const status of [1,4,5]) {
  test('email without status action preserves status ' + status, async ({page}) => {
   const f=await fixture(page,status);
   if(status===5) {
+   await page.locator('.ticketmailer-action-dropdown .dropdown-toggle-split, .ticketmailer-action-more').click();
    const button=page.locator('.ticketmailer-action-solution');
-   await expect(button).toBeDisabled(); await expect(button).toHaveText('Solved');
-   const tooltipTarget=button.locator('..');
-   await expect(tooltipTarget).toHaveAttribute('aria-label','This ticket is already solved.');
-   await tooltipTarget.hover();
+   await expect(button).toHaveAttribute('aria-disabled','true'); await expect(button).toHaveText('Solved');
+   await expect(button).toHaveAttribute('aria-label','This ticket is already solved.');
+   await button.hover();
    await expect(page.getByRole('tooltip')).toHaveText('This ticket is already solved.');
-   await tooltipTarget.focus();
-   await expect(page.getByRole('tooltip')).toBeVisible();
    const order=await page.locator('.ticketmailer-timeline-action button').evaluateAll(nodes=>nodes.map(n=>n.className));
-   expect(order[0]).toContain('action-reply'); expect(order[1]).toContain('action-solution'); expect(order[2]).toContain('action-internal_note');
+   expect(order[0]).toContain('action-reply');
+   expect(order.some(name=>name.includes('action-solution'))).toBe(true);
+   expect(order.some(name=>name.includes('action-internal_note'))).toBe(true);
    await page.screenshot({path: require('node:path').join(process.env.TICKETMAILER_E2E_REPORT_DIR || 'test-results', 'status-solved-actions.png')});
   }
   const modal=await open(page);

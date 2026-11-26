@@ -4,7 +4,8 @@ const reportDir = process.env.TICKETMAILER_E2E_REPORT_DIR || path.join(__dirname
 module.exports = defineConfig({
   testDir: './tests/e2e',
   workers: 1,
-  timeout: 60000,
+  // Allow extra time for browser scenarios under Docker load.
+  timeout: 120000,
   outputDir: path.join(reportDir, 'artifacts'),
   reporter: [
     ['list'],

@@ -23,8 +23,11 @@ test('German solved button and tooltip are translated',async({page})=>{
  sql("UPDATE glpi_users SET language='de_DE' WHERE name='"+f.users.writer.login+"'");
  sql('UPDATE glpi_tickets SET status=5 WHERE id='+f.ownTicket);
  await login(page,f.users.writer.login,f.ownTicket);
- const button=page.locator('.ticketmailer-action-solution'); await expect(button).toBeDisabled();
- await expect(button).toHaveText('Gelöst'); await button.locator('..').hover();
+ await page.locator('.ticketmailer-action-dropdown .dropdown-toggle-split, .ticketmailer-action-more').click();
+ const button=page.locator('.ticketmailer-action-solution'); await expect(button).toHaveAttribute('aria-disabled','true');
+ await expect(button).toHaveText('Gelöst');
+ await expect(button).toHaveAttribute('aria-label','Dieses Ticket ist bereits gelöst.');
+ await button.hover();
  await expect(page.getByRole('tooltip')).toHaveText('Dieses Ticket ist bereits gelöst.');
 });
 test('ticket UPDATE alone cannot bypass followup CREATE permission',async({page})=>{

@@ -531,6 +531,9 @@ msgstr "Dokument"
 msgid "Ticket actions"
 msgstr "Ticketaktionen"
 
+msgid "More ticket actions"
+msgstr "Weitere Ticketaktionen"
+
 msgid "Answer"
 msgstr "Antworten"
 

@@ -1383,7 +1383,7 @@ parameters:
 		-
 			message: '#^Function __ not found\.$#'
 			identifier: function.notFound
-			count: 12
+			count: 13
 			path: inc/timelineaction.class.php
 
 		-
