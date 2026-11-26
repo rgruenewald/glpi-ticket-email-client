@@ -6,7 +6,7 @@
 - **Type:** GLPI 12 plugin with GLPI 11 compatibility (`composer.json` type `glpi-plugin`)
 - **Runtime:** PHP ≥ 8.2 (plugin language floor), GLPI 12.0.x primary and GLPI 11.0.x supported. Each GLPI release also imposes its own PHP requirements. The packaged gate targets 12.0.2 and 11.0.8; run evidence is the verification record. GLPI 10 is not supported. GLPI is the external host runtime, not a Composer package dependency.
 - **License:** GPL-3.0-or-later
-- **Version constant:** `PLUGIN_TICKETMAILER_VERSION` in `setup.php` (currently 2.7.3) <!-- x-release-please-version -->
+- **Version constant:** `PLUGIN_TICKETMAILER_VERSION` in `setup.php` (currently 2.8.0) <!-- x-release-please-version -->
 
 ## One-liner
 
