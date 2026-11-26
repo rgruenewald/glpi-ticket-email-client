@@ -3,6 +3,7 @@
   <name>GLPI Ticket Email Client</name>
   <key>ticketmailer</key>
   <state>stable</state>
+  <logo>https://raw.githubusercontent.com/rgruenewald/glpi-ticket-email-client/main/public/img/logo.png</logo>
   <description>
     <short>
       <en>Compose and send ticket emails through GLPI SMTP.</en>
@@ -23,6 +24,14 @@
     <author>Ronny Gruenewald</author>
   </authors>
   <versions>
+    <version>
+      <num>2.7.3</num>
+      <compatibility>
+        <min>11.0.0</min>
+        <max>12.0.99</max>
+      </compatibility>
+      <download_url>https://github.com/rgruenewald/glpi-ticket-email-client/releases/download/v2.7.3/ticketmailer-2.7.3.tar.gz</download_url>
+    </version>
     <version>
       <num>2.7.2</num>
       <compatibility>

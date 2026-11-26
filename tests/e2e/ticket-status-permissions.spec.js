@@ -81,7 +81,7 @@ for (const allowed of [false,true]) {
   expect(sql('SELECT status FROM glpi_tickets WHERE id='+f.ownTicket)).toBe('6');
  });
 }
-test('requester email on solved ticket does not reopen it',async({page,request})=>{
+test('authorized agent who is also the requester does not reopen the solved ticket',async({page,request})=>{
  const f=fixture();
  const user=sql("SELECT id FROM glpi_users WHERE name='"+f.users.writer.login+"'");
  sql('UPDATE glpi_tickets SET status=5,users_id_recipient='+user+' WHERE id='+f.ownTicket);

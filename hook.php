@@ -3,29 +3,17 @@
  * hook.php — lifecycle hooks for ticketmailer v2.
  */
 
-/**
- * Install / upgrade. Fresh install uses install.sql.
- * Existing v1 DBs gain v2 columns via update-1.1.0.sql when needed.
- */
 function plugin_ticketmailer_install(): bool
 {
-    $sql_file = __DIR__ . '/sql/install.sql';
-    if (!is_file($sql_file)
-        || !PluginTicketmailerHook::runSqlScript((string) file_get_contents($sql_file))
-    ) {
-        return false;
-    }
-
-    return PluginTicketmailerHook::migrateSchema(__DIR__ . '/sql');
+    return PluginTicketmailerHook::installSchema();
 }
 
 function plugin_ticketmailer_uninstall(): bool
 {
-    Config::deleteConfigurationValues('plugin:ticketmailer', array_keys(PluginTicketmailerConfig::interfaceOptions()));
-    $sql_file = __DIR__ . '/sql/uninstall.sql';
-    if (is_file($sql_file)) {
-        PluginTicketmailerHook::runSqlScript((string) file_get_contents($sql_file));
+    if (!PluginTicketmailerHook::uninstallSchema()) {
+        return false;
     }
+    Config::deleteConfigurationValues('plugin:ticketmailer', array_keys(PluginTicketmailerConfig::interfaceOptions()));
     $files_root = GLPI_PLUGIN_DOC_DIR . '/ticketmailer';
     if (is_dir($files_root)) {
         PluginTicketmailerHook::rmdirRecursive($files_root);
@@ -39,7 +27,7 @@ function plugin_ticketmailer_uninstall(): bool
  */
 function plugin_ticketmailer_filter_notification_template_data(NotificationTargetTicket $target): void
 {
-    if (Session::haveRight('ticketcost', READ)) {
+    if (!PluginTicketmailerConfig::isComposeNotificationTarget($target) || Session::haveRight('ticketcost', READ)) {
         return;
     }
 

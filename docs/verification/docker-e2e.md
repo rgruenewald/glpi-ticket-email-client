@@ -66,7 +66,7 @@ service.
 - Exactly one matching captured message, content and attachment checks, persisted
   sent audit and normal timeline followup.
 - Authorized attachment download and denied anonymous compose/download.
-- Self-service and read-only accounts denied composition, sending and uploads.
+- Self-service and read-only accounts denied outbound actions. The native ticket UPDATE right is required even when the profile can add a followup.
 - Recursive entity access and its removal; direct foreign-entity compose, send,
   upload, preview, autocomplete, recipient validation and document access denied.
 - Entity/profile policy precedence and hide_native-to-promoted fallback. These
@@ -90,7 +90,7 @@ service.
 - Closed tickets are tested with and without native reopening permission. Permitted
   communication preserves closed status. A requester replying to a solved ticket
   does not implicitly reopen it.
-- A native template with mandatory location blocks solving until location is filled.
+- Explicit waiting or solved requires the ticket UPDATE right. A native template with mandatory location blocks solving until location is filled.
 - A CLI integration probe exercises the registered private-note hooks and native
   notification queue against Mailpit. The public control reaches requester,
   technician and observer; private content reaches only the technician with private

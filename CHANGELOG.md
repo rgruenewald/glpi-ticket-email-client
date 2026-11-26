@@ -1,5 +1,23 @@
 # Changelog
 
+## [2.8.0](https://github.com/rgruenewald/glpi-ticket-email-client/compare/v2.7.3...v2.8.0) (2026-11-26)
+
+### Security
+
+* Enforce native GLPI permissions for outbound email and scope recipient lookup and validation to an authorized compose context. Self-Service users retain native ticket replies.
+* Sanitize stored email HTML when saving and displaying audit records, including older records, and enforce ticket and entity visibility on audit endpoints.
+* Limit each outgoing email to 50 To, CC and BCC recipient entries combined.
+
+### Changes
+
+* Group ticket email actions on mobile.
+* Warn senders that BCC recipients remain visible to ticket readers even though they are hidden from other mail recipients.
+
+### Upgrade notes
+
+* Back up the database and plugin files before replacing the package and running the GLPI plugin upgrade. GLPI handles schema migrations; no manual SQL or additional plugin permission is required.
+* Verify that the central-interface profiles expected to send have native ticket UPDATE and access to the relevant tickets and entities. GLPI 12 remains primary and GLPI 11 remains supported.
+
 ## [2.7.3](https://github.com/rgruenewald/glpi-ticket-email-client/compare/v2.7.2...v2.7.3) (2026-11-16)
 
 ### Build and verification

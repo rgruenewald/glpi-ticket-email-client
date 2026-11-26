@@ -12,7 +12,7 @@ final class TicketStatusTest extends TestCase
     }
     public function testPreflightRejectsDeniedFollowupsStaleFormsAndForbiddenTransitions(): void
     {
-        foreach (['denied-followup','stale','denied-lifecycle','missing-required','template-required','no-update','solved-transition','both'] as $case) {
+        foreach (['denied-followup','stale','denied-lifecycle','missing-required','template-required','no-update','no-profile-update','solved-transition','both'] as $case) {
             self::assertNotNull($this->probe($case)['error'], $case);
         }
     }

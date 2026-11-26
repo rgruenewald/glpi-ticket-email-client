@@ -6,63 +6,59 @@
  */
 class PluginTicketmailerHook
 {
-    /**
-     * Execute a multi-statement SQL script, ignoring
-     * empty / comment-only statements. Used by the
-     * install and uninstall hooks.
-     */
-    public static function runSqlScript(string $sql): bool
+    public static function installSchema(): bool
     {
         global $DB;
-        $ok = true;
-        foreach (self::splitStatements($sql) as $stmt) {
-            $stmt = trim($stmt);
-            if ($stmt === '') {
-                continue;
-            }
-            try {
-                $DB->doQuery($stmt);
-            } catch (\Throwable $e) {
-                Toolbox::logInFile(
-                    'php-errors',
-                    sprintf('ticketmailer SQL error: %s', $e->getMessage()),
-                );
-                $ok = false;
-            }
+        try {
+            // GLPI loads the plugin's fixed, idempotent greenfield DDL.
+            return $DB->runFile(__DIR__ . '/../sql/install.sql') && self::migrateSchema();
+        } catch (Throwable $error) {
+            Toolbox::logInFile('php-errors', 'ticketmailer install: ' . $error->getMessage());
+            return false;
         }
-        return $ok;
     }
 
-    /**
-     * Bring a pre-v2 ticketmailer schema forward without replaying a
-     * migration whose columns already exist. GLPI calls the install hook for
-     * both fresh installations and upgrades.
-     */
-    public static function migrateSchema(string $sqlDirectory): bool
+    public static function migrateSchema(): bool
     {
         global $DB;
-
-        $migrations = [
-            ['glpi_plugin_ticketmailer_logs', 'followups_id', 'update-1.1.0.sql'],
-            ['glpi_plugin_ticketmailer_configs', 'timeline_newest_first', 'update-1.3.0.sql'],
-            ['glpi_plugin_ticketmailer_configs', 'open_reply_on_ticket', 'update-1.3.1.sql'],
-            ['glpi_plugin_ticketmailer_configs', 'recipient_autocomplete_show_email', 'update-1.4.0.sql'],
-            ['glpi_plugin_ticketmailer_configs', 'notificationtemplates_id', 'update-2.0.3.sql'],
-            ['glpi_plugin_ticketmailer_logs', 'new_conversation', 'update-2.2.0.sql'],
-            ['glpi_plugin_ticketmailer_configs', 'hide_native_answer', 'update-2.3.0.sql'],
-        ];
-        foreach ($migrations as [$table, $field, $filename]) {
-            if ($DB->fieldExists($table, $field)) {
-                continue;
-            }
-            $path = $sqlDirectory . '/' . $filename;
-            if (!is_file($path) || !self::runSqlScript((string) file_get_contents($path))) {
-                return false;
-            }
+        $logs = 'glpi_plugin_ticketmailer_logs';
+        $configs = 'glpi_plugin_ticketmailer_configs';
+        $migration = new Migration(PLUGIN_TICKETMAILER_VERSION);
+        if (!$DB->fieldExists($logs, 'followups_id')) {
+            $migration->changeField($logs, 'status', 'status', "ENUM('pending','sent','failed') NOT NULL", ['nodefault' => true]);
+        }
+        $migration->addField($logs, 'followups_id', 'INT NULL');
+        $migration->addField($logs, 'timeline_error', 'TEXT NULL');
+        $migration->addField($logs, 'mailbox_override', 'bool');
+        $migration->addField($logs, 'mailbox_matches', 'MEDIUMTEXT NULL');
+        $migration->addField($logs, 'new_conversation', 'bool');
+        $migration->addKey($logs, 'followups_id', 'idx_followup');
+        $backfill = $migration->addField($logs, 'timeline_status', "ENUM('pending','recorded','failed') NOT NULL DEFAULT 'pending'");
+        $migration->addField($configs, 'timeline_newest_first', 'bool', ['value' => 1]);
+        $migration->addField($configs, 'open_reply_on_ticket', 'bool', ['value' => 1]);
+        $migration->addField($configs, 'recipient_autocomplete_show_email', 'bool', ['value' => 1]);
+        $migration->addField($configs, 'notificationtemplates_id', 'INT NULL');
+        $migration->addField($configs, 'hide_native_answer', 'bool');
+        $migration->executeMigration();
+        if ($backfill) {
+            return $DB->update($logs, ['timeline_status' => 'recorded'], ['status' => ['sent', 'failed']]);
         }
         return true;
     }
 
+    public static function uninstallSchema(): bool
+    {
+        $migration = new Migration(PLUGIN_TICKETMAILER_VERSION);
+        try {
+            foreach (['logs', 'configs', 'reply_policies'] as $table) {
+                $migration->dropTable('glpi_plugin_ticketmailer_' . $table);
+            }
+            return true;
+        } catch (Throwable $error) {
+            Toolbox::logInFile('php-errors', 'ticketmailer uninstall: ' . $error->getMessage());
+            return false;
+        }
+    }
 
     /**
      * Recursive removal of a directory and everything
@@ -86,18 +82,6 @@ class PluginTicketmailerHook
             $file->isDir() ? @rmdir($file->getPathname()) : @unlink($file->getPathname());
         }
         @rmdir($dir);
-    }
-
-    /**
-     * @return list<string>
-     */
-    private static function splitStatements(string $sql): array
-    {
-        $sql = preg_replace('/^\s*--.*$/m', '', $sql) ?? $sql;
-        return array_values(array_filter(
-            array_map('trim', explode(';', $sql)),
-            static fn (string $s): bool => $s !== '',
-        ));
     }
 
     /**

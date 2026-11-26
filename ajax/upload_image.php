@@ -24,7 +24,7 @@ if (!empty($_POST['compose_token'])) {
     }
 } else {
     $ticket = new Ticket();
-    if ($tickets_id <= 0 || !$ticket->getFromDB($tickets_id) || !Session::haveAccessToEntity((int) $ticket->getField('entities_id')) || !$ticket->can($tickets_id, READ) || !($ticket->canUpdateItem() || $ticket->canAddFollowups())) {
+    if ($tickets_id <= 0 || !$ticket->getFromDB($tickets_id) || !PluginTicketmailerTimelineAction::canUse($ticket)) {
         http_response_code(403);
         echo json_encode(['error' => __('Not allowed.', 'ticketmailer')]);
         exit;

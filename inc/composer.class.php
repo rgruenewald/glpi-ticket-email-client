@@ -26,7 +26,7 @@ class PluginTicketmailerComposer
         array $inline_images = [],
     ): array {
         $body_html = strtr(
-            html_entity_decode($body_html, ENT_QUOTES | ENT_HTML5, 'UTF-8'),
+            $body_html,
             ['\\r\\n' => "\n", '\\n' => "\n", '\\r' => "\n", "\u{00C2}\u{00A0}" => "\u{00A0}"],
         );
         $ticket = new Ticket();

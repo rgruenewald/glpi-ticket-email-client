@@ -23,11 +23,14 @@ class PluginTicketmailerTimeline
     public static function canChangeStatus(Ticket $ticket, int $target): bool
     {
         if (!$ticket->isNotSolved() || (int) $ticket->getField('status') === $target
+            || !in_array($target, [Ticket::WAITING, Ticket::SOLVED], true)
+            || !Session::haveRight('ticket', UPDATE) || !$ticket->canUpdateItem()
+            || !Session::haveAccessToEntity((int) $ticket->getField('entities_id')) || !$ticket->canViewItem()
             || !Ticket::isAllowedStatus($ticket->getField('status'), $target)) {
             return false;
         }
         if ($target === Ticket::SOLVED) {
-            if (!Ticket::canUpdate() || !$ticket->canSolve() || !$ticket->checkRequiredFieldsFilled()) {
+            if (!$ticket->canSolve() || !$ticket->checkRequiredFieldsFilled()) {
                 return false;
             }
             // GLPI skips template validation when category/entity/type are unchanged.
@@ -41,7 +44,7 @@ class PluginTicketmailerTimeline
             }
             return true;
         }
-        return $target === Ticket::WAITING && $ticket->canUpdateItem();
+        return true;
     }
 
     /** Re-read immediately before irreversible work; a stale form must not reopen a ticket. */
@@ -151,10 +154,8 @@ class PluginTicketmailerTimeline
         ) {
             return (string) \Glpi\RichText\RichText::getSafeHtml($html);
         }
-        // Fallback: strip scripts/styles only.
-        $html = preg_replace('/<script\b[^>]*>.*?<\/script>/is', '', $html) ?? $html;
-        $html = preg_replace('/<style\b[^>]*>.*?<\/style>/is', '', $html) ?? $html;
-        return $html;
+        // Fail closed if the GLPI sanitizer is unavailable.
+        return htmlspecialchars(strip_tags($html), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     }
 
     public static function buildContent(array $payload): string

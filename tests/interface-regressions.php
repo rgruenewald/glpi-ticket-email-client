@@ -47,8 +47,8 @@ class Config
 }
 class PluginTicketmailerHook
 {
-    public static function runSqlScript(string $sql): bool { return true; }
-    public static function migrateSchema(string $path): bool { return true; }
+    public static function installSchema(): bool { return true; }
+    public static function uninstallSchema(): bool { return true; }
     public static function rmdirRecursive(string $path): void { throw new RuntimeException('Unexpected file deletion'); }
 }
 define('GLPI_PLUGIN_DOC_DIR', sys_get_temp_dir() . '/ticketmailer-nonexistent-' . bin2hex(random_bytes(8)));

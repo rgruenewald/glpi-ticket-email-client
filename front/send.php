@@ -32,7 +32,7 @@ if (!empty($_POST['compose_token'])) {
         exit;
     }
     $tickets_id = 0;
-} elseif ($tickets_id <= 0 || !$ticket->getFromDB($tickets_id) || !Session::haveAccessToEntity((int) $ticket->getField('entities_id')) || !$ticket->can($tickets_id, READ) || !PluginTicketmailerTimelineAction::canUse($ticket)) {
+} elseif ($tickets_id <= 0 || !$ticket->getFromDB($tickets_id) || !PluginTicketmailerTimelineAction::canUse($ticket)) {
     PluginTicketmailerConfig::displayRightError();
 }
 $web = PluginTicketmailerConfig::getWebDir();
@@ -70,6 +70,9 @@ $recipients_cc  = $parsed_cc['valid'];
 $recipients_bcc = $parsed_bcc['valid'];
 
 $errors = [];
+if (PluginTicketmailerRecipients::exceedsLimit($recipients_to, $recipients_cc, $recipients_bcc)) {
+    $errors[] = PluginTicketmailerRecipients::limitMessage();
+}
 $expected_status = filter_var($_POST['expected_status'] ?? null, FILTER_VALIDATE_INT);
 if ($proactive_context === null) {
     try {
@@ -186,7 +189,7 @@ if ($errors !== [] && $proactive_context !== null) {
 }
 if ($errors !== []) {
     Html::header(
-        __('E-Mail antworten', 'ticketmailer'),
+        __('Email reply', 'ticketmailer'),
         $_SERVER['PHP_SELF'],
         'helpdesk',
         'ticket',
@@ -252,10 +255,19 @@ if ($errors !== []) {
 
 // The durable "creating" state prevents a repeated POST from creating another ticket after a crash.
 if ($proactive_context !== null) {
+    $entity = (int) $proactive_context['entities_id'];
+    if (!PluginTicketmailerProactive::canUse($entity)) {
+        PluginTicketmailerConfig::displayRightError();
+    }
+    $ticket_input = PluginTicketmailerProactive::ticketInput(
+        $entity, $normalized_human_subject, $parsed_to['valid'], $parsed_cc['valid'],
+    );
+    $create_input = $ticket_input;
+    if (!$ticket->can(-1, CREATE, $create_input)) {
+        PluginTicketmailerConfig::displayRightError();
+    }
     PluginTicketmailerProactive::saveState($proactive_context, ['phase'=>'creating', 'tickets_id'=>0]);
-    $tickets_id = (int) $ticket->add(PluginTicketmailerProactive::ticketInput(
-        (int) $proactive_context['entities_id'], $normalized_human_subject, $parsed_to['valid'], $parsed_cc['valid'],
-    ));
+    $tickets_id = (int) $ticket->add($ticket_input);
     if ($tickets_id <= 0) {
         PluginTicketmailerProactive::saveState($proactive_context, ['phase'=>'open', 'tickets_id'=>0]);
         Session::addMessageAfterRedirect(__('Could not create the ticket. No email was sent.', 'ticketmailer'), true, ERROR);
@@ -263,7 +275,7 @@ if ($proactive_context !== null) {
         exit;
     }
     PluginTicketmailerProactive::saveState($proactive_context, ['phase'=>'created', 'tickets_id'=>$tickets_id]);
-    if (!$ticket->getFromDB($tickets_id) || !$ticket->canViewItem() || !$ticket->canUpdateItem()
+    if (!$ticket->getFromDB($tickets_id) || !PluginTicketmailerConfig::canSendOnTicket($ticket)
         || (int) $ticket->getField('entities_id') !== (int) $proactive_context['entities_id']) {
         Session::addMessageAfterRedirect(__('Ticket created, but its entity or permissions changed. No email was sent.', 'ticketmailer'), true, ERROR);
         Html::redirect(Ticket::getSearchURL());

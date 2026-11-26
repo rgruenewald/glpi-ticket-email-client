@@ -56,7 +56,7 @@ $scenario = $argv[1] ?? 'basic';
 if ($scenario === 'recipients') {
     $suffix = bin2hex(random_bytes(5));
     $result['recipients'] = [];
-    foreach (['named', 'login'] as $kind) {
+    foreach (['named', 'login', 'unrelated'] as $kind) {
         $login = 'e2e-recipient-' . $kind . '-' . $suffix;
         $email = $login . '@example.test';
         $user = (new User())->add([
@@ -68,9 +68,21 @@ if ($scenario === 'recipients') {
         if (!$user) {
             throw new RuntimeException('Could not create recipient fixture');
         }
-        (new Profile_User())->add(['users_id' => $user, 'profiles_id' => 4, 'entities_id' => 0, 'is_recursive' => 1]);
+        $entity = $kind === 'unrelated'
+            ? (new Entity())->add(['name' => 'E2E unrelated ' . $suffix, 'entities_id' => 0])
+            : 0;
+        if ($entity === false) {
+            throw new RuntimeException('Could not create unrelated entity');
+        }
+        $DB->delete('glpi_profiles_users', ['users_id' => $user]);
+        (new Profile_User())->add(['users_id' => $user, 'profiles_id' => 4, 'entities_id' => $entity, 'is_recursive' => 1]);
         $DB->insert('glpi_useremails', ['users_id' => $user, 'email' => $email, 'is_default' => 1]);
-        $result['recipients'][] = ['query' => $login, 'label' => $kind === 'named' ? 'Ada Lovelace' : $login, 'email' => $email];
+        $recipient = ['query' => $login, 'label' => $kind === 'named' ? 'Ada Lovelace' : $login, 'email' => $email];
+        if ($kind === 'unrelated') {
+            $result['unrelated'] = $recipient;
+        } else {
+            $result['recipients'][] = $recipient;
+        }
     }
 }
 if ($scenario === 'history') {
@@ -103,8 +115,8 @@ if (in_array($scenario, ['acl', 'status-required'], true)) {
         if (!$profile) {
             throw new RuntimeException('Could not create profile');
         }
-        // Central UI needs basic ticket-read rights; only writer gets followup creation.
-        foreach (['ticket' => Ticket::READALL | READ, 'followup' => $role === 'writer' ? ITILFollowup::ADDALLITEM : 0] as $name => $rights) {
+        // Only the writer can update tickets and add followups.
+        foreach (['ticket' => Ticket::READALL | READ | ($role === 'writer' ? UPDATE : 0), 'followup' => $role === 'writer' ? ITILFollowup::ADDALLITEM : 0] as $name => $rights) {
             $DB->update('glpi_profilerights', ['rights' => $rights], ['profiles_id' => $profile, 'name' => $name]);
         }
         $login = 'e2e-' . $role . '-' . $suffix;
@@ -115,6 +127,10 @@ if (in_array($scenario, ['acl', 'status-required'], true)) {
         // User::add may assign a default profile; replace only this new fixture user's grants.
         $DB->delete('glpi_profiles_users', ['users_id' => $user]);
         (new Profile_User())->add(['users_id' => $user, 'profiles_id' => $profile, 'entities_id' => $entity, 'is_recursive' => 1, 'is_default_profile' => 1]);
+        if ($role === 'writer') {
+            $DB->update('glpi_profilerights', ['rights' => 0], ['profiles_id' => $profile, 'name' => 'user']);
+            $DB->insert('glpi_useremails', ['users_id' => $user, 'email' => $login . '@example.test', 'is_default' => 1]);
+        }
         $result['users'][$role] = ['login' => $login, 'profile' => (int) $profile];
     }
     $DB->insert('glpi_plugin_ticketmailer_reply_policies', ['entities_id' => $entity, 'profiles_id' => null, 'mode' => 'available']);

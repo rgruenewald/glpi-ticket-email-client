@@ -12,7 +12,8 @@ import xml.etree.ElementTree as ET
 
 REPO = "rgruenewald/glpi-ticket-email-client"
 BASE = "https://github.com/" + REPO
-SEMVER = r"[0-9]+.[0-9]+.[0-9]+"
+SEMVER = r"[0-9]+\.[0-9]+\.[0-9]+"
+LOGO_URL = "https://raw.githubusercontent.com/" + REPO + "/main/public/img/logo.png"
 ROOT = Path(__file__).resolve().parents[2]
 
 
@@ -65,6 +66,13 @@ def assemble(releases, assets):
                     ET.SubElement(tags, "tag").text = tag_text
     if catalog is None:
         raise ValueError("No published stable releases")
+    if not (catalog.findtext("logo") or "").strip():
+        logo = catalog.find("logo")
+        if logo is None:
+            logo = ET.Element("logo")
+            state = catalog.find("state")
+            catalog.insert(list(catalog).index(state) + 1 if state is not None else 0, logo)
+        logo.text = LOGO_URL
     # Older immutable releases used a language attribute. The Directory expects
     # language child elements; normalize only the copied catalog presentation.
     for field in ("short", "long"):

@@ -99,6 +99,16 @@ class CatalogTest(unittest.TestCase):
                     self.assertEqual([node.tag for node in entry],
                                      ["num", "compatibility", "download_url"])
 
+    def test_missing_legacy_logo_gets_a_directory_logo(self):
+        tag = self.releases[0]["tag_name"]
+        root = ET.fromstring(self.bodies[tag]["ticketmailer.xml"])
+        root.remove(root.find("logo"))
+        self.bodies[tag]["ticketmailer.xml"] = ET.tostring(root)
+        self.rehash(tag)
+        result = ET.fromstring(self.build())
+        self.assertEqual(result.findtext("logo"), ET.parse(ROOT / "ticketmailer.xml").findtext("logo"))
+        self.assertTrue((ROOT / "public/img/logo.png").is_file())
+
     def test_history_is_sorted_and_preserves_published_compatibility(self):
         self.releases.reverse()
         versions = ET.fromstring(self.build()).findall("versions/version")

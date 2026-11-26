@@ -721,7 +721,7 @@ const validationSource = require("node:fs").readFileSync(
 );
 assert.equal(
 	(autocompleteSource.match(/Session::getNewCSRFToken\(true\)/g) || []).length,
-	3,
+	2,
 );
 assert.match(
 	validationSource,

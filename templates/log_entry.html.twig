@@ -35,7 +35,7 @@
 
     <section class="ticketmailer-body">
         <h3>{{ __('Message', 'ticketmailer') }}</h3>
-        {{ entry.body_html|raw }}
+        {{ entry.body_html|safe_html }}
 
         <details>
             <summary>{{ __('Plain-text alternative', 'ticketmailer') }}</summary>
@@ -86,7 +86,7 @@
     {% if entry.status == 'failed' %}
         <section class="ticketmailer-error" role="alert">
             <h3>{{ __('Error', 'ticketmailer') }}</h3>
-            <pre>{{ entry.error_message }}</pre>
+            <pre>{{ __('Unable to send email.', 'ticketmailer') }}</pre>
         </section>
     {% endif %}
 

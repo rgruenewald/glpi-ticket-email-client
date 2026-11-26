@@ -6,7 +6,7 @@
 - **Type:** GLPI 12 plugin with GLPI 11 compatibility (`composer.json` type `glpi-plugin`)
 - **Runtime:** PHP ≥ 8.2 (plugin language floor), GLPI 12.0.x primary and GLPI 11.0.x supported. Each GLPI release also imposes its own PHP requirements. The packaged gate targets 12.0.2 and 11.0.8; run evidence is the verification record. GLPI 10 is not supported. GLPI is the external host runtime, not a Composer package dependency.
 - **License:** GPL-3.0-or-later
-- **Version constant:** `PLUGIN_TICKETMAILER_VERSION` in `setup.php` (currently 2.7.3) <!-- x-release-please-version -->
+- **Version constant:** `PLUGIN_TICKETMAILER_VERSION` in `setup.php` (currently 2.8.0) <!-- x-release-please-version -->
 
 ## One-liner
 
@@ -30,7 +30,7 @@ Ticket-context reply client with a proactive **New email** action: **Email** (de
 2. Email only: after validation, create audit intent (`status=pending`, `timeline_status=pending`) → **exactly one** SMTP attempt → no auto-resend.
 3. Internal note posts GLPI's native private `ITILFollowup` form/controller/model; no Ticketmailer recipients, signature, audit, mailer, or outbound timeline formatter.
 4. Email success requires `status=sent` **and** `timeline_status=recorded`. SMTP ok + followup fail → incomplete outcome, keep sent audit, set `timeline_status=failed`.
-5. ACL: compose/send/upload need ticket update/followup rights; download + audit detail need `Ticket::canViewItem()`. Login + CSRF on POST/AJAX.
+5. ACL: outbound email requires the central interface and the active GLPI profile’s ticket UPDATE right. Replies also require ticket/entity access, followup creation permission, and the applicable reply policy; download + audit detail need `Ticket::canViewItem()`. Login + CSRF on POST/AJAX.
 6. Email recipients: server rejects malformed non-empty tokens (no silent drop). BCC-only is allowed. SMTP headers omit BCC from To/CC.
 7. **BCC is ticket-visible** by design (timeline + audit detail). Not a privacy feature. UI warns before Email send.
 8. Mailbox match → warn + require override; aliases/forwarding/non-email logins **not** detected.
