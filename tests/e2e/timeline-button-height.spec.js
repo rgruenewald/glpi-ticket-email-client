@@ -28,7 +28,9 @@ for (const width of [390, 1440, 1920]) {
     await expect(save).toBeVisible();
     const saveBox = await save.boundingBox();
     const actions = footer.locator('.main-actions .btn:visible, .ticketmailer-timeline-action .btn:visible');
-    expect(await actions.count()).toBeGreaterThanOrEqual(5);
+    expect(await footer.locator('.ticketmailer-action-dropdown:visible')).toHaveCount(1);
+    expect(await footer.locator('.ticketmailer-action-dropdown > .dropdown-toggle:visible')).toHaveCount(1);
+    expect(await actions.count()).toBeGreaterThanOrEqual(1);
     for (const action of await actions.all()) {
       const box = await action.boundingBox();
       expect(box).not.toBeNull();

@@ -651,11 +651,6 @@ ul.legacy-timeline-actions li .ticketmailer-timeline-action i {
 	padding-right: 0;
 }
 
-/* Hide only the legacy email reply action while its compose panel is open. */
-body.ticketmailer-compose-active .ticketmailer-timeline-action {
-	display: none !important;
-}
-
 /* ── Log entries ─────────────────────────────────────────── */
 .ticketmailer-log-entry .status-sent {
 	color: #15803d;
@@ -733,15 +728,51 @@ body.ticketmailer-compose-active .ticketmailer-timeline-action {
 	}
 }
 
-/* Let the grouped actions scroll as a unit on narrow ticket footers. */
+/* Compact mobile-first action group: one primary action plus a dropdown. */
 .ticketmailer-timeline-action {
+    display: inline-flex;
     max-width: 100%;
-    overflow-x: auto;
     vertical-align: middle;
 }
-.ticketmailer-timeline-action > .btn {
-    flex: 0 0 auto;
+.ticketmailer-action-dropdown {
+    max-width: 100%;
+}
+.ticketmailer-action-dropdown > .ticketmailer-action-reply {
     white-space: nowrap;
+}
+.ticketmailer-action-dropdown > .dropdown-toggle-split {
+    margin-inline-start: -1px;
+}
+.ticketmailer-action-menu {
+    min-width: 12rem;
+    padding: .25rem;
+}
+.ticketmailer-action-menu .dropdown-item,
+.ticketmailer-action-menu .dropdown-item-text {
+    min-height: 2.75rem;
+    display: flex;
+    align-items: center;
+    border-radius: var(--tblr-border-radius, .25rem);
+}
+.ticketmailer-action-menu .dropdown-item:focus,
+.ticketmailer-action-menu .dropdown-item:focus-visible,
+.ticketmailer-action-menu .dropdown-item:hover {
+    outline: 2px solid var(--tblr-primary, #206bc4);
+    outline-offset: -2px;
+}
+.ticketmailer-action-menu .ticketmailer-solved-action {
+    color: var(--tblr-secondary, #667382);
+    cursor: help;
+}
+
+/* Keep the native hidden state stronger than the component display rule. */
+.ticketmailer-timeline-action[hidden] {
+    display: none !important;
+}
+
+/* Hide only the plugin action group while its compose panel is open. */
+body.ticketmailer-compose-active .ticketmailer-timeline-action {
+    display: none !important;
 }
 
 /* Keep the plugin group clear of GLPI's fixed save/navigation controls. */
@@ -756,11 +787,29 @@ body.ticketmailer-compose-active .ticketmailer-timeline-action {
         margin: 0;
         padding: 0;
     }
-    .ticketmailer-timeline-action {
-        flex-wrap: wrap;
-    }
 }
 
-.ticketmailer-timeline-action > .btn + .btn {
-    border-inline-start: 1px solid var(--tblr-border-color, #d9dce1);
+@media (max-width: 640px) {
+    .ticketmailer-timeline-action {
+        flex: 1 1 100%;
+        min-width: 0;
+    }
+    .ticketmailer-action-dropdown {
+        display: flex;
+        width: 100%;
+    }
+    .ticketmailer-action-dropdown > .ticketmailer-action-reply {
+        flex: 1 1 auto;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .ticketmailer-action-menu {
+        width: min(100vw - 2rem, 20rem);
+        max-width: calc(100vw - 2rem);
+    }
+    .ticketmailer-action-menu .dropdown-item,
+    .ticketmailer-action-menu .dropdown-item-text {
+        min-height: 3rem;
+    }
 }
