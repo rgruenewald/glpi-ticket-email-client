@@ -12,7 +12,7 @@ async function login(page, user = 'glpi', password = 'glpi') {
   await page.locator('#login_password').fill(password);
   await page.locator('[name=submit]').click();
   // Absence alone can pass on an intermediate redirect/error document.
-  await page.waitForURL(/\/front\/(central|helpdesk\.public)\.php(?:[?#]|$)/);
+  await page.waitForURL(/(?:\/front\/(?:central|helpdesk\.public)\.php|\/Helpdesk\/?)(?:[?#]|$)/);
   await expect(page.locator('#login_name')).toHaveCount(0);
 }
 async function composeMail(page, ticket, subject, recipient = 'recipient@example.test') {
@@ -142,13 +142,15 @@ test('SMTP outage records failure without a followup and recovers for subsequent
   expect(found.messages).toHaveLength(0);
 });
 
-test('self-service account cannot compose on another user ticket', async ({ page }) => {
+test('self-service requester can read their own ticket but cannot open email compose', async ({ page }) => {
   const fixture = JSON.parse(compose('exec', '-T', 'glpi', 'php', '/usr/local/bin/e2e-fixture.php'));
-  await page.goto('/');
-  await page.locator('#login_name').fill('post-only');
-  await page.locator('#login_password').fill('postonly');
-  await page.locator('[name=submit]').click();
-  await expect(page.locator('#login_name')).toHaveCount(0);
+  const requester = Number(sql("SELECT id FROM glpi_users WHERE name='post-only'"));
+  expect(requester).toBeGreaterThan(0);
+  sql('UPDATE glpi_tickets SET users_id_recipient=' + requester + ' WHERE id=' + fixture.ticket);
+  sql('INSERT INTO glpi_tickets_users (tickets_id,users_id,type) VALUES (' + fixture.ticket + ',' + requester + ',1)');
+  await login(page, 'post-only', 'postonly');
+  expect((await page.goto('/front/ticket.form.php?id=' + fixture.ticket)).status()).toBe(200);
+  await expect(page.locator('body')).toContainText('Ticketmailer E2E');
   const response = await page.goto('/plugins/ticketmailer/front/compose.php?tickets_id=' + fixture.ticket);
   expect(response.status()).toBe(403);
   await expect(page.locator('form.ticketmailer-compose')).toHaveCount(0);
@@ -302,6 +304,8 @@ test('entity boundaries, recursive grants and profile reply policy protect direc
   }
   const foreign = await page.goto('/plugins/ticketmailer/front/compose.php?tickets_id=' + f.foreignTicket);
   expect(foreign.status()).toBe(403);
+  const foreignLog = await page.request.get('/plugins/ticketmailer/front/log.php?tickets_id=' + f.foreignTicket);
+  expect(foreignLog.status()).toBe(403);
   const foreignDocument = await page.request.get('/plugins/ticketmailer/front/history_attachment.php?tickets_id=' + f.foreignTicket + '&documents_id=' + f.foreignDocument);
   expect(foreignDocument.status()).toBe(403);
   for (const endpoint of ['front/send.php', 'ajax/upload.php', 'ajax/upload_image.php', 'ajax/forward_preview.php', 'ajax/validate_recipients.php', 'ajax/autocomplete_users.php']) {
@@ -332,6 +336,9 @@ test('entity boundaries, recursive grants and profile reply policy protect direc
   const readable = await page.goto('/front/ticket.form.php?id=' + f.ownTicket);
   expect(readable.status()).toBe(200);
   await expect(page.locator('body')).toContainText('Ticketmailer E2E');
+  const readableLog = await page.request.get('/plugins/ticketmailer/front/log.php?tickets_id=' + f.ownTicket);
+  expect(readableLog.status()).toBe(200);
+  expect(await readableLog.text()).toContain(subject);
   const cannotCompose = await page.goto('/plugins/ticketmailer/front/compose.php?tickets_id=' + f.ownTicket);
   expect(cannotCompose.status()).toBe(403);
   const cannotSend = await post(page, '/plugins/ticketmailer/front/send.php', { tickets_id: String(f.ownTicket), recipients_to: 'recipient@example.test' });
@@ -342,4 +349,20 @@ test('entity boundaries, recursive grants and profile reply policy protect direc
   }
   expect(sql('SELECT COUNT(*) FROM glpi_plugin_ticketmailer_logs WHERE tickets_id=' + f.ownTicket)).toBe('1');
   expect(sql('SELECT COUNT(*) FROM glpi_plugin_ticketmailer_logs WHERE tickets_id IN (' + [f.childTicket, f.foreignTicket].join(',') + ')')).toBe('0');
+});
+
+test('native ticket UPDATE is required even with followup permission', async ({ page }) => {
+  const f = fixture('acl');
+  const composeUrl = '/plugins/ticketmailer/front/compose.php?tickets_id=' + f.ownTicket;
+  const profile = ' WHERE profiles_id=' + f.users.writer.profile + " AND name='ticket'";
+  await login(page, f.users.writer.login, 'E2E-local-only-123!');
+  expect((await page.goto(composeUrl)).status()).toBe(200);
+  await expect(page.locator('form.ticketmailer-compose')).toBeVisible();
+
+  sql('UPDATE glpi_profilerights SET rights=rights & ~2' + profile);
+  await page.context().clearCookies();
+  await login(page, f.users.writer.login, 'E2E-local-only-123!');
+  expect((await page.goto('/front/ticket.form.php?id=' + f.ownTicket)).status()).toBe(200);
+  await expect(page.locator('.ticketmailer-action-reply')).toHaveCount(0);
+  expect((await page.goto(composeUrl)).status()).toBe(403);
 });

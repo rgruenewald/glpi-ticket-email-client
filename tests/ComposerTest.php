@@ -71,7 +71,7 @@ require_once __DIR__ . '/../inc/composer.class.php';
 final class ComposerTest extends TestCase
 {
     #[Test]
-    public function normalizes_escaped_editor_html_before_building_mime_parts(): void
+    public function preserves_escaped_editor_text_in_the_html_part(): void
     {
         $payload = PluginTicketmailerComposer::build(
             1,
@@ -80,14 +80,14 @@ final class ComposerTest extends TestCase
             [],
             [],
             'Subject',
-            "&#60;p&#62;test&#60;/p&#62;\\r\\n<p>\u{00C2}\u{00A0}</p>\\r\\n<p>123</p>",
+            "<p>&lt;strong&gt;example&lt;/strong&gt;</p>\\r\\n<p>\u{00C2}\u{00A0}</p>\\r\\n<p>123</p>",
         );
 
         $this->assertSame(
-            "<p>test</p>\n<p>\u{00A0}</p>\n<p>123</p>",
+            "<p>&lt;strong&gt;example&lt;/strong&gt;</p>\n<p>\u{00A0}</p>\n<p>123</p>",
             $payload['body_html'],
         );
-        $this->assertSame("test\n\n\u{00A0}\n\n123", $payload['body_text']);
+        $this->assertSame("<strong>example</strong>\n\n\u{00A0}\n\n123", $payload['body_text']);
     }
 
     #[Test]

@@ -21,6 +21,7 @@ final class RuntimeInheritanceCompatibilityTest extends TestCase
 <?php
 class CommonGLPI { public static %s $rightname = ''; }
 class CommonDBTM extends CommonGLPI {}
+class Session { public static function haveAccessToEntity(int $id): bool { return true; } }
 class Ticket extends CommonGLPI {
     public function getFromDB($id): bool { return $id > 0; }
     public function canViewItem(): bool { return false; }

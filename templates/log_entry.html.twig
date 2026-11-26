@@ -35,7 +35,7 @@
 
     <section class="ticketmailer-body">
         <h3>{{ __('Message', 'ticketmailer') }}</h3>
-        {{ entry.body_html|raw }}
+        {{ entry.body_html|safe_html }}
 
         <details>
             <summary>{{ __('Plain-text alternative', 'ticketmailer') }}</summary>

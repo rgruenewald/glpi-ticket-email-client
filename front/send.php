@@ -70,6 +70,9 @@ $recipients_cc  = $parsed_cc['valid'];
 $recipients_bcc = $parsed_bcc['valid'];
 
 $errors = [];
+if (PluginTicketmailerRecipients::exceedsLimit($recipients_to, $recipients_cc, $recipients_bcc)) {
+    $errors[] = PluginTicketmailerRecipients::limitMessage();
+}
 $expected_status = filter_var($_POST['expected_status'] ?? null, FILTER_VALIDATE_INT);
 if ($proactive_context === null) {
     try {

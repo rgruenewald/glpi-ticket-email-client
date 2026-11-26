@@ -34,6 +34,11 @@ if (!class_exists('Session')) {
         public static bool $canReadCosts = false;
         public static bool $canAccessEntity = true;
 
+        public static function getCurrentInterface(): string
+        {
+            return 'central';
+        }
+
         public static function haveAccessToEntity(int $entity): bool
         {
             return self::$canAccessEntity;
@@ -41,6 +46,9 @@ if (!class_exists('Session')) {
 
         public static function haveRight(string $right, int $access): bool
         {
+            if ($right === 'ticket' && $access === UPDATE) {
+                return true;
+            }
             return $right === 'ticketcost' && $access === READ && self::$canReadCosts;
         }
 

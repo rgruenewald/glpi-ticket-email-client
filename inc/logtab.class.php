@@ -18,7 +18,7 @@ class PluginTicketmailerLogTab extends CommonGLPI
     public static function canView(): bool
     {
         $ticket = self::getCurrentTicket();
-        return $ticket instanceof Ticket && $ticket->canViewItem();
+        return $ticket instanceof Ticket && self::canReadTicket($ticket);
     }
 
     public static function isVisible(string $itemtype, int $items_id): bool
@@ -27,7 +27,12 @@ class PluginTicketmailerLogTab extends CommonGLPI
             return false;
         }
         $ticket = new Ticket();
-        return $ticket->getFromDB($items_id) && $ticket->canViewItem();
+        return $ticket->getFromDB($items_id) && self::canReadTicket($ticket);
+    }
+
+    public static function canReadTicket(Ticket $ticket): bool
+    {
+        return Session::haveAccessToEntity((int) $ticket->getField('entities_id')) && $ticket->canViewItem();
     }
 
     public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0): string|array

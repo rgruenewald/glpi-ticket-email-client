@@ -1,6 +1,7 @@
 <?php
 // Runs in a fresh PHP process so GLPI test doubles cannot leak between suites.
 define('ERROR', 1);
+define('UPDATE', 2);
 function __(string $text, string $domain = ''): string { return $text; }
 class Ticket {
     public static int $status = 1;
@@ -21,6 +22,10 @@ class Session {
     public static array $messages = [];
     public static function getLoginUserID(): int { return 7; }
     public static function addMessageAfterRedirect(string $text, ...$args): void { self::$messages[] = $text; }
+    public static function getCurrentInterface(): string { return $GLOBALS['argv'][1] === 'self-service' ? 'helpdesk' : 'central'; }
+    public static function haveRight(string $name, int $right): bool {
+        return $name === 'ticket' && $right === UPDATE && $GLOBALS['argv'][1] !== 'no-ticket-update';
+    }
 }
 class PluginTicketmailerAudit {
     public static array $calls = [];
@@ -58,10 +63,15 @@ class PluginTicketmailerProactive {
     public static array $phases = [];
     public static function saveState(array $context, array $state): void { self::$phases[] = $state['phase']; }
 }
+require __DIR__ . '/../../inc/config.class.php';
+require __DIR__ . '/../../inc/recipients.class.php';
 require __DIR__ . '/../../inc/sendservice.class.php';
+$bcc = in_array($argv[1], ['recipient-limit', 'too-many-recipients'], true)
+    ? array_map(static fn (int $n): string => "person$n@example.test", range(1, $argv[1] === 'recipient-limit' ? 49 : 50))
+    : [];
 try {
     $result = PluginTicketmailerSendservice::deliver(new Ticket(), [
-        'subject'=>'Example', 'to'=>['customer@example.test'], 'cc'=>[], 'bcc'=>[], 'body_html'=>'<p>Example</p>', 'body_text'=>'Example',
+        'subject'=>'Example', 'to'=>['customer@example.test'], 'cc'=>[], 'bcc'=>$bcc, 'body_html'=>'<p>Example</p>', 'body_text'=>'Example',
     ], [], [], false, [], false, 0, str_contains($argv[1], 'status-') || str_contains($argv[1], 'during-smtp'), false, ['token'=>'synthetic']);
 } catch (RuntimeException | InvalidArgumentException $e) { $result = ['error'=>$e->getMessage()]; }
 echo json_encode(['result'=>$result, 'attempts'=>PluginTicketmailerMailer::$attempts,

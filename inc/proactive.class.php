@@ -6,9 +6,8 @@ class PluginTicketmailerProactive
 
     public static function canUse(int $entity): bool
     {
-        return Session::getCurrentInterface() === 'central'
+        return PluginTicketmailerConfig::canSendOutboundEmail()
             && Session::haveRight('ticket', CREATE)
-            && Session::haveRight('ticket', UPDATE)
             && (Session::haveRight('ticket', Ticket::READMY) || Session::haveRight('ticket', Ticket::READALL))
             && in_array($entity, self::authorizedEntities(), true);
     }

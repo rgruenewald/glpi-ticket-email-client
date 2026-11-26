@@ -7,6 +7,10 @@ if (is_file($autoload)) {
     require_once $autoload;
 }
 
+if (!defined('UPDATE')) {
+    define('UPDATE', 2);
+}
+
 if (!class_exists('CommonGLPI')) {
     class CommonGLPI
     {

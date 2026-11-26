@@ -8,17 +8,19 @@
 require_once __DIR__ . '/../inc/bootstrap.php';
 
 Session::checkLoginUser();
+
+$tickets_id = (int) ($_GET['tickets_id'] ?? 0);
+if ($tickets_id <= 0 || !PluginTicketmailerLogTab::isVisible(Ticket::class, $tickets_id)) {
+    PluginTicketmailerConfig::displayRightError();
+}
+$entries = PluginTicketmailerAudit::listForTicket($tickets_id);
+
 Html::header(
     __('Outbound email log', 'ticketmailer'),
     '',
     'ticket',
     'ticketmailerlog',
 );
-
-$tickets_id = (int) ($_GET['tickets_id'] ?? 0);
-$entries = $tickets_id > 0
-    ? PluginTicketmailerAudit::listForTicket($tickets_id)
-    : [];
 
 $web = PluginTicketmailerConfig::getWebDir();
 echo '<table class="tab_cadre_fixe">';

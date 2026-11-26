@@ -1,11 +1,13 @@
 <?php
 // Fresh process: exercise real status guards and note hooks without shared test doubles.
 define('CREATE', 4);
+define('UPDATE', 2);
 define('ERROR', 1);
 function __(string $text, string $domain = ''): string { return $text; }
 class Session {
     public static array $messages = [];
     public static function haveAccessToEntity(int $id): bool { return true; }
+    public static function haveRight(string $name, int $right): bool { return Ticket::$update && $GLOBALS['argv'][1] !== 'no-profile-update'; }
     public static function addMessageAfterRedirect(string $message, ...$args): void { self::$messages[] = $message; }
 }
 class Ticket {
@@ -66,7 +68,7 @@ if (str_starts_with($scenario, 'note-')) {
 $error = null;
 try {
     PluginTicketmailerTimeline::validateSubmission($ticket, $scenario === 'stale' ? 5 : Ticket::$status,
-        in_array($scenario, ['denied-lifecycle','no-update','solved-transition','both'], true),
+        in_array($scenario, ['denied-lifecycle','no-update','no-profile-update','solved-transition','both'], true),
         in_array($scenario, ['missing-required','template-required','both'], true));
 } catch (InvalidArgumentException $e) { $error = $e->getMessage(); }
 echo json_encode(['error'=>$error, 'waiting'=>PluginTicketmailerTimeline::canChangeStatus($ticket, 4),

@@ -84,6 +84,6 @@ final class ProactiveTest extends TestCase
         fclose($pipes[2]);
         self::assertSame(0, proc_close($process), $errors);
         self::assertSame('', $errors);
-        self::assertSame([false, true, true], json_decode($output, true, 512, JSON_THROW_ON_ERROR));
+        self::assertSame([false, true, true, false, false], json_decode($output, true, 512, JSON_THROW_ON_ERROR));
     }
 }

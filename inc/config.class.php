@@ -16,6 +16,12 @@ class PluginTicketmailerConfig
         return $root . '/plugins/ticketmailer';
     }
 
+    /** A requester’s item-level access alone does not authorize use of the sender address. */
+    public static function canSendOutboundEmail(): bool
+    {
+        return Session::getCurrentInterface() === 'central' && Session::haveRight('ticket', UPDATE);
+    }
+
     public static function displayRightError(): void
     {
         if (class_exists('Glpi\\Exception\\Http\\AccessDeniedHttpException')) {

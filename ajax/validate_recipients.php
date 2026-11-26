@@ -8,13 +8,24 @@ Session::checkLoginUser();
 header('Content-Type: application/json; charset=utf-8');
 
 $tickets_id = (int) ($_POST['tickets_id'] ?? $_GET['tickets_id'] ?? 0);
-if ($tickets_id > 0) {
+$allowed = PluginTicketmailerConfig::canSendOutboundEmail();
+if ($allowed && $tickets_id > 0) {
     $ticket = new Ticket();
-    if (!$ticket->getFromDB($tickets_id) || (!Session::haveAccessToEntity((int) $ticket->getField('entities_id')) || !$ticket->can($tickets_id, READ)) || !Session::haveAccessToEntity((int) $ticket->getField('entities_id')) || !$ticket->can($tickets_id, READ) || !( $ticket->canUpdateItem() || (method_exists($ticket, 'canAddFollowups') && $ticket->canAddFollowups()) )) {
-        http_response_code(403);
-        echo json_encode(['error' => 'forbidden']);
-        exit;
+    $allowed = $ticket->getFromDB($tickets_id) && PluginTicketmailerTimelineAction::canUse($ticket);
+} elseif ($allowed) {
+    // New email has no ticket yet, but still requires an eligible sender entity.
+    $allowed = false;
+    foreach (PluginTicketmailerProactive::authorizedEntities() as $entity) {
+        if (PluginTicketmailerProactive::canUse($entity)) {
+            $allowed = true;
+            break;
+        }
     }
+}
+if (!$allowed) {
+    http_response_code(403);
+    echo json_encode(['error' => 'forbidden']);
+    exit;
 }
 
 $raw = (string) ($_POST['value'] ?? $_GET['value'] ?? '');

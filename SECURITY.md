@@ -23,6 +23,8 @@ For an accepted report that requires confidential collaborative patching, an adm
 
 GLPI Ticket Email Client relies on GLPI authentication, CSRF protection, ticket permissions, configured SMTP transport, and GLPI's document directory. Administrators remain responsible for GLPI patching, TLS and SMTP configuration, database and document-directory backups, access control, and data-retention policy.
 
+Outbound email requires the native GLPI ticket update right on the active central-interface profile, plus the applicable ticket and entity checks. A self-service requester may still reply natively on their own ticket but cannot use the configured outbound sender. Each message is limited to 50 recipient entries across To, CC and BCC; this is not a rate limit.
+
 The plugin intentionally records full BCC recipient lists in ticket-visible audit and timeline records. Treat this as a product behavior, not a confidentiality guarantee for BCC recipients within GLPI.
 
 GitHub CodeQL does not analyze this plugin's PHP source. Current repository CodeQL results cover only GitHub Actions and JavaScript/TypeScript selected by GitHub's default setup; they are not comprehensive PHP application scanning.

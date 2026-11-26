@@ -603,3 +603,8 @@ msgstr ""
 #: inc/timeline.class.php inc/timelineaction.class.php hook.php templates/compose.html.twig
 msgid "The internal note was added, but the ticket status could not be changed. Check the current ticket status."
 msgstr ""
+
+#: inc/recipients.class.php
+#, php-format
+msgid "A message can have at most %d recipients across To, CC, and BCC."
+msgstr ""

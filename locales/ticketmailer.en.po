@@ -604,3 +604,8 @@ msgstr "The email was sent, but the ticket status could not be changed. Check th
 #: inc/timeline.class.php inc/timelineaction.class.php hook.php templates/compose.html.twig
 msgid "The internal note was added, but the ticket status could not be changed. Check the current ticket status."
 msgstr "The internal note was added, but the ticket status could not be changed. Check the current ticket status."
+
+#: inc/recipients.class.php
+#, php-format
+msgid "A message can have at most %d recipients across To, CC, and BCC."
+msgstr "A message can have at most %d recipients across To, CC, and BCC."

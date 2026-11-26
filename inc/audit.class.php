@@ -38,7 +38,7 @@ class PluginTicketmailerAudit
                 'users_id'         => $users_id,
                 'sent_at'          => date('Y-m-d H:i:s'),
                 'subject'          => $subject,
-                'body_html'        => $body_html,
+                'body_html'        => $body_html === null ? null : PluginTicketmailerTimeline::sanitizeHtml($body_html),
                 'body_text'        => $body_text,
                 'recipients_to'    => self::encode($recipients_to),
                 'recipients_cc'    => self::encode($recipients_cc),

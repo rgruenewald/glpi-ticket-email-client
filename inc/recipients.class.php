@@ -8,6 +8,19 @@
  */
 class PluginTicketmailerRecipients
 {
+    public const MAX_PER_MESSAGE = 50;
+
+    /** @param list<string> ...$fields */
+    public static function exceedsLimit(array ...$fields): bool
+    {
+        return array_sum(array_map('count', $fields)) > self::MAX_PER_MESSAGE;
+    }
+
+    public static function limitMessage(): string
+    {
+        return sprintf(__('A message can have at most %d recipients across To, CC, and BCC.', 'ticketmailer'), self::MAX_PER_MESSAGE);
+    }
+
     /**
      * Parse raw recipient input. Returns valid addresses and
      * malformed tokens separately.

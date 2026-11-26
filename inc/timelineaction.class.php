@@ -152,7 +152,7 @@ class PluginTicketmailerTimelineAction
 
     public static function canUse(Ticket $ticket): bool
     {
-        if (!PluginTicketmailerTimeline::canAddFollowup($ticket)) {
+        if (!PluginTicketmailerConfig::canSendOutboundEmail() || !PluginTicketmailerTimeline::canAddFollowup($ticket)) {
             return false;
         }
 

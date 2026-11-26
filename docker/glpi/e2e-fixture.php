@@ -103,8 +103,8 @@ if (in_array($scenario, ['acl', 'status-required'], true)) {
         if (!$profile) {
             throw new RuntimeException('Could not create profile');
         }
-        // Central UI needs basic ticket-read rights; only writer gets followup creation.
-        foreach (['ticket' => Ticket::READALL | READ, 'followup' => $role === 'writer' ? ITILFollowup::ADDALLITEM : 0] as $name => $rights) {
+        // Only the writer can update tickets and add followups.
+        foreach (['ticket' => Ticket::READALL | READ | ($role === 'writer' ? UPDATE : 0), 'followup' => $role === 'writer' ? ITILFollowup::ADDALLITEM : 0] as $name => $rights) {
             $DB->update('glpi_profilerights', ['rights' => $rights], ['profiles_id' => $profile, 'name' => $name]);
         }
         $login = 'e2e-' . $role . '-' . $suffix;

@@ -106,7 +106,7 @@ The form exposes To, CC, BCC, Subject, rich HTML Body, normal attachments, and i
 
 ### A4 — Strict raw recipient parsing
 
-Server-side parsing splits raw To/CC/BCC input on supported delimiters, rejects every malformed non-empty token with a field error, normalizes valid addresses, and preserves the fields in the error form. Invalid tokens must never be silently discarded. At least one valid recipient in To, CC, or BCC is required. Whether BCC-only is allowed is explicit: **v2 allows it**, because a BCC recipient is a valid SMTP envelope recipient.
+Server-side parsing splits raw To/CC/BCC input on supported delimiters, rejects every malformed non-empty token with a field error, normalizes valid addresses, and preserves the fields in the error form. Invalid tokens must never be silently discarded. At least one valid recipient in To, CC, or BCC is required. The server rejects more than 50 recipient entries across the three normalized fields before persisting intent or sending. Whether BCC-only is allowed is explicit: **v2 allows it**, because a BCC recipient is a valid SMTP envelope recipient.
 
 ### A5 — Incoming-mailbox warning and override
 
@@ -120,7 +120,7 @@ The POST must reject missing, false, forged, or stale override evidence. Audit r
 
 ### A6 — Authorization, CSRF, and controlled files
 
-Compose, send, recipient validation, upload, and download require GLPI login. Compose/send/upload require the appropriate ticket update/followup right. Download and all audit/detail access require `Ticket::canViewItem()`. POST and AJAX CSRF checks are enforced. Files use configured GLPI upload limits, generated storage identifiers, ticket-scoped ownership checks, and server-determined MIME; user-provided paths, MIME, or same-name uploads cannot overwrite or expose another attachment.
+Compose, send, recipient validation, upload, and download require GLPI login. Outbound email actions require the native GLPI ticket UPDATE right on the active central-interface profile. Replies also require entity and ticket-read access and native followup creation rights; new outbound tickets retain their separate ticket creation and entity checks. Native GLPI replies remain available under GLPI’s rights. Download and all audit access require entity access and `Ticket::canViewItem()`. POST and AJAX CSRF checks are enforced. Files use configured GLPI upload limits, generated storage identifiers, ticket-scoped ownership checks, and server-determined MIME; user-provided paths, MIME, or same-name uploads cannot overwrite or expose another attachment.
 
 ### A7 — Durable SMTP intent and exactly-once send attempt
 
@@ -144,7 +144,7 @@ Every ticket reader may see the complete BCC list in the followup and audit deta
 
 ### A11 — Audit detail and timeline consistency
 
-Audit detail and its linked followup expose identical sender, recipient, subject, body, attachment, and delivery fields under ticket-read authorization. Neither view renders raw filesystem paths, untrusted HTML, attachment descriptors from another ticket, or SMTP credentials. BCC remains excluded from outgoing visible headers but intentionally remains visible in these ticket views.
+Audit detail and its linked followup expose identical sender, recipient, subject, body, attachment, and delivery fields under ticket-read authorization. Neither view renders raw filesystem paths, untrusted HTML, attachment descriptors from another ticket, or SMTP credentials. Audit HTML is sanitized before storage and again when displayed, including rows created before this rule. BCC remains excluded from outgoing visible headers but intentionally remains visible in these ticket views.
 
 ### A12 — Localization and migration
 
