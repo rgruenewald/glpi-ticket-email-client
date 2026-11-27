@@ -2,7 +2,7 @@
 # ticketmailer plugin auto-installed. Pinned to a
 # specific minor version so updates don't drift.
 
-FROM php:8.5-apache@sha256:08af36df144462d84c7f16190557eec06cb9f656882685610b712a15eec54d46
+FROM php:8.5-apache@sha256:256c25149bca6639f538ece3c5dda90684409227dec546b87ca174950569b8f1
 
 ARG GLPI_VERSION=12.0.2
 ARG GLPI_SHA256=028d9d275cf747600bbbefe072fd0724c1d4e7eee18378e696fea60a73d50359
